@@ -29,7 +29,7 @@ export function Nav() {
           <Image
             alt="Shirtat"
             className="h-14 w-auto md:h-19 dark:invert"
-            height={455}
+            height={461}
             priority
             src="/shirtat-logo.svg"
             unoptimized
