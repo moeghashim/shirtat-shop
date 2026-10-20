@@ -26,6 +26,12 @@ export async function Footer() {
               <p className="text-sm text-muted-foreground leading-5">
                 {`© ${shopConfig.site.name}. All rights reserved.`}
               </p>
+              <Link
+                href="/making-of"
+                className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                The making of Shirtat
+              </Link>
               {policies.map((policy) => (
                 <Link
                   key={policy.handle}

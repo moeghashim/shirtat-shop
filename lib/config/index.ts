@@ -66,9 +66,8 @@ export const shopConfig = {
     },
   },
   site: {
-    description:
-      "A Storefront Built on Vercel Shop. Agent-ready commerce, powered by Shopify, Next, and Eve.",
-    name: "Vercel Shop",
+    description: "Shirtat sells t-shirts and clothing featuring Arabic calligraphy.",
+    name: "Shirtat",
     url: defaultUrl,
   },
 } satisfies ShopConfig;
