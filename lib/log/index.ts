@@ -16,6 +16,7 @@ export const logDays: LogDay[] = [
       "Connected Vercel.",
       "First live deploy.",
       "Connected live sales figures to the sales page.",
+      "Added the Shirtat calligraphy logo.",
     ],
   },
 ];

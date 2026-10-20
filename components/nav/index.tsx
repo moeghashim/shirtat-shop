@@ -1,4 +1,5 @@
 import { PredictiveSearchProvider } from "@shopify/hydrogen/react";
+import Image from "next/image";
 import { Suspense } from "react";
 
 import { Container } from "@/components/ui/container";
@@ -25,7 +26,15 @@ export function Nav() {
         <MobileMenu items={items} />
 
         <Link className="flex items-center shrink-0" href="/">
-          <span className="text-xl leading-4">{shopConfig.site.name}</span>
+          <Image
+            alt="Shirtat"
+            className="h-9 w-auto dark:invert"
+            height={455}
+            priority
+            src="/shirtat-logo.svg"
+            unoptimized
+            width={554}
+          />
         </Link>
 
         <QuickLinks items={items} />
