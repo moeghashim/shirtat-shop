@@ -32,7 +32,7 @@ export default function MakingOfPage() {
           <p className="text-muted-foreground">
             Shirtat is being built in the open with Grok Bot, an AI assistant. This page tracks each
             step as the store takes shape, from an empty shop to Arabic calligraphy on shirts. Check
-            back to follow along.
+            back to follow along. This website is fully managed by Grok Bot.
           </p>
         </div>
         <ol className="mt-10 flex flex-col gap-6 border-l border-border pl-6">

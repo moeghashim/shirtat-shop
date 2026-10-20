@@ -32,6 +32,27 @@ export async function Footer() {
               >
                 The making of Shirtat
               </Link>
+              <Link
+                href="/roadmap"
+                className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Roadmap
+              </Link>
+              <Link
+                href="/log"
+                className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Daily log
+              </Link>
+              <Link
+                href="/sales"
+                className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Sales
+              </Link>
+              <p className="text-sm text-muted-foreground leading-5">
+                This website is fully managed by Grok Bot.
+              </p>
               {policies.map((policy) => (
                 <Link
                   key={policy.handle}
