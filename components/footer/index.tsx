@@ -1,4 +1,5 @@
 import { cn } from "cn";
+import Image from "next/image";
 
 import { MenuLink } from "@/components/nav/menu-link";
 import { Container } from "@/components/ui/container";
@@ -50,9 +51,26 @@ export async function Footer() {
               >
                 Sales
               </Link>
-              <p className="text-sm text-muted-foreground leading-5">
+              <p className="flex items-center gap-1.5 text-sm text-muted-foreground leading-5">
+                <Image alt="Grok" height={18} src="/grok-icon.svg" unoptimized width={18} />
                 This website is fully managed by Grok Bot.
               </p>
+              <a
+                className="flex items-center gap-1.5 text-sm text-muted-foreground leading-5 transition-colors hover:text-foreground"
+                href="https://10claws.com/"
+                rel="noopener"
+                target="_blank"
+              >
+                <Image
+                  alt="10claws"
+                  className="dark:invert"
+                  height={22}
+                  src="/10claws-logo.svg"
+                  unoptimized
+                  width={22}
+                />
+                This project is part of 10claws
+              </a>
               {policies.map((policy) => (
                 <Link
                   key={policy.handle}
