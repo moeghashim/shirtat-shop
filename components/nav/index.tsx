@@ -29,12 +29,18 @@ export function Nav() {
           <Image
             alt="Shirtat"
             className="h-11 w-auto md:h-15 dark:invert"
-            height={455}
+            height={366}
             priority
-            src="/shirtat-logo.svg"
+            src="/shirtat-logo-mark.svg"
             unoptimized
             width={554}
           />
+          <span
+            aria-hidden
+            className="ml-2.5 text-base font-medium tracking-[0.25em] text-foreground md:text-lg"
+          >
+            SHIRTAT
+          </span>
         </Link>
 
         <QuickLinks items={items} />
