@@ -28,7 +28,7 @@ export async function SalesFigures() {
   );
   return (
     <div className="flex flex-col gap-6">
-      {row("All time", figures.allTime)}
+      {row("Last 60 days", figures.last60Days)}
       {row("Last 30 days", figures.last30Days)}
     </div>
   );

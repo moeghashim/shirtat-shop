@@ -17,7 +17,8 @@ export default function SalesPage() {
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl md:text-5xl font-semibold">Sales in the open</h1>
           <p className="text-muted-foreground">
-            Totals only, updated about once an hour. No customer details are ever shown.
+            Totals only, updated about once an hour. Figures cover the last 60 days, the furthest
+            back Shopify lets this site read. No customer details are ever shown.
           </p>
         </div>
         <div className="mt-10">

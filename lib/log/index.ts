@@ -15,6 +15,7 @@ export const logDays: LogDay[] = [
       "Created the Shopify Storefront token (Headless).",
       "Connected Vercel.",
       "First live deploy.",
+      "Connected live sales figures to the sales page.",
     ],
   },
 ];

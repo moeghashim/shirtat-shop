@@ -8,7 +8,7 @@ export interface SalesTotals {
 
 export interface SalesFigures {
   currency: string;
-  allTime: SalesTotals;
+  last60Days: SalesTotals;
   last30Days: SalesTotals;
 }
 
@@ -39,18 +39,45 @@ interface OrdersResponse {
   errors?: unknown;
 }
 
+let cachedToken: { value: string; expiresAt: number } | null = null;
+
+/** Gets a short-lived Admin API token with the client-credentials grant, cached in memory. */
+async function getAdminToken(domain: string): Promise<string | null> {
+  if (cachedToken && Date.now() < cachedToken.expiresAt) return cachedToken.value;
+  const clientId = process.env.SHOPIFY_ADMIN_CLIENT_ID;
+  const clientSecret = process.env.SHOPIFY_ADMIN_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+  const res = await fetch(`https://${domain}/admin/oauth/access_token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  const json = (await res.json()) as { access_token?: string; expires_in?: number };
+  if (!json.access_token) return null;
+  const ttlMs = Math.max((json.expires_in ?? 3600) - 300, 60) * 1000;
+  cachedToken = { value: json.access_token, expiresAt: Date.now() + ttlMs };
+  return json.access_token;
+}
+
 /** Returns only aggregate figures, or null when unavailable. Never returns customer data. */
 export async function getSalesFigures(): Promise<SalesFigures | null> {
   "use cache";
   cacheLife("hours");
 
-  const token = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
   const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-  if (!token || !domain) return null;
+  if (!domain) return null;
 
   try {
+    const token = await getAdminToken(domain);
+    if (!token) return null;
     const empty = (): SalesTotals => ({ orders: 0, revenue: 0, units: 0 });
-    const allTime = empty();
+    const last60Days = empty();
     const last30Days = empty();
     const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
     let currency = "GBP";
@@ -70,8 +97,8 @@ export async function getSalesFigures(): Promise<SalesFigures | null> {
         const revenue = Number(order.totalPriceSet.shopMoney.amount) || 0;
         const units = order.lineItems.nodes.reduce((sum, item) => sum + item.quantity, 0);
         for (const bucket of new Date(order.createdAt).getTime() >= cutoff
-          ? [allTime, last30Days]
-          : [allTime]) {
+          ? [last60Days, last30Days]
+          : [last60Days]) {
           bucket.orders += 1;
           bucket.revenue += revenue;
           bucket.units += units;
@@ -81,7 +108,7 @@ export async function getSalesFigures(): Promise<SalesFigures | null> {
       cursor = json.data.orders.pageInfo.endCursor;
     }
 
-    return { currency, allTime, last30Days };
+    return { currency, last60Days, last30Days };
   } catch {
     return null;
   }
