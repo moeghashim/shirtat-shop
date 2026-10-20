@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { Inspiration } from "@/components/home/inspiration";
 import { ProductsGrid } from "@/components/product/products-grid";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
@@ -41,6 +42,8 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        <Inspiration />
 
         <Container>
           <ProductsGrid

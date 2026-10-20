@@ -22,13 +22,13 @@ export function Nav() {
       className="sticky top-0 z-30 w-full bg-background pt-[env(safe-area-inset-top,0px)] transition-shadow duration-250"
       id="nav-outer"
     >
-      <Container className="flex h-16 items-center gap-2.5 md:gap-5">
+      <Container className="flex h-16 items-center gap-2.5 md:h-20 md:gap-5">
         <MobileMenu items={items} />
 
         <Link className="flex items-center shrink-0" href="/">
           <Image
             alt="Shirtat"
-            className="h-9 w-auto dark:invert"
+            className="h-11 w-auto md:h-15 dark:invert"
             height={455}
             priority
             src="/shirtat-logo.svg"

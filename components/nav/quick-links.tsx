@@ -22,7 +22,7 @@ const TRIGGER_CLASS = "flex items-center gap-1 text-sm hover:opacity-70 transiti
 function NavItem({ item }: { item: MenuItem }) {
   if (item.items.length === 0) {
     return (
-      <li className="flex items-center h-16">
+      <li className="flex items-center h-16 md:h-20">
         <MenuLink url={item.url} className={TRIGGER_CLASS}>
           {item.title}
         </MenuLink>
@@ -33,7 +33,7 @@ function NavItem({ item }: { item: MenuItem }) {
   const columns = item.items.slice(0, MAX_COLUMNS);
 
   return (
-    <li className="group flex items-center h-16">
+    <li className="group flex items-center h-16 md:h-20">
       <MenuLink url={item.url} className={TRIGGER_CLASS}>
         {item.title}
         <ChevronDown className="size-3" aria-hidden="true" />

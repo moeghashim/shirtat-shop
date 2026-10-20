@@ -17,6 +17,7 @@ export const logDays: LogDay[] = [
       "First live deploy.",
       "Connected live sales figures to the sales page.",
       "Added the Shirtat calligraphy logo.",
+      "Enlarged the logo and added an inspiration section to the homepage.",
     ],
   },
 ];
