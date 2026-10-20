@@ -22,25 +22,19 @@ export function Nav() {
       className="sticky top-0 z-30 w-full bg-background pt-[env(safe-area-inset-top,0px)] transition-shadow duration-250"
       id="nav-outer"
     >
-      <Container className="flex h-16 items-center gap-2.5 md:h-20 md:gap-5">
+      <Container className="flex h-18 items-center gap-2.5 md:h-24 md:gap-5">
         <MobileMenu items={items} />
 
         <Link className="flex items-center shrink-0" href="/">
           <Image
             alt="Shirtat"
-            className="h-11 w-auto md:h-15 dark:invert"
-            height={366}
+            className="h-14 w-auto md:h-19 dark:invert"
+            height={455}
             priority
-            src="/shirtat-logo-mark.svg"
+            src="/shirtat-logo.svg"
             unoptimized
             width={554}
           />
-          <span
-            aria-hidden
-            className="ml-2.5 text-base font-medium tracking-[0.25em] text-foreground md:text-lg"
-          >
-            SHIRTAT
-          </span>
         </Link>
 
         <QuickLinks items={items} />
