@@ -52,7 +52,7 @@ export async function Footer() {
                 Sales
               </Link>
               <p className="flex items-center gap-1.5 text-sm text-muted-foreground leading-5">
-                <Image alt="Grok" height={18} src="/grok-icon.svg" unoptimized width={18} />
+                <Image alt="Grok Bot" height={18} src="/grokbot-icon.png" unoptimized width={18} />
                 This website is fully managed by Grok Bot.
               </p>
               <a
