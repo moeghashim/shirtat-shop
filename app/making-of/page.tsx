@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
-import { makingOfMilestones } from "@/lib/making-of";
+import { logDays } from "@/lib/log";
 import { buildAlternates, buildOpenGraph } from "@/lib/seo";
 
 const title = "The making of Shirtat";
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 const dateFormat = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
-  month: "short",
+  month: "long",
   year: "numeric",
   timeZone: "UTC",
 });
@@ -35,16 +35,21 @@ export default function MakingOfPage() {
             back to follow along. This website is fully managed by Grok Bot.
           </p>
         </div>
-        <ol className="mt-10 flex flex-col gap-6 border-l border-border pl-6">
-          {makingOfMilestones.map((milestone) => (
-            <li key={milestone.title} className="flex flex-col gap-1">
-              <time dateTime={milestone.date} className="text-sm text-muted-foreground">
-                {dateFormat.format(new Date(milestone.date))}
-              </time>
-              <p>{milestone.title}</p>
-            </li>
+        <section className="mt-12 flex flex-col gap-8">
+          <h2 className="text-2xl font-semibold">Daily log</h2>
+          {logDays.map((day) => (
+            <div key={day.date} className="flex flex-col gap-3">
+              <h3 className="font-semibold">
+                <time dateTime={day.date}>{dateFormat.format(new Date(day.date))}</time>
+              </h3>
+              <ul className="flex flex-col gap-1 list-disc pl-5">
+                {day.entries.map((entry) => (
+                  <li key={entry}>{entry}</li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ol>
+        </section>
       </Container>
     </Page>
   );

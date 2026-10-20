@@ -7,6 +7,9 @@ import { withShopConfig } from "./lib/config/server";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  async redirects() {
+    return [{ source: "/log", destination: "/making-of", permanent: true }];
+  },
   images: {
     deviceSizes: [1320, 1920],
     imageSizes: [],

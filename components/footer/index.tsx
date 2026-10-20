@@ -40,12 +40,6 @@ export async function Footer() {
                 Roadmap
               </Link>
               <Link
-                href="/log"
-                className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Daily log
-              </Link>
-              <Link
                 href="/sales"
                 className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
