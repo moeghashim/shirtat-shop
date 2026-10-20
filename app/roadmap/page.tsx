@@ -10,6 +10,8 @@ const description = "Where the Shirtat build is: what's done, what's in progress
 
 export const metadata: Metadata = { title, description };
 
+const columns: RoadmapStatus[] = ["done", "in-progress", "next"];
+
 const labels: Record<RoadmapStatus, string> = {
   done: "Done",
   "in-progress": "In progress",
@@ -19,25 +21,38 @@ const labels: Record<RoadmapStatus, string> = {
 export default function RoadmapPage() {
   return (
     <Page>
-      <Container className="max-w-2xl">
+      <Container className="max-w-5xl">
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl md:text-5xl font-semibold">Roadmap</h1>
           <p className="text-muted-foreground">
             How far along the Shirtat build is, phase by phase.
           </p>
         </div>
-        <ol className="mt-10 flex flex-col gap-6">
-          {roadmapPhases.map((phase) => (
-            <li
-              key={phase.title}
-              className="flex flex-col gap-1 rounded-lg border border-border p-5"
-            >
-              <span className="text-sm text-muted-foreground">{labels[phase.status]}</span>
-              <h2 className="font-semibold">{phase.title}</h2>
-              <p className="text-muted-foreground">{phase.summary}</p>
-            </li>
+        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+          {columns.map((status) => (
+            <section key={status} className="flex flex-col gap-4 rounded-lg bg-muted/50 p-4">
+              <h2 className="font-semibold">
+                {labels[status]}{" "}
+                <span className="text-muted-foreground">
+                  ({roadmapPhases.filter((phase) => phase.status === status).length})
+                </span>
+              </h2>
+              <ul className="flex flex-col gap-3">
+                {roadmapPhases
+                  .filter((phase) => phase.status === status)
+                  .map((phase) => (
+                    <li
+                      key={phase.title}
+                      className="flex flex-col gap-1 rounded-lg border border-border bg-background p-4"
+                    >
+                      <h3 className="font-semibold">{phase.title}</h3>
+                      <p className="text-sm text-muted-foreground">{phase.summary}</p>
+                    </li>
+                  ))}
+              </ul>
+            </section>
           ))}
-        </ol>
+        </div>
       </Container>
     </Page>
   );

@@ -20,7 +20,8 @@ export const roadmapPhases: RoadmapPhase[] = [
   {
     title: "Branding",
     status: "in-progress",
-    summary: "Homepage message, story pages, and the look and feel of the brand.",
+    summary:
+      "Calligraphy logo added; next comes the colours, fonts, and overall look of the brand.",
   },
   {
     title: "Products",
