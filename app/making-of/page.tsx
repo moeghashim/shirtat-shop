@@ -30,9 +30,9 @@ export default function MakingOfPage() {
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl md:text-5xl font-semibold">{title}</h1>
           <p className="text-muted-foreground">
-            Shirtat is being built in the open with Grok Bot, an AI assistant. This page tracks each
-            step as the store takes shape, from an empty shop to Arabic calligraphy on shirts. Check
-            back to follow along. This website is fully managed by Grok Bot.
+            Shirtat is being built in the open with Grok Bot, an AI assistant, and is now live at
+            shirtat.co. The daily log below records each step, from an empty shop to Arabic
+            calligraphy on shirts. This website is fully managed by Grok Bot.
           </p>
         </div>
         <section className="mt-12 flex flex-col gap-8">

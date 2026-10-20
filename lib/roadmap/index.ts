@@ -35,7 +35,7 @@ export const roadmapPhases: RoadmapPhase[] = [
   },
   {
     title: "Custom domain",
-    status: "next",
-    summary: "Pointing shirtat.co at the live store.",
+    status: "done",
+    summary: "shirtat.co now points at the live store.",
   },
 ];
