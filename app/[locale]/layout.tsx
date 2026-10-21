@@ -1,6 +1,6 @@
 import { BotIdClient } from "botid/client";
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic } from "next/font/google";
+import { Geist, Geist_Mono, El_Messiri } from "next/font/google";
 
 import "../globals.css";
 import { Suspense } from "react";
@@ -33,9 +33,9 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const plexArabic = IBM_Plex_Sans_Arabic({
-  variable: "--font-plex-arabic",
-  subsets: ["arabic"],
+const messiri = El_Messiri({
+  variable: "--font-messiri",
+  subsets: ["arabic", "latin"],
   weight: ["400", "500", "600", "700"],
 });
 
@@ -58,7 +58,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
         <CartStandardActionsScript />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${plexArabic.variable} ${locale === "ar" ? "font-arabic" : "font-sans"} flex min-h-dvh flex-col antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${messiri.variable} ${locale === "ar" ? "font-arabic" : "font-sans"} flex min-h-dvh flex-col antialiased`}
       >
         <a
           href="#main-content"

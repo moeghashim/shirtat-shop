@@ -8,7 +8,7 @@
   --color-foreground: var(--foreground);
   --color-shop: #5A31F4;
   --font-sans: var(--font-geist-sans);
-  --font-arabic: var(--font-plex-arabic), var(--font-geist-sans), sans-serif;
+  --font-arabic: var(--font-messiri), var(--font-geist-sans), sans-serif;
   --font-mono: var(--font-geist-mono);
   --text-xxs: 0.625rem;
   /* Headings track tighter as they grow (Geist behavior); attaches to every text-* utility. */
@@ -165,4 +165,10 @@
     background-image: none;
     -webkit-text-fill-color: currentColor;
   }
+}
+
+/* Arabic pages use El Messiri (explicit rule so it never depends on utility generation). */
+html[lang="ar"] body,
+.font-arabic {
+  font-family: var(--font-messiri), var(--font-geist-sans), sans-serif;
 }

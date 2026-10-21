@@ -12,6 +12,7 @@ export const logDays: LogDay[] = [
       "Added a new favicon set: a bold white S from the SHIRTAT wordmark on a black tile for browser tabs, with the full SHIRTAT wordmark on larger app icons.",
       "Made the SHIRTAT wordmark in the logo slightly bolder.",
       "Launched an Arabic version of the storefront at /ar, with right-to-left layout, an Arabic font and an EN / العربية switcher. The roadmap, sales and daily log stay in English.",
+      "Switched the Arabic pages to the El Messiri font and fixed it so the font always loads.",
     ],
   },
   {
