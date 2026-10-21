@@ -30,7 +30,9 @@ export async function SalesFigures() {
     <div className="flex flex-col gap-6">
       {row("Last 60 days", figures.last60Days)}
       {row("Last 30 days", figures.last30Days)}
-      <p className="text-sm text-muted-foreground">Revenue in US dollars, converted at each order date's exchange rate.</p>
+      <p className="text-sm text-muted-foreground">
+        Revenue in US dollars, converted at each order date's exchange rate.
+      </p>
     </div>
   );
 }

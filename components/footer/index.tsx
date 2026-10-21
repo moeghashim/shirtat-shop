@@ -27,6 +27,24 @@ export async function Footer() {
       <Container className={cn("pt-20 pb-10", shopConfig.agent.isEnabled && "pb-22")}>
         <Sections className="gap-10">
           {items.length > 0 && <FooterMenu items={items} />}
+          <nav
+            aria-label={t("Policies")}
+            className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground sm:justify-start"
+          >
+            {[
+              ["/about", "About"],
+              ["/contact", "Contact"],
+              ["/shipping", "Shipping"],
+              ["/refunds", "Refunds & returns"],
+              ["/terms", "Terms & conditions"],
+              ["/privacy", "Privacy"],
+              ["/creators/terms", "Creator terms"],
+            ].map(([href, label]) => (
+              <Link key={href} href={href!} className="transition-colors hover:text-foreground">
+                {t(label!)}
+              </Link>
+            ))}
+          </nav>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 sm:justify-start">
               <p className="text-sm text-muted-foreground leading-5">

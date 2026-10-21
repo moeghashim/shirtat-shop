@@ -56,6 +56,14 @@ Creators submit Arabic calligraphy designs and earn a share of sales: **15%** of
 - **Passwords:** `/creators/forgot` queues a bilingual reset email (single-use link, 1 hour) in the same email queue, without revealing whether the account exists; `/creators/reset` sets the new password. Signed-in users can change their password on the dashboard. Admin resets go to moe@10claws.com, and the new admin hash is stored in Blob (`admin/password.json`), overriding `ADMIN_PASSWORD_HASH`.
 - **Limitations:** sales come from the last 60 days of orders only (Shopify `read_orders` without `read_all_orders`), so quarterly tier progress counts orders within that window. Refunds (Shopify refund line items) are deducted from net sales and earnings. There are no new-application notifications; the admin page shows the pending count.
 
+## Info and legal pages
+
+`/about`, `/contact`, `/shipping`, `/refunds`, `/terms`, `/privacy` and `/creators/terms` (EN at `/…`, AR at `/ar/…`), with content in `lib/legal/content.ts` (10claws Inc, Houston, Texas law, last updated 21 Oct 2026). The text is a print-on-demand template and should be reviewed by a lawyer.
+
+## Currency
+
+The Shopify store currency stays GBP. The site shows USD everywhere: storefront prices convert at the latest daily ECB rate (`lib/money/fx.ts`), `/sales` and creator figures convert at each order date's rate. Checkout charges GBP until a USD market can be enabled in Shopify (needs Shopify Payments or a gateway that supports multiple currencies).
+
 ## Project structure
 
 ```

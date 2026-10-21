@@ -135,6 +135,11 @@ export default async function CreatorsPage() {
               <li key={term}>{term}</li>
             ))}
           </ul>
+          <p className="text-sm">
+            <Link className="underline" href="/creators/terms">
+              {t("Read the full creator terms")}
+            </Link>
+          </p>
           <p className="text-sm text-muted-foreground">
             {t(
               "Example: a shirt sells for $30 with a $5 discount. The net item price is $25, so you earn $3.75 at 15% or $5.00 at 20%.",

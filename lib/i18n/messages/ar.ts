@@ -112,5 +112,15 @@ export const ar = {
   "You May Also Like": "قد يعجبك أيضًا",
   "Your cart is empty": "سلتك فارغة",
   "© {name}. All rights reserved.": "© شيرتات. جميع الحقوق محفوظة.",
-  "Prices are shown in US dollars. For now, checkout charges the equivalent amount in British pounds.": "تُعرض الأسعار بالدولار الأمريكي، ويُحتسب الدفع حاليًا بما يعادلها بالجنيه الإسترليني.",
+  "Prices are shown in US dollars. For now, checkout charges the equivalent amount in British pounds.":
+    "تُعرض الأسعار بالدولار الأمريكي، ويُحتسب الدفع حاليًا بما يعادلها بالجنيه الإسترليني.",
+  Policies: "السياسات",
+  About: "عن شيرتات",
+  Contact: "تواصل معنا",
+  Shipping: "الشحن",
+  "Refunds & returns": "الاسترداد والإرجاع",
+  "Terms & conditions": "الشروط والأحكام",
+  Privacy: "الخصوصية",
+  "Creator terms": "شروط المبدعين",
+  "Read the full creator terms": "اقرأ شروط المبدعين كاملة",
 } as const;

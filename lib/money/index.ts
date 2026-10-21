@@ -8,7 +8,10 @@ import { DISPLAY_CURRENCY, toUsdAmount } from "./fx";
 /** Converts store-currency (GBP) money to the USD display currency. */
 export function toDisplayMoney(money: Money): Money {
   if (money.currencyCode !== "GBP") return money;
-  return { amount: toUsdAmount(money.amount, "GBP").toFixed(2), currencyCode: DISPLAY_CURRENCY } as Money;
+  return {
+    amount: toUsdAmount(money.amount, "GBP").toFixed(2),
+    currencyCode: DISPLAY_CURRENCY,
+  } as Money;
 }
 
 export function formatCurrencySymbol(

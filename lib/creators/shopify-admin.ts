@@ -1,7 +1,6 @@
-import { getAdminToken } from "@/lib/sales/server";
-
 import { getGbpUsdRate } from "@/lib/money/fx";
 import { getCachedGbpUsdRate } from "@/lib/money/fx-server";
+import { getAdminToken } from "@/lib/sales/server";
 
 import { getProductType } from "./product-types";
 import { signedAssetUrl } from "./tokens";
