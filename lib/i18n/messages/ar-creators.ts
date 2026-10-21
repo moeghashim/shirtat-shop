@@ -134,4 +134,7 @@ export const arCreators = {
   "Only approved creators can submit designs.": "يمكن للمبدعين المقبولين فقط إرسال التصاميم.",
   "Add a file or a link.": "أضف ملفًا أو رابطًا.",
   "Design submitted. We will review it soon.": "تم إرسال التصميم، وسنراجعه قريبًا.",
+  "All figures are in US dollars.": "جميع المبالغ بالدولار الأمريكي.",
+  "All figures are in US dollars. Orders paid in another currency are converted at the exchange rate on the order date (ECB reference rates).":
+    "جميع المبالغ بالدولار الأمريكي. تُحوَّل الطلبات المدفوعة بعملة أخرى وفق سعر الصرف في تاريخ الطلب (الأسعار المرجعية للبنك المركزي الأوروبي).",
 } as const;

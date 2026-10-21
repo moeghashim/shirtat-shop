@@ -12,7 +12,9 @@ export interface ProductEarnings {
 }
 
 export interface CreatorEarnings {
-  currency: string;
+  /** True when some figures were converted from the shop currency at the order-date rate. */
+  converted: boolean;
+  currency: "USD";
   earnings: number;
   netSales: number;
   payable: number;
@@ -26,6 +28,33 @@ export interface CreatorEarnings {
 }
 
 const API_VERSION = "2025-01";
+
+interface Money {
+  amount: string;
+  currencyCode?: string;
+}
+
+/** Daily FX rates to USD from frankfurter (ECB reference rates), cached for a day. */
+async function getUsdRates(from: string, start: string, end: string): Promise<Map<string, number>> {
+  const res = await fetch(
+    `https://api.frankfurter.dev/v1/${start}..${end}?from=${encodeURIComponent(from)}&to=USD`,
+    { next: { revalidate: 86400 } },
+  );
+  if (!res.ok) throw new Error("FX unavailable");
+  const json = (await res.json()) as { rates: Record<string, { USD: number }> };
+  return new Map(Object.entries(json.rates).map(([date, r]) => [date, r.USD]));
+}
+
+/** Rate for the order date, or the latest earlier business day. */
+function rateOn(rates: Map<string, number>, date: string): number | undefined {
+  const dates = [...rates.keys()].sort();
+  let found: number | undefined;
+  for (const d of dates) {
+    if (d <= date) found = rates.get(d);
+    else break;
+  }
+  return found ?? rates.get(dates[0] ?? "");
+}
 
 /** Products tagged `creator:<handle>` in Shopify (read through the Storefront API). */
 export async function getCreatorProducts(
@@ -79,8 +108,8 @@ const ORDERS_QUERY = `query CreatorOrders($cursor: String) {
           quantity
           title
           product { id }
-          originalTotalSet { shopMoney { amount } }
-          discountAllocations { allocatedAmountSet { shopMoney { amount } } }
+          originalTotalSet { shopMoney { amount currencyCode } presentmentMoney { amount currencyCode } }
+          discountAllocations { allocatedAmountSet { shopMoney { amount } presentmentMoney { amount } } }
         }
       }
     }
@@ -94,8 +123,8 @@ interface OrdersJson {
         createdAt: string;
         lineItems: {
           nodes: {
-            discountAllocations: { allocatedAmountSet: { shopMoney: { amount: string } } }[];
-            originalTotalSet: { shopMoney: { amount: string } };
+            discountAllocations: { allocatedAmountSet: { presentmentMoney: Money; shopMoney: Money } }[];
+            originalTotalSet: { presentmentMoney: Money; shopMoney: Money };
             product: { id: string } | null;
             quantity: number;
             title: string;
@@ -129,7 +158,20 @@ export async function getCreatorEarnings(creator: CreatorRecord): Promise<Creato
   const holdCutoff = now.getTime() - CREATOR_TERMS.holdDays * 86400000;
   const qStart = quarterStart(now);
   const perProduct = new Map<string, ProductEarnings>();
-  let currency = "USD";
+  let converted = false;
+  let fx: Map<string, number> | null = null;
+  const toUsd = async (presentment: number, presentmentCcy: string | undefined, shop: number, shopCcy: string, date: string) => {
+    if (presentmentCcy === "USD") return presentment;
+    if (shopCcy === "USD") return shop;
+    if (!fx) {
+      const start = new Date(now.getTime() - (CREATOR_TERMS.ordersWindowDays + 7) * 86400000).toISOString().slice(0, 10);
+      fx = await getUsdRates(shopCcy, start, now.toISOString().slice(0, 10));
+    }
+    const rate = rateOn(fx, date);
+    if (!rate) throw new Error("FX rate missing");
+    converted = true;
+    return shop * rate;
+  };
   let units = 0;
   let netSales = 0;
   let quarterUnits = 0;
@@ -146,17 +188,23 @@ export async function getCreatorEarnings(creator: CreatorRecord): Promise<Creato
     if (!res.ok) return null;
     const json = (await res.json()) as OrdersJson;
     if (!json.data) return null;
-    currency = json.data.shop.currencyCode;
+    const shopCcy = json.data.shop.currencyCode;
     for (const order of json.data.orders.nodes) {
       const created = new Date(order.createdAt).getTime();
       for (const line of order.lineItems.nodes) {
         const product = line.product ? byId.get(line.product.id) : undefined;
         if (!product) continue;
-        const discounts = line.discountAllocations.reduce(
-          (sum, d) => sum + (Number(d.allocatedAmountSet.shopMoney.amount) || 0),
-          0,
+        const sumAlloc = (key: "presentmentMoney" | "shopMoney") =>
+          line.discountAllocations.reduce((sum, d) => sum + (Number(d.allocatedAmountSet[key].amount) || 0), 0);
+        const netPresentment = Math.max(0, (Number(line.originalTotalSet.presentmentMoney.amount) || 0) - sumAlloc("presentmentMoney"));
+        const netShop = Math.max(0, (Number(line.originalTotalSet.shopMoney.amount) || 0) - sumAlloc("shopMoney"));
+        const net = await toUsd(
+          netPresentment,
+          line.originalTotalSet.presentmentMoney.currencyCode,
+          netShop,
+          line.originalTotalSet.shopMoney.currencyCode ?? shopCcy,
+          order.createdAt.slice(0, 10),
         );
-        const net = Math.max(0, (Number(line.originalTotalSet.shopMoney.amount) || 0) - discounts);
         units += line.quantity;
         netSales += net;
         if (created < holdCutoff) matureNet += net;
@@ -194,7 +242,8 @@ export async function getCreatorEarnings(creator: CreatorRecord): Promise<Creato
     }
   }
   return {
-    currency,
+    converted,
+    currency: "USD",
     earnings,
     netSales,
     payable,

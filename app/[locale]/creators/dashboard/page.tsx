@@ -143,6 +143,11 @@ async function DashboardContent() {
             )}
           </div>
           <p className="text-sm text-muted-foreground">
+            {data.converted
+              ? t("All figures are in US dollars. Orders paid in another currency are converted at the exchange rate on the order date (ECB reference rates).")
+              : t("All figures are in US dollars.")}
+          </p>
+          <p className="text-sm text-muted-foreground">
             {t("Figures cover the last {days} days of orders, the furthest back Shopify lets this site read, and update when you reload. Final payouts are confirmed by Shirtat.", { days: data.windowDays })}
           </p>
         </>
