@@ -6,8 +6,8 @@ import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
 import { shopConfig } from "@/lib/config";
-import { buildAlternates, buildOpenGraph } from "@/lib/seo";
 import { getLocale, getT } from "@/lib/i18n/server";
+import { buildAlternates, buildOpenGraph } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();

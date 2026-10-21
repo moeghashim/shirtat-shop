@@ -1,5 +1,7 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
+
 import { redirect } from "next/navigation";
 
 import { isLocale, localizePath, type Locale } from "@/lib/i18n";
@@ -11,13 +13,18 @@ import {
   getSession,
   hashPassword,
   isAdminEmail,
+  verifyPassword,
 } from "./auth";
-import { sendApprovalEmail } from "./email";
+import { queueResetEmail, sendApprovalEmail } from "./email";
 import { getProductType } from "./product-types";
 import { archiveProduct, createDraftProduct, publishProduct } from "./shopify-admin";
 import {
   deleteCreatorAndUser,
+  consumeResetToken,
   deleteQueuedEmails,
+  getAdminPasswordHash,
+  saveResetToken,
+  setAdminPasswordHash,
   getCreator,
   getUserByEmail,
   listCreators,
@@ -26,7 +33,8 @@ import {
   saveUser,
   uploadDesignFile,
 } from "./store";
-import { checkDetailsToken, issueDetailsToken, parseDetailsToken } from "./tokens";
+import { ADMIN_EMAIL } from "./terms";
+import { checkDetailsToken, issueDetailsToken, parseDetailsToken, siteUrl } from "./tokens";
 import type {
   CreatorRecord,
   DesignRecord,
@@ -153,6 +161,10 @@ export async function signInAction(_prev: FormState, form: FormData): Promise<Fo
   const session = await authenticate(str(form, "email", 200), str(form, "password", 200));
   if (!session) return { error: "Incorrect email or password." };
   await createSession(session);
+  if (!session.isAdmin) {
+    const creator = await getCreator(session.uid);
+    if (creator) await saveCreator({ ...creator, lastSignInAt: new Date().toISOString() });
+  }
   redirect(session.isAdmin ? "/admin/creators" : localizePath(locale, "/creators/dashboard"));
 }
 
@@ -393,4 +405,73 @@ export async function adminDesignAction(form: FormData): Promise<void> {
   design.updatedAt = new Date().toISOString();
   await saveCreator(creator);
   redirect(result === "saved" ? "/admin/creators?saved=1" : "/admin/creators?error=shopify");
+}
+
+const PASSWORD_MIN = 10;
+
+/** Always answers the same way so it never reveals whether an account exists. */
+export async function forgotPasswordAction(_prev: FormState, form: FormData): Promise<FormState> {
+  const locale = localeOf(form);
+  const email = str(form, "email", 200).toLowerCase();
+  const done = {
+    ok: "If an account exists for that email, we have sent a reset link. It expires in 1 hour.",
+  };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return done;
+  const admin = isAdminEmail(email);
+  const user = admin ? null : await getUserByEmail(email);
+  if (!admin && !user) return done;
+  const raw = randomBytes(24).toString("base64url");
+  const uid = admin ? "admin" : user!.id;
+  await saveResetToken(raw, {
+    email,
+    expiresAt: new Date(Date.now() + 3600000).toISOString(),
+    uid,
+  });
+  const link = `${siteUrl()}${localizePath(admin ? "en" : locale, "/creators/reset")}?t=${raw}`;
+  await queueResetEmail({
+    link,
+    name: admin ? "Moe" : user!.name,
+    to: admin ? ADMIN_EMAIL : email,
+    uid,
+  });
+  return done;
+}
+
+export async function resetPasswordAction(_prev: FormState, form: FormData): Promise<FormState> {
+  const password = str(form, "password", 200);
+  if (password.length < PASSWORD_MIN) return { error: "Password must be at least 10 characters." };
+  if (password !== str(form, "confirm", 200)) return { error: "Passwords do not match." };
+  const token = await consumeResetToken(str(form, "token", 200));
+  if (!token) return { error: "This link has expired or is invalid. Ask us for a new one." };
+  const hash = await hashPassword(password);
+  if (token.uid === "admin") {
+    await setAdminPasswordHash(hash);
+  } else {
+    const user = await getUserByEmail(token.email);
+    if (!user || user.id !== token.uid)
+      return { error: "This link has expired or is invalid. Ask us for a new one." };
+    await saveUser({ ...user, passwordHash: hash });
+  }
+  return { ok: "Your password has been changed. You can sign in now." };
+}
+
+export async function changePasswordAction(_prev: FormState, form: FormData): Promise<FormState> {
+  const session = await getSession();
+  if (!session) return { error: "Please sign in." };
+  const current = str(form, "current", 200);
+  const password = str(form, "password", 200);
+  if (password.length < PASSWORD_MIN) return { error: "Password must be at least 10 characters." };
+  if (password !== str(form, "confirm", 200)) return { error: "Passwords do not match." };
+  if (session.isAdmin) {
+    const stored = (await getAdminPasswordHash()) ?? process.env.ADMIN_PASSWORD_HASH ?? "";
+    if (!(await verifyPassword(current, stored)))
+      return { error: "Your current password is incorrect." };
+    await setAdminPasswordHash(await hashPassword(password));
+  } else {
+    const user = await getUserByEmail(session.email);
+    if (!user || !(await verifyPassword(current, user.passwordHash)))
+      return { error: "Your current password is incorrect." };
+    await saveUser({ ...user, passwordHash: await hashPassword(password) });
+  }
+  return { ok: "Your password has been changed." };
 }

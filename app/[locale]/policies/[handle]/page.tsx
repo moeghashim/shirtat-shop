@@ -43,7 +43,9 @@ export default function PolicyPage({ params }: PageProps<"/[locale]/policies/[ha
   );
 }
 
-async function PolicyPageContent({ params }: Pick<PageProps<"/[locale]/policies/[handle]">, "params">) {
+async function PolicyPageContent({
+  params,
+}: Pick<PageProps<"/[locale]/policies/[handle]">, "params">) {
   const { handle } = await params;
   if (handle === PLACEHOLDER_HANDLE) notFound();
   const policy = await getShopPolicy({

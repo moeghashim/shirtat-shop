@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { SubmitDesignForm } from "@/components/creators/forms";
+import { ChangePasswordForm, SubmitDesignForm } from "@/components/creators/forms";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { Page } from "@/components/ui/page";
@@ -131,7 +131,14 @@ async function DashboardContent() {
             <Stat
               label={t("Net sales")}
               value={money(data.netSales)}
-              hint={t("After discounts, excluding tax and shipping.")}
+              hint={t("After discounts and refunds, excluding tax and shipping.")}
+            />
+            <Stat
+              label={t("Refunds")}
+              value={`−${money(data.refunds)}`}
+              hint={t("{units} refunded units, deducted from net sales and earnings.", {
+                units: num(data.refundedUnits),
+              })}
             />
             <Stat
               label={t("Earnings")}
@@ -258,6 +265,12 @@ async function DashboardContent() {
           </div>
         )}
       </section>
+      <details className="rounded-2xl border border-border p-6">
+        <summary className="cursor-pointer text-lg font-semibold">{t("Change password")}</summary>
+        <div className="mt-4 max-w-md">
+          <ChangePasswordForm />
+        </div>
+      </details>
     </div>
   );
 }

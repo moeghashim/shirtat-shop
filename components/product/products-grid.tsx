@@ -1,11 +1,11 @@
 import { cn } from "cn";
 import { Suspense } from "react";
 
+import { T } from "@/components/i18n/t";
 import { ProductCard, ProductCardSkeleton } from "@/components/product-card/product-card";
 import { Link } from "@/components/ui/link";
-import { getSearchIndexProducts } from "@/lib/product/server";
 import { getT } from "@/lib/i18n/server";
-import { T } from "@/components/i18n/t";
+import { getSearchIndexProducts } from "@/lib/product/server";
 
 interface ProductsGridSkeletonProps {
   count: number;
@@ -33,7 +33,9 @@ export function ProductsGrid({ collectionUrl, eagerCount = 0, limit, title }: Pr
   return (
     <div className="grid gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl sm:text-3xl"><T k={title} /></h2>
+        <h2 className="text-2xl sm:text-3xl">
+          <T k={title} />
+        </h2>
         {collectionUrl && (
           <Link
             href={collectionUrl}

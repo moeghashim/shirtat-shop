@@ -19,10 +19,10 @@ import { parseFilterInput } from "@/lib/collections";
 import { shopConfig } from "@/lib/config";
 import { getActiveFilterBadges } from "@/lib/filters";
 import type { Filter, PriceRange } from "@/lib/filters/types";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { formatCurrencySymbol, formatPrice } from "@/lib/money";
 
 import { usePublishedFacets } from "./collection-browse-provider";
-import { useLocale, useT } from "@/lib/i18n/client";
 
 interface FilterSheetProps {
   children: ReactNode;
@@ -35,7 +35,10 @@ export function FilterSheet({ children, label, trigger }: FilterSheetProps) {
   return (
     <Sheet>
       <SheetTrigger render={trigger} />
-      <SheetContent side={locale === "ar" ? "right" : "left"} className="gap-0 overflow-y-auto px-5 pb-5">
+      <SheetContent
+        side={locale === "ar" ? "right" : "left"}
+        className="gap-0 overflow-y-auto px-5 pb-5"
+      >
         <div className="flex h-16 shrink-0 items-center gap-2">
           <SheetTitle className="text-lg font-semibold">{label}</SheetTitle>
         </div>

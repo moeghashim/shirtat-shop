@@ -20,6 +20,9 @@ export const logDays: LogDay[] = [
       "Creators can now upload designs from their dashboard, choosing the product type and colours. Each upload is set up to become a draft product in the store that Moe publishes in one click, once the store connection has product permissions.",
       "Connected creator uploads to the store and tested the whole flow live: a test creator applied, was approved, filled in their details and uploaded a hoodie design, which became a draft product with sizes and colours, went live on shirtat.co in one click, and was then removed.",
       "Creator approval emails are now queued by the site and sent from the Grok Bot inbox, with their status shown on the admin page.",
+      "Added a performance section to the creators admin: program totals and a sortable table of each creator's status, rate, sales, refunds, earnings owed, designs and recent activity.",
+      "Refunds are now deducted from creator sales and earnings, shown as their own line on the dashboard, and the creator terms say so.",
+      "Added password reset for creators (a one-hour, single-use link sent by email) and a change-password option when signed in.",
     ],
   },
   {

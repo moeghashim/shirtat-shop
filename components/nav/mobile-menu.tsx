@@ -3,6 +3,7 @@
 import { Menu } from "lucide-react";
 import { useState } from "react";
 
+import { T } from "@/components/i18n/t";
 import {
   Accordion,
   AccordionContent,
@@ -10,11 +11,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useLocale, useT } from "@/lib/i18n/client";
 import type { MenuItem } from "@/lib/menu/types";
 
 import { MenuLink } from "./menu-link";
-import { T } from "@/components/i18n/t";
-import { useLocale, useT } from "@/lib/i18n/client";
 
 export function MobileMenu({ items }: { items: MenuItem[] }) {
   const t = useT();
@@ -32,7 +32,9 @@ export function MobileMenu({ items }: { items: MenuItem[] }) {
       />
       <SheetContent side={locale === "ar" ? "right" : "left"} className="gap-0">
         <div className="flex h-16 items-center px-5">
-          <SheetTitle className="text-lg font-semibold"><T k="Menu" /></SheetTitle>
+          <SheetTitle className="text-lg font-semibold">
+            <T k="Menu" />
+          </SheetTitle>
         </div>
         <nav className="px-5">
           <MobileMenuList items={items} onLinkClick={close} />

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { SearchViewedTracker } from "@/components/analytics/trackers";
 import { Browse } from "@/components/collections/browse";
 import { BrowseFallback } from "@/components/collections/toolbar";
+import { T } from "@/components/i18n/t";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { Page } from "@/components/ui/page";
@@ -13,10 +14,9 @@ import { SEARCH_SORT_EXCLUDE } from "@/lib/collections";
 import { readBrowseState } from "@/lib/collections/server";
 import type { BrowseResults, BrowseState } from "@/lib/collections/types";
 import { formatCount } from "@/lib/content";
+import { getLocale, getT } from "@/lib/i18n/server";
 import { fetchSearchResults } from "@/lib/search/server";
 import { buildAlternates, buildOpenGraph } from "@/lib/seo";
-import { T } from "@/components/i18n/t";
-import { getLocale, getT } from "@/lib/i18n/server";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -25,7 +25,9 @@ function getParam(searchParams: SearchParams, key: string): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export async function generateMetadata({ searchParams }: PageProps<"/[locale]/search">): Promise<Metadata> {
+export async function generateMetadata({
+  searchParams,
+}: PageProps<"/[locale]/search">): Promise<Metadata> {
   const resolvedSearchParams = await searchParams;
   const query = getParam(resolvedSearchParams, "q") ?? "";
   const hasQuery = query.length > 0;
@@ -77,7 +79,9 @@ export default function SearchPage({ searchParams }: PageProps<"/[locale]/search
           </Suspense>
           <div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl">
-              <Link href="/search"><T k="Search" /></Link>
+              <Link href="/search">
+                <T k="Search" />
+              </Link>
               <Suspense fallback={null}>
                 <SearchQueryLabel searchParamsPromise={searchParams} />
               </Suspense>
@@ -149,6 +153,7 @@ async function SearchResultCount({ resultsPromise }: { resultsPromise: Promise<B
   const { total } = await resultsPromise;
   if (!total) return null;
   const locale = await getLocale();
-  if (locale === "ar") return `${new Intl.NumberFormat("ar").format(total)} ${total === 1 ? "منتج" : "منتجات"}`;
+  if (locale === "ar")
+    return `${new Intl.NumberFormat("ar").format(total)} ${total === 1 ? "منتج" : "منتجات"}`;
   return formatCount(total, "Item");
 }

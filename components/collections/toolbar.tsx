@@ -1,15 +1,15 @@
 import { ChevronDownIcon, SlidersHorizontalIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { T } from "@/components/i18n/t";
 import { ProductsGridSkeleton } from "@/components/product/products-grid";
 import { PRODUCTS_PER_PAGE } from "@/lib/collections";
 import type { SortValue } from "@/lib/collections/types";
+import { getT } from "@/lib/i18n/server";
 
 import { CollectionActiveFilterCountBadge } from "./collection-browse-provider";
 import { FilterSheet } from "./filters-client";
 import { CollectionsSortSelect } from "./sort-select";
-import { T } from "@/components/i18n/t";
-import { getT } from "@/lib/i18n/server";
 
 interface BrowseToolbarProps {
   filters: ReactNode;
@@ -30,7 +30,9 @@ export async function BrowseToolbar({ filters, resultCount, sortExclude }: Brows
               className="flex cursor-pointer items-center gap-2 text-sm font-medium"
             >
               <SlidersHorizontalIcon className="size-4" />
-              <span><T k="Filters" /></span>
+              <span>
+                <T k="Filters" />
+              </span>
               <CollectionActiveFilterCountBadge />
             </button>
           }
@@ -58,13 +60,17 @@ export function BrowseFallback({ resultCount }: BrowseFallbackProps) {
             className="flex cursor-pointer items-center gap-2 text-sm font-medium"
           >
             <SlidersHorizontalIcon className="size-4" />
-            <span><T k="Filters" /></span>
+            <span>
+              <T k="Filters" />
+            </span>
           </button>
         }
         resultCount={resultCount}
         sortSelect={
           <div className="flex h-9 w-fit items-center justify-between gap-2 rounded-md bg-transparent px-0 py-2 text-sm whitespace-nowrap">
-            <span><T k="Sort" /></span>
+            <span>
+              <T k="Sort" />
+            </span>
             <ChevronDownIcon className="size-4 text-muted-foreground opacity-50" />
           </div>
         }

@@ -5,6 +5,9 @@ import { useActionState, useState } from "react";
 import { Link } from "@/components/ui/link";
 import {
   applyAction,
+  changePasswordAction,
+  forgotPasswordAction,
+  resetPasswordAction,
   detailsAction,
   type FormState,
   signInAction,
@@ -215,6 +218,11 @@ export function SignInForm() {
           {pending ? t("Signing in…") : t("Sign in")}
         </button>
       </div>
+      <p className="text-sm">
+        <Link className="underline" href="/creators/forgot">
+          {t("Forgot your password?")}
+        </Link>
+      </p>
       <p className="text-sm text-muted-foreground">
         {t("New here?")}{" "}
         <Link className="underline" href="/creators/apply">
@@ -417,6 +425,124 @@ export function DetailsForm({ token }: { token: string }) {
       <div>
         <button className={button} disabled={pending} type="submit">
           {pending ? t("Sending…") : t("Save my details")}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+export function ForgotPasswordForm() {
+  const t = useT();
+  const locale = useLocale();
+  const [state, action, pending] = useActionState(forgotPasswordAction, {});
+  if (state.ok) return <Message state={state} />;
+  return (
+    <form action={action} className="flex flex-col gap-5">
+      <input type="hidden" name="locale" value={locale} />
+      <Message state={state} />
+      <label className={label}>
+        {t("Email")}
+        <input
+          className={input}
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          dir="ltr"
+        />
+      </label>
+      <div>
+        <button className={button} disabled={pending} type="submit">
+          {pending ? t("Sending…") : t("Send reset link")}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function NewPasswordFields() {
+  const t = useT();
+  return (
+    <>
+      <label className={label}>
+        {t("New password")}
+        <input
+          className={input}
+          name="password"
+          type="password"
+          required
+          minLength={10}
+          autoComplete="new-password"
+          dir="ltr"
+        />
+        <span className="text-xs font-normal text-muted-foreground">
+          {t("At least 10 characters.")}
+        </span>
+      </label>
+      <label className={label}>
+        {t("Confirm new password")}
+        <input
+          className={input}
+          name="confirm"
+          type="password"
+          required
+          minLength={10}
+          autoComplete="new-password"
+          dir="ltr"
+        />
+      </label>
+    </>
+  );
+}
+
+export function ResetPasswordForm({ token }: { token: string }) {
+  const t = useT();
+  const [state, action, pending] = useActionState(resetPasswordAction, {});
+  if (state.ok) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Message state={state} />
+        <Link className="underline" href="/creators/signin">
+          {t("Sign in")}
+        </Link>
+      </div>
+    );
+  }
+  return (
+    <form action={action} className="flex flex-col gap-5">
+      <input type="hidden" name="token" value={token} />
+      <Message state={state} />
+      <NewPasswordFields />
+      <div>
+        <button className={button} disabled={pending} type="submit">
+          {pending ? t("Saving…") : t("Change password")}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+export function ChangePasswordForm() {
+  const t = useT();
+  const [state, action, pending] = useActionState(changePasswordAction, {});
+  return (
+    <form action={action} className="flex flex-col gap-4">
+      <Message state={state} />
+      <label className={label}>
+        {t("Current password")}
+        <input
+          className={input}
+          name="current"
+          type="password"
+          required
+          autoComplete="current-password"
+          dir="ltr"
+        />
+      </label>
+      <NewPasswordFields />
+      <div>
+        <button className={button} disabled={pending} type="submit">
+          {pending ? t("Saving…") : t("Change password")}
         </button>
       </div>
     </form>

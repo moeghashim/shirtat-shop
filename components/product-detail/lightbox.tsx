@@ -5,8 +5,8 @@ import { XIcon } from "lucide-react";
 import Image from "next/image";
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 
-import type { Image as ImageType } from "@/lib/media/types";
 import { T } from "@/components/i18n/t";
+import type { Image as ImageType } from "@/lib/media/types";
 
 const LightboxContext = createContext<((image: ImageType) => void) | null>(null);
 
@@ -32,7 +32,9 @@ export function Lightbox({ label, children }: { label: string; children: ReactNo
 
             <DialogPrimitive.Close className="pointer-events-auto absolute top-4 end-4 z-10 rounded-full bg-black/50 p-2 text-white transition-opacity hover:opacity-80 focus:ring-2 focus:ring-white focus:outline-hidden">
               <XIcon className="size-5" />
-              <span className="sr-only"><T k="Close" /></span>
+              <span className="sr-only">
+                <T k="Close" />
+              </span>
             </DialogPrimitive.Close>
 
             {activeImage && (

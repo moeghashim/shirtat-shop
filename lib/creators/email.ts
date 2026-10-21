@@ -74,3 +74,36 @@ export async function sendApprovalEmail(
     return { error: e instanceof Error ? e.message : "send failed", status: "failed" };
   }
 }
+
+/** Queues a bilingual password reset email (sent by the Grok Bot inbox routine, like approval emails). */
+export async function queueResetEmail({
+  link,
+  name,
+  to,
+  uid,
+}: {
+  link: string;
+  name: string;
+  to: string;
+  uid: string;
+}) {
+  const n = esc(name);
+  const l = esc(link);
+  await cancelQueuedEmails(`reset:${uid}`);
+  await queueEmail({
+    createdAt: new Date().toISOString(),
+    creatorId: `reset:${uid}`,
+    html: `<div style="font-family:system-ui,sans-serif;max-width:560px;margin:auto;line-height:1.6">
+<p>Hi ${n},</p><p>We received a request to reset your Shirtat creator password. This link works once and expires in 1 hour. If you didn't ask for this, you can ignore this email.</p>
+<p><a href="${l}" style="background:#000;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none">Reset my password</a></p>
+<hr style="margin:28px 0;border:none;border-top:1px solid #ddd">
+<div dir="rtl" lang="ar" style="text-align:right"><p>مرحبًا ${n}،</p><p>تلقّينا طلبًا لإعادة تعيين كلمة مرور حسابك في شيرتات. يعمل هذا الرابط مرة واحدة وتنتهي صلاحيته خلال ساعة. إن لم تطلب ذلك فتجاهل هذه الرسالة.</p>
+<p><a href="${l}" style="background:#000;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none">إعادة تعيين كلمة المرور</a></p></div>
+<p style="color:#888;font-size:12px">Shirtat · shirtat.co</p></div>`,
+    id: newId(),
+    status: "queued",
+    subject: "Reset your Shirtat password · إعادة تعيين كلمة المرور",
+    text: `Hi ${name}, reset your Shirtat creator password (works once, expires in 1 hour): ${link}\nIf you didn't ask for this, ignore this email.\n\nمرحبًا ${name}، أعد تعيين كلمة المرور (يعمل مرة واحدة وتنتهي صلاحيته خلال ساعة): ${link}\nإن لم تطلب ذلك فتجاهل هذه الرسالة.\n\nShirtat · shirtat.co`,
+    to,
+  });
+}

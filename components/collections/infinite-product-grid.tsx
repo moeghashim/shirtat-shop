@@ -8,9 +8,9 @@ import { ProductCard } from "@/components/product-card/product-card";
 import { getBrowseSearch } from "@/lib/collections";
 import { loadMoreBrowseProductsAction } from "@/lib/collections/action";
 import type { BrowseSource } from "@/lib/collections/types";
+import { useT } from "@/lib/i18n/client";
 import type { PageInfo } from "@/lib/pagination/types";
 import type { ProductCard as ProductCardType } from "@/lib/product/types";
-import { useT } from "@/lib/i18n/client";
 
 interface InfiniteProductGridProps {
   children: ReactNode;

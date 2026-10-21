@@ -46,8 +46,8 @@ export const arCreators = {
   "Yes. The licence is non-exclusive: you keep ownership and can sell your work elsewhere. You give Shirtat the right to print and sell the approved designs while they are listed.":
     "نعم. الترخيص غير حصري: تبقى المالك لأعمالك ويمكنك بيعها في أماكن أخرى، وتمنح شيرتات حق طباعة التصاميم المقبولة وبيعها طوال مدة عرضها.",
   "How is my share calculated?": "كيف تُحسب حصتي؟",
-  "On the net item price: what the customer paid for your product after discounts, excluding tax and shipping. Refunded or cancelled orders are not paid.":
-    "على صافي سعر المنتج: ما دفعه العميل مقابل منتجك بعد الخصومات، دون الضرائب والشحن. ولا تُحتسب الطلبات المستردة أو الملغاة.",
+  "On the net item price: what the customer paid for your product after discounts, excluding tax and shipping. Refunds are deducted, and cancelled orders are not paid.":
+    "على صافي سعر المنتج: ما دفعه العميل مقابل منتجك بعد الخصومات، دون الضرائب والشحن. وتُخصم المبالغ المستردة، ولا تُحتسب الطلبات الملغاة.",
   "When do I get paid?": "متى أحصل على أرباحي؟",
   "Earnings are held for 30 days to cover returns, then paid monthly by the 15th once your balance reaches $25. Smaller balances roll over.":
     "تُحجز الأرباح 30 يومًا لتغطية المرتجعات، ثم تُصرف شهريًا بحلول اليوم 15 متى بلغ رصيدك 25 دولارًا، وتُرحَّل الأرصدة الأقل.",
@@ -184,4 +184,30 @@ export const arCreators = {
   "Avatar must be a PNG, JPG or WebP under 2 MB.":
     "يجب أن تكون الصورة الشخصية بصيغة PNG أو JPG أو WebP وأقل من 2 ميغابايت.",
   "Thank you. Your details are saved.": "شكرًا لك، تم حفظ بياناتك.",
+  "After discounts and refunds, excluding tax and shipping.":
+    "بعد الخصومات والمبالغ المستردة، دون الضرائب والشحن.",
+  Refunds: "المبالغ المستردة",
+  "{units} refunded units, deducted from net sales and earnings.":
+    "{units} قطعة مستردة، خُصمت من صافي المبيعات والأرباح.",
+  "Refunded items are deducted from your net sales and earnings.":
+    "تُخصم المنتجات المستردة من صافي مبيعاتك وأرباحك.",
+  "Forgot your password?": "نسيت كلمة المرور؟",
+  "Reset your password": "إعادة تعيين كلمة المرور",
+  "Enter the email you signed up with and we will send you a link to choose a new password.":
+    "أدخل البريد الإلكتروني الذي سجّلت به وسنرسل إليك رابطًا لاختيار كلمة مرور جديدة.",
+  "Send reset link": "إرسال رابط إعادة التعيين",
+  "If an account exists for that email, we have sent a reset link. It expires in 1 hour.":
+    "إذا كان هناك حساب بهذا البريد، فقد أرسلنا رابط إعادة التعيين، وتنتهي صلاحيته خلال ساعة.",
+  "Choose a new password": "اختر كلمة مرور جديدة",
+  "New password": "كلمة المرور الجديدة",
+  "Confirm new password": "تأكيد كلمة المرور الجديدة",
+  "At least 10 characters.": "10 أحرف على الأقل.",
+  "Change password": "تغيير كلمة المرور",
+  "Current password": "كلمة المرور الحالية",
+  "Saving…": "جارٍ الحفظ…",
+  "Passwords do not match.": "كلمتا المرور غير متطابقتين.",
+  "Your current password is incorrect.": "كلمة المرور الحالية غير صحيحة.",
+  "Your password has been changed.": "تم تغيير كلمة المرور.",
+  "Your password has been changed. You can sign in now.":
+    "تم تغيير كلمة المرور، ويمكنك تسجيل الدخول الآن.",
 } as const;

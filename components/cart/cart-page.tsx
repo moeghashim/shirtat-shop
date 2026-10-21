@@ -2,6 +2,7 @@
 
 import type { ComponentProps, ReactNode } from "react";
 
+import { T } from "@/components/i18n/t";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { Page } from "@/components/ui/page";
@@ -12,7 +13,6 @@ import { useSuspenseCart } from "@/lib/cart/client";
 import { CartLineItems } from "./line-item";
 import { CartSummary } from "./summary";
 import { CartWarnings } from "./warnings";
-import { T } from "@/components/i18n/t";
 
 export function CartPageContent() {
   const cart = useSuspenseCart((state) => state.data);
@@ -20,7 +20,9 @@ export function CartPageContent() {
   if (cart.totalQuantity === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-5 py-10 px-5">
-        <h2 className="text-2xl sm:text-3xl"><T k="Your cart is empty" /></h2>
+        <h2 className="text-2xl sm:text-3xl">
+          <T k="Your cart is empty" />
+        </h2>
         <Link
           href="/"
           className="inline-flex cursor-pointer items-center justify-center h-12 px-8 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
@@ -101,7 +103,9 @@ function CartPageLayout({ children, count, summary, warnings, ...props }: CartPa
       <Container>
         <Sections>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl"><T k="Cart" /></h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl">
+              <T k="Cart" />
+            </h1>
             {count}
           </div>
           {warnings}

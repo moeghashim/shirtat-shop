@@ -6,13 +6,13 @@ import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { Sections } from "@/components/ui/sections";
 import { shopConfig } from "@/lib/config";
+import { commerceLocale } from "@/lib/i18n";
+import { getLocale, getT } from "@/lib/i18n/server";
 import type { MenuItem } from "@/lib/menu/types";
 import { getShopPolicies } from "@/lib/policies/server";
 
 import { SocialLinks } from "./social-links";
 import type { SocialLink } from "./social-links";
-import { commerceLocale } from "@/lib/i18n";
-import { getLocale, getT } from "@/lib/i18n/server";
 
 export async function Footer() {
   const socialLinks: SocialLink[] = [];

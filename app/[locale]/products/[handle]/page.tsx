@@ -13,12 +13,12 @@ import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
 import { shopConfig } from "@/lib/config";
+import { commerceLocale } from "@/lib/i18n";
+import { getLocale } from "@/lib/i18n/server";
 import { defaultSelectedOptions, parseSelectedOptions, toSelectedOptionList } from "@/lib/product";
 import { getProduct, getSearchIndexProducts } from "@/lib/product/server";
 import { type SelectedOptions } from "@/lib/product/types";
 import type { ProductVariant } from "@/lib/product/types";
-import { commerceLocale } from "@/lib/i18n";
-import { getLocale } from "@/lib/i18n/server";
 import { buildAlternates, buildOpenGraph } from "@/lib/seo";
 import { fetchProductVariant } from "@/lib/shopify/operations/products/server";
 import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
@@ -80,7 +80,10 @@ export async function generateMetadata({
   return buildProductMetadata(handle, `/products/${handle}`);
 }
 
-export default function ProductPage({ params, searchParams }: PageProps<"/[locale]/products/[handle]">) {
+export default function ProductPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/products/[handle]">) {
   return (
     <Page className="pt-0">
       <Container className="bg-background">

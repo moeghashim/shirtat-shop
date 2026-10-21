@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 
 import { ProductInfoOptions } from "@/components/product-detail/product-info";
 import { ProductPrice } from "@/components/product-detail/product-price";
+import { localizeHref } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/client";
 import { buildProductUrl } from "@/lib/product";
 import { ProductProvider, useProduct } from "@/lib/product/client";
 import type {
@@ -13,8 +15,6 @@ import type {
   ProductFormSwatch,
   ProductFormVariant,
 } from "@/lib/product/types";
-import { localizeHref } from "@/lib/i18n";
-import { useLocale } from "@/lib/i18n/client";
 
 export function ProductForm({
   children,
@@ -31,9 +31,12 @@ export function ProductForm({
       product={product}
       onSelect={(result) => {
         const handle = result.selectedVariant?.product.handle ?? product.handle;
-        router.replace(localizeHref(locale, buildProductUrl(handle, result.selectedOptions, searchParams)), {
-          scroll: false,
-        });
+        router.replace(
+          localizeHref(locale, buildProductUrl(handle, result.selectedOptions, searchParams)),
+          {
+            scroll: false,
+          },
+        );
       }}
     >
       {children}

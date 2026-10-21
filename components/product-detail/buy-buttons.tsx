@@ -6,7 +6,9 @@ import { Loader2, MinusIcon, PlusIcon } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 
 import { useCartDrawer } from "@/components/cart/context";
+import { T } from "@/components/i18n/t";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/client";
 import { formatPrice } from "@/lib/money";
 import type { Money } from "@/lib/money/types";
 import { getProductPurchaseOptions } from "@/lib/product";
@@ -14,8 +16,6 @@ import { useProductForm } from "@/lib/product/client";
 import type { ProductFormVariant, SellingPlanAllocation } from "@/lib/product/types";
 
 import { BuyWithShopLogo } from "./buy-with-shop-logo";
-import { T } from "@/components/i18n/t";
-import { useT } from "@/lib/i18n/client";
 
 interface BuyButtonsProps {
   availableForSale?: boolean;
@@ -172,7 +172,9 @@ export function BuyButtons({
             <Loader2 className="size-4 animate-spin" />
           ) : (
             <>
-              <span className="sr-only"><T k="Buy with" /></span>
+              <span className="sr-only">
+                <T k="Buy with" />
+              </span>
               <BuyWithShopLogo aria-hidden="true" className="h-auto w-24.5" />
             </>
           )}
@@ -204,7 +206,9 @@ export function PurchaseOptions({
 
   return (
     <fieldset className="grid gap-2.5" disabled={disabled}>
-      <legend className="pb-2.5 text-sm font-medium"><T k="Purchase options" /></legend>
+      <legend className="pb-2.5 text-sm font-medium">
+        <T k="Purchase options" />
+      </legend>
       {[
         ...(!requiresSellingPlan ? [{ id: "", name: "One-time purchase", price }] : []),
         ...plans.map((allocation) => ({

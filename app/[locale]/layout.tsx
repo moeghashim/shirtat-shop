@@ -69,20 +69,20 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
         <SiteSchema />
 
         <LocaleProvider locale={locale}>
-        <CartProviderWrapper cartData={cartData}>
-          <Nav />
-          <main id="main-content" className="flex flex-1 flex-col min-w-0">
-            {children}
-          </main>
-          <Footer />
-          <CartUI />
-          <Suspense>
-            <ActionBar>{shopConfig.agent.isEnabled && <AgentButton />}</ActionBar>
-          </Suspense>
-          <Suspense>
-            <AnalyticsComponents />
-          </Suspense>
-        </CartProviderWrapper>
+          <CartProviderWrapper cartData={cartData}>
+            <Nav />
+            <main id="main-content" className="flex flex-1 flex-col min-w-0">
+              {children}
+            </main>
+            <Footer />
+            <CartUI />
+            <Suspense>
+              <ActionBar>{shopConfig.agent.isEnabled && <AgentButton />}</ActionBar>
+            </Suspense>
+            <Suspense>
+              <AnalyticsComponents />
+            </Suspense>
+          </CartProviderWrapper>
         </LocaleProvider>
       </body>
     </html>

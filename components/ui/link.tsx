@@ -1,10 +1,10 @@
 "use client";
 
 import NextLink from "next/link";
+import { type ComponentProps, type Ref, useEffect, useRef, useState } from "react";
 
 import { localizeHref } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/client";
-import { type ComponentProps, type Ref, useEffect, useRef, useState } from "react";
 
 const HOVER_INTENT_DELAY_MS = 100;
 const SETTLE_INTENT_DELAY_MS = 300;

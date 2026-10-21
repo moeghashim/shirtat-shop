@@ -1,10 +1,10 @@
 import { HandbagIcon } from "lucide-react";
 
+import { T } from "@/components/i18n/t";
 import { getCart } from "@/lib/cart/server";
 import { withFallback } from "@/lib/shopify/errors/server";
 
 import { CartIconClient } from "./cart-client";
-import { T } from "@/components/i18n/t";
 
 export async function CartIcon() {
   const cart = await withFallback(getCart(), undefined);
@@ -15,7 +15,9 @@ export function CartIconFallback() {
   return (
     <span className="flex items-center justify-center gap-1.5 text-foreground">
       <HandbagIcon className="size-5" />
-      <span className="sr-only"><T k="Cart" /></span>
+      <span className="sr-only">
+        <T k="Cart" />
+      </span>
     </span>
   );
 }

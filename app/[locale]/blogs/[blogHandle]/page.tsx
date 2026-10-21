@@ -49,7 +49,9 @@ export default function BlogPage({ params }: PageProps<"/[locale]/blogs/[blogHan
   );
 }
 
-async function BlogPageContent({ params }: Pick<PageProps<"/[locale]/blogs/[blogHandle]">, "params">) {
+async function BlogPageContent({
+  params,
+}: Pick<PageProps<"/[locale]/blogs/[blogHandle]">, "params">) {
   const { blogHandle } = await params;
   if (blogHandle === PLACEHOLDER_HANDLE) notFound();
   const blog = await getBlog({

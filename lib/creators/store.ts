@@ -143,3 +143,40 @@ export async function deleteQueuedEmails(creatorId: string): Promise<void> {
     .map((e) => `email-queue/${e.id}.json`);
   if (ids.length) await del(ids);
 }
+
+export interface ResetToken {
+  email: string;
+  expiresAt: string;
+  uid: string;
+}
+
+function tokenKey(raw: string): string {
+  return `resets/${createHash("sha256").update(raw).digest("hex")}.json`;
+}
+
+export async function saveResetToken(raw: string, token: ResetToken): Promise<void> {
+  await writeJson(tokenKey(raw), token);
+}
+
+/** Returns and deletes (single use) a valid reset token. */
+export async function consumeResetToken(raw: string): Promise<ResetToken | null> {
+  const key = tokenKey(raw);
+  const token = await readJson<ResetToken>(key).catch(() => null);
+  if (!token) return null;
+  await del(key);
+  return new Date(token.expiresAt).getTime() > Date.now() ? token : null;
+}
+
+export async function peekResetToken(raw: string): Promise<ResetToken | null> {
+  const token = await readJson<ResetToken>(tokenKey(raw)).catch(() => null);
+  return token && new Date(token.expiresAt).getTime() > Date.now() ? token : null;
+}
+
+/** Admin password set through reset/change; overrides ADMIN_PASSWORD_HASH when present. */
+export async function getAdminPasswordHash(): Promise<string | null> {
+  return (await readJson<{ hash: string }>("admin/password.json").catch(() => null))?.hash ?? null;
+}
+
+export async function setAdminPasswordHash(hash: string): Promise<void> {
+  await writeJson("admin/password.json", { hash, updatedAt: new Date().toISOString() });
+}

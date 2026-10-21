@@ -67,6 +67,7 @@ export interface CreatorRecord {
     status: "sent" | "failed" | "not_configured" | "queued";
   };
   detailsLink?: string;
+  lastSignInAt?: string;
   detailsToken?: { expiresAt: string; hash: string };
   agreedToTermsAt: string;
   bio: string;

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
+import { PerformanceTable, type PerformanceRow } from "@/components/admin/performance-table";
+import { ChangePasswordForm } from "@/components/creators/forms";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import {
@@ -12,8 +14,10 @@ import {
   signOutAction,
 } from "@/lib/creators/actions";
 import { getSession } from "@/lib/creators/auth";
+import { getCreatorEarnings, getOrderLines } from "@/lib/creators/earnings";
 import { getProductType } from "@/lib/creators/product-types";
 import { listCreators, listQueuedEmails } from "@/lib/creators/store";
+import type { CreatorRecord } from "@/lib/creators/types";
 
 export const metadata: Metadata = {
   title: "Creators admin",
@@ -405,5 +409,87 @@ function DesignButton({
         {label}
       </button>
     </form>
+  );
+}
+
+const usd = new Intl.NumberFormat("en-US", { currency: "USD", style: "currency" });
+const day = (iso?: string) => (iso ? iso.slice(0, 10) : "");
+
+async function Performance({ creators }: { creators: CreatorRecord[] }) {
+  const lines = await getOrderLines().catch(() => null);
+  const rows: PerformanceRow[] = await Promise.all(
+    creators.map(async (c) => {
+      const e =
+        c.status === "approved" && lines
+          ? await getCreatorEarnings(c, lines).catch(() => null)
+          : null;
+      const designs = c.designs ?? [];
+      return {
+        designsLive: designs.filter((d) => d.status === "published").length,
+        designsRejected: designs.filter((d) => d.status === "rejected").length,
+        designsSubmitted: designs.length,
+        earnings: e?.earnings ?? 0,
+        handle: c.handle ?? "",
+        id: c.id,
+        lastSignIn: day(c.lastSignInAt),
+        lastUpload: day(
+          designs
+            .map((d) => d.createdAt)
+            .sort()
+            .pop(),
+        ),
+        name: c.name,
+        net60: e?.netSales ?? 0,
+        netQtd: e?.quarterNet ?? 0,
+        payable: e?.payable ?? 0,
+        pending: e?.pending ?? 0,
+        rate: e?.rate ?? 0,
+        refunds: e?.refunds ?? 0,
+        status: c.status,
+        tier: e?.tier ?? "",
+        units60: e?.units ?? 0,
+        unitsQtd: e?.quarterUnits ?? 0,
+      };
+    }),
+  );
+  const sum = (k: keyof PerformanceRow) => rows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+  const totals: [string, string][] = [
+    ["Approved creators", String(creators.filter((c) => c.status === "approved").length)],
+    ["Pending applications", String(creators.filter((c) => c.status === "pending").length)],
+    ["Units (60 days)", String(sum("units60"))],
+    ["Net sales (60 days)", usd.format(sum("net60"))],
+    ["Net sales (QTD)", usd.format(sum("netQtd"))],
+    ["Refunds", usd.format(sum("refunds"))],
+    ["Owed to creators", usd.format(sum("earnings"))],
+    ["Payable now", usd.format(sum("payable"))],
+    ["Designs live", `${sum("designsLive")} of ${sum("designsSubmitted")}`],
+  ];
+  return (
+    <section className="flex flex-col gap-3">
+      <h2 className="text-2xl font-semibold">Performance</h2>
+      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {totals.map(([k, v]) => (
+          <div key={k} className="rounded-xl border border-border p-3">
+            <dt className="text-xs text-muted-foreground">{k}</dt>
+            <dd className="text-lg font-semibold tabular-nums">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      {lines === null && (
+        <p className="text-sm text-red-700">Sales data is unavailable right now; figures show 0.</p>
+      )}
+      {rows.length > 0 && <PerformanceTable rows={rows} />}
+      <p className="text-xs text-muted-foreground">
+        USD. Orders from the last 60 days (Shopify window); QTD is quarter-to-date within that
+        window. Non-USD orders are converted at the order-date rate. Refunds are deducted. Pending =
+        within the 30-day hold; payable = past it.
+      </p>
+      <details className="text-sm">
+        <summary className="cursor-pointer">Change admin password</summary>
+        <div className="mt-3 max-w-md">
+          <ChangePasswordForm />
+        </div>
+      </details>
+    </section>
   );
 }

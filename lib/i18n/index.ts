@@ -60,7 +60,11 @@ export function localizeHref(locale: Locale, href: string): string {
 export type MessageKey = keyof typeof ar;
 
 /** English strings are the keys; Arabic comes from the catalog. */
-export function translate(locale: Locale, key: string, vars?: Record<string, string | number>): string {
+export function translate(
+  locale: Locale,
+  key: string,
+  vars?: Record<string, string | number>,
+): string {
   let text = locale === "ar" ? ((ar as Record<string, string>)[key] ?? key) : key;
   if (vars) {
     for (const [name, value] of Object.entries(vars)) {

@@ -1,6 +1,7 @@
+import { getT } from "@/lib/i18n/server";
+
 import { CartNotifications } from "./notifications";
 import { CartOverlay } from "./overlay";
-import { getT } from "@/lib/i18n/server";
 
 export async function CartUI() {
   const t = await getT();

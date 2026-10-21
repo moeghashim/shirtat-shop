@@ -141,7 +141,9 @@ function BrowseStore({ children, dataSearch, handle, path, urlSearch }: BrowseSt
     <CollectionProvider
       data={{ dataSearch, handle }}
       urlSearch={urlSearch}
-      onChange={(search) => router.push(localizeHref(locale, `${path}${search}`), { scroll: false })}
+      onChange={(search) =>
+        router.push(localizeHref(locale, `${path}${search}`), { scroll: false })
+      }
     >
       {children}
     </CollectionProvider>

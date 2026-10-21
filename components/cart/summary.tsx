@@ -3,13 +3,13 @@
 import type { CartData } from "@shopify/hydrogen";
 import { Loader2 } from "lucide-react";
 
+import { T } from "@/components/i18n/t";
 import { Price } from "@/components/product/price";
 import { Button } from "@/components/ui/button";
 import { useCart, useCheckout } from "@/lib/cart/client";
+import { useT } from "@/lib/i18n/client";
 
 import { DiscountForm } from "./discount-form";
-import { T } from "@/components/i18n/t";
-import { useT } from "@/lib/i18n/client";
 
 interface CartSummaryProps {
   cart: CartData;
@@ -46,14 +46,20 @@ export function CartTotal({ cart }: CartTotalProps) {
       role="group"
     >
       <div className="flex items-baseline justify-between text-base text-foreground">
-        <span><T k="Estimated total" /></span>
+        <span>
+          <T k="Estimated total" />
+        </span>
         {isCostPending || !currencyCode ? (
-          <span className="font-medium text-muted-foreground text-xl"><T k="Updating…" /></span>
+          <span className="font-medium text-muted-foreground text-xl">
+            <T k="Updating…" />
+          </span>
         ) : (
           <Price amount={amount} className="font-medium text-xl" currencyCode={currencyCode} />
         )}
       </div>
-      <p className="text-muted-foreground text-xs"><T k="Taxes and shipping calculated at checkout." /></p>
+      <p className="text-muted-foreground text-xs">
+        <T k="Taxes and shipping calculated at checkout." />
+      </p>
     </div>
   );
 }

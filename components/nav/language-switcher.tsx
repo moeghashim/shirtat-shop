@@ -24,7 +24,11 @@ export function LanguageSwitcher({ className }: { className?: string }) {
       hrefLang={target}
       lang={target}
     >
-      {target === "ar" ? <span className="font-arabic">العربية</span> : <span className="font-sans">EN</span>}
+      {target === "ar" ? (
+        <span className="font-arabic">العربية</span>
+      ) : (
+        <span className="font-sans">EN</span>
+      )}
     </a>
   );
 }

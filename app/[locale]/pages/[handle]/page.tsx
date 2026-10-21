@@ -49,7 +49,9 @@ export default function ShopifyPage({ params }: PageProps<"/[locale]/pages/[hand
   );
 }
 
-async function ShopifyPageContent({ params }: Pick<PageProps<"/[locale]/pages/[handle]">, "params">) {
+async function ShopifyPageContent({
+  params,
+}: Pick<PageProps<"/[locale]/pages/[handle]">, "params">) {
   const { handle } = await params;
   if (handle === PLACEHOLDER_HANDLE) notFound();
   const page = await getPage({

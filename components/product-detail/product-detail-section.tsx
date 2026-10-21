@@ -2,6 +2,7 @@ import { cn } from "cn";
 import { MinusIcon, PlusIcon } from "lucide-react";
 import { type ReactNode, Suspense } from "react";
 
+import { T } from "@/components/i18n/t";
 import { BundleComponents, BundleParents } from "@/components/product-detail/bundle-components";
 import { BuyButtons, PurchaseOptions } from "@/components/product-detail/buy-buttons";
 import { BuyWithShopLogo } from "@/components/product-detail/buy-with-shop-logo";
@@ -30,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { shopConfig } from "@/lib/config";
+import { getT } from "@/lib/i18n/server";
 import {
   getProductPurchaseOptions,
   getSelectedColorImage,
@@ -40,8 +42,6 @@ import {
 } from "@/lib/product";
 import { type SelectedOptions } from "@/lib/product/types";
 import type { ProductDetails, ProductVariant } from "@/lib/product/types";
-import { T } from "@/components/i18n/t";
-import { getT } from "@/lib/i18n/server";
 
 export function ProductDetailSection({
   product,
@@ -344,20 +344,28 @@ async function GiftCardPurchaseFormFallback() {
     <div className="grid gap-5">
       <div className="grid gap-2.5">
         <div className="grid gap-2.5">
-          <Label><T k="Recipient email" /></Label>
+          <Label>
+            <T k="Recipient email" />
+          </Label>
           <Input type="email" disabled placeholder="friend@example.com" />
         </div>
         <div className="grid gap-2.5">
-          <Label><T k="Recipient name" /></Label>
+          <Label>
+            <T k="Recipient name" />
+          </Label>
           <Input type="text" disabled placeholder={t("Friend's name (optional)")} />
         </div>
         <div className="grid gap-2.5">
-          <Label><T k="Message" /></Label>
+          <Label>
+            <T k="Message" />
+          </Label>
           <Textarea rows={3} disabled placeholder={t("Write a personal note (optional)")} />
         </div>
         <div className="grid gap-3 rounded-lg border p-3">
           <div className="flex items-center justify-between gap-2.5">
-            <Label><T k="Schedule for later" /></Label>
+            <Label>
+              <T k="Schedule for later" />
+            </Label>
             <span className="inline-flex h-[1.15rem] w-8 items-center rounded-full bg-input opacity-50" />
           </div>
         </div>

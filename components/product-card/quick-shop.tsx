@@ -6,6 +6,7 @@ import { PlusIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
+import { T } from "@/components/i18n/t";
 import { BuyButtons } from "@/components/product-detail/buy-buttons";
 import { ProductFormOptions, ProductFormPrice } from "@/components/product-detail/product-form";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { Link } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { shopConfig } from "@/lib/config";
+import { useT } from "@/lib/i18n/client";
 import { buildProductUrl } from "@/lib/product";
 import { loadQuickShopProductAction } from "@/lib/product/action";
 import { ProductProvider, useProduct } from "@/lib/product/client";
@@ -23,8 +25,6 @@ import type {
   QuickShopProduct,
   SelectedOption,
 } from "@/lib/product/types";
-import { T } from "@/components/i18n/t";
-import { useT } from "@/lib/i18n/client";
 
 type QuickShopStatus = "failed" | "idle" | "loading" | "unavailable";
 
@@ -372,7 +372,9 @@ function QuickShopDetailsLink({ href, onNavigate }: QuickShopDetailsLinkProps) {
 function QuickShopSkeleton() {
   return (
     <div aria-busy="true" className="grid gap-5" role="status">
-      <span className="sr-only"><T k="Loading purchase options" /></span>
+      <span className="sr-only">
+        <T k="Loading purchase options" />
+      </span>
       <div aria-hidden="true" className="grid gap-5">
         <Skeleton className="h-5 w-24" />
         <div className="grid gap-2.5">

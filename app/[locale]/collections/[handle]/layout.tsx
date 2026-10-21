@@ -6,9 +6,9 @@ import {
   CollectionLayout,
 } from "@/components/collections/collection-page";
 import { getCollection, getCollections } from "@/lib/collections/server";
-import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
 import { commerceLocale } from "@/lib/i18n";
 import { getLocale } from "@/lib/i18n/server";
+import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
 
 export async function generateStaticParams() {
   try {

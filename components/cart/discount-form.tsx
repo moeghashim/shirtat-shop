@@ -5,10 +5,10 @@ import { cn } from "cn";
 import { Loader2, X } from "lucide-react";
 import { useState } from "react";
 
+import { T } from "@/components/i18n/t";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart, useCartForm } from "@/lib/cart/client";
-import { T } from "@/components/i18n/t";
 import { useT } from "@/lib/i18n/client";
 
 interface DiscountFormProps {
@@ -108,7 +108,9 @@ export function DiscountForm({ cart }: DiscountFormProps) {
                   <input type="hidden" {...register("discountCode", { value: discount.code })} />
                   <span className={cn(isInvalid && "line-through")}>{discount.code}</span>
                   {isInvalid ? (
-                    <span className="text-xs uppercase tracking-wide"><T k="Not applicable" /></span>
+                    <span className="text-xs uppercase tracking-wide">
+                      <T k="Not applicable" />
+                    </span>
                   ) : null}
                   <button
                     {...register("discount-remove")}

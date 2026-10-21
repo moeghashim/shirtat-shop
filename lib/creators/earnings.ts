@@ -16,12 +16,18 @@ export interface CreatorEarnings {
   converted: boolean;
   currency: "USD";
   earnings: number;
+  /** Net sales before refunds. */
+  grossSales: number;
+  /** After refunds. */
   netSales: number;
   payable: number;
   pending: number;
   products: ProductEarnings[];
+  quarterNet: number;
   quarterUnits: number;
   rate: number;
+  refundedUnits: number;
+  refunds: number;
   tier: "standard" | "top";
   units: number;
   windowDays: number;
@@ -99,22 +105,36 @@ export async function getCreatorProducts(
 
 const ORDERS_QUERY = `query CreatorOrders($cursor: String) {
   shop { currencyCode }
-  orders(first: 100, after: $cursor, query: "status:any -status:cancelled") {
+  orders(first: 50, after: $cursor, query: "status:any -status:cancelled") {
     pageInfo { hasNextPage endCursor }
     nodes {
       createdAt
       lineItems(first: 100) {
         nodes {
+          id
           quantity
-          title
           product { id }
           originalTotalSet { shopMoney { amount currencyCode } presentmentMoney { amount currencyCode } }
           discountAllocations { allocatedAmountSet { shopMoney { amount } presentmentMoney { amount } } }
         }
       }
+      refunds {
+        refundLineItems(first: 100) {
+          nodes {
+            quantity
+            lineItem { id }
+            subtotalSet { shopMoney { amount currencyCode } presentmentMoney { amount currencyCode } }
+          }
+        }
+      }
     }
   }
 }`;
+
+interface MoneyBag {
+  presentmentMoney: Money;
+  shopMoney: Money;
+}
 
 interface OrdersJson {
   data?: {
@@ -123,15 +143,18 @@ interface OrdersJson {
         createdAt: string;
         lineItems: {
           nodes: {
-            discountAllocations: {
-              allocatedAmountSet: { presentmentMoney: Money; shopMoney: Money };
-            }[];
-            originalTotalSet: { presentmentMoney: Money; shopMoney: Money };
+            discountAllocations: { allocatedAmountSet: MoneyBag }[];
+            id: string;
+            originalTotalSet: MoneyBag;
             product: { id: string } | null;
             quantity: number;
-            title: string;
           }[];
         };
+        refunds: {
+          refundLineItems: {
+            nodes: { lineItem: { id: string }; quantity: number; subtotalSet: MoneyBag }[];
+          };
+        }[];
       }[];
       pageInfo: { endCursor: string | null; hasNextPage: boolean };
     };
@@ -140,55 +163,52 @@ interface OrdersJson {
   errors?: unknown;
 }
 
+/** One order line in USD, with refunds for that line (converted at the order-date rate). */
+export interface OrderLine {
+  converted: boolean;
+  createdAt: number;
+  netUsd: number;
+  productId: string;
+  quantity: number;
+  refundedQty: number;
+  refundedUsd: number;
+}
+
 function quarterStart(now: Date): number {
   return Date.UTC(now.getUTCFullYear(), Math.floor(now.getUTCMonth() / 3) * 3, 1);
 }
 
-/**
- * Earnings from the last 60 days of orders (Shopify read_orders limit).
- * Net item price = line price after all allocated discounts, excluding tax and shipping.
- */
-export async function getCreatorEarnings(creator: CreatorRecord): Promise<CreatorEarnings | null> {
+/** All order lines from the last 60 days (Shopify read_orders limit), normalised to USD. */
+export async function getOrderLines(): Promise<OrderLine[] | null> {
   const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-  if (!domain || !creator.handle) return null;
-  const products = await getCreatorProducts(creator.handle);
-  const byId = new Map(products.map((p) => [p.id, p]));
+  if (!domain) return null;
   const token = await getAdminToken(domain);
   if (!token) return null;
-
   const now = new Date();
-  const holdCutoff = now.getTime() - CREATOR_TERMS.holdDays * 86400000;
-  const qStart = quarterStart(now);
-  const perProduct = new Map<string, ProductEarnings>();
-  let converted = false;
   let fx: Map<string, number> | null = null;
   const toUsd = async (
+    bag: MoneyBag,
     presentment: number,
-    presentmentCcy: string | undefined,
     shop: number,
     shopCcy: string,
     date: string,
   ) => {
-    if (presentmentCcy === "USD") return presentment;
-    if (shopCcy === "USD") return shop;
+    if (bag.presentmentMoney.currencyCode === "USD") return { converted: false, usd: presentment };
+    const ccy = bag.shopMoney.currencyCode ?? shopCcy;
+    if (ccy === "USD") return { converted: false, usd: shop };
     if (!fx) {
       const start = new Date(now.getTime() - (CREATOR_TERMS.ordersWindowDays + 7) * 86400000)
         .toISOString()
         .slice(0, 10);
-      fx = await getUsdRates(shopCcy, start, now.toISOString().slice(0, 10));
+      fx = await getUsdRates(ccy, start, now.toISOString().slice(0, 10));
     }
     const rate = rateOn(fx, date);
     if (!rate) throw new Error("FX rate missing");
-    converted = true;
-    return shop * rate;
+    return { converted: true, usd: shop * rate };
   };
-  let units = 0;
-  let netSales = 0;
-  let quarterUnits = 0;
-  let matureNet = 0;
+  const out: OrderLine[] = [];
   let cursor: string | null = null;
-
-  for (let page = 0; page < 50; page++) {
+  for (let page = 0; page < 100; page++) {
     const res: Response = await fetch(`https://${domain}/admin/api/${API_VERSION}/graphql.json`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": token },
@@ -200,51 +220,116 @@ export async function getCreatorEarnings(creator: CreatorRecord): Promise<Creato
     if (!json.data) return null;
     const shopCcy = json.data.shop.currencyCode;
     for (const order of json.data.orders.nodes) {
-      const created = new Date(order.createdAt).getTime();
+      const date = order.createdAt.slice(0, 10);
+      const refunds = new Map<
+        string,
+        { qty: number; presentment: number; shop: number; bag: MoneyBag }
+      >();
+      for (const r of order.refunds) {
+        for (const rl of r.refundLineItems.nodes) {
+          const e = refunds.get(rl.lineItem.id) ?? {
+            bag: rl.subtotalSet,
+            presentment: 0,
+            qty: 0,
+            shop: 0,
+          };
+          e.qty += rl.quantity;
+          e.presentment += Number(rl.subtotalSet.presentmentMoney.amount) || 0;
+          e.shop += Number(rl.subtotalSet.shopMoney.amount) || 0;
+          refunds.set(rl.lineItem.id, e);
+        }
+      }
       for (const line of order.lineItems.nodes) {
-        const product = line.product ? byId.get(line.product.id) : undefined;
-        if (!product) continue;
-        const sumAlloc = (key: "presentmentMoney" | "shopMoney") =>
+        if (!line.product) continue;
+        const alloc = (k: "presentmentMoney" | "shopMoney") =>
           line.discountAllocations.reduce(
-            (sum, d) => sum + (Number(d.allocatedAmountSet[key].amount) || 0),
+            (sum, d) => sum + (Number(d.allocatedAmountSet[k].amount) || 0),
             0,
           );
-        const netPresentment = Math.max(
+        const netP = Math.max(
           0,
-          (Number(line.originalTotalSet.presentmentMoney.amount) || 0) -
-            sumAlloc("presentmentMoney"),
+          (Number(line.originalTotalSet.presentmentMoney.amount) || 0) - alloc("presentmentMoney"),
         );
-        const netShop = Math.max(
+        const netS = Math.max(
           0,
-          (Number(line.originalTotalSet.shopMoney.amount) || 0) - sumAlloc("shopMoney"),
+          (Number(line.originalTotalSet.shopMoney.amount) || 0) - alloc("shopMoney"),
         );
-        const net = await toUsd(
-          netPresentment,
-          line.originalTotalSet.presentmentMoney.currencyCode,
-          netShop,
-          line.originalTotalSet.shopMoney.currencyCode ?? shopCcy,
-          order.createdAt.slice(0, 10),
-        );
-        units += line.quantity;
-        netSales += net;
-        if (created < holdCutoff) matureNet += net;
-        if (created >= qStart) quarterUnits += line.quantity;
-        const entry = perProduct.get(product.id) ?? {
-          handle: product.handle,
-          netSales: 0,
-          productId: product.id,
-          title: product.title,
-          units: 0,
-        };
-        entry.units += line.quantity;
-        entry.netSales += net;
-        perProduct.set(product.id, entry);
+        const net = await toUsd(line.originalTotalSet, netP, netS, shopCcy, date);
+        const r = refunds.get(line.id);
+        const refunded = r
+          ? await toUsd(r.bag, r.presentment, r.shop, shopCcy, date)
+          : { converted: false, usd: 0 };
+        out.push({
+          converted: net.converted || refunded.converted,
+          createdAt: new Date(order.createdAt).getTime(),
+          netUsd: net.usd,
+          productId: line.product.id,
+          quantity: line.quantity,
+          refundedQty: Math.min(r?.qty ?? 0, line.quantity),
+          refundedUsd: Math.min(refunded.usd, net.usd),
+        });
       }
     }
     if (!json.data.orders.pageInfo.hasNextPage) break;
     cursor = json.data.orders.pageInfo.endCursor;
   }
+  return out;
+}
 
+/**
+ * Earnings from the last 60 days of orders. Net item price = line price after allocated discounts,
+ * excluding tax and shipping, minus refunded amounts. Refunded units do not count towards the tier.
+ */
+export async function getCreatorEarnings(
+  creator: CreatorRecord,
+  sharedLines?: OrderLine[] | null,
+): Promise<CreatorEarnings | null> {
+  if (!creator.handle) return null;
+  const [products, lines] = await Promise.all([
+    getCreatorProducts(creator.handle),
+    sharedLines === undefined ? getOrderLines() : Promise.resolve(sharedLines),
+  ]);
+  if (!lines) return null;
+  const byId = new Map(products.map((p) => [p.id, p]));
+  const now = new Date();
+  const holdCutoff = now.getTime() - CREATOR_TERMS.holdDays * 86400000;
+  const qStart = quarterStart(now);
+  const perProduct = new Map<string, ProductEarnings>();
+  let converted = false;
+  let units = 0;
+  let grossSales = 0;
+  let refunds = 0;
+  let refundedUnits = 0;
+  let quarterUnits = 0;
+  let quarterNet = 0;
+  let matureNet = 0;
+  for (const line of lines) {
+    const product = byId.get(line.productId);
+    if (!product) continue;
+    converted ||= line.converted;
+    const keptUnits = line.quantity - line.refundedQty;
+    const net = line.netUsd - line.refundedUsd;
+    units += keptUnits;
+    grossSales += line.netUsd;
+    refunds += line.refundedUsd;
+    refundedUnits += line.refundedQty;
+    if (line.createdAt < holdCutoff) matureNet += net;
+    if (line.createdAt >= qStart) {
+      quarterUnits += keptUnits;
+      quarterNet += net;
+    }
+    const entry = perProduct.get(product.id) ?? {
+      handle: product.handle,
+      netSales: 0,
+      productId: product.id,
+      title: product.title,
+      units: 0,
+    };
+    entry.units += keptUnits;
+    entry.netSales += net;
+    perProduct.set(product.id, entry);
+  }
+  const netSales = grossSales - refunds;
   const tier =
     creator.tierOverride === "top" ||
     (creator.tierOverride === "auto" && quarterUnits >= CREATOR_TERMS.topUnitsPerQuarter)
@@ -257,7 +342,7 @@ export async function getCreatorEarnings(creator: CreatorRecord): Promise<Creato
   const earnings = netSales * rate;
   const payable = matureNet * rate;
   for (const p of products) {
-    if (!perProduct.has(p.id)) {
+    if (!perProduct.has(p.id))
       perProduct.set(p.id, {
         handle: p.handle,
         netSales: 0,
@@ -265,18 +350,21 @@ export async function getCreatorEarnings(creator: CreatorRecord): Promise<Creato
         title: p.title,
         units: 0,
       });
-    }
   }
   return {
     converted,
     currency: "USD",
     earnings,
+    grossSales,
     netSales,
     payable,
     pending: earnings - payable,
     products: [...perProduct.values()].sort((a, b) => b.units - a.units),
+    quarterNet,
     quarterUnits,
     rate,
+    refundedUnits,
+    refunds,
     tier,
     units,
     windowDays: CREATOR_TERMS.ordersWindowDays,

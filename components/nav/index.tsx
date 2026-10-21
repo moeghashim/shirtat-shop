@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { shopConfig } from "@/lib/config";
+import { getT } from "@/lib/i18n/server";
 import type { MenuItem } from "@/lib/menu/types";
 
 import { NavAccount, NavAccountFallback } from "./account";
@@ -13,7 +14,6 @@ import { LanguageSwitcher } from "./language-switcher";
 import { MobileMenu } from "./mobile-menu";
 import { QuickLinks } from "./quick-links";
 import { SearchModal } from "./search-modal";
-import { getT } from "@/lib/i18n/server";
 
 export async function Nav() {
   const t = await getT();

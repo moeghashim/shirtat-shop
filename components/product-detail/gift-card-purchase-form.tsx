@@ -4,14 +4,14 @@ import { cn } from "cn";
 import { useState } from "react";
 
 import { useCartDrawer } from "@/components/cart/context";
+import { T } from "@/components/i18n/t";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { useProductForm } from "@/lib/product/client";
-import { T } from "@/components/i18n/t";
 import { useT } from "@/lib/i18n/client";
+import { useProductForm } from "@/lib/product/client";
 
 export function GiftCardPurchaseForm() {
   const t = useT();
@@ -60,7 +60,9 @@ export function GiftCardPurchaseForm() {
       <fieldset disabled={pending} data-slot="gift-card-fields" className="grid gap-2.5">
         <div className="grid gap-2.5">
           <div className="flex items-center justify-between gap-2.5">
-            <Label htmlFor="gift-card-email"><T k="Recipient email" /></Label>
+            <Label htmlFor="gift-card-email">
+              <T k="Recipient email" />
+            </Label>
             <Button className="h-auto p-0 text-xs" disabled={pending} type="reset" variant="link">
               Clear recipient details
             </Button>
@@ -76,7 +78,9 @@ export function GiftCardPurchaseForm() {
         </div>
 
         <div className="grid gap-2.5">
-          <Label htmlFor="gift-card-name"><T k="Recipient name" /></Label>
+          <Label htmlFor="gift-card-name">
+            <T k="Recipient name" />
+          </Label>
           <Input
             id="gift-card-name"
             {...register("attributeValue", { defaultValue: "", key: "Recipient name" })}
@@ -87,7 +91,9 @@ export function GiftCardPurchaseForm() {
         </div>
 
         <div className="grid gap-2.5">
-          <Label htmlFor="gift-card-message"><T k="Message" /></Label>
+          <Label htmlFor="gift-card-message">
+            <T k="Message" />
+          </Label>
           <Textarea
             id="gift-card-message"
             {...register("attributeValue", { defaultValue: "", key: "Message" })}
@@ -98,7 +104,9 @@ export function GiftCardPurchaseForm() {
 
         <div className="grid gap-3 rounded-lg border p-3">
           <div className="flex items-center justify-between gap-2.5">
-            <Label htmlFor="gift-card-send-later"><T k="Schedule for later" /></Label>
+            <Label htmlFor="gift-card-send-later">
+              <T k="Schedule for later" />
+            </Label>
             <Switch
               id="gift-card-send-later"
               checked={sendOnEnabled}
@@ -120,7 +128,9 @@ export function GiftCardPurchaseForm() {
           </div>
           {sendOnEnabled ? (
             <div className="grid gap-2.5">
-              <Label htmlFor="gift-card-send-on"><T k="Delivery date" /></Label>
+              <Label htmlFor="gift-card-send-on">
+                <T k="Delivery date" />
+              </Label>
               <Input
                 id="gift-card-send-on"
                 {...register("attributeValue", { defaultValue: "", key: "Send on" })}

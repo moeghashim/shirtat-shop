@@ -4,16 +4,16 @@ import type { CartLine as HydrogenCartLine } from "@shopify/hydrogen";
 import { MinusIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import Image from "next/image";
 
+import { T } from "@/components/i18n/t";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { Link } from "@/components/ui/link";
 import { useCart } from "@/lib/cart/client";
 import type { CartLine } from "@/lib/cart/types";
+import { useT } from "@/lib/i18n/client";
 import { formatPrice } from "@/lib/money";
 
 import { CartLineForm } from "./line-form";
 import { CartWarnings } from "./warnings";
-import { T } from "@/components/i18n/t";
-import { useT } from "@/lib/i18n/client";
 
 interface CartLineItemsProps {
   lines: CartLine[];
@@ -128,7 +128,9 @@ function CartLineItem({ item }: CartLineItemProps) {
           </div>
           {components.length ? (
             <div className="grid gap-1">
-              <p className="text-xs font-medium text-muted-foreground"><T k="Bundle Includes" /></p>
+              <p className="text-xs font-medium text-muted-foreground">
+                <T k="Bundle Includes" />
+              </p>
               <ul className="grid gap-0.5">
                 {components.map((component) => (
                   <li

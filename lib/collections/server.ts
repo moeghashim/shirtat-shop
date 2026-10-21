@@ -10,6 +10,8 @@ import type {
 } from "@/lib/collections/types";
 import { shopConfig } from "@/lib/config";
 import type { CommerceLocale } from "@/lib/config/types";
+import { commerceLocale, type Locale, translate } from "@/lib/i18n";
+import { getLocale } from "@/lib/i18n/server";
 import { tagProducts } from "@/lib/product/server";
 import { buildAlternates, buildOpenGraph } from "@/lib/seo";
 import {
@@ -22,8 +24,6 @@ import {
   fetchSearchFacets,
   fetchSearchIndexProducts,
 } from "@/lib/shopify/operations/products/server";
-import { commerceLocale, type Locale, translate } from "@/lib/i18n";
-import { getLocale } from "@/lib/i18n/server";
 
 // /collections/all is a local virtual collection with no Storefront API equivalent.
 export const ALL_PRODUCTS_HANDLE = "all";

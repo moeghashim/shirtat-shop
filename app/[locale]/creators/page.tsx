@@ -28,7 +28,7 @@ const FAQ = [
   ],
   [
     "How is my share calculated?",
-    "On the net item price: what the customer paid for your product after discounts, excluding tax and shipping. Refunded or cancelled orders are not paid.",
+    "On the net item price: what the customer paid for your product after discounts, excluding tax and shipping. Refunds are deducted, and cancelled orders are not paid.",
   ],
   [
     "When do I get paid?",
@@ -56,6 +56,7 @@ export default async function CreatorsPage() {
       amount: CREATOR_TERMS.minimumPayoutUsd,
     }),
     t("Paid by PayPal or Wise, your choice."),
+    t("Refunded items are deducted from your net sales and earnings."),
     t("Non-exclusive: you keep the rights and can sell your work anywhere."),
     t("You must own the rights to every design you submit."),
     t(

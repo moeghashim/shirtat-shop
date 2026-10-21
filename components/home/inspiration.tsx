@@ -47,7 +47,9 @@ export async function Inspiration() {
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">
             {t("Inspiration")}
           </p>
-          <h2 className="text-3xl font-semibold md:text-5xl">{t("Inspired by the art of the pen")}</h2>
+          <h2 className="text-3xl font-semibold md:text-5xl">
+            {t("Inspired by the art of the pen")}
+          </h2>
           <p className="text-muted-foreground md:text-lg">
             {t(
               "For centuries, Arabic calligraphy has turned words into art. We bring that tradition off the page and onto clothing, so every piece is wearable art.",

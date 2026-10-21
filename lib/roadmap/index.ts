@@ -47,12 +47,14 @@ export const roadmapPhases: RoadmapPhase[] = [
   {
     title: "Approval email",
     status: "in-progress",
-    summary: "When Moe approves a creator, they automatically get an email with a link to their creator details form.",
+    summary:
+      "When Moe approves a creator, they automatically get an email with a link to their creator details form.",
   },
   {
     title: "Design uploads",
     status: "done",
-    summary: "Creators upload designs that go to the store as drafts, which Moe publishes in one click.",
+    summary:
+      "Creators upload designs that go to the store as drafts, which Moe publishes in one click.",
   },
   {
     title: "Product types",
@@ -62,8 +64,9 @@ export const roadmapPhases: RoadmapPhase[] = [
   },
   {
     title: "Creators admin performance",
-    status: "next",
-    summary: "A performance section in the creators admin showing sales, activity and status for each creator.",
+    status: "done",
+    summary:
+      "A performance section in the creators admin showing sales, activity and status for each creator.",
   },
   {
     title: "Creator payouts",

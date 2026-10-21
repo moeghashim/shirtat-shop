@@ -15,14 +15,14 @@ import {
   useState,
 } from "react";
 
+import { T } from "@/components/i18n/t";
 import { Price } from "@/components/product/price";
 import { Dialog, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { localizeHref } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { useRecentlyViewedProducts } from "@/lib/product/client";
 import { usePredictiveSearch } from "@/lib/search/client";
 import type { PredictiveSearchProduct, SearchSuggestion } from "@/lib/search/types";
-import { T } from "@/components/i18n/t";
-import { useLocale, useT } from "@/lib/i18n/client";
-import { localizeHref } from "@/lib/i18n";
 
 export function SearchModal() {
   const [open, setOpen] = useState(false);
@@ -55,7 +55,9 @@ function SearchTrigger() {
           className="flex items-center justify-center text-foreground hover:text-foreground/80 transition-colors"
         >
           <Search className="size-5" />
-          <span className="sr-only"><T k="Search" /></span>
+          <span className="sr-only">
+            <T k="Search" />
+          </span>
         </button>
       }
     />
@@ -136,7 +138,9 @@ function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boo
         }}
       >
         <div className="w-full max-w-xl h-fit">
-          <DialogTitle className="sr-only"><T k="Search" /></DialogTitle>
+          <DialogTitle className="sr-only">
+            <T k="Search" />
+          </DialogTitle>
           <div className="bg-background rounded-xl shadow-lg overflow-hidden duration-200">
             <form onSubmit={handleSubmit} className="flex items-center gap-3 px-4 py-3">
               <Search className="size-4 shrink-0 text-foreground/40" />
@@ -174,7 +178,9 @@ function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boo
               )}
               <DialogPrimitive.Close className="shrink-0 flex items-center justify-center rounded-full text-foreground/40 hover:text-foreground transition-colors">
                 <X className="size-4" />
-                <span className="sr-only"><T k="Close" /></span>
+                <span className="sr-only">
+                  <T k="Close" />
+                </span>
               </DialogPrimitive.Close>
             </form>
 

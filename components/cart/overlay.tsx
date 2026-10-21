@@ -3,6 +3,7 @@
 import { Loader2, XIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { T } from "@/components/i18n/t";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -12,14 +13,13 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart/client";
+import { localizeHref } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/i18n/client";
 
 import { useCartDrawer } from "./context";
 import { CartLineItems } from "./line-item";
 import { CartSummary } from "./summary";
 import { CartWarnings } from "./warnings";
-import { T } from "@/components/i18n/t";
-import { useLocale, useT } from "@/lib/i18n/client";
-import { localizeHref } from "@/lib/i18n";
 
 function CartCountBadge() {
   const count = useCart((state) => state.data.totalQuantity);
@@ -43,7 +43,12 @@ export function CartOverlay({ description, title }: CartOverlayProps) {
 
   return (
     <Sheet open={isOverlayOpen} onOpenChange={setOverlayOpen}>
-      <SheetContent closeButton={false} overlay={false} side={locale === "ar" ? "left" : "right"} className="gap-0 p-0">
+      <SheetContent
+        closeButton={false}
+        overlay={false}
+        side={locale === "ar" ? "left" : "right"}
+        className="gap-0 p-0"
+      >
         <div className="flex h-16 shrink-0 items-center justify-between gap-2 px-2.5">
           <div className="flex items-center gap-1.5">
             <SheetTitle className="font-normal text-xl leading-4">{title}</SheetTitle>
@@ -82,7 +87,9 @@ function OverlayContent() {
       <div className="flex h-full flex-col gap-5 px-2.5">
         <CartWarnings />
         <div className="flex flex-1 flex-col items-center justify-center text-center">
-          <h3 className="mb-6 text-2xl"><T k="Your cart is empty" /></h3>
+          <h3 className="mb-6 text-2xl">
+            <T k="Your cart is empty" />
+          </h3>
           <Button
             onClick={() => {
               setOverlayOpen(false);

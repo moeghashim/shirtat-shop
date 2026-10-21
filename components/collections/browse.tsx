@@ -1,16 +1,16 @@
 import { type ReactNode, Suspense } from "react";
 
+import { T } from "@/components/i18n/t";
 import { ProductCard } from "@/components/product-card/product-card";
 import { ProductsGridSkeleton } from "@/components/product/products-grid";
 import { PRODUCTS_PER_PAGE } from "@/lib/collections";
 import type { BrowseResults, BrowseState, SortValue } from "@/lib/collections/types";
+import { getT } from "@/lib/i18n/server";
 
 import { BrowsePublisher, CollectionBrowseProvider } from "./collection-browse-provider";
 import { CollectionFilters } from "./filters";
 import { InfiniteProductGrid } from "./infinite-product-grid";
 import { BrowseToolbar } from "./toolbar";
-import { T } from "@/components/i18n/t";
-import { getT } from "@/lib/i18n/server";
 
 interface BrowseProps {
   path: string;
@@ -75,7 +75,9 @@ async function BrowseResultsGrid({ results }: BrowseResultsGridProps) {
     const query = source.type === "search" ? source.query : undefined;
     return (
       <div className="py-10 text-center">
-        <h2 className="mb-2 text-2xl"><T k="No products found" /></h2>
+        <h2 className="mb-2 text-2xl">
+          <T k="No products found" />
+        </h2>
         <p className="text-muted-foreground">
           {query ? `We couldn't find any products matching "${query}"` : "No products available"}
         </p>

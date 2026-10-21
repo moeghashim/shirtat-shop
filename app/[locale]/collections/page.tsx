@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 
 import { CollectionCard } from "@/components/collections/collection-card";
+import { T } from "@/components/i18n/t";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
 import { getCollectionsListing } from "@/lib/collections/server";
-import { buildAlternates, buildOpenGraph } from "@/lib/seo";
-import { T } from "@/components/i18n/t";
 import { commerceLocale } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
+import { buildAlternates, buildOpenGraph } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -45,7 +45,9 @@ export default async function CollectionsPage() {
     <Page className="pt-2.5 md:pt-10">
       <Container>
         <Sections className="gap-5">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl"><T k="Collections" /></h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl">
+            <T k="Collections" />
+          </h1>
 
           {collections.length > 0 ? (
             <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
@@ -58,7 +60,9 @@ export default async function CollectionsPage() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground"><T k="No collections found." /></p>
+            <p className="text-muted-foreground">
+              <T k="No collections found." />
+            </p>
           )}
         </Sections>
       </Container>

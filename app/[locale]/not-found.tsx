@@ -3,13 +3,13 @@ import { headers } from "next/headers";
 import { permanentRedirect, redirect } from "next/navigation";
 import { Suspense } from "react";
 
+import { T } from "@/components/i18n/t";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { Page } from "@/components/ui/page";
 import { shopConfig } from "@/lib/config";
 import { SHOPIFY_ROUTE_TEMPLATES } from "@/lib/shopify/routing";
 import { createRequestStorefrontClient } from "@/lib/shopify/storefront/server";
-import { T } from "@/components/i18n/t";
 
 export default function NotFoundError() {
   return (
@@ -21,7 +21,9 @@ export default function NotFoundError() {
       ) : null}
       <Container className="flex flex-1 flex-col items-center justify-center text-center">
         <div className="flex flex-col items-center text-center gap-2.5">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl"><T k="Page Not Found" /></h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl">
+            <T k="Page Not Found" />
+          </h1>
           <p className="text-sm md:text-base text-muted-foreground max-w-xl">
             The link may be incorrect, or the page has been removed.
           </p>

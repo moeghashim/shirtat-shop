@@ -3,7 +3,7 @@ import { promisify } from "node:util";
 
 import { cookies } from "next/headers";
 
-import { getUserByEmail } from "./store";
+import { getAdminPasswordHash, getUserByEmail } from "./store";
 import { ADMIN_EMAIL } from "./terms";
 
 const scrypt = promisify(scryptCb) as (pw: string, salt: Buffer, keylen: number) => Promise<Buffer>;
@@ -85,7 +85,7 @@ export function isAdminEmail(email: string): boolean {
 export async function authenticate(email: string, password: string): Promise<Session | null> {
   const normalized = email.trim().toLowerCase();
   if (isAdminEmail(normalized)) {
-    const hash = process.env.ADMIN_PASSWORD_HASH;
+    const hash = (await getAdminPasswordHash()) ?? process.env.ADMIN_PASSWORD_HASH;
     if (hash && (await verifyPassword(password, hash))) {
       return { email: normalized, isAdmin: true, uid: "admin" };
     }
