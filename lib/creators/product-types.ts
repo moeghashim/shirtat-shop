@@ -1,8 +1,7 @@
 /**
  * Product types creators can choose for a design. One config drives the upload form (EN/AR),
  * the Shopify draft (productType, standard category, variants) and the matching collection.
- * basePrice is the USD placeholder price shown on the site. The Shopify store stays in GBP, so drafts
- * are created at the GBP equivalent (today's rate) and display back as roughly this USD price.
+ * basePrice is the USD placeholder price set natively on the Shopify draft (store currency is USD).
  */
 export interface ProductTypeConfig {
   basePrice: string;

@@ -12,7 +12,6 @@ import { CartUI } from "@/components/cart/cart-ui";
 import { CartProviderWrapper } from "@/components/cart/context";
 import { CartStandardActionsScript } from "@/components/cart/standard-actions";
 import { Footer } from "@/components/footer";
-import { FxRate } from "@/components/fx-rate";
 import { Nav } from "@/components/nav";
 import { SiteSchema } from "@/components/schema/site-schema";
 import { botIdProtectedRoutes } from "@/lib/botid";
@@ -21,8 +20,6 @@ import { shopConfig } from "@/lib/config";
 import { locales, localeDir, translate } from "@/lib/i18n";
 import { LocaleProvider } from "@/lib/i18n/client";
 import { getLocale } from "@/lib/i18n/server";
-import { setGbpUsdRate } from "@/lib/money/fx";
-import { getCachedGbpUsdRate } from "@/lib/money/fx-server";
 import { buildAlternates } from "@/lib/seo";
 
 export const ensureStatic = "prefetch";
@@ -51,8 +48,6 @@ export const generateStaticParams = async () => locales.map((locale) => ({ local
 
 export default async function RootLayout({ children }: LayoutProps<"/[locale]">) {
   const locale = await getLocale();
-  const fxRate = await getCachedGbpUsdRate();
-  setGbpUsdRate(fxRate);
   const t = (key: string) => translate(locale, key);
   // Un-awaited: the promise streams to the client provider; never block the shell on it.
   const cartData = seedCartData();
@@ -73,7 +68,6 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
         </a>
         <SiteSchema />
 
-        <FxRate rate={fxRate} />
         <LocaleProvider locale={locale}>
           <CartProviderWrapper cartData={cartData}>
             <Nav />

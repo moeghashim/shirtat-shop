@@ -60,11 +60,6 @@ export function CartTotal({ cart }: CartTotalProps) {
       <p className="text-muted-foreground text-xs">
         <T k="Taxes and shipping calculated at checkout." />
       </p>
-      {currencyCode && currencyCode !== "USD" && (
-        <p className="text-muted-foreground text-xs">
-          <T k="Prices are shown in US dollars. For now, checkout charges the equivalent amount in British pounds." />
-        </p>
-      )}
     </div>
   );
 }

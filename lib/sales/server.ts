@@ -104,7 +104,7 @@ export async function getSalesFigures(): Promise<SalesFigures | null> {
         const amount = Number(order.totalPriceSet.shopMoney.amount) || 0;
         const fx = rates ? rateOn(rates, order.createdAt.slice(0, 10)) : 1;
         if (!fx) return null;
-        // Converted to USD at the order-date rate (store currency stays GBP).
+        // Historical non-USD orders are converted to USD at the order-date rate.
         const revenue = amount * fx;
         const units = order.lineItems.nodes.reduce((sum, item) => sum + item.quantity, 0);
         for (const bucket of new Date(order.createdAt).getTime() >= cutoff
