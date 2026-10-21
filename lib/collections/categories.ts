@@ -56,6 +56,8 @@ export function localizeCategory<T extends { description: string; handle: string
   const cat = getCategory(collection.handle);
   if (!cat) return collection;
   const out = { ...collection, description: cat.descriptionAr, title: cat.labelAr };
+  if ("seo" in out && out.seo && typeof out.seo === "object")
+    (out as Record<string, unknown>).seo = { description: cat.descriptionAr, title: cat.labelAr };
   if ("descriptionHtml" in out) (out as Record<string, unknown>).descriptionHtml = `<p>${cat.descriptionAr}</p>`;
   return out;
 }

@@ -1,5 +1,9 @@
 /** Arabic (Modern Standard Arabic) UI copy, keyed by the English source string. */
 export const ar = {
+  Cultures: "ثقافات",
+  Humor: "فكاهة",
+  Occasions: "مناسبات",
+  Poetry: "شعر",
   ' for "{query}"': " عن «{query}»",
   Account: "الحساب",
   "Add to Cart": "أضف إلى السلة",

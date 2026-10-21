@@ -29,6 +29,7 @@ export const logDays: LogDay[] = [
       "The Shopify store now runs in US dollars, so the site shows Shopify's own USD prices and checkout charges in dollars. Older pound orders are still converted at the order-date rate for sales and creator figures.",
       "Changed the public contact email to contact@shirtat.co on all pages and in creator emails, which now reply to that address.",
       "Replaced the store categories with four themes: Poetry, Humor (Arab street slang), Cultures and Occasions (Eid, birthdays, engagement nights and more), with Arabic names on /ar. Creators now pick one of these categories when uploading a design. The product-type collections are kept in Shopify but no longer shown as categories.",
+      "Added Poetry, Humor, Cultures and Occasions to the main menu on desktop and mobile, in English and Arabic, and made category page titles and descriptions fully Arabic on /ar.",
     ],
   },
   {

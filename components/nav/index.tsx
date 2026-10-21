@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
+import { CATEGORIES } from "@/lib/collections/categories";
 import { shopConfig } from "@/lib/config";
 import { getT } from "@/lib/i18n/server";
 import type { MenuItem } from "@/lib/menu/types";
@@ -19,6 +20,12 @@ export async function Nav() {
   const t = await getT();
   const items: MenuItem[] = [
     { id: "default-nav-shop", items: [], title: t("Shop"), url: "/collections/all" },
+    ...CATEGORIES.map((c) => ({
+      id: `nav-category-${c.id}`,
+      items: [],
+      title: t(c.labelEn),
+      url: `/collections/${c.id}`,
+    })),
     { id: "nav-creators", items: [], title: t("Creators"), url: "/creators" },
   ];
   return (

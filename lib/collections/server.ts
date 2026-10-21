@@ -36,7 +36,7 @@ function tagCollections(collections: Array<{ handle: string }>): void {
 }
 
 // Bump to start a fresh remote cache entry when the collection set or its shaping changes.
-const COLLECTIONS_CACHE_VERSION = 2;
+const COLLECTIONS_CACHE_VERSION = 3;
 
 export async function getCollections(
   params: { limit?: number; locale?: CommerceLocale } = {},
