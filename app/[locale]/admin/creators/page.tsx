@@ -76,7 +76,7 @@ async function AdminContent({
           ? "Email provider not configured yet. A new link was generated; copy it below and send it manually."
           : "Email failed to send. A new link was generated; copy it below."
     : typeof flag === "string"
-      ? MESSAGES[flag]
+      ? `${MESSAGES[flag] ?? flag}${typeof params.detail === "string" ? ` (${params.detail})` : ""}`
       : undefined;
   const [creators, queue] = await Promise.all([listCreators(), listQueuedEmails()]);
   const latestEmail = new Map(

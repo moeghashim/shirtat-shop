@@ -648,5 +648,9 @@ export async function adminCreateFromDesignAction(form: FormData): Promise<void>
     await saveCreator(designer);
   }
   const failed = results.find((r) => r.error);
-  redirect(failed ? "/admin/creators?error=shopify" : `/admin/creators?created=${results.length}`);
+  redirect(
+    failed
+      ? `/admin/creators?error=shopify&detail=${encodeURIComponent(failed.error!.slice(0, 300))}`
+      : `/admin/creators?created=${results.length}`,
+  );
 }
