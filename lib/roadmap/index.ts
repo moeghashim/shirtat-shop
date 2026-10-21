@@ -46,7 +46,7 @@ export const roadmapPhases: RoadmapPhase[] = [
   },
   {
     title: "Approval email",
-    status: "in-progress",
+    status: "done",
     summary:
       "When Moe approves a creator, they automatically get an email with a link to their creator details form.",
   },
