@@ -44,4 +44,31 @@ export const roadmapPhases: RoadmapPhase[] = [
     status: "done",
     summary: "shirtat.co now points at the live store.",
   },
+  {
+    title: "Approval email",
+    status: "in-progress",
+    summary: "When Moe approves a creator, they automatically get an email with a link to their creator details form.",
+  },
+  {
+    title: "Design uploads",
+    status: "in-progress",
+    summary: "Creators upload designs that go to the store as drafts, which Moe publishes in one click.",
+  },
+  {
+    title: "Product types",
+    status: "in-progress",
+    summary:
+      "Creators pick a T-shirt, hoodie, sweatshirt, tote bag or print, plus colours. Categories are set up in Shopify, and each draft carries its type, sizes and colours.",
+  },
+  {
+    title: "Creators admin performance",
+    status: "next",
+    summary: "A performance section in the creators admin showing sales, activity and status for each creator.",
+  },
+  {
+    title: "Creator payouts",
+    status: "next",
+    summary:
+      "Automated or half-automated payouts at 15% or 20%, with a $25 minimum, in USD converted from GBP at the order-day rate.",
+  },
 ];
