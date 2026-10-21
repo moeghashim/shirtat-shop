@@ -79,6 +79,16 @@ export const generateMetadata = async (): Promise<Metadata> => {
     alternates: buildAlternates({ pathname: "/" }),
     description: shopConfig.site.description,
     generator: shopConfig.site.name,
+    icons: {
+      apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+      icon: [
+        { url: "/favicon.ico", sizes: "48x48" },
+        { url: "/favicon.svg", type: "image/svg+xml" },
+        { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      ],
+    },
+    manifest: "/site.webmanifest",
     metadataBase: new URL(shopConfig.site.url),
     openGraph: {
       images: [{ url: "/og-default.png", width: 1200, height: 628 }],

@@ -7,6 +7,12 @@ export interface LogDay {
 /** Newest day first. Add new days to the top. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-10-21",
+    entries: [
+      "Added a new favicon set: a bold white S from the SHIRTAT wordmark on a black tile for browser tabs, with the full SHIRTAT wordmark on larger app icons.",
+    ],
+  },
+  {
     date: "2026-10-20",
     entries: [
       "Archived the 42 old grocery products.",
