@@ -155,6 +155,7 @@ export const arCreators = {
   Title: "العنوان",
   "Description (English)": "الوصف (بالإنجليزية)",
   "Description (Arabic)": "الوصف (بالعربية)",
+  Category: "التصنيف",
   "Tags (comma separated)": "الوسوم (افصل بينها بفواصل)",
   "Pick at least one colour.": "اختر لونًا واحدًا على الأقل.",
   "Add your design file.": "أضف ملف التصميم.",

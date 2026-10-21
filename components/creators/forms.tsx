@@ -14,6 +14,7 @@ import {
   uploadDesignAction,
 } from "@/lib/creators/actions";
 import { PRODUCT_TYPES } from "@/lib/creators/product-types";
+import { CATEGORIES } from "@/lib/collections/categories";
 import { useLocale, useT } from "@/lib/i18n/client";
 
 const input =
@@ -265,6 +266,20 @@ export function SubmitDesignForm() {
         <p className="text-xs text-muted-foreground">
           {t("Sizes")}: <span dir="ltr">{type.sizes.join(" · ")}</span>
         </p>
+      </fieldset>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-2 text-sm font-medium">{t("Category")} *</legend>
+        <div className="flex flex-wrap gap-2">
+          {CATEGORIES.map((c, i) => (
+            <label
+              key={c.id}
+              className="cursor-pointer rounded-full border border-border px-4 py-2 text-sm has-[:checked]:border-foreground has-[:checked]:bg-foreground has-[:checked]:text-background"
+            >
+              <input className="sr-only" type="radio" name="category" value={c.id} defaultChecked={i === 0} />
+              {locale === "ar" ? c.labelAr : c.labelEn}
+            </label>
+          ))}
+        </div>
       </fieldset>
       <fieldset className="flex flex-col gap-2" key={type.id}>
         <legend className="mb-2 text-sm font-medium">

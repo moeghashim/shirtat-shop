@@ -16,6 +16,8 @@ import {
   verifyPassword,
 } from "./auth";
 import { queueResetEmail, sendApprovalEmail } from "./email";
+import { getCategory } from "@/lib/collections/categories";
+
 import { getProductType } from "./product-types";
 import { archiveProduct, createDraftProduct, publishProduct } from "./shopify-admin";
 import {
@@ -325,7 +327,8 @@ export async function uploadDesignAction(_prev: FormState, form: FormData): Prom
   }
   const type = getProductType(str(form, "productType", 40));
   const title = str(form, "title", 120);
-  if (!type || !title) return { error: "Please fill in all required fields." };
+  const category = getCategory(str(form, "category", 40));
+  if (!type || !title || !category) return { error: "Please fill in all required fields." };
   const allowed = new Set(type.colors.map((c) => c.en));
   const colors = form
     .getAll("colors")
@@ -346,11 +349,17 @@ export async function uploadDesignAction(_prev: FormState, form: FormData): Prom
     id: newId(),
     productTypeId: type.id,
     status: "submitted",
-    tags: str(form, "tags", 300)
-      .split(",")
-      .map((t) => t.trim().slice(0, 40))
-      .filter((t) => t && !t.toLowerCase().startsWith("creator:"))
-      .slice(0, 10),
+    tags: [
+      `category:${category.id}`,
+      ...str(form, "tags", 300)
+        .split(",")
+        .map((t) => t.trim().slice(0, 40))
+        .filter((t) => {
+          const l = t.toLowerCase();
+          return t && !l.startsWith("creator:") && !l.startsWith("category:");
+        })
+        .slice(0, 10),
+    ],
     title,
     updatedAt: now,
   };

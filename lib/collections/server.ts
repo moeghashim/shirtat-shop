@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 
+import { localizeCategory } from "@/lib/collections/categories";
 import { describeCollection, PRODUCTS_PER_PAGE, resolveBrowseParams } from "@/lib/collections";
 import type {
   BrowseResults,
@@ -41,7 +42,9 @@ export async function getCollections(
   cacheLife("max");
   cacheTag("collections", "collections-index");
 
-  const collections = await fetchCollections(params);
+  const collections = (await fetchCollections(params)).map((c) =>
+    localizeCategory(c, params.locale?.language),
+  );
   tagCollections(collections);
   return collections;
 }
@@ -54,7 +57,8 @@ export async function getCollection(params: {
   cacheLife("max");
   cacheTag("collections", `collection-${params.handle}`);
 
-  return fetchCollection(params);
+  const collection = await fetchCollection(params);
+  return collection ? localizeCategory(collection, params.locale?.language) : collection;
 }
 
 export async function getCollectionsListing(
@@ -64,7 +68,9 @@ export async function getCollectionsListing(
   cacheLife("max");
   cacheTag("collections", "collections-index");
 
-  const collections = await fetchCollectionsListing(params);
+  const collections = (await fetchCollectionsListing(params)).map((c) =>
+    localizeCategory(c, params.locale?.language),
+  );
   tagCollections(collections);
   // Thumbnails fall back to product imagery, so product updates must refresh the listing.
   tagProducts(
