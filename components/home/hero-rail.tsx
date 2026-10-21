@@ -3,17 +3,16 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { type PointerEvent, useCallback, useEffect, useRef, useState } from "react";
 
 import { bannerItems } from "@/lib/banner";
 import { CATEGORIES } from "@/lib/collections/categories";
 import { localizeHref } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/client";
 
-const SPRING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
-const SIDE_YAW = 68;
-const SIDE_WIDTH = 0.34;
-const FRONT_SCALE = 1.25;
+const SIDE_YAW = 72;
+const SIDE_SLOT = 0.24;
+const FRONT_SLOT = 0.82;
 
 const PEGBOARD =
   "radial-gradient(circle at center, transparent 2.6px, rgba(40,48,80,0.09) 3px, rgba(40,48,80,0.09) 3.8px, transparent 4.2px)";
@@ -27,6 +26,7 @@ export function HeroRail() {
   const [open, setOpen] = useState<number | null>(null);
   const [active, setActive] = useState<number | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
+  const rack = useRef<HTMLUListElement>(null);
   const n = bannerItems.length;
   const go = useCallback((d: number) => setOpen((o) => (o === null ? o : (o + d + n) % n)), [n]);
 
@@ -70,6 +70,20 @@ export function HeroRail() {
         "Occasions",
       ];
   const yaw = ar ? -SIDE_YAW : SIDE_YAW;
+  const track = (e: PointerEvent<HTMLUListElement>) => {
+    if (e.pointerType !== "mouse") return;
+    const ul = rack.current;
+    if (!ul) return;
+    const current = active === null ? null : ul.children[active]?.getBoundingClientRect();
+    if (current && e.clientX >= current.left && e.clientX <= current.right) return;
+    const rect = ul.getBoundingClientRect();
+    const w = Number.parseFloat(getComputedStyle(ul).getPropertyValue("--w"));
+    const slot = w * SIDE_SLOT;
+    const start = rect.left + (rect.width - slot * n) / 2;
+    const raw = Math.floor((e.clientX - start) / slot);
+    const idx = ar ? n - 1 - raw : raw;
+    setActive(raw < 0 || raw >= n ? null : idx);
+  };
   const fade = { opacity: isOpen ? 0 : 1 };
 
   return (
@@ -86,10 +100,7 @@ export function HeroRail() {
         aria-hidden={isOpen}
       >
         <div ref={scroller} className="overflow-x-auto [scrollbar-width:none]">
-          <div
-            className="relative mx-auto w-max px-8 pt-14 pb-4 [--w:170px] md:px-16 md:pt-20 md:[--w:230px]"
-            onPointerLeave={() => setActive(null)}
-          >
+          <div className="relative mx-auto w-max px-8 pt-14 pb-4 [--w:170px] md:px-16 md:pt-20 md:[--w:230px]">
             <div className="relative">
               <div
                 className="absolute inset-x-0 z-0 h-[9px] rounded-full bg-gradient-to-b from-[#fafafb] via-[#a7acb2] to-[#e4e6e9] shadow-[0_2px_4px_rgba(0,0,0,0.25)]"
@@ -108,40 +119,56 @@ export function HeroRail() {
               </div>
 
               <ul
+                ref={rack}
                 className="relative z-10 flex justify-center"
-                style={{ width: `calc(var(--w) * ${(n - 1) * SIDE_WIDTH + FRONT_SCALE + 0.9})` }}
+                style={{ width: `calc(var(--w) * ${(n - 1) * SIDE_SLOT + FRONT_SLOT + 0.7})` }}
+                onPointerLeave={() => setActive(null)}
+                onPointerMove={track}
               >
                 {bannerItems.map((item, i) => {
                   const front = active === i;
                   return (
                     <li
                       key={item.slug}
-                      className="relative shrink-0 transition-[width] duration-500 ease-out motion-reduce:transition-none"
+                      className="relative shrink-0 transition-[width] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
                       style={{
-                        width: `calc(var(--w) * ${front ? FRONT_SCALE : SIDE_WIDTH})`,
+                        width: `calc(var(--w) * ${front ? FRONT_SLOT : SIDE_SLOT})`,
                         zIndex: front ? 20 : 0,
                       }}
                     >
                       <button
                         type="button"
                         onClick={() => setOpen(i)}
-                        onPointerEnter={(e) => e.pointerType === "mouse" && setActive(i)}
                         onFocus={() => setActive(i)}
                         onBlur={() => setActive(null)}
                         tabIndex={isOpen ? -1 : 0}
                         className="absolute inset-0 block cursor-pointer outline-none"
                         aria-label={`${name(i)} – ${price(item.priceUsd)}`}
                       >
+                        {item.sideImage ? (
+                          <span
+                            className="absolute top-0 left-1/2 block w-(--w) -translate-x-1/2 origin-top transition-[transform,opacity] duration-500 motion-reduce:transition-none"
+                            style={{
+                              opacity: front ? 0 : 1,
+                              transform: `perspective(900px) rotateY(${front ? -yaw / 2 : 0}deg)`,
+                            }}
+                          >
+                            <Image
+                              src={item.sideImage}
+                              alt=""
+                              width={600}
+                              height={720}
+                              priority={i < 5}
+                              className="h-auto w-full drop-shadow-[0_8px_10px_rgba(0,0,0,0.16)]"
+                            />
+                          </span>
+                        ) : null}
                         <span
-                          className="absolute top-0 left-1/2 block w-(--w) -translate-x-1/2 origin-top transition-transform duration-700 motion-reduce:transition-none"
-                          style={
-                            {
-                              transform: front
-                                ? `perspective(900px) rotateY(0deg) scale(${FRONT_SCALE})`
-                                : `perspective(900px) rotateY(${yaw}deg)`,
-                              transitionTimingFunction: SPRING,
-                            } as CSSProperties
-                          }
+                          className="absolute top-0 left-1/2 block w-(--w) -translate-x-1/2 origin-top transition-[transform,opacity] duration-500 motion-reduce:transition-none"
+                          style={{
+                            opacity: front || !item.sideImage ? 1 : 0,
+                            transform: `perspective(900px) rotateY(${front ? 0 : yaw}deg)`,
+                          }}
                         >
                           <Image
                             src={item.image}

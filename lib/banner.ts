@@ -5,6 +5,7 @@ export interface BannerItem {
   nameAr: string;
   nameEn: string;
   priceUsd: number;
+  sideImage?: string;
   slug: string;
 }
 
