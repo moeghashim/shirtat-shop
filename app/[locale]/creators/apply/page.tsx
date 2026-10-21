@@ -21,7 +21,9 @@ export default async function ApplyPage() {
       <Container className="max-w-2xl">
         <h1 className="text-3xl md:text-5xl font-semibold">{t("Apply to become a creator")}</h1>
         <p className="mt-3 mb-10 text-muted-foreground">
-          {t("Tell us about yourself and share a few designs. Every application is reviewed by hand.")}
+          {t(
+            "Tell us about yourself and share a few designs. Every application is reviewed by hand.",
+          )}
         </p>
         <ApplyForm />
       </Container>

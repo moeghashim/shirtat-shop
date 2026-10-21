@@ -4,11 +4,21 @@ import { Suspense } from "react";
 
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
-import { adminDeleteAction, adminUpdateAction, signOutAction } from "@/lib/creators/actions";
+import {
+  adminDeleteAction,
+  adminDesignAction,
+  adminResendDetailsAction,
+  adminUpdateAction,
+  signOutAction,
+} from "@/lib/creators/actions";
 import { getSession } from "@/lib/creators/auth";
+import { getProductType } from "@/lib/creators/product-types";
 import { listCreators } from "@/lib/creators/store";
 
-export const metadata: Metadata = { title: "Creators admin", robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Creators admin",
+  robots: { index: false, follow: false },
+};
 
 const MESSAGES: Record<string, string> = {
   deleted: "Creator deleted.",
@@ -16,6 +26,7 @@ const MESSAGES: Record<string, string> = {
   needhandle: "Assign a handle before approving.",
   notfound: "Creator not found.",
   saved: "Saved.",
+  shopify: "Shopify request failed. See the error on the design below.",
   taken: "That handle is already used by another creator.",
 };
 
@@ -32,12 +43,25 @@ export default function AdminCreatorsPage({ searchParams }: PageProps<"/[locale]
   );
 }
 
-async function AdminContent({ searchParams }: Pick<PageProps<"/[locale]/admin/creators">, "searchParams">) {
+async function AdminContent({
+  searchParams,
+}: Pick<PageProps<"/[locale]/admin/creators">, "searchParams">) {
   const session = await getSession();
   if (!session?.isAdmin) redirect("/creators/signin");
   const params = await searchParams;
-  const flag = ["saved", "deleted", "error"].map((k) => (k === "error" ? params.error : params[k] ? k : undefined)).find(Boolean);
-  const message = typeof flag === "string" ? MESSAGES[flag] : undefined;
+  const flag = ["saved", "deleted", "error"]
+    .map((k) => (k === "error" ? params.error : params[k] ? k : undefined))
+    .find(Boolean);
+  const emailFlag = typeof params.email === "string" ? params.email : undefined;
+  const message = emailFlag
+    ? emailFlag === "sent"
+      ? "Details email sent."
+      : emailFlag === "not_configured"
+        ? "Email provider not configured yet. A new link was generated; copy it below and send it manually."
+        : "Email failed to send. A new link was generated; copy it below."
+    : typeof flag === "string"
+      ? MESSAGES[flag]
+      : undefined;
   const creators = await listCreators();
   const pending = creators.filter((c) => c.status === "pending").length;
   const field = "rounded-md border border-border bg-background px-2 py-1 text-sm";
@@ -50,12 +74,17 @@ async function AdminContent({ searchParams }: Pick<PageProps<"/[locale]/admin/cr
         </p>
         <form action={signOutAction}>
           <input type="hidden" name="locale" value="en" />
-          <button className="text-sm underline cursor-pointer" type="submit">Sign out</button>
+          <button className="text-sm underline cursor-pointer" type="submit">
+            Sign out
+          </button>
         </form>
       </div>
-      {message && <p className="rounded-lg border border-border bg-muted/60 px-3 py-2 text-sm">{message}</p>}
+      {message && (
+        <p className="rounded-lg border border-border bg-muted/60 px-3 py-2 text-sm">{message}</p>
+      )}
       <p className="text-sm text-muted-foreground">
-        To link products to a creator, add the tag <code>creator:&lt;handle&gt;</code> to the product in Shopify admin.
+        To link products to a creator, add the tag <code>creator:&lt;handle&gt;</code> to the
+        product in Shopify admin.
       </p>
       {creators.length === 0 && <p className="text-muted-foreground">No applications yet.</p>}
       {creators.map((c) => (
@@ -64,62 +93,306 @@ async function AdminContent({ searchParams }: Pick<PageProps<"/[locale]/admin/cr
             <h2 className="text-lg font-semibold">
               {c.name} <span className="text-sm font-normal text-muted-foreground">{c.email}</span>
             </h2>
-            <span className="rounded-full bg-muted px-3 py-0.5 text-xs font-medium uppercase">{c.status}</span>
+            <span className="rounded-full bg-muted px-3 py-0.5 text-xs font-medium uppercase">
+              {c.status}
+            </span>
           </div>
           <p className="text-sm text-muted-foreground">
-            {c.country} · applied {c.createdAt.slice(0, 10)} · payout {c.payoutMethod} · {c.locale.toUpperCase()}
+            {c.country} · applied {c.createdAt.slice(0, 10)} · payout {c.payoutMethod} ·{" "}
+            {c.locale.toUpperCase()}
             {c.handle ? ` · @${c.handle}` : ""}
           </p>
           <p className="text-sm whitespace-pre-line">{c.bio}</p>
           <ul className="text-sm">
             {c.portfolioLinks.map((l) => (
-              <li key={l}><a className="underline break-all" href={l} rel="noopener noreferrer nofollow" target="_blank">{l}</a></li>
+              <li key={l}>
+                <a
+                  className="underline break-all"
+                  href={l}
+                  rel="noopener noreferrer nofollow"
+                  target="_blank"
+                >
+                  {l}
+                </a>
+              </li>
             ))}
           </ul>
           <details className="text-sm">
-            <summary className="cursor-pointer">Designs ({c.submissions.length})</summary>
+            <summary className="cursor-pointer">
+              Application samples ({c.submissions.length})
+            </summary>
             <ul className="mt-2 flex flex-col gap-2">
               {c.submissions.map((s) => (
                 <li key={s.createdAt} className="flex flex-col gap-1">
-                  <span className="text-muted-foreground">{s.createdAt.slice(0, 16).replace("T", " ")} UTC {s.note && `· ${s.note}`}</span>
+                  <span className="text-muted-foreground">
+                    {s.createdAt.slice(0, 16).replace("T", " ")} UTC {s.note && `· ${s.note}`}
+                  </span>
                   {s.files.map((f) => (
-                    <a key={f.pathname} className="underline" href={`/api/creators/file?p=${encodeURIComponent(f.pathname)}`} target="_blank">{f.name}</a>
+                    <a
+                      key={f.pathname}
+                      className="underline"
+                      href={`/api/creators/file?p=${encodeURIComponent(f.pathname)}`}
+                      target="_blank"
+                    >
+                      {f.name}
+                    </a>
                   ))}
                   {s.links.map((l) => (
-                    <a key={l} className="underline break-all" href={l} rel="noopener noreferrer nofollow" target="_blank">{l}</a>
+                    <a
+                      key={l}
+                      className="underline break-all"
+                      href={l}
+                      rel="noopener noreferrer nofollow"
+                      target="_blank"
+                    >
+                      {l}
+                    </a>
                   ))}
                 </li>
               ))}
             </ul>
           </details>
+          {c.status === "approved" && (
+            <div className="flex flex-col gap-2 rounded-xl bg-muted/50 p-3 text-sm">
+              <p>
+                <strong>Creator details:</strong>{" "}
+                {c.details
+                  ? `submitted ${c.details.submittedAt.slice(0, 10)}`
+                  : "not submitted yet"}
+                {" · "}
+                <strong>Email:</strong>{" "}
+                {c.detailsEmail
+                  ? c.detailsEmail.status === "sent"
+                    ? `sent ${c.detailsEmail.sentAt?.slice(0, 16).replace("T", " ")} UTC`
+                    : c.detailsEmail.status === "not_configured"
+                      ? "not sent (email provider not configured)"
+                      : `failed (${c.detailsEmail.error ?? "error"})`
+                  : "not sent"}
+              </p>
+              {c.details && (
+                <dl className="grid gap-x-4 gap-y-1 sm:grid-cols-2">
+                  <div>
+                    <dt className="inline text-muted-foreground">Legal name: </dt>
+                    <dd className="inline">{c.details.legalName}</dd>
+                  </div>
+                  <div>
+                    <dt className="inline text-muted-foreground">Display name: </dt>
+                    <dd className="inline">{c.details.displayName}</dd>
+                  </div>
+                  <div>
+                    <dt className="inline text-muted-foreground">Payout: </dt>
+                    <dd className="inline">
+                      {c.details.payoutMethod} · {c.details.payoutEmail}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="inline text-muted-foreground">Country: </dt>
+                    <dd className="inline">
+                      {c.details.country}
+                      {c.details.taxId ? ` · tax ID ${c.details.taxId}` : ""}
+                    </dd>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <dt className="inline text-muted-foreground">Address: </dt>
+                    <dd className="inline whitespace-pre-line">{c.details.address}</dd>
+                  </div>
+                  {c.details.wiseDetails && (
+                    <div className="sm:col-span-2">
+                      <dt className="inline text-muted-foreground">Wise: </dt>
+                      <dd className="inline">{c.details.wiseDetails}</dd>
+                    </div>
+                  )}
+                  {c.details.socialHandles && (
+                    <div className="sm:col-span-2">
+                      <dt className="inline text-muted-foreground">Social: </dt>
+                      <dd className="inline">{c.details.socialHandles}</dd>
+                    </div>
+                  )}
+                  {c.details.avatar && (
+                    <div>
+                      <a
+                        className="underline"
+                        href={`/api/creators/file?p=${encodeURIComponent(c.details.avatar.pathname)}`}
+                        target="_blank"
+                      >
+                        Avatar
+                      </a>
+                    </div>
+                  )}
+                </dl>
+              )}
+              {!c.details && c.detailsLink && c.detailsToken && (
+                <p className="break-all text-xs">
+                  Fallback link (expires {c.detailsToken.expiresAt.slice(0, 10)}):{" "}
+                  <code>{c.detailsLink}</code>
+                </p>
+              )}
+              <form action={adminResendDetailsAction}>
+                <input type="hidden" name="id" value={c.id} />
+                <button className="underline cursor-pointer" type="submit">
+                  {c.detailsEmail ? "Resend email (new link)" : "Send details email"}
+                </button>
+              </form>
+            </div>
+          )}
+          {(c.designs?.length ?? 0) > 0 && (
+            <div className="flex flex-col gap-2 text-sm">
+              <h3 className="font-semibold">Uploaded designs</h3>
+              {c.designs!.map((d) => {
+                const type = getProductType(d.productTypeId);
+                return (
+                  <div
+                    key={d.id}
+                    className="flex flex-col gap-1 rounded-xl border border-border p-3"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <span className="font-medium">{d.title}</span>
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-xs uppercase">
+                        {d.status}
+                      </span>
+                    </div>
+                    <p className="text-muted-foreground">
+                      Type:{" "}
+                      <strong className="text-foreground">
+                        {type?.labelEn ?? d.productTypeId}
+                      </strong>{" "}
+                      ({type?.productType}) · colours {d.colors.join(", ")} · sizes{" "}
+                      {type?.sizes.join(", ")} · £{type?.basePrice}
+                      {d.tags.length > 0 && ` · tags ${d.tags.join(", ")}`}
+                    </p>
+                    {d.descriptionEn && <p>{d.descriptionEn}</p>}
+                    {d.descriptionAr && (
+                      <p dir="rtl" lang="ar">
+                        {d.descriptionAr}
+                      </p>
+                    )}
+                    <p className="flex flex-wrap gap-3">
+                      <a
+                        className="underline"
+                        href={`/api/creators/file?p=${encodeURIComponent(d.file.pathname)}`}
+                        target="_blank"
+                      >
+                        Design file
+                      </a>
+                      {d.shopifyProductId && (
+                        <a
+                          className="underline"
+                          href={`https://admin.shopify.com/store/shirtatco/products/${d.shopifyProductId.split("/").pop()}`}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          Open in Shopify
+                        </a>
+                      )}
+                    </p>
+                    {d.error && <p className="text-red-700">Shopify: {d.error}</p>}
+                    <div className="flex flex-wrap gap-2">
+                      {!d.shopifyProductId && d.status !== "rejected" && (
+                        <DesignButton
+                          id={c.id}
+                          designId={d.id}
+                          op="draft"
+                          label="Create Shopify draft"
+                        />
+                      )}
+                      {d.shopifyProductId && d.status === "draft" && (
+                        <DesignButton
+                          id={c.id}
+                          designId={d.id}
+                          op="publish"
+                          label="Publish to store"
+                          primary
+                        />
+                      )}
+                      {d.status !== "rejected" && d.status !== "published" && (
+                        <DesignButton id={c.id} designId={d.id} op="reject" label="Reject" />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
           <form action={adminUpdateAction} className="flex flex-wrap items-end gap-3">
             <input type="hidden" name="id" value={c.id} />
-            <label className="flex flex-col gap-1 text-xs">Status
+            <label className="flex flex-col gap-1 text-xs">
+              Status
               <select name="status" defaultValue={c.status} className={field}>
                 <option value="pending">pending</option>
                 <option value="approved">approved</option>
                 <option value="rejected">rejected</option>
               </select>
             </label>
-            <label className="flex flex-col gap-1 text-xs">Handle
-              <input name="handle" defaultValue={c.handle ?? ""} placeholder="e.g. layla" className={field} />
+            <label className="flex flex-col gap-1 text-xs">
+              Handle
+              <input
+                name="handle"
+                defaultValue={c.handle ?? ""}
+                placeholder="e.g. layla"
+                className={field}
+              />
             </label>
-            <label className="flex flex-col gap-1 text-xs">Tier
+            <label className="flex flex-col gap-1 text-xs">
+              Tier
               <select name="tierOverride" defaultValue={c.tierOverride} className={field}>
                 <option value="auto">auto (15%, 20% at 50+ units/quarter)</option>
                 <option value="standard">standard 15%</option>
                 <option value="top">top 20%</option>
               </select>
             </label>
-            <button className="rounded-full bg-foreground px-4 py-1.5 text-sm text-background cursor-pointer" type="submit">Save</button>
+            <button
+              className="rounded-full bg-foreground px-4 py-1.5 text-sm text-background cursor-pointer"
+              type="submit"
+            >
+              Save
+            </button>
           </form>
-          <form action={adminDeleteAction} className="flex items-center gap-2 text-xs text-muted-foreground">
+          <form
+            action={adminDeleteAction}
+            className="flex items-center gap-2 text-xs text-muted-foreground"
+          >
             <input type="hidden" name="id" value={c.id} />
-            <label className="flex items-center gap-1"><input type="checkbox" name="confirm" value="delete" /> confirm</label>
-            <button className="underline cursor-pointer" type="submit">Delete creator and uploads</button>
+            <label className="flex items-center gap-1">
+              <input type="checkbox" name="confirm" value="delete" /> confirm
+            </label>
+            <button className="underline cursor-pointer" type="submit">
+              Delete creator and uploads
+            </button>
           </form>
         </article>
       ))}
     </div>
+  );
+}
+
+function DesignButton({
+  designId,
+  id,
+  label,
+  op,
+  primary,
+}: {
+  designId: string;
+  id: string;
+  label: string;
+  op: string;
+  primary?: boolean;
+}) {
+  return (
+    <form action={adminDesignAction}>
+      <input type="hidden" name="id" value={id} />
+      <input type="hidden" name="designId" value={designId} />
+      <input type="hidden" name="op" value={op} />
+      <button
+        className={
+          primary
+            ? "rounded-full bg-foreground px-4 py-1.5 text-background cursor-pointer"
+            : "rounded-full border border-border px-4 py-1.5 cursor-pointer"
+        }
+        type="submit"
+      >
+        {label}
+      </button>
+    </form>
   );
 }

@@ -1,6 +1,7 @@
-import { cookies } from "next/headers";
 import { createHmac, randomBytes, scrypt as scryptCb, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
+
+import { cookies } from "next/headers";
 
 import { getUserByEmail } from "./store";
 import { ADMIN_EMAIL } from "./terms";

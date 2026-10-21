@@ -16,6 +16,8 @@ export const logDays: LogDay[] = [
       "Combined the footer credits into one sentence: the project is part of 10claws and fully managed by Grok Bot.",
       "Launched the Shirtat creator program: public program page and application form (English and Arabic), creator accounts with manual approval, an admin page for Moe, and a creator dashboard with sales and earnings.",
       "Set the creator program to US dollars: dashboard figures use the USD order amount when available, otherwise convert from the shop currency at the order-date exchange rate.",
+      "Added product categories to the Shopify store (T-Shirts, Hoodies, Sweatshirts, Tote Bags, Posters & Prints) and a creator details form that approved creators get a secure link to.",
+      "Creators can now upload designs from their dashboard, choosing the product type and colours. Each upload is set up to become a draft product in the store that Moe publishes in one click, once the store connection has product permissions.",
     ],
   },
   {

@@ -5,7 +5,8 @@ import { readUpload } from "@/lib/creators/store";
 export async function GET(request: Request): Promise<Response> {
   const pathname = new URL(request.url).searchParams.get("p") ?? "";
   const session = await getSession();
-  if (!session || !pathname.startsWith("uploads/")) return new Response("Not found", { status: 404 });
+  if (!session || !pathname.startsWith("uploads/"))
+    return new Response("Not found", { status: 404 });
   if (!session.isAdmin && !pathname.startsWith(`uploads/${session.uid}/`)) {
     return new Response("Not found", { status: 404 });
   }

@@ -18,24 +18,50 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const FAQ = [
-  ["Who can apply?", "Any designer or calligrapher whose original work celebrates Arabic script. You must own the rights to the designs you submit."],
-  ["Do I keep the rights to my designs?", "Yes. The licence is non-exclusive: you keep ownership and can sell your work elsewhere. You give Shirtat the right to print and sell the approved designs while they are listed."],
-  ["How is my share calculated?", "On the net item price: what the customer paid for your product after discounts, excluding tax and shipping. Refunded or cancelled orders are not paid."],
-  ["When do I get paid?", "Earnings are held for 30 days to cover returns, then paid monthly by the 15th once your balance reaches $25. Smaller balances roll over."],
-  ["How do I reach the top tier?", "Sell 50 or more units in a calendar quarter and your rate becomes 20% for that quarter."],
-  ["Can the terms change?", "Only with 60 days' notice, never retroactively, and the base rate will never fall below 15%."],
+  [
+    "Who can apply?",
+    "Any designer or calligrapher whose original work celebrates Arabic script. You must own the rights to the designs you submit.",
+  ],
+  [
+    "Do I keep the rights to my designs?",
+    "Yes. The licence is non-exclusive: you keep ownership and can sell your work elsewhere. You give Shirtat the right to print and sell the approved designs while they are listed.",
+  ],
+  [
+    "How is my share calculated?",
+    "On the net item price: what the customer paid for your product after discounts, excluding tax and shipping. Refunded or cancelled orders are not paid.",
+  ],
+  [
+    "When do I get paid?",
+    "Earnings are held for 30 days to cover returns, then paid monthly by the 15th once your balance reaches $25. Smaller balances roll over.",
+  ],
+  [
+    "How do I reach the top tier?",
+    "Sell 50 or more units in a calendar quarter and your rate becomes 20% for that quarter.",
+  ],
+  [
+    "Can the terms change?",
+    "Only with 60 days' notice, never retroactively, and the base rate will never fall below 15%.",
+  ],
 ] as const;
 
 export default async function CreatorsPage() {
   const t = await getT();
   const pct = (n: number) => `${Math.round(n * 100)}%`;
   const terms = [
-    t("Payouts monthly, by the {day}th, for earnings older than {days} days.", { day: CREATOR_TERMS.payoutDayOfMonth, days: CREATOR_TERMS.holdDays }),
-    t("Minimum payout ${amount}; smaller balances roll over to the next month.", { amount: CREATOR_TERMS.minimumPayoutUsd }),
+    t("Payouts monthly, by the {day}th, for earnings older than {days} days.", {
+      day: CREATOR_TERMS.payoutDayOfMonth,
+      days: CREATOR_TERMS.holdDays,
+    }),
+    t("Minimum payout ${amount}; smaller balances roll over to the next month.", {
+      amount: CREATOR_TERMS.minimumPayoutUsd,
+    }),
     t("Paid by PayPal or Wise, your choice."),
     t("Non-exclusive: you keep the rights and can sell your work anywhere."),
     t("You must own the rights to every design you submit."),
-    t("Changes need {days} days' notice, are never retroactive, and the rate never drops below {floor}.", { days: CREATOR_TERMS.noticeDays, floor: pct(CREATOR_TERMS.rateFloor) }),
+    t(
+      "Changes need {days} days' notice, are never retroactive, and the rate never drops below {floor}.",
+      { days: CREATOR_TERMS.noticeDays, floor: pct(CREATOR_TERMS.rateFloor) },
+    ),
   ];
   return (
     <Page>
@@ -44,15 +70,25 @@ export default async function CreatorsPage() {
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">
             {t("Creator program")}
           </p>
-          <h1 className="text-4xl md:text-6xl font-semibold">{t("Your calligraphy, worn around the world")}</h1>
+          <h1 className="text-4xl md:text-6xl font-semibold">
+            {t("Your calligraphy, worn around the world")}
+          </h1>
           <p className="text-lg text-muted-foreground">
-            {t("Submit your Arabic calligraphy designs. We print, sell and ship them, and you earn a share of every sale.")}
+            {t(
+              "Submit your Arabic calligraphy designs. We print, sell and ship them, and you earn a share of every sale.",
+            )}
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link className="rounded-full bg-foreground px-6 py-3 text-background font-medium" href="/creators/apply">
+            <Link
+              className="rounded-full bg-foreground px-6 py-3 text-background font-medium"
+              href="/creators/apply"
+            >
               {t("Apply now")}
             </Link>
-            <Link className="rounded-full border border-border px-6 py-3 font-medium" href="/creators/signin">
+            <Link
+              className="rounded-full border border-border px-6 py-3 font-medium"
+              href="/creators/signin"
+            >
               {t("Creator sign in")}
             </Link>
           </div>
@@ -62,13 +98,17 @@ export default async function CreatorsPage() {
           <div className="rounded-2xl border border-border p-6">
             <p className="text-5xl font-semibold">{pct(CREATOR_TERMS.baseRate)}</p>
             <p className="mt-2 font-medium">{t("Standard rate")}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{t("Of the net item price after discounts, excluding tax and shipping.")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("Of the net item price after discounts, excluding tax and shipping.")}
+            </p>
           </div>
           <div className="rounded-2xl border border-border bg-muted/60 p-6">
             <p className="text-5xl font-semibold">{pct(CREATOR_TERMS.topRate)}</p>
             <p className="mt-2 font-medium">{t("Top creator rate")}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {t("For creators who sell {units} or more units in a calendar quarter.", { units: CREATOR_TERMS.topUnitsPerQuarter })}
+              {t("For creators who sell {units} or more units in a calendar quarter.", {
+                units: CREATOR_TERMS.topUnitsPerQuarter,
+              })}
             </p>
           </div>
         </section>
@@ -78,7 +118,11 @@ export default async function CreatorsPage() {
           <ol className="flex flex-col gap-3 list-decimal ps-5">
             <li>{t("Apply with a few sample designs and links to your work.")}</li>
             <li>{t("We review every application by hand and reply within a few days.")}</li>
-            <li>{t("Once approved, your designs go on Shirtat products. Shirtat covers printing, stock, payments, shipping and customer service.")}</li>
+            <li>
+              {t(
+                "Once approved, your designs go on Shirtat products. Shirtat covers printing, stock, payments, shipping and customer service.",
+              )}
+            </li>
             <li>{t("Track your sales and earnings in your creator dashboard.")}</li>
           </ol>
         </section>
@@ -91,7 +135,9 @@ export default async function CreatorsPage() {
             ))}
           </ul>
           <p className="text-sm text-muted-foreground">
-            {t("Example: a shirt sells for $30 with a $5 discount. The net item price is $25, so you earn $3.75 at 15% or $5.00 at 20%.")}
+            {t(
+              "Example: a shirt sells for $30 with a $5 discount. The net item price is $25, so you earn $3.75 at 15% or $5.00 at 20%.",
+            )}
           </p>
         </section>
 
@@ -107,7 +153,10 @@ export default async function CreatorsPage() {
 
         <section className="mt-16 rounded-2xl bg-muted/60 p-8 text-center">
           <h2 className="text-2xl font-semibold">{t("Ready to share your work?")}</h2>
-          <Link className="mt-5 inline-block rounded-full bg-foreground px-6 py-3 text-background font-medium" href="/creators/apply">
+          <Link
+            className="mt-5 inline-block rounded-full bg-foreground px-6 py-3 text-background font-medium"
+            href="/creators/apply"
+          >
             {t("Apply now")}
           </Link>
         </section>

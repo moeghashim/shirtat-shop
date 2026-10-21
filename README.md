@@ -43,13 +43,16 @@ Creators submit Arabic calligraphy designs and earn a share of sales: **15%** of
 | `/creators` (and `/ar/creators`) | Program overview, rates, terms and FAQ |
 | `/creators/apply` | Application form, which also creates the creator account (email and password) |
 | `/creators/signin` | Sign in for creators and the admin |
-| `/creators/dashboard` | Approved creators: units, net sales, earnings, pending vs payable, tier progress and per-product breakdown; design submissions |
-| `/admin/creators` | Admin only (moe@10claws.com): approve or reject, assign handle, set tier override, view uploads, delete |
+| `/creators/dashboard` | Approved creators: units, net sales, earnings, pending vs payable, tier progress and per-product breakdown; design uploads with status |
+| `/creators/details?t=…` | Creator details form (legal name, display name, payout, tax country/address, socials, bio, avatar), opened from a single-use link that expires after 14 days |
+| `/admin/creators` | Admin only (moe@10claws.com): approve or reject, assign handle, set tier override, see creator details and email status, resend the details link, publish or reject designs, delete |
 
 - **Linking products to a creator:** in Shopify admin, add the product tag `creator:<handle>` (for example `creator:layla`). The handle is the one assigned in `/admin/creators`.
 - **Data:** creator accounts, applications and uploads are stored in a private Vercel Blob store (`shirtat-creators`). Passwords are hashed with scrypt, and sessions are signed, httpOnly cookies.
 - **Admin sign-in:** the admin email cannot be registered publicly; it signs in with the password whose hash is in `ADMIN_PASSWORD_HASH`.
-- **Limitations:** sales come from the last 60 days of orders only (Shopify `read_orders` without `read_all_orders`), so quarterly tier progress counts orders within that window. Refunds are not yet deducted automatically. There are no email notifications; the admin page shows the pending count.
+- **Approval email:** approving a creator issues a details link and emails it in English and Arabic through Resend when `RESEND_API_KEY` and `EMAIL_FROM` are set. Without them, the admin page shows the link to send manually.
+- **Design uploads:** creators pick a product type and colours (config in `lib/creators/product-types.ts`: type, Shopify standard category, sizes, colours, starting GBP price), then upload a PNG or SVG. The upload creates a `DRAFT` Shopify product tagged `creator:<handle>` with Size and Color variants; matching smart collections (`t-shirts`, `hoodies`, `sweatshirts`, `tote-bags`, `posters-prints`) pick it up by product type. "Publish to store" sets it `ACTIVE` and publishes it to the Shirtat Vercel headless channel; "Reject" archives it. Shopify fetches the image through a signed, expiring URL (`/api/creators/asset`). This needs the Admin app to have `write_products`, `read_products` and `write_publications` scopes; until then uploads are saved and the admin can create the draft later.
+- **Limitations:** sales come from the last 60 days of orders only (Shopify `read_orders` without `read_all_orders`), so quarterly tier progress counts orders within that window. Refunds are not yet deducted automatically. There are no new-application notifications; the admin page shows the pending count.
 
 ## Project structure
 

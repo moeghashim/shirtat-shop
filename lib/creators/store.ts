@@ -1,5 +1,6 @@
-import { del, get, list, put } from "@vercel/blob";
 import { createHash, randomUUID } from "node:crypto";
+
+import { del, get, list, put } from "@vercel/blob";
 
 import type { CreatorRecord, UserRecord } from "./types";
 
@@ -43,7 +44,10 @@ export async function getCreator(id: string): Promise<CreatorRecord | null> {
 }
 
 export async function saveCreator(creator: CreatorRecord): Promise<void> {
-  await writeJson(`creators/${creator.id}.json`, { ...creator, updatedAt: new Date().toISOString() });
+  await writeJson(`creators/${creator.id}.json`, {
+    ...creator,
+    updatedAt: new Date().toISOString(),
+  });
 }
 
 export async function listCreators(): Promise<CreatorRecord[]> {
@@ -66,8 +70,12 @@ export async function uploadDesignFile(
 ): Promise<{ contentType: string; name: string; pathname: string; size: number }> {
   const safe = file.name.replace(/[^\w.-]+/g, "_").slice(-80) || "design";
   const pathname = `uploads/${creatorId}/${Date.now()}-${safe}`;
-  await put(pathname, file, { access: ACCESS, addRandomSuffix: true, contentType: file.type });
-  return { contentType: file.type, name: file.name, pathname, size: file.size };
+  const blob = await put(pathname, file, {
+    access: ACCESS,
+    addRandomSuffix: true,
+    contentType: file.type,
+  });
+  return { contentType: file.type, name: file.name, pathname: blob.pathname, size: file.size };
 }
 
 export async function readUpload(pathname: string) {

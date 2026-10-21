@@ -123,7 +123,9 @@ interface OrdersJson {
         createdAt: string;
         lineItems: {
           nodes: {
-            discountAllocations: { allocatedAmountSet: { presentmentMoney: Money; shopMoney: Money } }[];
+            discountAllocations: {
+              allocatedAmountSet: { presentmentMoney: Money; shopMoney: Money };
+            }[];
             originalTotalSet: { presentmentMoney: Money; shopMoney: Money };
             product: { id: string } | null;
             quantity: number;
@@ -160,11 +162,19 @@ export async function getCreatorEarnings(creator: CreatorRecord): Promise<Creato
   const perProduct = new Map<string, ProductEarnings>();
   let converted = false;
   let fx: Map<string, number> | null = null;
-  const toUsd = async (presentment: number, presentmentCcy: string | undefined, shop: number, shopCcy: string, date: string) => {
+  const toUsd = async (
+    presentment: number,
+    presentmentCcy: string | undefined,
+    shop: number,
+    shopCcy: string,
+    date: string,
+  ) => {
     if (presentmentCcy === "USD") return presentment;
     if (shopCcy === "USD") return shop;
     if (!fx) {
-      const start = new Date(now.getTime() - (CREATOR_TERMS.ordersWindowDays + 7) * 86400000).toISOString().slice(0, 10);
+      const start = new Date(now.getTime() - (CREATOR_TERMS.ordersWindowDays + 7) * 86400000)
+        .toISOString()
+        .slice(0, 10);
       fx = await getUsdRates(shopCcy, start, now.toISOString().slice(0, 10));
     }
     const rate = rateOn(fx, date);
@@ -195,9 +205,19 @@ export async function getCreatorEarnings(creator: CreatorRecord): Promise<Creato
         const product = line.product ? byId.get(line.product.id) : undefined;
         if (!product) continue;
         const sumAlloc = (key: "presentmentMoney" | "shopMoney") =>
-          line.discountAllocations.reduce((sum, d) => sum + (Number(d.allocatedAmountSet[key].amount) || 0), 0);
-        const netPresentment = Math.max(0, (Number(line.originalTotalSet.presentmentMoney.amount) || 0) - sumAlloc("presentmentMoney"));
-        const netShop = Math.max(0, (Number(line.originalTotalSet.shopMoney.amount) || 0) - sumAlloc("shopMoney"));
+          line.discountAllocations.reduce(
+            (sum, d) => sum + (Number(d.allocatedAmountSet[key].amount) || 0),
+            0,
+          );
+        const netPresentment = Math.max(
+          0,
+          (Number(line.originalTotalSet.presentmentMoney.amount) || 0) -
+            sumAlloc("presentmentMoney"),
+        );
+        const netShop = Math.max(
+          0,
+          (Number(line.originalTotalSet.shopMoney.amount) || 0) - sumAlloc("shopMoney"),
+        );
         const net = await toUsd(
           netPresentment,
           line.originalTotalSet.presentmentMoney.currencyCode,
@@ -238,7 +258,13 @@ export async function getCreatorEarnings(creator: CreatorRecord): Promise<Creato
   const payable = matureNet * rate;
   for (const p of products) {
     if (!perProduct.has(p.id)) {
-      perProduct.set(p.id, { handle: p.handle, netSales: 0, productId: p.id, title: p.title, units: 0 });
+      perProduct.set(p.id, {
+        handle: p.handle,
+        netSales: 0,
+        productId: p.id,
+        title: p.title,
+        units: 0,
+      });
     }
   }
   return {
