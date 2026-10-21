@@ -18,11 +18,32 @@ export interface ProductTypeConfig {
 }
 
 const APPAREL_SIZES = ["S", "M", "L", "XL", "2XL"];
-const BASIC_COLORS = [
-  { ar: "أسود", en: "Black" },
-  { ar: "أبيض", en: "White" },
+/** Colour names match Printify variant colours (lib/catalog/printify-catalog.json). */
+const C = {
+  black: { ar: "أسود", en: "Black" },
+  white: { ar: "أبيض", en: "White" },
+  navy: { ar: "كحلي", en: "Navy" },
+  maroon: { ar: "عنابي", en: "Maroon" },
+};
+const TEE_COLORS = [
+  C.black,
+  C.white,
+  C.navy,
+  C.maroon,
+  { ar: "طبيعي", en: "Natural" },
+  { ar: "كريمي", en: "Soft Cream" },
+  { ar: "رملي", en: "Sand Dune" },
+  { ar: "رمادي مُبرقش", en: "Athletic Heather" },
+  { ar: "زيتي", en: "Olive" },
+];
+const FLEECE_COLORS = [
+  C.black,
+  C.white,
+  C.navy,
+  C.maroon,
+  { ar: "بني داكن", en: "Dark Chocolate" },
   { ar: "رملي", en: "Sand" },
-  { ar: "كحلي", en: "Navy" },
+  { ar: "رمادي", en: "Sport Grey" },
 ];
 
 export const PRODUCT_TYPES: ProductTypeConfig[] = [
@@ -30,7 +51,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     basePrice: priceForType("t-shirt")!,
     category: "gid://shopify/TaxonomyCategory/aa-1-13-8",
     collectionHandle: "t-shirts",
-    colors: [...BASIC_COLORS, { ar: "زيتي", en: "Olive" }],
+    colors: TEE_COLORS,
     id: "t-shirt",
     labelAr: "تيشيرت",
     labelEn: "T-shirt",
@@ -41,7 +62,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     basePrice: priceForType("hoodie")!,
     category: "gid://shopify/TaxonomyCategory/aa-1-13-13",
     collectionHandle: "hoodies",
-    colors: BASIC_COLORS,
+    colors: FLEECE_COLORS,
     id: "hoodie",
     labelAr: "هودي",
     labelEn: "Hoodie",
@@ -52,7 +73,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     basePrice: priceForType("sweatshirt")!,
     category: "gid://shopify/TaxonomyCategory/aa-1-13-14",
     collectionHandle: "sweatshirts",
-    colors: BASIC_COLORS,
+    colors: FLEECE_COLORS,
     id: "sweatshirt",
     labelAr: "سويتشيرت",
     labelEn: "Sweatshirt",
@@ -64,8 +85,8 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     category: "gid://shopify/TaxonomyCategory/lb-13",
     collectionHandle: "tote-bags",
     colors: [
-      { ar: "طبيعي", en: "Natural" },
       { ar: "أسود", en: "Black" },
+      { ar: "كريمي", en: "Cream" },
     ],
     id: "tote-bag",
     labelAr: "حقيبة قماشية",
@@ -82,7 +103,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     labelAr: "لوحة مطبوعة",
     labelEn: "Print",
     productType: "Poster",
-    sizes: ["A4", "A3", "A2"],
+    sizes: ['12" x 18"', '18" x 24"'],
   },
 ];
 

@@ -242,6 +242,7 @@ export async function adminUpdateAction(form: FormData): Promise<void> {
   const tier = str(form, "tierOverride", 20) as TierOverride;
   const handle = str(form, "handle", 40).toLowerCase();
   if (handle && !/^[a-z0-9][a-z0-9-]{1,38}$/.test(handle)) redirect("/admin/creators?error=handle");
+  if (handle === "shirtat") redirect("/admin/creators?error=taken");
   if (handle && handle !== creator.handle) {
     const taken = (await listCreators()).some((c) => c.id !== creator.id && c.handle === handle);
     if (taken) redirect("/admin/creators?error=taken");
@@ -254,6 +255,7 @@ export async function adminUpdateAction(form: FormData): Promise<void> {
   }
   if (tier === "auto" || tier === "standard" || tier === "top") creator.tierOverride = tier;
   if (handle) creator.handle = handle;
+  creator.hiddenFromDirectory = form.get("hidden") === "on";
   const newlyApproved = creator.status === "approved" && !creator.detailsEmail && !creator.details;
   if (newlyApproved) await sendDetailsLink(creator);
   await saveCreator(creator);
@@ -604,14 +606,21 @@ export async function adminCreateFromDesignAction(form: FormData): Promise<void>
       : (await listCreators()).find((c) => c.handle === handle && c.status === "approved");
   if (handle !== STUDIO_HANDLE && !designer) redirect("/admin/creators?error=notfound");
   const stored = await uploadDesignFile(designer?.id ?? "studio", file);
+  const poster = form.get("posterFile");
+  const fileByType =
+    poster && typeof poster === "object" && "size" in poster && poster.size > 0 &&
+    ["image/png", "image/jpeg"].includes(poster.type) && poster.size <= DESIGN_MAX_BYTES
+      ? { print: await uploadDesignFile(designer?.id ?? "studio", poster) }
+      : undefined;
   const results = await applyDesign(
     {
       categoryId: category.id,
       descriptionAr: str(form, "descriptionAr", 2000),
       descriptionEn: str(form, "descriptionEn", 2000),
       designerHandle: handle,
-      designerName: designer ? designer.details?.displayName || designer.name : "Shirtat Studio",
+      designerName: designer ? designer.details?.displayName || designer.name : "Shirtat",
       file: stored,
+      fileByType,
       title,
     },
     picks,

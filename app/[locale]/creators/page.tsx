@@ -142,7 +142,7 @@ export default async function CreatorsPage() {
           </p>
           <p className="text-sm text-muted-foreground">
             {t(
-              "Example: a shirt sells for $30 with a $5 discount. The net item price is $25, so you earn $3.75 at 15% or $5.00 at 20%.",
+              "Example: a T-shirt sells for $33.99 with a $5 discount. The net item price is $28.99, so you earn $4.35 at 15% or $5.80 at 20%.",
             )}
           </p>
         </section>

@@ -1,4 +1,4 @@
-import { SUPPLIER, SUPPLIER_COSTS, retailPrice } from "@/lib/catalog/pricing";
+import { SUPPLIER, SUPPLIER_CATALOG, baseCost, retailPrice } from "@/lib/catalog/pricing";
 import { CATEGORIES } from "@/lib/collections/categories";
 import { PRODUCT_TYPES } from "@/lib/creators/product-types";
 
@@ -15,7 +15,7 @@ export function ProductPicks({
   return (
     <div className="grid gap-2 sm:grid-cols-2">
       {PRODUCT_TYPES.map((t) => {
-        const cost = SUPPLIER_COSTS[t.id]!.costUsd;
+        const cost = baseCost(t.id) ?? 0;
         const hinted = t.id === hintTypeId;
         return (
           <fieldset
@@ -26,7 +26,8 @@ export function ProductPicks({
               <input type="checkbox" name="types" value={t.id} defaultChecked={hinted} />
               {t.labelEn}
               {hinted && <span className="rounded bg-muted px-1.5 text-xs">designer hint</span>}
-              <span className="ms-auto text-xs font-normal text-muted-foreground">
+              <span className="ms-auto text-xs font-normal text-muted-foreground" title={SUPPLIER_CATALOG[t.id]?.blueprint}>
+                from 
                 ${cost.toFixed(2)} × 3 →{" "}
                 <strong className="text-foreground">${retailPrice(cost)}</strong>
               </span>
@@ -73,9 +74,9 @@ export function CategorySelect({ matched, suggested }: { matched: string[]; sugg
 export function SupplierNote() {
   return (
     <p className="text-xs text-muted-foreground">
-      Supplier: {SUPPLIER.name}. Price = supplier cost × 3, rounded up to .99. Drafts get{" "}
+      Supplier: {SUPPLIER.name}. Price = supplier cost × 3, rounded up to .99, per variant (larger sizes cost more). Drafts get{" "}
       <code>category:&lt;id&gt;</code>, <code>designer:&lt;handle&gt;</code>, product type, sizes ×
-      colours and the price. Printify auto-sync is off until an API token is added.
+      colours and the price. With Printify on, a Printify product is made first; its mockups and variant SKUs go on the draft.
     </p>
   );
 }

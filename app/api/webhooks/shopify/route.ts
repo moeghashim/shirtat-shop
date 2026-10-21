@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 
 import { revalidateTag } from "next/cache";
 
+import { submitPrintifyOrder } from "@/lib/catalog/printify";
 import { getNumericShopifyId } from "@/lib/shopify/id/server";
 
 const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET;
@@ -29,6 +30,16 @@ export async function POST(request: Request) {
 
   if (!topic) {
     return Response.json({ error: "Missing topic header" }, { status: 400 });
+  }
+
+  if (topic === "orders/paid") {
+    try {
+      const printifyOrderId = await submitPrintifyOrder(JSON.parse(body));
+      return Response.json({ printifyOrderId });
+    } catch (e) {
+      console.error("Printify order failed", e);
+      return Response.json({ error: "Printify order failed" }, { status: 500 });
+    }
   }
 
   const tagsInvalidated: string[] = [];

@@ -8,9 +8,26 @@ export interface PublicDesigner {
   bio: string;
   designCount: number;
   handle: string;
+  bioAr?: string;
   initials: string;
   name: string;
+  nameAr?: string;
 }
+
+/** Shirtat's in-house studio; its products carry designer:shirtat. */
+const HOUSE_HANDLE = "shirtat";
+const HOUSE = {
+  avatarUrl: "/android-chrome-512x512.png",
+  bio: "Original designs from the Shirtat studio: Arabic calligraphy, poetry and wisdom, made to wear.",
+  bioAr: "تصاميم أصلية من استوديو شِرتات: خط عربي وشعر وحكمة، صُنعت لتُلبس.",
+  handle: HOUSE_HANDLE,
+  initials: "S",
+  name: "Shirtat",
+  nameAr: "شِرتات",
+};
+
+const listed = (c: CreatorRecord) =>
+  c.status === "approved" && Boolean(c.handle) && c.handle !== HOUSE_HANDLE && !c.hiddenFromDirectory;
 
 export interface DesignerProduct {
   handle: string;
@@ -90,18 +107,22 @@ function toPublic(c: CreatorRecord, count: number): PublicDesigner {
 }
 
 export async function listPublicDesigners(): Promise<PublicDesigner[]> {
-  const approved = (await listCreators()).filter((c) => c.status === "approved" && c.handle);
-  return Promise.all(
-    approved.map(async (c) => toPublic(c, (await fetchDesignerProducts(c.handle!)).length)),
-  );
+  const approved = (await listCreators()).filter(listed);
+  const [house, ...others] = await Promise.all([
+    fetchDesignerProducts(HOUSE_HANDLE).then((p) => ({ ...HOUSE, designCount: p.length })),
+    ...approved.map(async (c) => toPublic(c, (await fetchDesignerProducts(c.handle!)).length)),
+  ]);
+  return [house, ...others];
 }
 
 export async function getPublicDesigner(
   handle: string,
 ): Promise<{ designer: PublicDesigner; products: DesignerProduct[] } | null> {
-  const c = (await listCreators()).find(
-    (x) => x.status === "approved" && x.handle === handle.toLowerCase(),
-  );
+  if (handle.toLowerCase() === HOUSE_HANDLE) {
+    const products = await fetchDesignerProducts(HOUSE_HANDLE);
+    return { designer: { ...HOUSE, designCount: products.length }, products };
+  }
+  const c = (await listCreators()).find((x) => listed(x) && x.handle === handle.toLowerCase());
   if (!c) return null;
   const products = await fetchDesignerProducts(c.handle!);
   return { designer: toPublic(c, products.length), products };

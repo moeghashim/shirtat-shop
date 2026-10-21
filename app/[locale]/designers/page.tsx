@@ -38,6 +38,7 @@ export default async function DesignersPage() {
 
 async function DesignerList() {
   await connection();
+  const locale = await getLocale();
   const t = await getT();
   const designers = await listPublicDesigners().catch(() => []);
   if (designers.length === 0) {
@@ -58,9 +59,9 @@ async function DesignerList() {
             className="flex items-center gap-4 rounded-2xl border border-border p-5 transition-colors hover:bg-muted/50"
             href={`/designers/${d.handle}`}
           >
-            <DesignerAvatar initials={d.initials} name={d.name} size={64} url={d.avatarUrl} />
+            <DesignerAvatar initials={d.initials} name={locale === "ar" && d.nameAr ? d.nameAr : d.name} size={64} url={d.avatarUrl} />
             <span className="flex flex-col">
-              <span className="text-lg font-semibold">{d.name}</span>
+              <span className="text-lg font-semibold">{locale === "ar" && d.nameAr ? d.nameAr : d.name}</span>
               <span className="text-sm text-muted-foreground">
                 {d.designCount === 1
                   ? t("1 design")

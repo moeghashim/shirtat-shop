@@ -9,6 +9,8 @@ export const logDays: LogDay[] = [
   {
     date: "2026-10-21",
     entries: [
+      "Connected Printify through its API with real catalog costs: Bella+Canvas 3001 tee, Gildan 18500 hoodie and 18000 sweatshirt from Printify Choice (US), AS Colour tote from The Print Bar and a matte poster from Printify Choice. Prices are cost × 3 per variant, rounded up to .99. Applying a design now creates the Printify product first and puts its mockups and variant SKUs on the Shopify draft; paid orders are passed to Printify, held until sent to production.",
+      "Added Shirtat as the in-house designer on /designers, with the Shirtat logo, and the option to hide test designers from the directory.",
       "Chose Printify as the print-on-demand supplier (Shopify app, public API, no minimums, US and international print providers, puff and other special prints) and set prices to supplier cost × 3, rounded up to .99: T-shirt $32.99, sweatshirt $53.99, hoodie $64.99, tote bag $28.99, print $14.99.",
       "Added a product workflow to the admin page: upload a design or pick a designer's submission, get an automatic category suggestion (Poetry, Humor, Cultures, Occasions) that can be overridden, choose product types and colours, and create Shopify drafts tagged with the category and designer. Designers now only suggest types and colours.",
       "Renamed creators to designers across the site in English and Arabic, retitled the program page Sell on Shirtat (also at /sell), and added Shop by designer pages at /designers with each designer's products.",

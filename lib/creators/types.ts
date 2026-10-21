@@ -30,6 +30,7 @@ export interface AppliedProduct {
   colors: string[];
   error?: string;
   price: string;
+  printifyProductId?: string;
   shopifyProductHandle?: string;
   shopifyProductId?: string;
   status: "draft" | "published" | "rejected" | "failed";
@@ -75,6 +76,8 @@ export interface CreatorDetails {
 export interface CreatorRecord {
   /** Required logo or profile picture shown on /designers. */
   avatar?: StoredFile & { kind: "logo" | "photo" };
+  /** Hidden from the public /designers directory (e.g. test accounts). */
+  hiddenFromDirectory?: boolean;
   designs?: DesignRecord[];
   details?: CreatorDetails;
   detailsEmail?: {

@@ -127,7 +127,7 @@ async function AdminContent({
             <label className="flex flex-col gap-1 text-xs">
               Designer
               <select name="designer" defaultValue="shirtat" className={field}>
-                <option value="shirtat">Shirtat Studio (our own)</option>
+                <option value="shirtat">Shirtat (house designer)</option>
                 {creators
                   .filter((c) => c.status === "approved" && c.handle)
                   .map((c) => (
@@ -500,6 +500,10 @@ async function AdminContent({
                 <option value="standard">standard 15%</option>
                 <option value="top">top 20%</option>
               </select>
+            </label>
+            <label className="flex items-center gap-1 text-xs">
+              <input type="checkbox" name="hidden" defaultChecked={c.hiddenFromDirectory} /> hide
+              from /designers
             </label>
             <button
               className="rounded-full bg-foreground px-4 py-1.5 text-sm text-background cursor-pointer"

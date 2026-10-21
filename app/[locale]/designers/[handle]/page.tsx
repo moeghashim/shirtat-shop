@@ -60,16 +60,20 @@ async function DesignerContent({ params }: { params: Promise<{ handle: string }>
       <header className="mt-6 flex flex-wrap items-center gap-6">
         <DesignerAvatar
           initials={designer.initials}
-          name={designer.name}
+          name={locale === "ar" && designer.nameAr ? designer.nameAr : designer.name}
           size={112}
           url={designer.avatarUrl}
         />
         <div className="flex max-w-2xl flex-col gap-2">
-          <h1 className="text-4xl font-semibold">{designer.name}</h1>
+          <h1 className="text-4xl font-semibold">{locale === "ar" && designer.nameAr ? designer.nameAr : designer.name}</h1>
           <p className="text-sm text-muted-foreground" dir="ltr">
             @{designer.handle}
           </p>
-          {designer.bio && <p className="whitespace-pre-line">{designer.bio}</p>}
+          {designer.bio && (
+            <p className="whitespace-pre-line">
+              {locale === "ar" && designer.bioAr ? designer.bioAr : designer.bio}
+            </p>
+          )}
         </div>
       </header>
       {products.length === 0 ? (

@@ -70,8 +70,8 @@ export const arCreators = {
   "You must own the rights to every design you submit.": "يجب أن تملك حقوق كل تصميم تقدّمه.",
   "Changes need {days} days' notice, are never retroactive, and the rate never drops below {floor}.":
     "أي تغيير يتطلب إشعارًا مسبقًا قبل {days} يومًا، ولا يُطبَّق بأثر رجعي، ولن تقل النسبة أبدًا عن {floor}.",
-  "Example: a shirt sells for $30 with a $5 discount. The net item price is $25, so you earn $3.75 at 15% or $5.00 at 20%.":
-    "مثال: يُباع قميص بسعر 30 دولارًا مع خصم 5 دولارات. صافي سعر المنتج 25 دولارًا، فتربح 3.75 دولار بنسبة 15% أو 5 دولارات بنسبة 20%.",
+  "Example: a T-shirt sells for $33.99 with a $5 discount. The net item price is $28.99, so you earn $4.35 at 15% or $5.80 at 20%.":
+    "مثال: يُباع تيشيرت بسعر 33.99 دولارًا مع خصم 5 دولارات. صافي سعر المنتج 28.99 دولارًا، فتربح 4.35 دولار بنسبة 15% أو 5.80 دولار بنسبة 20%.",
   FAQ: "الأسئلة الشائعة",
   "Who can apply?": "من يمكنه التقديم؟",
   "Any designer or calligrapher whose original work celebrates Arabic script. You must own the rights to the designs you submit.":
