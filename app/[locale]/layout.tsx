@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, El_Messiri } from "next/font/google";
 
 import "../globals.css";
+import Script from "next/script";
 import { Suspense } from "react";
 
 import { ActionBar } from "@/components/action-bar";
@@ -84,6 +85,16 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
             </Suspense>
           </CartProviderWrapper>
         </LocaleProvider>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-6DT5S4QRGT"
+          strategy="afterInteractive"
+        />
+        <Script id="google-gtag" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-6DT5S4QRGT');`}
+        </Script>
       </body>
     </html>
   );
