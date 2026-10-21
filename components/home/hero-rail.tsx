@@ -6,12 +6,11 @@ import Link from "next/link";
 import { type PointerEvent, useCallback, useEffect, useRef, useState } from "react";
 
 import { bannerItems } from "@/lib/banner";
-import { CATEGORIES } from "@/lib/collections/categories";
 import { localizeHref } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/client";
 
-const SIDE_YAW = 72;
-const SIDE_SLOT = 0.24;
+const SIDE_YAW = 70;
+const SIDE_SLOT = 0.36;
 const FRONT_SLOT = 0.82;
 
 const PEGBOARD =
@@ -47,16 +46,6 @@ export function HeroRail() {
   }, [open, go, ar]);
 
   const name = (i: number) => (ar ? bannerItems[i].nameAr : bannerItems[i].nameEn);
-  const cat = (i: number) => {
-    const c = CATEGORIES.find((x) => x.id === bannerItems[i].category);
-    return c ? (ar ? c.labelAr : c.labelEn) : "";
-  };
-  const price = (v: number) =>
-    new Intl.NumberFormat(ar ? "ar" : "en-US", {
-      currency: "USD",
-      style: "currency",
-      maximumFractionDigits: 0,
-    }).format(v);
   const isOpen = open !== null;
   const ticker = ar
     ? ["تصاميم جديدة كل يوم", "خط عربي", "انضم كمبدع", "شعر", "فكاهة", "ثقافات", "مناسبات"]
@@ -104,7 +93,7 @@ export function HeroRail() {
             <div className="relative">
               <div
                 className="absolute inset-x-0 z-0 h-[9px] rounded-full bg-gradient-to-b from-[#fafafb] via-[#a7acb2] to-[#e4e6e9] shadow-[0_2px_4px_rgba(0,0,0,0.25)]"
-                style={{ top: "calc(var(--w) * 1.2 * 0.062 - 4px)" }}
+                style={{ top: "calc(var(--w) * 1.2 * 0.026 - 4px)" }}
                 aria-hidden
               >
                 {["-start-3", "-end-3"].map((side) => (
@@ -143,21 +132,21 @@ export function HeroRail() {
                         onBlur={() => setActive(null)}
                         tabIndex={isOpen ? -1 : 0}
                         className="absolute inset-0 block cursor-pointer outline-none"
-                        aria-label={`${name(i)} – ${price(item.priceUsd)}`}
+                        aria-label={name(i)}
                       >
                         {item.sideImage ? (
                           <span
                             className="absolute top-0 left-1/2 block w-(--w) -translate-x-1/2 origin-top transition-[transform,opacity] duration-500 motion-reduce:transition-none"
                             style={{
                               opacity: front ? 0 : 1,
-                              transform: `perspective(900px) rotateY(${front ? -yaw / 2 : 0}deg)`,
+                              transform: `perspective(3200px) rotateY(${front ? -yaw / 2 : 0}deg)`,
                             }}
                           >
                             <Image
                               src={item.sideImage}
                               alt=""
-                              width={600}
-                              height={720}
+                              width={800}
+                              height={960}
                               priority={i < 5}
                               className="h-auto w-full drop-shadow-[0_8px_10px_rgba(0,0,0,0.16)]"
                             />
@@ -167,14 +156,14 @@ export function HeroRail() {
                           className="absolute top-0 left-1/2 block w-(--w) -translate-x-1/2 origin-top transition-[transform,opacity] duration-500 motion-reduce:transition-none"
                           style={{
                             opacity: front || !item.sideImage ? 1 : 0,
-                            transform: `perspective(900px) rotateY(${front ? 0 : yaw}deg)`,
+                            transform: `perspective(3200px) rotateY(${front ? 0 : yaw}deg)`,
                           }}
                         >
                           <Image
                             src={item.image}
                             alt={name(i)}
-                            width={600}
-                            height={720}
+                            width={800}
+                            height={960}
                             priority={i < 5}
                             className="h-auto w-full drop-shadow-[0_8px_10px_rgba(0,0,0,0.16)]"
                           />
@@ -195,7 +184,7 @@ export function HeroRail() {
               className={`mt-14 h-5 text-center text-xs text-[#3d4670]/70 transition-opacity duration-300 md:mt-16 ${active === null ? "opacity-0" : "opacity-100"}`}
               aria-hidden
             >
-              {active === null ? "" : `${name(active)} · ${price(bannerItems[active].priceUsd)}`}
+              {active === null ? "" : name(active)}
             </p>
           </div>
         </div>
@@ -263,8 +252,8 @@ export function HeroRail() {
               <Image
                 src={bannerItems[open].image}
                 alt={name(open)}
-                width={600}
-                height={720}
+                width={800}
+                height={960}
                 className="h-auto w-full drop-shadow-[0_18px_22px_rgba(0,0,0,0.22)]"
               />
             </div>
@@ -283,15 +272,8 @@ export function HeroRail() {
           <p className={`text-2xl md:text-3xl ${ar ? "font-semibold" : "font-serif italic"}`}>
             {name(open)}
           </p>
-          <p className="text-sm text-[#3d4670]/70">
-            {cat(open)} · {price(bannerItems[open].priceUsd)} ·{" "}
-            {ar ? "تصميم تجريبي" : "Example design"}
-          </p>
-          <Link
-            href={localizeHref(locale, `/collections/${bannerItems[open].category}`)}
-            className={`mt-3 ${PILL}`}
-          >
-            {ar ? `تصفّح ${cat(open)}` : `Browse ${cat(open)}`}
+          <Link href={localizeHref(locale, "/collections/all")} className={`mt-3 ${PILL}`}>
+            {ar ? "تسوّق الآن" : "Shop now"}
           </Link>
         </div>
       ) : null}
