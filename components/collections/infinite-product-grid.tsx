@@ -10,6 +10,7 @@ import { loadMoreBrowseProductsAction } from "@/lib/collections/action";
 import type { BrowseSource } from "@/lib/collections/types";
 import type { PageInfo } from "@/lib/pagination/types";
 import type { ProductCard as ProductCardType } from "@/lib/product/types";
+import { useT } from "@/lib/i18n/client";
 
 interface InfiniteProductGridProps {
   children: ReactNode;
@@ -24,6 +25,7 @@ export function InfiniteProductGrid({
   initialProductIds,
   source,
 }: InfiniteProductGridProps) {
+  const t = useT();
   // The store, not a server snapshot, is the single source of truth for filters and sort mid-scroll.
   const search = useCollection(getBrowseSearch);
   const isPending = useCollection((state) => state.status === "loading");
@@ -84,7 +86,7 @@ export function InfiniteProductGrid({
             key={product.id}
             product={product}
             outOfStockText="Out of Stock"
-            quickShopText="Choose"
+            quickShopText={t("Choose")}
           />
         ))}
       </div>

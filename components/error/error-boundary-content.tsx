@@ -4,6 +4,7 @@ import { AlertCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
+import { T } from "@/components/i18n/t";
 
 export function ErrorBoundaryContent({ retry }: { retry: () => void }) {
   return (
@@ -13,14 +14,14 @@ export function ErrorBoundaryContent({ retry }: { retry: () => void }) {
           <AlertCircleIcon className="h-12 w-12 text-muted-foreground" />
         </div>
       </div>
-      <h1 className="mb-2 text-2xl lg:text-3xl">Something went wrong</h1>
+      <h1 className="mb-2 text-2xl lg:text-3xl"><T k="Something went wrong" /></h1>
       <p className="mb-8 max-w-md text-muted-foreground">
         An unexpected error occurred. Please try again.
       </p>
       <div className="flex flex-col gap-2.5 sm:flex-row">
-        <Button onClick={() => retry()}>Try again</Button>
+        <Button onClick={() => retry()}><T k="Try again" /></Button>
         <Button variant="outline" asChild>
-          <Link href="/">Go back to the home page</Link>
+          <Link href="/"><T k="Go back to the home page" /></Link>
         </Button>
       </div>
     </div>

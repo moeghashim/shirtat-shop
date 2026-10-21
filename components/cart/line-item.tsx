@@ -12,15 +12,18 @@ import { formatPrice } from "@/lib/money";
 
 import { CartLineForm } from "./line-form";
 import { CartWarnings } from "./warnings";
+import { T } from "@/components/i18n/t";
+import { useT } from "@/lib/i18n/client";
 
 interface CartLineItemsProps {
   lines: CartLine[];
 }
 
 export function CartLineItems({ lines }: CartLineItemsProps) {
+  const t = useT();
   const keys = getLineRowKeys(lines);
   return (
-    <ul className="grid gap-5" aria-label="Cart items">
+    <ul className="grid gap-5" aria-label={t("Cart items")}>
       {lines.map((line, index) => (
         <CartLineItem key={keys[index]} item={line} />
       ))}
@@ -47,6 +50,7 @@ interface CartLineItemProps {
 }
 
 function CartLineItem({ item }: CartLineItemProps) {
+  const t = useT();
   const isPending = useCart((state) => state.pending.lines.has(item.id));
   const isCostPending = useCart((state) =>
     Boolean(state.pending.cost || state.revalidating || state.pending.lines.has(item.id)),
@@ -124,7 +128,7 @@ function CartLineItem({ item }: CartLineItemProps) {
           </div>
           {components.length ? (
             <div className="grid gap-1">
-              <p className="text-xs font-medium text-muted-foreground">Bundle Includes</p>
+              <p className="text-xs font-medium text-muted-foreground"><T k="Bundle Includes" /></p>
               <ul className="grid gap-0.5">
                 {components.map((component) => (
                   <li
@@ -149,14 +153,14 @@ function CartLineItem({ item }: CartLineItemProps) {
           {(register) => (
             <>
               <div
-                aria-label="Item quantity"
+                aria-label={t("Item quantity")}
                 className="grid h-6 grid-cols-[1.75rem_1.5rem_1.75rem] rounded-full ring-1 ring-border ring-inset"
                 role="group"
               >
                 <button
                   {...register("decrease")}
                   type="submit"
-                  aria-label="Decrease quantity"
+                  aria-label={t("Decrease quantity")}
                   className="flex h-6 cursor-pointer items-center justify-center p-0 disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={isOptimistic || !canUpdateQuantity || quantity <= 1}
                 >
@@ -165,7 +169,7 @@ function CartLineItem({ item }: CartLineItemProps) {
                 <input
                   key={quantity}
                   {...register("quantity", { interactive: true, value: quantity })}
-                  aria-label="Item quantity"
+                  aria-label={t("Item quantity")}
                   className="h-6 w-6 rounded-full bg-transparent text-center text-xs font-medium tabular-nums outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed"
                   disabled={isOptimistic || !canUpdateQuantity}
                   max={99}
@@ -174,7 +178,7 @@ function CartLineItem({ item }: CartLineItemProps) {
                 <button
                   {...register("increase")}
                   type="submit"
-                  aria-label="Increase quantity"
+                  aria-label={t("Increase quantity")}
                   className="flex h-6 cursor-pointer items-center justify-center p-0 disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={isOptimistic || !canUpdateQuantity || quantity >= 99}
                 >
@@ -186,7 +190,7 @@ function CartLineItem({ item }: CartLineItemProps) {
                 type="submit"
                 className="flex cursor-pointer items-center justify-center text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={isOptimistic || !canRemove}
-                aria-label="Remove item"
+                aria-label={t("Remove item")}
               >
                 <Trash2Icon className="size-4" />
               </button>
@@ -195,7 +199,7 @@ function CartLineItem({ item }: CartLineItemProps) {
         </CartLineForm>
         <CartWarnings lineId={item.id} />
       </div>
-      <div className="grid gap-0.5 self-start py-0.5 text-right font-mono text-sm tabular-nums tracking-tight">
+      <div className="grid gap-0.5 self-start py-0.5 text-end font-mono text-sm tabular-nums tracking-tight">
         <span
           className="font-medium text-foreground data-[pending=true]:text-muted-foreground"
           data-pending={isCostPending || !currencyCode}

@@ -13,6 +13,8 @@ import type {
   ProductFormSwatch,
   ProductFormVariant,
 } from "@/lib/product/types";
+import { localizeHref } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/client";
 
 export function ProductForm({
   children,
@@ -22,13 +24,14 @@ export function ProductForm({
   product: ProductFormInput;
 }) {
   const router = useRouter();
+  const locale = useLocale();
   const searchParams = useSearchParams();
   return (
     <ProductProvider
       product={product}
       onSelect={(result) => {
         const handle = result.selectedVariant?.product.handle ?? product.handle;
-        router.replace(buildProductUrl(handle, result.selectedOptions, searchParams), {
+        router.replace(localizeHref(locale, buildProductUrl(handle, result.selectedOptions, searchParams)), {
           scroll: false,
         });
       }}

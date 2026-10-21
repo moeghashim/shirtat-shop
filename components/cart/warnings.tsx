@@ -5,6 +5,7 @@ import { AlertTriangle, X } from "lucide-react";
 import { useState } from "react";
 
 import { useCart } from "@/lib/cart/client";
+import { useT } from "@/lib/i18n/client";
 
 interface CartWarningsProps {
   lineId?: string;
@@ -31,6 +32,7 @@ export function CartWarnings({ lineId }: CartWarningsProps) {
 }
 
 function CartWarningMessages({ group }: { group: CartErrorGroup }) {
+  const t = useT();
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
   const messages = [...group.userErrors, ...group.warnings];
@@ -54,7 +56,7 @@ function CartWarningMessages({ group }: { group: CartErrorGroup }) {
         <button
           type="button"
           onClick={() => setDismissed(true)}
-          aria-label="Dismiss"
+          aria-label={t("Dismiss")}
           className="inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md hover:bg-amber-100 dark:hover:bg-amber-900/40"
         >
           <X className="size-4" aria-hidden="true" />

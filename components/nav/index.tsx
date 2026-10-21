@@ -9,13 +9,16 @@ import type { MenuItem } from "@/lib/menu/types";
 
 import { NavAccount, NavAccountFallback } from "./account";
 import { CartIcon, CartIconFallback } from "./cart";
+import { LanguageSwitcher } from "./language-switcher";
 import { MobileMenu } from "./mobile-menu";
 import { QuickLinks } from "./quick-links";
 import { SearchModal } from "./search-modal";
+import { getT } from "@/lib/i18n/server";
 
-export function Nav() {
+export async function Nav() {
+  const t = await getT();
   const items: MenuItem[] = [
-    { id: "default-nav-shop", items: [], title: "Shop", url: "/collections/all" },
+    { id: "default-nav-shop", items: [], title: t("Shop"), url: "/collections/all" },
   ];
   return (
     <nav
@@ -39,7 +42,8 @@ export function Nav() {
 
         <QuickLinks items={items} />
 
-        <div className="flex items-center gap-5 ml-auto">
+        <div className="flex items-center gap-5 ms-auto">
+          <LanguageSwitcher />
           {shopConfig.search.isEnabled && (
             <PredictiveSearchProvider
               debounceInMs={300}

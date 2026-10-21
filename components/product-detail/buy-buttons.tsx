@@ -14,6 +14,8 @@ import { useProductForm } from "@/lib/product/client";
 import type { ProductFormVariant, SellingPlanAllocation } from "@/lib/product/types";
 
 import { BuyWithShopLogo } from "./buy-with-shop-logo";
+import { T } from "@/components/i18n/t";
+import { useT } from "@/lib/i18n/client";
 
 interface BuyButtonsProps {
   availableForSale?: boolean;
@@ -30,6 +32,7 @@ export function BuyButtons({
   onAddToCart,
   quantityPicker = true,
 }: BuyButtonsProps) {
+  const t = useT();
   const { formProps, pending, register, selectedVariant: storeVariant } = useProductForm();
   const selectedVariant = storeVariant ?? fallbackVariant;
   const isSelectionUnresolved = !storeVariant;
@@ -59,11 +62,11 @@ export function BuyButtons({
   });
   const getButtonText = () => {
     if (pending) return "Adding to Cart...";
-    if (isSelectionUnresolved) return "Add to Cart";
-    if (requiresBundleConfiguration) return "Choose bundle items";
+    if (isSelectionUnresolved) return t("Add to Cart");
+    if (requiresBundleConfiguration) return t("Choose bundle items");
     if (missingRequiredPlan) return "Subscription unavailable";
     if (isOutOfStock) return "Out of Stock";
-    return "Add to Cart";
+    return t("Add to Cart");
   };
   return (
     <form
@@ -99,13 +102,13 @@ export function BuyButtons({
       <div className="flex flex-wrap gap-2.5">
         {quantityPicker ? (
           <div
-            aria-label="Item quantity"
+            aria-label={t("Item quantity")}
             className="grid h-12 w-32 shrink-0 grid-cols-[3rem_2rem_3rem] rounded-lg bg-background ring-1 ring-border ring-inset"
             role="group"
           >
             <button
               type="button"
-              aria-label="Decrease quantity"
+              aria-label={t("Decrease quantity")}
               className="flex size-12 cursor-pointer items-center justify-center p-0 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={quantity === 1}
               onClick={() => setQuantity((currentQuantity) => Math.max(1, currentQuantity - 1))}
@@ -121,7 +124,7 @@ export function BuyButtons({
             </span>
             <button
               type="button"
-              aria-label="Increase quantity"
+              aria-label={t("Increase quantity")}
               className="flex size-12 cursor-pointer items-center justify-center p-0 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={quantity === 99}
               onClick={() => setQuantity((currentQuantity) => Math.min(99, currentQuantity + 1))}
@@ -149,7 +152,7 @@ export function BuyButtons({
         <a
           aria-busy={isBuyingNow || undefined}
           aria-disabled={buyNowUrl ? undefined : true}
-          aria-label="Buy with Shop Pay"
+          aria-label={t("Buy with Shop Pay")}
           className={cn(
             "flex h-12 w-full cursor-pointer items-center justify-center rounded-lg bg-shop px-4 text-white transition-colors hover:bg-shop/85 aria-busy:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50 data-[selection-unresolved=true]:aria-disabled:opacity-100",
             !availableForSale && "invisible",
@@ -169,7 +172,7 @@ export function BuyButtons({
             <Loader2 className="size-4 animate-spin" />
           ) : (
             <>
-              <span className="sr-only">Buy with</span>
+              <span className="sr-only"><T k="Buy with" /></span>
               <BuyWithShopLogo aria-hidden="true" className="h-auto w-24.5" />
             </>
           )}
@@ -201,7 +204,7 @@ export function PurchaseOptions({
 
   return (
     <fieldset className="grid gap-2.5" disabled={disabled}>
-      <legend className="pb-2.5 text-sm font-medium">Purchase options</legend>
+      <legend className="pb-2.5 text-sm font-medium"><T k="Purchase options" /></legend>
       {[
         ...(!requiresSellingPlan ? [{ id: "", name: "One-time purchase", price }] : []),
         ...plans.map((allocation) => ({

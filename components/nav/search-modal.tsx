@@ -20,6 +20,9 @@ import { Dialog, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useRecentlyViewedProducts } from "@/lib/product/client";
 import { usePredictiveSearch } from "@/lib/search/client";
 import type { PredictiveSearchProduct, SearchSuggestion } from "@/lib/search/types";
+import { T } from "@/components/i18n/t";
+import { useLocale, useT } from "@/lib/i18n/client";
+import { localizeHref } from "@/lib/i18n";
 
 export function SearchModal() {
   const [open, setOpen] = useState(false);
@@ -52,7 +55,7 @@ function SearchTrigger() {
           className="flex items-center justify-center text-foreground hover:text-foreground/80 transition-colors"
         >
           <Search className="size-5" />
-          <span className="sr-only">Search</span>
+          <span className="sr-only"><T k="Search" /></span>
         </button>
       }
     />
@@ -60,8 +63,10 @@ function SearchTrigger() {
 }
 
 function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boolean }) {
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const locale = useLocale();
   const { query, setQuery, results, isLoading, activeIndex, setActiveIndex, reset } =
     usePredictiveSearch();
   const recentlyViewed = useRecentlyViewedProducts(open);
@@ -74,7 +79,7 @@ function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boo
   }, []);
   const navigate = useCallback(
     (href: string) => {
-      router.push(href);
+      router.push(localizeHref(locale, href));
       requestAnimationFrame(() => onClose());
     },
     [router, onClose],
@@ -131,7 +136,7 @@ function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boo
         }}
       >
         <div className="w-full max-w-xl h-fit">
-          <DialogTitle className="sr-only">Search</DialogTitle>
+          <DialogTitle className="sr-only"><T k="Search" /></DialogTitle>
           <div className="bg-background rounded-xl shadow-lg overflow-hidden duration-200">
             <form onSubmit={handleSubmit} className="flex items-center gap-3 px-4 py-3">
               <Search className="size-4 shrink-0 text-foreground/40" />
@@ -140,7 +145,7 @@ function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boo
                 type="text"
                 name="q"
                 role="combobox"
-                placeholder="Search products"
+                placeholder={t("Search products")}
                 maxLength={100}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -169,7 +174,7 @@ function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boo
               )}
               <DialogPrimitive.Close className="shrink-0 flex items-center justify-center rounded-full text-foreground/40 hover:text-foreground transition-colors">
                 <X className="size-4" />
-                <span className="sr-only">Close</span>
+                <span className="sr-only"><T k="Close" /></span>
               </DialogPrimitive.Close>
             </form>
 
@@ -289,7 +294,7 @@ function ProductResult({
       aria-selected={active}
       data-active={active}
       onClick={() => onNavigate(`/products/${product.handle}`)}
-      className="flex w-full items-center gap-3 px-4 py-2.5 hover:bg-accent/50 data-[active=true]:bg-accent/50 transition-colors text-left cursor-pointer"
+      className="flex w-full items-center gap-3 px-4 py-2.5 hover:bg-accent/50 data-[active=true]:bg-accent/50 transition-colors text-start cursor-pointer"
     >
       {product.featuredImage ? (
         <Image

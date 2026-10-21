@@ -27,7 +27,7 @@ export function CartIconClient({ cartLabel, initialCart }: CartIconClientProps) 
       <span className="relative">
         <HandbagIcon className="size-5" />
         {quantity > 0 && (
-          <span className="absolute -top-2 -right-1 flex size-4 items-center justify-center rounded-full bg-foreground text-xxs leading-none text-background">
+          <span className="absolute -top-2 -end-1 flex size-4 items-center justify-center rounded-full bg-foreground text-xxs leading-none text-background">
             {quantity}
           </span>
         )}

@@ -8,6 +8,8 @@ import type { SortValue } from "@/lib/collections/types";
 import { CollectionActiveFilterCountBadge } from "./collection-browse-provider";
 import { FilterSheet } from "./filters-client";
 import { CollectionsSortSelect } from "./sort-select";
+import { T } from "@/components/i18n/t";
+import { getT } from "@/lib/i18n/server";
 
 interface BrowseToolbarProps {
   filters: ReactNode;
@@ -15,19 +17,20 @@ interface BrowseToolbarProps {
   sortExclude?: SortValue[];
 }
 
-export function BrowseToolbar({ filters, resultCount, sortExclude }: BrowseToolbarProps) {
+export async function BrowseToolbar({ filters, resultCount, sortExclude }: BrowseToolbarProps) {
+  const t = await getT();
   return (
     <ToolbarLayout
       filterSheet={
         <FilterSheet
-          label="Filters"
+          label={t("Filters")}
           trigger={
             <button
               type="button"
               className="flex cursor-pointer items-center gap-2 text-sm font-medium"
             >
               <SlidersHorizontalIcon className="size-4" />
-              <span>Filters</span>
+              <span><T k="Filters" /></span>
               <CollectionActiveFilterCountBadge />
             </button>
           }
@@ -55,13 +58,13 @@ export function BrowseFallback({ resultCount }: BrowseFallbackProps) {
             className="flex cursor-pointer items-center gap-2 text-sm font-medium"
           >
             <SlidersHorizontalIcon className="size-4" />
-            <span>Filters</span>
+            <span><T k="Filters" /></span>
           </button>
         }
         resultCount={resultCount}
         sortSelect={
           <div className="flex h-9 w-fit items-center justify-between gap-2 rounded-md bg-transparent px-0 py-2 text-sm whitespace-nowrap">
-            <span>Sort</span>
+            <span><T k="Sort" /></span>
             <ChevronDownIcon className="size-4 text-muted-foreground opacity-50" />
           </div>
         }
@@ -84,7 +87,7 @@ function ToolbarLayout({ filterSheet, resultCount, sortSelect }: ToolbarLayoutPr
   return (
     <div className="flex items-center gap-5">
       {filterSheet}
-      <div className="ml-auto flex items-center gap-5">
+      <div className="ms-auto flex items-center gap-5">
         {resultCount !== undefined && (
           <div className="hidden items-center text-sm text-muted-foreground sm:flex">
             {resultCount}

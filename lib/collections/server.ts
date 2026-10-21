@@ -22,6 +22,8 @@ import {
   fetchSearchFacets,
   fetchSearchIndexProducts,
 } from "@/lib/shopify/operations/products/server";
+import { commerceLocale, type Locale, translate } from "@/lib/i18n";
+import { getLocale } from "@/lib/i18n/server";
 
 // /collections/all is a local virtual collection with no Storefront API equivalent.
 export const ALL_PRODUCTS_HANDLE = "all";
@@ -156,8 +158,8 @@ export async function fetchCollectionResults({
   };
 }
 
-export async function getAllProductsCollection(): Promise<Collection> {
-  const title = "Products";
+export async function getAllProductsCollection(locale: Locale = "en"): Promise<Collection> {
+  const title = translate(locale, "Products");
   const description = "";
   return {
     handle: ALL_PRODUCTS_HANDLE,
@@ -172,12 +174,17 @@ export async function getAllProductsCollection(): Promise<Collection> {
   };
 }
 
-function browseMetadata(handle: string, title: string, description: string): Metadata {
+function browseMetadata(
+  handle: string,
+  title: string,
+  description: string,
+  locale: Locale = "en",
+): Metadata {
   const url = `/collections/${handle}`;
   return {
     title,
     description,
-    alternates: buildAlternates({ pathname: url }),
+    alternates: buildAlternates({ locale, pathname: url }),
     openGraph: buildOpenGraph({ title, description, url, type: "website" }),
     twitter: {
       card: "summary_large_image",
@@ -189,15 +196,30 @@ function browseMetadata(handle: string, title: string, description: string): Met
 }
 
 export async function getCollectionMetadata(handle: string): Promise<Metadata> {
-  const collection = await getCollection({ handle });
-  if (!collection) return browseMetadata(handle, "Collection", "Browse collection products.");
-  return browseMetadata(collection.handle, collection.seo.title, describeCollection(collection));
+  const locale = await getLocale();
+  const collection = await getCollection({ handle, locale: commerceLocale(locale) });
+  if (!collection) {
+    return browseMetadata(
+      handle,
+      translate(locale, "Collection"),
+      translate(locale, "Browse collection products."),
+      locale,
+    );
+  }
+  return browseMetadata(
+    collection.handle,
+    collection.seo.title,
+    describeCollection(collection),
+    locale,
+  );
 }
 
 export async function getAllProductsMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
   return browseMetadata(
     ALL_PRODUCTS_HANDLE,
-    "Products",
-    describeCollection(await getAllProductsCollection()),
+    translate(locale, "Products"),
+    describeCollection(await getAllProductsCollection(locale)),
+    locale,
   );
 }

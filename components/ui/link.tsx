@@ -1,6 +1,9 @@
 "use client";
 
 import NextLink from "next/link";
+
+import { localizeHref } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/client";
 import { type ComponentProps, type Ref, useEffect, useRef, useState } from "react";
 
 const HOVER_INTENT_DELAY_MS = 100;
@@ -125,7 +128,7 @@ function assignRef(ref: Ref<HTMLAnchorElement> | undefined, anchor: HTMLAnchorEl
 
 export function Link({
   as,
-  href,
+  href: rawHref,
   onBlur,
   onFocus,
   onPointerCancel,
@@ -136,6 +139,8 @@ export function Link({
   ref,
   ...props
 }: LinkProps) {
+  const locale = useLocale();
+  const href = typeof rawHref === "string" ? localizeHref(locale, rawHref) : rawHref;
   const destinationKey = JSON.stringify([href, as]);
   const [intentDestination, setIntentDestination] = useState<string | null>(null);
   const anchorRef = useRef<HTMLAnchorElement | null>(null);

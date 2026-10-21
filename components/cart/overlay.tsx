@@ -17,6 +17,9 @@ import { useCartDrawer } from "./context";
 import { CartLineItems } from "./line-item";
 import { CartSummary } from "./summary";
 import { CartWarnings } from "./warnings";
+import { T } from "@/components/i18n/t";
+import { useLocale, useT } from "@/lib/i18n/client";
+import { localizeHref } from "@/lib/i18n";
 
 function CartCountBadge() {
   const count = useCart((state) => state.data.totalQuantity);
@@ -34,18 +37,20 @@ interface CartOverlayProps {
 }
 
 export function CartOverlay({ description, title }: CartOverlayProps) {
+  const t = useT();
+  const locale = useLocale();
   const { isOverlayOpen, setOverlayOpen } = useCartDrawer();
 
   return (
     <Sheet open={isOverlayOpen} onOpenChange={setOverlayOpen}>
-      <SheetContent closeButton={false} overlay={false} side="right" className="gap-0 p-0">
+      <SheetContent closeButton={false} overlay={false} side={locale === "ar" ? "left" : "right"} className="gap-0 p-0">
         <div className="flex h-16 shrink-0 items-center justify-between gap-2 px-2.5">
           <div className="flex items-center gap-1.5">
             <SheetTitle className="font-normal text-xl leading-4">{title}</SheetTitle>
             <CartCountBadge />
           </div>
           <SheetClose
-            aria-label="Close cart"
+            aria-label={t("Close cart")}
             className="flex cursor-pointer items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
           >
             <XIcon className="size-5" />
@@ -60,6 +65,7 @@ export function CartOverlay({ description, title }: CartOverlayProps) {
 
 function OverlayContent() {
   const router = useRouter();
+  const locale = useLocale();
   const cart = useCart((state) => state.data);
   const isLoading = useCart((state) => state.loading);
   const { setOverlayOpen } = useCartDrawer();
@@ -76,11 +82,11 @@ function OverlayContent() {
       <div className="flex h-full flex-col gap-5 px-2.5">
         <CartWarnings />
         <div className="flex flex-1 flex-col items-center justify-center text-center">
-          <h3 className="mb-6 text-2xl">Your cart is empty</h3>
+          <h3 className="mb-6 text-2xl"><T k="Your cart is empty" /></h3>
           <Button
             onClick={() => {
               setOverlayOpen(false);
-              router.push("/");
+              router.push(localizeHref(locale, "/"));
             }}
             className="h-12 px-8"
           >

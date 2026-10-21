@@ -9,6 +9,8 @@ import { BrowsePublisher, CollectionBrowseProvider } from "./collection-browse-p
 import { CollectionFilters } from "./filters";
 import { InfiniteProductGrid } from "./infinite-product-grid";
 import { BrowseToolbar } from "./toolbar";
+import { T } from "@/components/i18n/t";
+import { getT } from "@/lib/i18n/server";
 
 interface BrowseProps {
   path: string;
@@ -66,13 +68,14 @@ async function StreamedResultsGrid({ results }: { results: Promise<BrowseResults
   return <BrowseResultsGrid results={await results} />;
 }
 
-function BrowseResultsGrid({ results }: BrowseResultsGridProps) {
+async function BrowseResultsGrid({ results }: BrowseResultsGridProps) {
+  const t = await getT();
   const { dataSearch, pageInfo, products, source } = results;
   if (products.length === 0) {
     const query = source.type === "search" ? source.query : undefined;
     return (
       <div className="py-10 text-center">
-        <h2 className="mb-2 text-2xl">No products found</h2>
+        <h2 className="mb-2 text-2xl"><T k="No products found" /></h2>
         <p className="text-muted-foreground">
           {query ? `We couldn't find any products matching "${query}"` : "No products available"}
         </p>
@@ -92,7 +95,7 @@ function BrowseResultsGrid({ results }: BrowseResultsGridProps) {
           loading={index < 5 ? "eager" : "lazy"}
           product={product}
           outOfStockText="Out of Stock"
-          quickShopText="Choose"
+          quickShopText={t("Choose")}
         />
       ))}
     </InfiniteProductGrid>

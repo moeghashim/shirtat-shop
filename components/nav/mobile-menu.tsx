@@ -13,22 +13,26 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import type { MenuItem } from "@/lib/menu/types";
 
 import { MenuLink } from "./menu-link";
+import { T } from "@/components/i18n/t";
+import { useLocale, useT } from "@/lib/i18n/client";
 
 export function MobileMenu({ items }: { items: MenuItem[] }) {
+  const t = useT();
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         render={
-          <button type="button" className="md:hidden -ml-2 p-2" aria-label="Menu">
+          <button type="button" className="md:hidden -ms-2 p-2" aria-label={t("Menu")}>
             <Menu className="size-5" />
           </button>
         }
       />
-      <SheetContent side="left" className="gap-0">
+      <SheetContent side={locale === "ar" ? "right" : "left"} className="gap-0">
         <div className="flex h-16 items-center px-5">
-          <SheetTitle className="text-lg font-semibold">Menu</SheetTitle>
+          <SheetTitle className="text-lg font-semibold"><T k="Menu" /></SheetTitle>
         </div>
         <nav className="px-5">
           <MobileMenuList items={items} onLinkClick={close} />
@@ -96,7 +100,7 @@ function MobileMenuList({ items, onLinkClick }: { items: MenuItem[]; onLinkClick
 
 function NestedItems({ items, onLinkClick }: { items: MenuItem[]; onLinkClick: () => void }) {
   return (
-    <ul className="flex flex-col gap-3 pl-3">
+    <ul className="flex flex-col gap-3 ps-3">
       {items.map((item) => (
         <li key={item.id} className="space-y-2">
           <MenuLink
@@ -107,7 +111,7 @@ function NestedItems({ items, onLinkClick }: { items: MenuItem[]; onLinkClick: (
             {item.title}
           </MenuLink>
           {item.items.length > 0 && (
-            <ul className="flex flex-col gap-2 pl-3">
+            <ul className="flex flex-col gap-2 ps-3">
               {item.items.map((leaf) => (
                 <li key={leaf.id}>
                   <MenuLink

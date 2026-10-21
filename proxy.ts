@@ -18,6 +18,7 @@ import {
 import { cartHandlers, createCustomerCartHandlers } from "@/lib/cart/server";
 import { getRefinedCollectionPath, isRefinedCollectionPath } from "@/lib/collections";
 import { shopConfig } from "@/lib/config";
+import { isUnlocalizedPath, stripLocale } from "@/lib/i18n";
 import { getMarkdownRewritePath } from "@/lib/markdown/representation";
 import { predictiveSearchHandlers } from "@/lib/search/server";
 import { SHOPIFY_ROUTE_TEMPLATES } from "@/lib/shopify/routing";
@@ -36,6 +37,24 @@ const NOOP_SESSION_MANAGER = {
   removeSessionItem: () => {},
   setSessionItem: () => {},
 };
+
+const NON_PAGE_PREFIXES = [
+  "/api",
+  "/md",
+  "/agent",
+  "/sitemap",
+  "/eve",
+  "/_eve_internal",
+  "/_next",
+  "/_vercel",
+  "/.well-known",
+  "/__shopify",
+];
+
+function isLocalizablePagePath(pathname: string): boolean {
+  if (NON_PAGE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return false;
+  return !/\.[a-zA-Z0-9]+$/.test(pathname);
+}
 
 export async function proxy(request: NextRequest): Promise<Response> {
   const pathname = request.nextUrl.pathname;
@@ -57,11 +76,25 @@ export async function proxy(request: NextRequest): Promise<Response> {
     storefrontClient: createRequestStorefrontClient(requestContext),
   });
   if (shopifyRoute) return shopifyRoute;
-  if (isRefinedCollectionPath(pathname)) return new Response("Not Found", { status: 404 });
+
+  // Locale routing: English is unprefixed (internally /en), Arabic lives under /ar.
+  const pageRoute = isLocalizablePagePath(pathname);
+  const prefix = pageRoute && /^\/ar(?:\/|$)/.test(pathname) ? "ar" : "en";
+  const basePath = stripLocale(pathname);
+  if (pageRoute && (/^\/en(?:\/|$)/.test(pathname) || (prefix === "ar" && isUnlocalizedPath(basePath)))) {
+    const target = new URL(`${basePath}${request.nextUrl.search}`, request.url);
+    return NextResponse.redirect(target, 308);
+  }
+  if (isRefinedCollectionPath(basePath)) return new Response("Not Found", { status: 404 });
 
   const headers = requestContext.getForwardedRequestHeaders();
+  const refinedPath = pageRoute
+    ? getRefinedCollectionPath(basePath, request.nextUrl.search)
+    : null;
+  const localizedPath = pageRoute ? `/${prefix}${basePath === "/" ? "" : basePath}` : null;
   const rewritePath =
-    getMarkdownRewritePath(request) ?? getRefinedCollectionPath(pathname, request.nextUrl.search);
+    getMarkdownRewritePath(request) ??
+    (refinedPath ? `/${prefix}${refinedPath}` : localizedPath);
   const response = rewritePath
     ? NextResponse.rewrite(new URL(`${rewritePath}${request.nextUrl.search}`, request.url), {
         request: { headers },

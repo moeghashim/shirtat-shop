@@ -6,6 +6,7 @@ import { useCollection, useCollectionActions } from "@shopify/hydrogen/react";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { SORT_VALUES } from "@/lib/collections";
 import type { SortValue } from "@/lib/collections/types";
+import { T } from "@/components/i18n/t";
 
 const SORT_LABELS: Record<SortValue, string> = {
   "best-selling": "Best Selling",
@@ -29,12 +30,12 @@ export function CollectionsSortSelect({ exclude = [] }: { exclude?: SortValue[] 
       disabled={status === "loading"}
     >
       <SelectTrigger className="border-0 shadow-none bg-transparent px-0">
-        <span>Sort</span>
+        <span><T k="Sort" /></span>
       </SelectTrigger>
       <SelectContent>
         {options.map((value) => (
           <SelectItem key={value} value={value}>
-            {SORT_LABELS[value]}
+            <T k={SORT_LABELS[value]} />
           </SelectItem>
         ))}
       </SelectContent>

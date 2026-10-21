@@ -11,11 +11,16 @@ import { getShopPolicies } from "@/lib/policies/server";
 
 import { SocialLinks } from "./social-links";
 import type { SocialLink } from "./social-links";
+import { commerceLocale } from "@/lib/i18n";
+import { getLocale, getT } from "@/lib/i18n/server";
 
 export async function Footer() {
   const socialLinks: SocialLink[] = [];
   const items: MenuItem[] = [];
-  const policies = await getShopPolicies({}).catch(() => []);
+  const locale = await getLocale();
+  const t = await getT();
+  const policies = await getShopPolicies({ locale: commerceLocale(locale) }).catch(() => []);
+  const englishOnly = locale === "ar" ? { hrefLang: "en" } : {};
   return (
     <footer>
       {/* pb-22 clears the fixed agent ActionBar pill when it renders */}
@@ -25,29 +30,31 @@ export async function Footer() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 sm:justify-start">
               <p className="text-sm text-muted-foreground leading-5">
-                {`© ${shopConfig.site.name}. All rights reserved.`}
+                {t("© {name}. All rights reserved.", { name: shopConfig.site.name })}
               </p>
               <Link
                 href="/making-of"
                 className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                The making of Shirtat
+                {t("The making of Shirtat")}
               </Link>
               <Link
                 href="/roadmap"
+                {...englishOnly}
                 className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                Roadmap
+                {t("Roadmap")}
               </Link>
               <Link
                 href="/sales"
+                {...englishOnly}
                 className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                Sales
+                {t("Sales")}
               </Link>
               <p className="flex items-center gap-1.5 text-sm text-muted-foreground leading-5">
                 <Image alt="Grok Bot" height={18} src="/grokbot-icon.png" unoptimized width={18} />
-                This website is fully managed by Grok Bot.
+                {t("This website is fully managed by Grok Bot.")}
               </p>
               <a
                 className="flex items-center gap-1.5 text-sm text-muted-foreground leading-5 transition-colors hover:text-foreground"
@@ -63,7 +70,7 @@ export async function Footer() {
                   unoptimized
                   width={22}
                 />
-                This project is part of 10claws
+                {t("This project is part of 10claws")}
               </a>
               {policies.map((policy) => (
                 <Link

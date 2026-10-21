@@ -8,12 +8,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart, useCartForm } from "@/lib/cart/client";
+import { T } from "@/components/i18n/t";
+import { useT } from "@/lib/i18n/client";
 
 interface DiscountFormProps {
   cart: CartData;
 }
 
 export function DiscountForm({ cart }: DiscountFormProps) {
+  const t = useT();
   const { formProps, register } = useCartForm();
   const discountErrors = useCart((state) => state.errors.discountCodes);
   const pendingDiscountCodes = useCart((state) => state.pending.discountCodes);
@@ -58,8 +61,8 @@ export function DiscountForm({ cart }: DiscountFormProps) {
             setCode(event.target.value);
             if (localError) setLocalError(null);
           }}
-          placeholder="Discount code"
-          aria-label="Discount code"
+          placeholder={t("Discount code")}
+          aria-label={t("Discount code")}
           aria-invalid={error ? true : undefined}
           disabled={isPending}
           autoComplete="off"
@@ -71,7 +74,7 @@ export function DiscountForm({ cart }: DiscountFormProps) {
           type="submit"
           disabled={isPending || code.trim() === ""}
         >
-          {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : "Apply"}
+          {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : t("Apply")}
         </Button>
       </form>
 
@@ -82,7 +85,7 @@ export function DiscountForm({ cart }: DiscountFormProps) {
       ) : null}
 
       {cart.discountCodes.length > 0 ? (
-        <ul className="flex flex-wrap gap-1.5" aria-label="Discount">
+        <ul className="flex flex-wrap gap-1.5" aria-label={t("Discount")}>
           {cart.discountCodes.map((discount) => {
             const isCodePending = pendingDiscountCodes.has(discount.code);
             const isInvalid = !discount.applicable && !isCodePending;
@@ -105,15 +108,15 @@ export function DiscountForm({ cart }: DiscountFormProps) {
                   <input type="hidden" {...register("discountCode", { value: discount.code })} />
                   <span className={cn(isInvalid && "line-through")}>{discount.code}</span>
                   {isInvalid ? (
-                    <span className="text-xs uppercase tracking-wide">Not applicable</span>
+                    <span className="text-xs uppercase tracking-wide"><T k="Not applicable" /></span>
                   ) : null}
                   <button
                     {...register("discount-remove")}
                     type="submit"
-                    aria-label={`${"Remove discount"}: ${discount.code}`}
+                    aria-label={`${t("Remove discount")}: ${discount.code}`}
                     disabled={isPending}
                     className={cn(
-                      "ml-0.5 inline-flex size-4 items-center justify-center rounded-sm cursor-pointer disabled:cursor-not-allowed",
+                      "ms-0.5 inline-flex size-4 items-center justify-center rounded-sm cursor-pointer disabled:cursor-not-allowed",
                       discount.applicable || isCodePending
                         ? "hover:bg-primary-foreground/15"
                         : "hover:bg-foreground/10",

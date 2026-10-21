@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { shopConfig } from "@/lib/config";
+import { defaultLocale, type Locale, locales, localizePath } from "@/lib/i18n";
 
 import type { SearchParamsInput } from "./types";
 
@@ -44,13 +45,23 @@ function buildCanonicalPath(pathname: string, searchParams?: SearchParamsInput):
 }
 
 export function buildAlternates({
+  locale = defaultLocale,
   pathname,
   searchParams,
 }: {
+  locale?: Locale;
   pathname: string;
   searchParams?: SearchParamsInput;
 }): Metadata["alternates"] {
-  return { canonical: buildCanonicalPath(pathname, searchParams) };
+  const languages: Record<string, string> = {};
+  for (const candidate of locales) {
+    languages[candidate] = buildCanonicalPath(localizePath(candidate, pathname), searchParams);
+  }
+  languages["x-default"] = buildCanonicalPath(localizePath(defaultLocale, pathname), searchParams);
+  return {
+    canonical: buildCanonicalPath(localizePath(locale, pathname), searchParams),
+    languages,
+  };
 }
 
 export function buildOpenGraph({

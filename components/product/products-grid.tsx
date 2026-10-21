@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { ProductCard, ProductCardSkeleton } from "@/components/product-card/product-card";
 import { Link } from "@/components/ui/link";
 import { getSearchIndexProducts } from "@/lib/product/server";
+import { getT } from "@/lib/i18n/server";
+import { T } from "@/components/i18n/t";
 
 interface ProductsGridSkeletonProps {
   count: number;
@@ -31,13 +33,13 @@ export function ProductsGrid({ collectionUrl, eagerCount = 0, limit, title }: Pr
   return (
     <div className="grid gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl sm:text-3xl">{title}</h2>
+        <h2 className="text-2xl sm:text-3xl"><T k={title} /></h2>
         {collectionUrl && (
           <Link
             href={collectionUrl}
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
-            View All
+            <T k="View All" />
           </Link>
         )}
       </div>
@@ -57,6 +59,7 @@ async function ProductsGridContent({
   limit: number;
   outOfStockText: string;
 }) {
+  const t = await getT();
   // Use the search index (not the products connection) so these match the first items on /collections/all.
   const { products } = await getSearchIndexProducts({
     limit,
@@ -70,7 +73,7 @@ async function ProductsGridContent({
           loading={index < eagerCount ? "eager" : "lazy"}
           product={product}
           outOfStockText={outOfStockText}
-          quickShopText="Choose"
+          quickShopText={t("Choose")}
         />
       ))}
     </div>

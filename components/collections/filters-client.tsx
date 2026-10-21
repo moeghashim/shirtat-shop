@@ -22,6 +22,7 @@ import type { Filter, PriceRange } from "@/lib/filters/types";
 import { formatCurrencySymbol, formatPrice } from "@/lib/money";
 
 import { usePublishedFacets } from "./collection-browse-provider";
+import { useLocale, useT } from "@/lib/i18n/client";
 
 interface FilterSheetProps {
   children: ReactNode;
@@ -30,10 +31,11 @@ interface FilterSheetProps {
 }
 
 export function FilterSheet({ children, label, trigger }: FilterSheetProps) {
+  const locale = useLocale();
   return (
     <Sheet>
       <SheetTrigger render={trigger} />
-      <SheetContent side="left" className="gap-0 overflow-y-auto px-5 pb-5">
+      <SheetContent side={locale === "ar" ? "right" : "left"} className="gap-0 overflow-y-auto px-5 pb-5">
         <div className="flex h-16 shrink-0 items-center gap-2">
           <SheetTitle className="text-lg font-semibold">{label}</SheetTitle>
         </div>
@@ -60,6 +62,7 @@ interface CollectionFilterSidebarProps {
 }
 
 export function CollectionFilterSidebar({ filters, priceRange }: CollectionFilterSidebarProps) {
+  const t = useT();
   const state = useCollection();
   const actions = useCollectionActions();
   const priceFilter = state.filters.find((filter) => filter.price)?.price;
@@ -126,23 +129,23 @@ export function CollectionFilterSidebar({ filters, priceRange }: CollectionFilte
       ) : null}
 
       {priceRange ? (
-        <FilterSection title="Price">
+        <FilterSection title={t("Price")}>
           <div className="flex items-center gap-2">
             <PriceInput
               currencyCode={priceRange.currencyCode}
               onChange={(min) => setPriceInputs((prev) => ({ ...prev, min }))}
-              placeholder="From"
+              placeholder={t("From")}
               value={minInput}
             />
             <span className="text-muted-foreground">–</span>
             <PriceInput
               currencyCode={priceRange.currencyCode}
               onChange={(max) => setPriceInputs((prev) => ({ ...prev, max }))}
-              placeholder="To"
+              placeholder={t("To")}
               value={maxInput}
             />
             <button
-              aria-label="Apply price"
+              aria-label={t("Apply price")}
               className="flex size-8 cursor-pointer items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
               onClick={() => applyPrice(parsePriceValue(minInput), parsePriceValue(maxInput))}
               type="button"
@@ -276,7 +279,7 @@ function FilterOption({ count, href, label, onClick, pending, selected }: Filter
     <Link
       href={href}
       data-selected={selected}
-      className="flex items-center justify-between text-left text-sm text-muted-foreground transition-colors hover:text-foreground data-[selected=true]:font-medium"
+      className="flex items-center justify-between text-start text-sm text-muted-foreground transition-colors hover:text-foreground data-[selected=true]:font-medium"
       onClick={onClick}
     >
       <span>

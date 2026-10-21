@@ -23,6 +23,8 @@ import type {
   QuickShopProduct,
   SelectedOption,
 } from "@/lib/product/types";
+import { T } from "@/components/i18n/t";
+import { useT } from "@/lib/i18n/client";
 
 type QuickShopStatus = "failed" | "idle" | "loading" | "unavailable";
 
@@ -35,6 +37,7 @@ interface QuickShopProps {
 }
 
 export function QuickShop({ handle, href, image, label, title }: QuickShopProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [product, setProduct] = useState<QuickShopProduct | null>(null);
   const [status, setStatus] = useState<QuickShopStatus>("idle");
@@ -152,7 +155,7 @@ export function QuickShop({ handle, href, image, label, title }: QuickShopProps)
         render={
           <button
             aria-label={`${label}: ${title}`}
-            className="absolute right-2.5 bottom-2.5 z-10 hidden size-9 cursor-pointer items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-background lg:flex"
+            className="absolute end-2.5 bottom-2.5 z-10 hidden size-9 cursor-pointer items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-background lg:flex"
             onClick={load}
             type="button"
           >
@@ -218,8 +221,8 @@ export function QuickShop({ handle, href, image, label, title }: QuickShopProps)
           </QuickShopLayout>
         </div>
         <DialogPrimitive.Close
-          aria-label="Close quick shop"
-          className="absolute top-6.5 right-5 z-10 flex size-5 cursor-pointer items-center justify-center text-foreground transition-colors hover:text-foreground/80 focus-visible:outline-2 focus-visible:outline-offset-2"
+          aria-label={t("Close quick shop")}
+          className="absolute top-6.5 end-5 z-10 flex size-5 cursor-pointer items-center justify-center text-foreground transition-colors hover:text-foreground/80 focus-visible:outline-2 focus-visible:outline-offset-2"
           ref={closeButtonRef}
         >
           <XIcon className="size-5" />
@@ -369,7 +372,7 @@ function QuickShopDetailsLink({ href, onNavigate }: QuickShopDetailsLinkProps) {
 function QuickShopSkeleton() {
   return (
     <div aria-busy="true" className="grid gap-5" role="status">
-      <span className="sr-only">Loading purchase options</span>
+      <span className="sr-only"><T k="Loading purchase options" /></span>
       <div aria-hidden="true" className="grid gap-5">
         <Skeleton className="h-5 w-24" />
         <div className="grid gap-2.5">

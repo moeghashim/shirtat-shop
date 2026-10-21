@@ -40,6 +40,8 @@ import {
 } from "@/lib/product";
 import { type SelectedOptions } from "@/lib/product/types";
 import type { ProductDetails, ProductVariant } from "@/lib/product/types";
+import { T } from "@/components/i18n/t";
+import { getT } from "@/lib/i18n/server";
 
 export function ProductDetailSection({
   product,
@@ -157,13 +159,14 @@ async function ResolvedColorImageCarousel({
   return <ColorImageCarouselItems images={[image]} title={product.title} />;
 }
 
-function ProductInfoArea({
+async function ProductInfoArea({
   product,
   variantPromise,
 }: {
   product: ProductDetails;
   variantPromise: Promise<ProductVariant | undefined>;
 }) {
+  const t = await getT();
   const { options, handle, descriptionHtml } = product;
   const uniformStock = product.allVariantsInStock;
   const singleVariant = product.variantsCount === 1;
@@ -220,7 +223,7 @@ function ProductInfoArea({
       ) : null}
 
       {!product.isGiftCard && shopConfig.pdp.complementaryProducts.isEnabled ? (
-        <ComplementaryProducts handle={handle} limit={4} title="Pairs Well With" />
+        <ComplementaryProducts handle={handle} limit={4} title={t("Pairs Well With")} />
       ) : null}
 
       <ProductInfoDescription descriptionHtml={descriptionHtml} />
@@ -322,37 +325,39 @@ function ProductInfoFallback({
 }
 
 // Bundle relationships are product-level, so keep them in the static shell.
-function BundleRelationships({ variant }: { variant: ProductVariant | undefined }) {
+async function BundleRelationships({ variant }: { variant: ProductVariant | undefined }) {
+  const t = await getT();
   if (!variant) return null;
   if (variant.components.length === 0 && variant.bundleParents.length === 0) return null;
   return (
     <div className="grid gap-5">
-      <BundleComponents components={variant.components} title="Bundle Includes" />
-      <BundleParents variants={variant.bundleParents} title="Available in Bundles" />
+      <BundleComponents components={variant.components} title={t("Bundle Includes")} />
+      <BundleParents variants={variant.bundleParents} title={t("Available in Bundles")} />
     </div>
   );
 }
 
-function GiftCardPurchaseFormFallback() {
+async function GiftCardPurchaseFormFallback() {
+  const t = await getT();
   // Match the resolved form's geometry to avoid layout shift.
   return (
     <div className="grid gap-5">
       <div className="grid gap-2.5">
         <div className="grid gap-2.5">
-          <Label>Recipient email</Label>
+          <Label><T k="Recipient email" /></Label>
           <Input type="email" disabled placeholder="friend@example.com" />
         </div>
         <div className="grid gap-2.5">
-          <Label>Recipient name</Label>
-          <Input type="text" disabled placeholder="Friend's name (optional)" />
+          <Label><T k="Recipient name" /></Label>
+          <Input type="text" disabled placeholder={t("Friend's name (optional)")} />
         </div>
         <div className="grid gap-2.5">
-          <Label>Message</Label>
-          <Textarea rows={3} disabled placeholder="Write a personal note (optional)" />
+          <Label><T k="Message" /></Label>
+          <Textarea rows={3} disabled placeholder={t("Write a personal note (optional)")} />
         </div>
         <div className="grid gap-3 rounded-lg border p-3">
           <div className="flex items-center justify-between gap-2.5">
-            <Label>Schedule for later</Label>
+            <Label><T k="Schedule for later" /></Label>
             <span className="inline-flex h-[1.15rem] w-8 items-center rounded-full bg-input opacity-50" />
           </div>
         </div>
@@ -383,7 +388,7 @@ function QuantityPickerFallback() {
   );
 }
 
-function BuyButtonsFallback({
+async function BuyButtonsFallback({
   allInStock,
   showLabel,
   variant,
@@ -392,6 +397,7 @@ function BuyButtonsFallback({
   showLabel: boolean;
   variant: ProductVariant | undefined;
 }) {
+  const t = await getT();
   const { plans, selectedPlan } = getProductPurchaseOptions(variant);
   return (
     <div className="grid gap-2.5">
@@ -407,7 +413,7 @@ function BuyButtonsFallback({
       <div className="flex flex-wrap gap-2.5">
         {shopConfig.pdp.quantityPicker.isEnabled ? <QuantityPickerFallback /> : null}
         <div className="flex h-12 min-w-40 flex-1 items-center justify-center rounded-lg bg-primary text-sm font-medium text-primary-foreground">
-          {showLabel ? (allInStock ? "Add to Cart" : "Out of Stock") : null}
+          {showLabel ? (allInStock ? t("Add to Cart") : t("Out of Stock")) : null}
         </div>
       </div>
       {shopConfig.pdp.buyWithShop.isEnabled && !selectedPlan && !variant?.requiresSellingPlan ? (

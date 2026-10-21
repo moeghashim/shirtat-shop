@@ -13,6 +13,8 @@ import {
 
 import type { BrowseState } from "@/lib/collections/types";
 import type { Facets } from "@/lib/filters/types";
+import { localizeHref } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/client";
 
 interface CollectionBrowseProviderProps {
   children: ReactNode;
@@ -133,12 +135,13 @@ export function usePublishedFacets(): Facets | null {
 
 function BrowseStore({ children, dataSearch, handle, path, urlSearch }: BrowseStoreProps) {
   const router = useRouter();
+  const locale = useLocale();
 
   return (
     <CollectionProvider
       data={{ dataSearch, handle }}
       urlSearch={urlSearch}
-      onChange={(search) => router.push(`${path}${search}`, { scroll: false })}
+      onChange={(search) => router.push(localizeHref(locale, `${path}${search}`), { scroll: false })}
     >
       {children}
     </CollectionProvider>

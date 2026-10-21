@@ -69,7 +69,7 @@ export function AgentComposer({
           variant="default"
           aria-label={isBusy ? "Stop" : "Send"}
           disabled={disabled || status === "resuming" || (!value.trim() && !isBusy)}
-          className="mr-1.5 mb-1.5"
+          className="me-1.5 mb-1.5"
         >
           {icon}
         </InputGroupButton>

@@ -8,19 +8,22 @@ import { Button } from "@/components/ui/button";
 import { useCart, useCheckout } from "@/lib/cart/client";
 
 import { DiscountForm } from "./discount-form";
+import { T } from "@/components/i18n/t";
+import { useT } from "@/lib/i18n/client";
 
 interface CartSummaryProps {
   cart: CartData;
 }
 
 export function CartSummary({ cart }: CartSummaryProps) {
+  const t = useT();
   return (
     <div className="grid gap-5">
       <div className="grid gap-2.5">
         <DiscountForm cart={cart} />
         <CartTotal cart={cart} />
       </div>
-      <CartCheckout label="Go to Checkout" />
+      <CartCheckout label={t("Go to Checkout")} />
     </div>
   );
 }
@@ -30,6 +33,7 @@ interface CartTotalProps {
 }
 
 export function CartTotal({ cart }: CartTotalProps) {
+  const t = useT();
   const isCostPending = useCart((state) =>
     Boolean(state.loading || state.pending.cost || state.revalidating),
   );
@@ -37,19 +41,19 @@ export function CartTotal({ cart }: CartTotalProps) {
   return (
     <div
       aria-busy={isCostPending || undefined}
-      aria-label="Estimated total"
+      aria-label={t("Estimated total")}
       className="grid gap-1"
       role="group"
     >
       <div className="flex items-baseline justify-between text-base text-foreground">
-        <span>Estimated total</span>
+        <span><T k="Estimated total" /></span>
         {isCostPending || !currencyCode ? (
-          <span className="font-medium text-muted-foreground text-xl">Updating…</span>
+          <span className="font-medium text-muted-foreground text-xl"><T k="Updating…" /></span>
         ) : (
           <Price amount={amount} className="font-medium text-xl" currencyCode={currencyCode} />
         )}
       </div>
-      <p className="text-muted-foreground text-xs">Taxes and shipping calculated at checkout.</p>
+      <p className="text-muted-foreground text-xs"><T k="Taxes and shipping calculated at checkout." /></p>
     </div>
   );
 }
@@ -58,7 +62,9 @@ interface CartCheckoutProps {
   label?: string;
 }
 
-export function CartCheckout({ label = "Checkout" }: CartCheckoutProps) {
+export function CartCheckout({ label: labelProp }: CartCheckoutProps) {
+  const t = useT();
+  const label = labelProp ?? t("Checkout");
   const {
     checkoutError,
     checkoutErrorId,
