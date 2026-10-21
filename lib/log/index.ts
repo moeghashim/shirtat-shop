@@ -25,6 +25,7 @@ export const logDays: LogDay[] = [
       "Added password reset for creators (a one-hour, single-use link sent by email) and a change-password option when signed in.",
       "Switched every price on the site to US dollars: the storefront and cart show USD at the daily exchange rate, sales totals are converted at each order date's rate, and creator product prices start at $30 for a T-shirt, $55 for a hoodie, $50 for a sweatshirt, $22 for a tote bag and $25 for a print.",
       "Added About, Contact, Shipping, Refund & Returns, Terms & Conditions, Privacy and Creator Terms pages in English and Arabic, linked from the footer.",
+      "Creator approval and password reset emails now send directly from creators@shirtat.co through Cloudflare Email Service, and are queued if sending fails.",
     ],
   },
   {

@@ -59,9 +59,9 @@ async function AdminContent({
   const emailFlag = typeof params.email === "string" ? params.email : undefined;
   const message = emailFlag
     ? emailFlag === "sent"
-      ? "Details email sent."
+      ? "Details email sent (Cloudflare Email Service)."
       : emailFlag === "queued"
-        ? "Details email queued. It will be sent from moeg@mail.grokbot.com; the link is also shown below."
+        ? "Email could not be sent directly, so it was queued. Copy the link below if needed."
         : emailFlag === "not_configured"
           ? "Email provider not configured yet. A new link was generated; copy it below and send it manually."
           : "Email failed to send. A new link was generated; copy it below."
@@ -179,7 +179,7 @@ async function AdminContent({
                     : c.detailsEmail.status === "queued"
                       ? latestEmail.get(c.id)?.status === "sent"
                         ? `sent from ${latestEmail.get(c.id)?.sentFrom ?? "Grok Bot inbox"} ${latestEmail.get(c.id)?.sentAt?.slice(0, 16).replace("T", " ")} UTC`
-                        : `queued ${c.detailsEmail.sentAt?.slice(0, 16).replace("T", " ")} UTC (sent from moeg@mail.grokbot.com by routine)`
+                        : `queued ${c.detailsEmail.sentAt?.slice(0, 16).replace("T", " ")} UTC (fallback queue; email provider not configured or failed)${c.detailsEmail.error ? ` – ${c.detailsEmail.error}` : ""}`
                       : c.detailsEmail.status === "not_configured"
                         ? "not sent (email provider not configured)"
                         : `failed (${c.detailsEmail.error ?? "error"})`
