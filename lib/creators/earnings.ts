@@ -41,7 +41,7 @@ interface Money {
 }
 
 /** Daily FX rates to USD from frankfurter (ECB reference rates), cached for a day. */
-async function getUsdRates(from: string, start: string, end: string): Promise<Map<string, number>> {
+export async function getUsdRates(from: string, start: string, end: string): Promise<Map<string, number>> {
   const res = await fetch(
     `https://api.frankfurter.dev/v1/${start}..${end}?from=${encodeURIComponent(from)}&to=USD`,
     { next: { revalidate: 86400 } },
@@ -52,7 +52,7 @@ async function getUsdRates(from: string, start: string, end: string): Promise<Ma
 }
 
 /** Rate for the order date, or the latest earlier business day. */
-function rateOn(rates: Map<string, number>, date: string): number | undefined {
+export function rateOn(rates: Map<string, number>, date: string): number | undefined {
   const dates = [...rates.keys()].sort();
   let found: number | undefined;
   for (const d of dates) {

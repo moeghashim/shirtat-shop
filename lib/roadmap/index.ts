@@ -72,6 +72,6 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: "Creator payouts",
     status: "next",
     summary:
-      "Automated or half-automated payouts at 15% or 20%, with a $25 minimum, in USD converted from GBP at the order-day rate.",
+      "Automated or half-automated payouts at 15% or 20%, with a $25 minimum, in USD at the order-day exchange rate.",
   },
 ];

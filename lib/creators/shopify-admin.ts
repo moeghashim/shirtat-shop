@@ -1,5 +1,8 @@
 import { getAdminToken } from "@/lib/sales/server";
 
+import { getGbpUsdRate } from "@/lib/money/fx";
+import { getCachedGbpUsdRate } from "@/lib/money/fx-server";
+
 import { getProductType } from "./product-types";
 import { signedAssetUrl } from "./tokens";
 import type { CreatorRecord, DesignRecord } from "./types";
@@ -63,13 +66,15 @@ export async function createDraftProduct(
   ]
     .filter(Boolean)
     .join("\n");
+  const rate = (await getCachedGbpUsdRate()) ?? getGbpUsdRate();
+  const gbpPrice = (Number(type.basePrice) / rate).toFixed(2);
   const variants = type.sizes.flatMap((size) =>
     colors.map((color) => ({
       optionValues: [
         { name: size, optionName: "Size" },
         { name: color, optionName: "Color" },
       ],
-      price: type.basePrice,
+      price: gbpPrice,
     })),
   );
   const files =

@@ -18,7 +18,10 @@ import { botIdProtectedRoutes } from "@/lib/botid";
 import { seedCartData } from "@/lib/cart/server";
 import { shopConfig } from "@/lib/config";
 import { locales, localeDir, translate } from "@/lib/i18n";
+import { FxRate } from "@/components/fx-rate";
 import { LocaleProvider } from "@/lib/i18n/client";
+import { setGbpUsdRate } from "@/lib/money/fx";
+import { getCachedGbpUsdRate } from "@/lib/money/fx-server";
 import { getLocale } from "@/lib/i18n/server";
 import { buildAlternates } from "@/lib/seo";
 
@@ -48,6 +51,8 @@ export const generateStaticParams = async () => locales.map((locale) => ({ local
 
 export default async function RootLayout({ children }: LayoutProps<"/[locale]">) {
   const locale = await getLocale();
+  const fxRate = await getCachedGbpUsdRate();
+  setGbpUsdRate(fxRate);
   const t = (key: string) => translate(locale, key);
   // Un-awaited: the promise streams to the client provider; never block the shell on it.
   const cartData = seedCartData();
@@ -68,6 +73,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
         </a>
         <SiteSchema />
 
+        <FxRate rate={fxRate} />
         <LocaleProvider locale={locale}>
           <CartProviderWrapper cartData={cartData}>
             <Nav />

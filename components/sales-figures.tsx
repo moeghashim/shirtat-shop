@@ -6,7 +6,7 @@ export async function SalesFigures() {
   if (!figures) {
     return <p className="text-muted-foreground">Sales figures coming soon.</p>;
   }
-  const money = new Intl.NumberFormat("en-GB", { style: "currency", currency: figures.currency });
+  const money = new Intl.NumberFormat("en-US", { style: "currency", currency: figures.currency });
   const row = (label: string, t: SalesTotals) => (
     <div className="flex flex-col gap-3 rounded-lg border border-border p-5">
       <h2 className="font-semibold">{label}</h2>
@@ -30,6 +30,7 @@ export async function SalesFigures() {
     <div className="flex flex-col gap-6">
       {row("Last 60 days", figures.last60Days)}
       {row("Last 30 days", figures.last30Days)}
+      <p className="text-sm text-muted-foreground">Revenue in US dollars, converted at each order date's exchange rate.</p>
     </div>
   );
 }

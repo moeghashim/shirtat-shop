@@ -112,4 +112,5 @@ export const ar = {
   "You May Also Like": "قد يعجبك أيضًا",
   "Your cart is empty": "سلتك فارغة",
   "© {name}. All rights reserved.": "© شيرتات. جميع الحقوق محفوظة.",
+  "Prices are shown in US dollars. For now, checkout charges the equivalent amount in British pounds.": "تُعرض الأسعار بالدولار الأمريكي، ويُحتسب الدفع حاليًا بما يعادلها بالجنيه الإسترليني.",
 } as const;

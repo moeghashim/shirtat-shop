@@ -273,7 +273,7 @@ async function AdminContent({
                         {type?.labelEn ?? d.productTypeId}
                       </strong>{" "}
                       ({type?.productType}) · colours {d.colors.join(", ")} · sizes{" "}
-                      {type?.sizes.join(", ")} · £{type?.basePrice}
+                      {type?.sizes.join(", ")} · ${type?.basePrice}
                       {d.tags.length > 0 && ` · tags ${d.tags.join(", ")}`}
                     </p>
                     {d.descriptionEn && <p>{d.descriptionEn}</p>}

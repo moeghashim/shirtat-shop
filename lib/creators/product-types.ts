@@ -1,7 +1,8 @@
 /**
  * Product types creators can choose for a design. One config drives the upload form (EN/AR),
  * the Shopify draft (productType, standard category, variants) and the matching collection.
- * Prices are in the store currency (GBP) and are starting points Moe reviews before publishing.
+ * basePrice is the USD placeholder price shown on the site. The Shopify store stays in GBP, so drafts
+ * are created at the GBP equivalent (today's rate) and display back as roughly this USD price.
  */
 export interface ProductTypeConfig {
   basePrice: string;
@@ -25,7 +26,7 @@ const BASIC_COLORS = [
 
 export const PRODUCT_TYPES: ProductTypeConfig[] = [
   {
-    basePrice: "25.00",
+    basePrice: "30.00",
     category: "gid://shopify/TaxonomyCategory/aa-1-13-8",
     collectionHandle: "t-shirts",
     colors: [...BASIC_COLORS, { ar: "زيتي", en: "Olive" }],
@@ -36,7 +37,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     sizes: APPAREL_SIZES,
   },
   {
-    basePrice: "45.00",
+    basePrice: "55.00",
     category: "gid://shopify/TaxonomyCategory/aa-1-13-13",
     collectionHandle: "hoodies",
     colors: BASIC_COLORS,
@@ -47,7 +48,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     sizes: APPAREL_SIZES,
   },
   {
-    basePrice: "40.00",
+    basePrice: "50.00",
     category: "gid://shopify/TaxonomyCategory/aa-1-13-14",
     collectionHandle: "sweatshirts",
     colors: BASIC_COLORS,
@@ -58,7 +59,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     sizes: APPAREL_SIZES,
   },
   {
-    basePrice: "18.00",
+    basePrice: "22.00",
     category: "gid://shopify/TaxonomyCategory/lb-13",
     collectionHandle: "tote-bags",
     colors: [
@@ -72,7 +73,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     sizes: ["One size"],
   },
   {
-    basePrice: "20.00",
+    basePrice: "25.00",
     category: "gid://shopify/TaxonomyCategory/hg-3-4-2-1",
     collectionHandle: "posters-prints",
     colors: [{ ar: "ورق أبيض", en: "White paper" }],

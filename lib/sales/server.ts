@@ -1,5 +1,7 @@
 import { cacheLife } from "next/cache";
 
+import { getUsdRates, rateOn } from "@/lib/creators/earnings";
+
 export interface SalesTotals {
   orders: number;
   revenue: number;
@@ -80,7 +82,8 @@ export async function getSalesFigures(): Promise<SalesFigures | null> {
     const last60Days = empty();
     const last30Days = empty();
     const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
-    let currency = "GBP";
+    const currency = "USD";
+    let rates: Map<string, number> | null = null;
     let cursor: string | null = null;
 
     for (let page = 0; page < 50; page++) {
@@ -92,9 +95,17 @@ export async function getSalesFigures(): Promise<SalesFigures | null> {
       if (!res.ok) return null;
       const json = (await res.json()) as OrdersResponse;
       if (!json.data || json.errors) return null;
-      currency = json.data.shop.currencyCode;
+      const shopCcy = json.data.shop.currencyCode;
+      if (shopCcy !== "USD" && !rates) {
+        const start = new Date(Date.now() - 67 * 86400000).toISOString().slice(0, 10);
+        rates = await getUsdRates(shopCcy, start, new Date().toISOString().slice(0, 10));
+      }
       for (const order of json.data.orders.nodes) {
-        const revenue = Number(order.totalPriceSet.shopMoney.amount) || 0;
+        const amount = Number(order.totalPriceSet.shopMoney.amount) || 0;
+        const fx = rates ? rateOn(rates, order.createdAt.slice(0, 10)) : 1;
+        if (!fx) return null;
+        // Converted to USD at the order-date rate (store currency stays GBP).
+        const revenue = amount * fx;
         const units = order.lineItems.nodes.reduce((sum, item) => sum + item.quantity, 0);
         for (const bucket of new Date(order.createdAt).getTime() >= cutoff
           ? [last60Days, last30Days]
