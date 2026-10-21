@@ -99,8 +99,8 @@ export const ar = {
   "The making of Shirtat": "قصة صناعة شيرتات",
   "The oldest Arabic script, with bold geometric lines that feel strikingly modern.":
     "أقدم الخطوط العربية، بخطوط هندسية جريئة تبدو عصرية على نحو لافت.",
-  "This project is part of 10claws": "هذا المشروع جزء من 10claws",
-  "This website is fully managed by Grok Bot.": "هذا الموقع يُدار بالكامل بواسطة Grok Bot.",
+  "This project is part of": "هذا المشروع جزء من",
+  " and is fully managed by": "، ويُديره بالكامل",
   "Thuluth": "الثلث",
   "To": "إلى",
   "Try again": "حاول مجددًا",

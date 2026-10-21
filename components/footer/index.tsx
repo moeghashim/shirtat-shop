@@ -52,26 +52,38 @@ export async function Footer() {
               >
                 {t("Sales")}
               </Link>
-              <p className="flex items-center gap-1.5 text-sm text-muted-foreground leading-5">
-                <Image alt="Grok Bot" height={18} src="/grokbot-icon.png" unoptimized width={18} />
-                {t("This website is fully managed by Grok Bot.")}
+              <p className="text-sm text-muted-foreground leading-6">
+                {t("This project is part of")}{" "}
+                <a
+                  className="inline-flex items-center gap-1 whitespace-nowrap align-middle font-medium transition-colors hover:text-foreground"
+                  href="https://10claws.com/"
+                  rel="noopener"
+                  target="_blank"
+                >
+                  <Image
+                    alt=""
+                    className="inline-block dark:invert"
+                    height={20}
+                    src="/10claws-logo.svg"
+                    unoptimized
+                    width={20}
+                  />
+                  10claws
+                </a>
+                {t(" and is fully managed by")}{" "}
+                <span className="inline-flex items-center gap-1 whitespace-nowrap align-middle font-medium">
+                  <Image
+                    alt=""
+                    className="inline-block"
+                    height={18}
+                    src="/grokbot-icon.png"
+                    unoptimized
+                    width={18}
+                  />
+                  Grok Bot
+                </span>
+                .
               </p>
-              <a
-                className="flex items-center gap-1.5 text-sm text-muted-foreground leading-5 transition-colors hover:text-foreground"
-                href="https://10claws.com/"
-                rel="noopener"
-                target="_blank"
-              >
-                <Image
-                  alt="10claws"
-                  className="dark:invert"
-                  height={22}
-                  src="/10claws-logo.svg"
-                  unoptimized
-                  width={22}
-                />
-                {t("This project is part of 10claws")}
-              </a>
               {policies.map((policy) => (
                 <Link
                   key={policy.handle}
