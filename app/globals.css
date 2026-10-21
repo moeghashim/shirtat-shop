@@ -172,3 +172,12 @@ html[lang="ar"] body,
 .font-arabic {
   font-family: var(--font-messiri), var(--font-geist-sans), sans-serif;
 }
+
+@keyframes shirtat-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes shirtat-pop {
+  from { transform: scale(0.6) translateY(-8%); opacity: 0.4; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
