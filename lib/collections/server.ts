@@ -35,9 +35,19 @@ function tagCollections(collections: Array<{ handle: string }>): void {
   }
 }
 
+// Bump to start a fresh remote cache entry when the collection set or its shaping changes.
+const COLLECTIONS_CACHE_VERSION = 2;
+
 export async function getCollections(
   params: { limit?: number; locale?: CommerceLocale } = {},
 ): Promise<Collection[]> {
+  return getCollectionsCached({ ...params, v: COLLECTIONS_CACHE_VERSION });
+}
+
+async function getCollectionsCached({
+  v: _v,
+  ...params
+}: { limit?: number; locale?: CommerceLocale; v: number }): Promise<Collection[]> {
   "use cache: remote";
   cacheLife("max");
   cacheTag("collections", "collections-index");
@@ -53,6 +63,17 @@ export async function getCollection(params: {
   handle: string;
   locale?: CommerceLocale;
 }): Promise<Collection | undefined> {
+  return getCollectionCached({ ...params, v: COLLECTIONS_CACHE_VERSION });
+}
+
+async function getCollectionCached({
+  v: _v,
+  ...params
+}: {
+  handle: string;
+  locale?: CommerceLocale;
+  v: number;
+}): Promise<Collection | undefined> {
   "use cache: remote";
   cacheLife("max");
   cacheTag("collections", `collection-${params.handle}`);
@@ -64,6 +85,17 @@ export async function getCollection(params: {
 export async function getCollectionsListing(
   params: { limit?: number; locale?: CommerceLocale } = {},
 ): Promise<CollectionWithThumbnail[]> {
+  return getCollectionsListingCached({ ...params, v: COLLECTIONS_CACHE_VERSION });
+}
+
+async function getCollectionsListingCached({
+  v: _v,
+  ...params
+}: {
+  limit?: number;
+  locale?: CommerceLocale;
+  v: number;
+}): Promise<CollectionWithThumbnail[]> {
   "use cache: remote";
   cacheLife("max");
   cacheTag("collections", "collections-index");
