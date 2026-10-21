@@ -42,7 +42,7 @@ interface OrdersResponse {
 let cachedToken: { value: string; expiresAt: number } | null = null;
 
 /** Gets a short-lived Admin API token with the client-credentials grant, cached in memory. */
-async function getAdminToken(domain: string): Promise<string | null> {
+export async function getAdminToken(domain: string): Promise<string | null> {
   if (cachedToken && Date.now() < cachedToken.expiresAt) return cachedToken.value;
   const clientId = process.env.SHOPIFY_ADMIN_CLIENT_ID;
   const clientSecret = process.env.SHOPIFY_ADMIN_CLIENT_SECRET;

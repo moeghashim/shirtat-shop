@@ -14,6 +14,7 @@ export const logDays: LogDay[] = [
       "Launched an Arabic version of the storefront at /ar, with right-to-left layout, an Arabic font and an EN / العربية switcher. The roadmap, sales and daily log stay in English.",
       "Switched the Arabic pages to the El Messiri font and fixed it so the font always loads.",
       "Combined the footer credits into one sentence: the project is part of 10claws and fully managed by Grok Bot.",
+      "Launched the Shirtat creator program: public program page and application form (English and Arabic), creator accounts with manual approval, an admin page for Moe, and a creator dashboard with sales and earnings.",
     ],
   },
   {

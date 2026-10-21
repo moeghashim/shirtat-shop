@@ -39,6 +39,12 @@ export async function Footer() {
                 {t("The making of Shirtat")}
               </Link>
               <Link
+                href="/creators"
+                className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t("Creators")}
+              </Link>
+              <Link
                 href="/roadmap"
                 {...englishOnly}
                 className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"

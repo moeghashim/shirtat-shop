@@ -34,6 +34,12 @@ export const roadmapPhases: RoadmapPhase[] = [
     summary: "Setting up checkout and payments, then opening the store.",
   },
   {
+    title: "Creator program",
+    status: "done",
+    summary:
+      "Creators apply with their designs, Moe approves them, and approved creators earn 15–20% of net sales with a dashboard to track it.",
+  },
+  {
     title: "Custom domain",
     status: "done",
     summary: "shirtat.co now points at the live store.",

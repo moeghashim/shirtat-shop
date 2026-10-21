@@ -19,6 +19,7 @@ export async function Nav() {
   const t = await getT();
   const items: MenuItem[] = [
     { id: "default-nav-shop", items: [], title: t("Shop"), url: "/collections/all" },
+    { id: "nav-creators", items: [], title: t("Creators"), url: "/creators" },
   ];
   return (
     <nav

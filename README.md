@@ -34,6 +34,23 @@ Shirtat (شيرتات, “t-shirts” in Arabic) is an apparel brand that puts A
 - **Kanban roadmap.** `/roadmap` shows Done, In progress and Next columns, with data in `lib/roadmap`.
 - **Brand assets.** The stacked logo (Thuluth calligraphy over SHIRTAT) and a full favicon and app-icon set with a web manifest.
 
+## Creator program
+
+Creators submit Arabic calligraphy designs and earn a share of sales: **15%** of the net item price (after discounts, excluding tax and shipping), or **20%** for creators with 50+ units in a calendar quarter. Earnings are held 30 days, paid monthly by the 15th via PayPal or Wise, with a $25 minimum.
+
+| Page | Purpose |
+| --- | --- |
+| `/creators` (and `/ar/creators`) | Program overview, rates, terms and FAQ |
+| `/creators/apply` | Application form, which also creates the creator account (email and password) |
+| `/creators/signin` | Sign in for creators and the admin |
+| `/creators/dashboard` | Approved creators: units, net sales, earnings, pending vs payable, tier progress and per-product breakdown; design submissions |
+| `/admin/creators` | Admin only (moe@10claws.com): approve or reject, assign handle, set tier override, view uploads, delete |
+
+- **Linking products to a creator:** in Shopify admin, add the product tag `creator:<handle>` (for example `creator:layla`). The handle is the one assigned in `/admin/creators`.
+- **Data:** creator accounts, applications and uploads are stored in a private Vercel Blob store (`shirtat-creators`). Passwords are hashed with scrypt, and sessions are signed, httpOnly cookies.
+- **Admin sign-in:** the admin email cannot be registered publicly; it signs in with the password whose hash is in `ADMIN_PASSWORD_HASH`.
+- **Limitations:** sales come from the last 60 days of orders only (Shopify `read_orders` without `read_all_orders`), so quarterly tier progress counts orders within that window. Refunds are not yet deducted automatically. There are no email notifications; the admin page shows the pending count.
+
 ## Project structure
 
 ```
@@ -73,6 +90,9 @@ Environment variables (names only; never commit values):
 | `NEXT_PUBLIC_SHOPIFY_SHOP_ID` | Shopify shop ID |
 | `SHOPIFY_ADMIN_CLIENT_ID` | Admin app client ID for sales totals (server only) |
 | `SHOPIFY_ADMIN_CLIENT_SECRET` | Admin app client secret for sales totals (server only) |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob store for creator data and uploads (set by the Blob integration) |
+| `AUTH_SECRET` | Secret that signs creator session cookies (32+ characters) |
+| `ADMIN_PASSWORD_HASH` | scrypt hash of the admin password |
 
 Other optional variables are listed in `.env.example`.
 
