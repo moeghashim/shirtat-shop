@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { DesignerAvatar } from "@/components/designers/avatar";
@@ -36,6 +37,7 @@ export default async function DesignersPage() {
 }
 
 async function DesignerList() {
+  await connection();
   const t = await getT();
   const designers = await listPublicDesigners().catch(() => []);
   if (designers.length === 0) {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { DesignerAvatar } from "@/components/designers/avatar";
@@ -38,6 +39,7 @@ export default function DesignerPage({ params }: PageProps<"/[locale]/designers/
 }
 
 async function DesignerContent({ params }: { params: Promise<{ handle: string }> }) {
+  await connection();
   const { handle } = await params;
   if (handle === PLACEHOLDER_HANDLE) notFound();
   const t = await getT();
