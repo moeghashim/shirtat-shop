@@ -1,99 +1,89 @@
-# Vercel Shop
+<p align="center">
+  <img src="public/shirtat-logo.svg" alt="Shirtat" width="220" />
+</p>
 
-Agent-ready commerce, powered by Shopify, Next, and Eve.
+# Shirtat
 
-- **Shopify owns commerce.** Catalog, cart, checkout, customer accounts, predictive search, and policies come from Shopify through the framework-agnostic Hydrogen SDK (not the Hydrogen React Router framework).
-- **Next.js owns the app.** Routing, Server Components, caching and invalidation, metadata, and the storefront's machine-readable surface for answer engines: Markdown representations, `/llms.txt`, structured data, and the sitemap.
-- **Eve owns the agent.** Shop Agent's sessions, tools, and connections; its tools call Shopify directly.
+Shirtat (شيرتات, “t-shirts” in Arabic) is an apparel brand that puts Arabic calligraphy on clothing: Thuluth, Kufic, Diwani and words chosen for their meaning. This repository is the storefront for **[shirtat.co](https://shirtat.co)**.
 
-See [vercel.shop](https://vercel.shop) for full documentation.
+## Live links
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fshop&project-name=shop&repository-name=shop&demo-title=Vercel+Shop&demo-url=https%3A%2F%2Fshop-template.vercel.app&env=NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN%2CNEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN%2CNEXT_PUBLIC_SHOPIFY_SHOP_ID&envDescription=Required%20Shopify%20store%20domain%2C%20Storefront%20API%20token%2C%20and%20shop%20ID&envLink=https%3A%2F%2Fvercel.shop%2Fdocs%2Freference%2Fenv-vars)
+| Page | URL |
+| --- | --- |
+| Store (English) | https://shirtat.co |
+| Store (Arabic) | https://shirtat.co/ar |
+| The making of Shirtat and the daily log | https://shirtat.co/making-of |
+| Roadmap (Kanban board) | https://shirtat.co/roadmap |
+| Sales totals | https://shirtat.co/sales |
 
-Vercel prompts for the three required Shopify values before the first deployment.
+## Stack
 
-## Getting Started
-
-1. Create a new project with pnpm 12 and Node.js 24:
-
-```sh
-pnpm create next-app@latest my-store --example https://github.com/vercel/shop
-```
-
-The project includes the Shop skills for your agent in `.agents/skills/`.
-
-2. In Shopify admin, create a storefront token in **Settings → Apps and sales channels → Headless**, enable the required Storefront API permissions, then add your Shopify credentials:
-
-```sh
-cp .env.example .env.local
-```
-
-```
-NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
-NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN=your-token
-NEXT_PUBLIC_SHOPIFY_SHOP_ID=123456789
-```
-
-3. Start the development server:
-
-```sh
-pnpm dev
-```
-
-For local HTTPS, install [Portless](https://portless.sh) globally with `pnpm add -g portless`, then run `pnpm dev:portless`.
-
-See [vercel.shop/docs/getting-started](https://vercel.shop/docs/getting-started) for the full setup guide and [Storefront API Permissions](https://vercel.shop/docs/reference/storefront-api-permissions) for the complete scope reference.
+- **Next.js 16** (App Router, Cache Components), built from the [Vercel Shop](https://vercel.shop) template
+- **Shopify Storefront API** for products, collections, cart and checkout. The store is `shirtatco.myshopify.com`.
+- **Shopify Admin API** (read-only `read_orders`) for the public sales totals
+- **Vercel** hosting. Every push to `main` deploys to production automatically.
 
 ## Features
 
-Shopify
+- **English and Arabic.** English is at `/` and Arabic is at `/ar`.
+  - Arabic pages are right-to-left (`dir="rtl"`) and use the El Messiri font through `next/font`.
+  - The header has an EN / العربية switcher, and pages carry hreflang alternates.
+  - Product data asks Shopify for Arabic content and falls back to English.
+- **Public sales totals.** `/sales` shows order totals for the last 30 and 60 days. The server gets its own short-lived Admin API token with Shopify's client-credentials grant, so no long-lived admin token is stored.
+- **Daily log.** `/making-of` tells how the store is being built, with a newest-first log kept in `lib/log/index.ts` (English only).
+- **Kanban roadmap.** `/roadmap` shows Done, In progress and Next columns, with data in `lib/roadmap`.
+- **Brand assets.** The stacked logo (Thuluth calligraphy over SHIRTAT) and a full favicon and app-icon set with a web manifest.
 
-- Product, collection, search, blog, page, and policy content from the Storefront API with validated, typed GraphQL
-- Optimistic cart with Hydrogen forms, shared cart state, and server handlers
-- Customer accounts through the Customer Account API, opt-in
-- Shopify analytics, consent, and WebMCP tool registration, opt-in
+## Project structure
 
-Next.js
-
-- Next.js 16 App Router, React 19, React Compiler, Tailwind CSS 4, shadcn/ui
-- Partial prerendering with tagged caches invalidated by Shopify webhooks
-- Markdown representations, `/llms.txt`, Schema.org data, sitemap, and robots for answer engines
-- Single-locale storefront by default; skills add next-intl and Shopify Markets
-
-Eve
-
-- Shop Agent for product discovery, store questions, and cart updates in a side drawer, opt-in
-- Shopify catalog and policy MCP connections plus Hydrogen cart handlers
-
-Customer authentication is disabled by default. Follow the [authentication guide](https://vercel.shop/docs/anatomy/authentication) to configure Shopify credentials and callback URLs before enabling `auth.isEnabled` in `lib/config/index.ts`.
-
-Shop Agent is disabled by default. Set `agent.isEnabled` to `true` in `lib/config/index.ts` and follow the [Shop Agent guide](https://vercel.shop/docs/anatomy/agent) to configure AI Gateway access and review privacy and spending safeguards before enabling public chat.
-
-## Skills
-
-Shop skills guide agents through storefront setup and common commerce patterns. They ship in `.agents/skills/`, and Claude Code reads them through the `.claude/skills` symlink. To add them to an existing storefront, run this from its root:
-
-```sh
-pnpm dlx skills add vercel/shop --skill '*' --yes
+```
+app/
+  [locale]/            Storefront routes; en is served at / and ar at /ar
+    page.tsx           Homepage (hero + Inspiration section)
+    making-of/         Story and daily log
+    roadmap/  sales/   English-only pages
+    products/  collections/  search/  cart/ ...
+  api/  md/  sitemap/  Non-localized handlers
+components/            UI (nav, footer, home, cart, product, collections, ...)
+lib/
+  i18n/                Locales, Arabic messages, locale helpers
+  log/                 Daily log entries
+  roadmap/  sales/     Roadmap data and Admin API sales totals
+  shopify/             Storefront API operations
+proxy.ts               Shopify route handling and locale routing (/ to /en internally, /ar)
+public/                Logo, favicons, site.webmanifest, credit logos
 ```
 
-Use the plain skill names below. Shopify AI Toolkit is separate external tooling for authoritative Shopify documentation, API schemas, and operation validation; the Shop skills do not include it. If it is unavailable, use official Shopify documentation and validation tooling.
+## Local development
 
-| Skill                       | Description                                                           |
-| --------------------------- | --------------------------------------------------------------------- |
-| `init-vercel-shop`          | Scaffold a storefront and configure Shopify credentials               |
-| `build-shop`                | Build or adapt storefront routes with Vercel Shop patterns            |
-| `shopify-graphql-reference` | Add Shopify-validated GraphQL operations in the template's layout     |
-| `enable-analytics`          | Add Vercel Analytics, Speed Insights, and Google Tag Manager          |
-| `enable-i18n`               | Locale-prefixed URL routing + next-intl message catalogs (no Markets) |
-| `enable-shopify-markets`    | Multi-locale support with Shopify Markets and next-intl               |
-| `enable-shopify-menus`      | Replace hardcoded nav/footer links with Shopify-managed menus         |
-| `update-shop`               | Keep a storefront current with template changes                       |
+Requires Node 24 and pnpm.
 
-## Documentation
+```bash
+pnpm install
+cp .env.example .env.local   # then fill in the values
+pnpm dev
+```
 
-Full documentation is available at [vercel.shop](https://vercel.shop).
+Environment variables (names only; never commit values):
 
-## License
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN` | Shopify store domain |
+| `NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN` | Storefront API token (Headless channel) |
+| `NEXT_PUBLIC_SHOPIFY_SHOP_ID` | Shopify shop ID |
+| `SHOPIFY_ADMIN_CLIENT_ID` | Admin app client ID for sales totals (server only) |
+| `SHOPIFY_ADMIN_CLIENT_SECRET` | Admin app client secret for sales totals (server only) |
 
-MIT
+Other optional variables are listed in `.env.example`.
+
+## Deployment
+
+- The Vercel project is `shirtat-shop`. Pushing to `main` builds and deploys to production.
+- Secrets live only in Vercel environment variables (encrypted). Never commit them.
+- The domain `shirtat.co` is pointed at Vercel through DNS records at name.com, and `www` redirects to the apex.
+
+## Credits
+
+This project is part of [10claws](https://10claws.com/) and is fully managed by Grok Bot.
+
+Built on the [Vercel Shop](https://vercel.shop) template (MIT, see [LICENSE](LICENSE)).
