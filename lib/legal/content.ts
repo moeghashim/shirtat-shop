@@ -4,7 +4,7 @@
  */
 export const COMPANY = {
   address: "1228 Wilcrest Green Drive, Houston, TX 77042, USA",
-  email: "moe@10claws.com",
+  email: "contact@shirtat.co",
   name: "10claws Inc",
 };
 export const LAST_UPDATED = { ar: "آخر تحديث: 21 أكتوبر 2026", en: "Last updated 21 Oct 2026" };

@@ -1,6 +1,9 @@
 import { cancelQueuedEmails, newId, queueEmail } from "./store";
 import type { CreatorRecord } from "./types";
 
+/** Public contact address: shown in emails and used as Reply-To. */
+export const CONTACT_EMAIL = "contact@shirtat.co";
+
 export type EmailResult = {
   error?: string;
   status: "sent" | "failed" | "not_configured" | "queued";
@@ -34,9 +37,9 @@ export async function sendApprovalEmail(
 <p>تمت الموافقة على طلبك. يُرجى إكمال بياناتك (معلومات الدفع والضرائب) عبر هذا الرابط الآمن، وتنتهي صلاحيته خلال 14 يومًا.</p>
 <p><a href="${safeLink}" style="background:#000;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none">إكمال بياناتي</a></p>
 </div>
-<p style="color:#888;font-size:12px">Shirtat · shirtat.co</p></div>`;
+<p style="color:#888;font-size:12px">Shirtat · shirtat.co · Questions? / للاستفسار: <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p></div>`;
   const subject = "You're approved: complete your Shirtat creator details · تمت الموافقة على طلبك";
-  const text = `Hi ${creator.name}, your Shirtat creator application is approved. Complete your details (link expires in 14 days): ${link}\n\nمرحبًا ${creator.name}، تمت الموافقة على طلبك. أكمل بياناتك (تنتهي صلاحية الرابط خلال 14 يومًا): ${link}\n\nShirtat · shirtat.co`;
+  const text = `Hi ${creator.name}, your Shirtat creator application is approved. Complete your details (link expires in 14 days): ${link}\n\nمرحبًا ${creator.name}، تمت الموافقة على طلبك. أكمل بياناتك (تنتهي صلاحية الرابط خلال 14 يومًا): ${link}\n\nQuestions? / للاستفسار: ${CONTACT_EMAIL}\nShirtat · shirtat.co`;
   return deliver({ creatorId: creator.id, html, subject, text, to: creator.email });
 }
 
@@ -63,6 +66,7 @@ async function sendViaCloudflare(email: OutgoingEmail): Promise<string | null> {
         body: JSON.stringify({
           from,
           html: email.html,
+          reply_to: CONTACT_EMAIL,
           subject: email.subject,
           text: email.text,
           to: email.to,
@@ -89,6 +93,7 @@ async function sendViaResend(email: OutgoingEmail): Promise<string | null> {
       body: JSON.stringify({
         from,
         html: email.html,
+        reply_to: CONTACT_EMAIL,
         subject: email.subject,
         text: email.text,
         to: [email.to],
@@ -144,9 +149,9 @@ export async function queueResetEmail({
 <hr style="margin:28px 0;border:none;border-top:1px solid #ddd">
 <div dir="rtl" lang="ar" style="text-align:right"><p>مرحبًا ${n}،</p><p>تلقّينا طلبًا لإعادة تعيين كلمة مرور حسابك في شيرتات. يعمل هذا الرابط مرة واحدة وتنتهي صلاحيته خلال ساعة. إن لم تطلب ذلك فتجاهل هذه الرسالة.</p>
 <p><a href="${l}" style="background:#000;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none">إعادة تعيين كلمة المرور</a></p></div>
-<p style="color:#888;font-size:12px">Shirtat · shirtat.co</p></div>`,
+<p style="color:#888;font-size:12px">Shirtat · shirtat.co · Questions? / للاستفسار: <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p></div>`,
     subject: "Reset your Shirtat password · إعادة تعيين كلمة المرور",
-    text: `Hi ${name}, reset your Shirtat creator password (works once, expires in 1 hour): ${link}\nIf you didn't ask for this, ignore this email.\n\nمرحبًا ${name}، أعد تعيين كلمة المرور (يعمل مرة واحدة وتنتهي صلاحيته خلال ساعة): ${link}\nإن لم تطلب ذلك فتجاهل هذه الرسالة.\n\nShirtat · shirtat.co`,
+    text: `Hi ${name}, reset your Shirtat creator password (works once, expires in 1 hour): ${link}\nIf you didn't ask for this, ignore this email.\n\nمرحبًا ${name}، أعد تعيين كلمة المرور (يعمل مرة واحدة وتنتهي صلاحيته خلال ساعة): ${link}\nإن لم تطلب ذلك فتجاهل هذه الرسالة.\n\nQuestions? / للاستفسار: ${CONTACT_EMAIL}\nShirtat · shirtat.co`,
     to,
   });
 }
