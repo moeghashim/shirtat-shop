@@ -26,7 +26,8 @@ export async function Nav() {
       title: t(c.labelEn),
       url: `/collections/${c.id}`,
     })),
-    { id: "nav-creators", items: [], title: t("Creators"), url: "/creators" },
+    { id: "nav-designers", items: [], title: t("Designers"), url: "/designers" },
+    { id: "nav-sell", items: [], title: t("Sell on Shirtat"), url: "/creators" },
   ];
   return (
     <nav

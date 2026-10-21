@@ -2,11 +2,16 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
+import { CategorySelect, ProductPicks, SupplierNote } from "@/components/admin/apply-design";
 import { PerformanceTable, type PerformanceRow } from "@/components/admin/performance-table";
 import { ChangePasswordForm } from "@/components/creators/forms";
+import { DesignerAvatar } from "@/components/designers/avatar";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
+import { suggestCategory } from "@/lib/catalog/categorize";
 import {
+  adminApplyDesignAction,
+  adminCreateFromDesignAction,
   adminDeleteAction,
   adminDesignAction,
   adminResendDetailsAction,
@@ -18,27 +23,32 @@ import { getCreatorEarnings, getOrderLines } from "@/lib/creators/earnings";
 import { getProductType } from "@/lib/creators/product-types";
 import { listCreators, listQueuedEmails } from "@/lib/creators/store";
 import type { CreatorRecord } from "@/lib/creators/types";
+import { avatarOf, initialsOf } from "@/lib/designers/server";
 
 export const metadata: Metadata = {
-  title: "Creators admin",
+  title: "Designers admin",
   robots: { index: false, follow: false },
 };
 
 const MESSAGES: Record<string, string> = {
-  deleted: "Creator deleted.",
+  deleted: "Designer deleted.",
+  applied: "Design applied: Shopify drafts created.",
+  created: "Shopify drafts created from the design.",
+  picks: "Pick at least one product, a category and a title (and a file for new designs).",
+  file: "Design file must be PNG or JPG, up to 4 MB.",
   handle: "Handle must be 2–39 characters: lowercase letters, numbers and hyphens.",
   needhandle: "Assign a handle before approving.",
-  notfound: "Creator not found.",
+  notfound: "Designer not found.",
   saved: "Saved.",
   shopify: "Shopify request failed. See the error on the design below.",
-  taken: "That handle is already used by another creator.",
+  taken: "That handle is already used by another designer.",
 };
 
 export default function AdminCreatorsPage({ searchParams }: PageProps<"/[locale]/admin/creators">) {
   return (
     <Page>
       <Container className="max-w-5xl">
-        <h1 className="text-3xl md:text-4xl font-semibold">Creators admin</h1>
+        <h1 className="text-3xl md:text-4xl font-semibold">Designers admin</h1>
         <Suspense fallback={<p className="mt-6 text-muted-foreground">Loading…</p>}>
           <AdminContent searchParams={searchParams} />
         </Suspense>
@@ -53,7 +63,7 @@ async function AdminContent({
   const session = await getSession();
   if (!session?.isAdmin) redirect("/creators/signin");
   const params = await searchParams;
-  const flag = ["saved", "deleted", "error"]
+  const flag = ["saved", "deleted", "applied", "created", "error"]
     .map((k) => (k === "error" ? params.error : params[k] ? k : undefined))
     .find(Boolean);
   const emailFlag = typeof params.email === "string" ? params.email : undefined;
@@ -94,16 +104,95 @@ async function AdminContent({
       {message && (
         <p className="rounded-lg border border-border bg-muted/60 px-3 py-2 text-sm">{message}</p>
       )}
+      <details className="rounded-2xl border border-border p-5" id="new-design">
+        <summary className="cursor-pointer text-lg font-semibold">
+          Create products from a design (ours or a designer&apos;s)
+        </summary>
+        <form action={adminCreateFromDesignAction} className="mt-4 flex flex-col gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="flex flex-col gap-1 text-xs">
+              Design image (PNG or JPG, up to 4 MB)
+              <input
+                name="design"
+                type="file"
+                required
+                accept="image/png,image/jpeg"
+                className="text-sm"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              Title
+              <input name="title" required maxLength={120} className={field} />
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              Designer
+              <select name="designer" defaultValue="shirtat" className={field}>
+                <option value="shirtat">Shirtat Studio (our own)</option>
+                {creators
+                  .filter((c) => c.status === "approved" && c.handle)
+                  .map((c) => (
+                    <option key={c.id} value={c.handle!}>
+                      {c.details?.displayName || c.name} (@{c.handle})
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <CategorySelect matched={[]} suggested="poetry" />
+            <label className="flex flex-col gap-1 text-xs">
+              Description (English)
+              <textarea name="descriptionEn" rows={2} className={field} />
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              Description (Arabic)
+              <textarea name="descriptionAr" rows={2} dir="rtl" className={field} />
+            </label>
+          </div>
+          <label className="flex items-center gap-2 text-xs">
+            <input type="checkbox" name="autoCategory" defaultChecked /> auto-pick category from
+            title and descriptions (overrides the select)
+          </label>
+          <ProductPicks />
+          <SupplierNote />
+          <div>
+            <button
+              className="rounded-full bg-foreground px-4 py-1.5 text-sm text-background cursor-pointer"
+              type="submit"
+            >
+              Create Shopify drafts
+            </button>
+          </div>
+        </form>
+      </details>
       <p className="text-sm text-muted-foreground">
-        To link products to a creator, add the tag <code>creator:&lt;handle&gt;</code> to the
-        product in Shopify admin.
+        To link products to a designer, add the tag <code>designer:&lt;handle&gt;</code> (legacy{" "}
+        <code>creator:</code> still counts) to the product in Shopify admin.
       </p>
       {creators.length === 0 && <p className="text-muted-foreground">No applications yet.</p>}
       {creators.map((c) => (
         <article key={c.id} className="flex flex-col gap-3 rounded-2xl border border-border p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold">
-              {c.name} <span className="text-sm font-normal text-muted-foreground">{c.email}</span>
+            <h2 className="flex items-center gap-3 text-lg font-semibold">
+              <DesignerAvatar
+                initials={initialsOf(c.details?.displayName || c.name)}
+                name={c.name}
+                size={44}
+                url={
+                  avatarOf(c)
+                    ? `/api/creators/file?p=${encodeURIComponent(avatarOf(c)!.pathname)}`
+                    : null
+                }
+              />
+              <span>
+                {c.name}{" "}
+                <span className="text-sm font-normal text-muted-foreground">{c.email}</span>
+                <span className="block text-xs font-normal text-muted-foreground">
+                  {c.avatar
+                    ? `${c.avatar.kind === "logo" ? "Logo" : "Profile picture"} uploaded`
+                    : avatarOf(c)
+                      ? "Avatar from details form"
+                      : "No logo or picture yet (initials shown)"}
+                </span>
+              </span>
             </h2>
             <span className="rounded-full bg-muted px-3 py-0.5 text-xs font-medium uppercase">
               {c.status}
@@ -167,7 +256,7 @@ async function AdminContent({
           {c.status === "approved" && (
             <div className="flex flex-col gap-2 rounded-xl bg-muted/50 p-3 text-sm">
               <p>
-                <strong>Creator details:</strong>{" "}
+                <strong>Designer details:</strong>{" "}
                 {c.details
                   ? `submitted ${c.details.submittedAt.slice(0, 10)}`
                   : "not submitted yet"}
@@ -268,12 +357,9 @@ async function AdminContent({
                       </span>
                     </div>
                     <p className="text-muted-foreground">
-                      Type:{" "}
-                      <strong className="text-foreground">
-                        {type?.labelEn ?? d.productTypeId}
-                      </strong>{" "}
-                      ({type?.productType}) · colours {d.colors.join(", ")} · sizes{" "}
-                      {type?.sizes.join(", ")} · ${type?.basePrice}
+                      Designer hint:{" "}
+                      <strong className="text-foreground">{type?.labelEn ?? "none"}</strong>
+                      {d.colors.length > 0 && ` · colours ${d.colors.join(", ")}`}
                       {d.tags.length > 0 && ` · tags ${d.tags.join(", ")}`}
                     </p>
                     {d.descriptionEn && <p>{d.descriptionEn}</p>}
@@ -302,24 +388,83 @@ async function AdminContent({
                       )}
                     </p>
                     {d.error && <p className="text-red-700">Shopify: {d.error}</p>}
+                    {(d.applied?.length ?? 0) > 0 && (
+                      <ul className="text-xs">
+                        {d.applied!.map((a, i) => (
+                          <li key={i}>
+                            {a.typeId} · {a.colors.join(", ")} · ${a.price} · {a.status}
+                            {a.shopifyProductId && (
+                              <>
+                                {" · "}
+                                <a
+                                  className="underline"
+                                  href={`https://admin.shopify.com/store/shirtatco/products/${a.shopifyProductId.split("/").pop()}`}
+                                  rel="noopener noreferrer"
+                                  target="_blank"
+                                >
+                                  Shopify
+                                </a>
+                              </>
+                            )}
+                            {a.error && <span className="text-red-700"> · {a.error}</span>}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {d.status !== "rejected" && c.handle && (
+                      <details
+                        className="rounded-lg bg-muted/40 p-2"
+                        open={!d.applied?.length && !d.shopifyProductId}
+                      >
+                        <summary className="cursor-pointer font-medium">
+                          Apply design to products
+                        </summary>
+                        <form action={adminApplyDesignAction} className="mt-2 flex flex-col gap-2">
+                          <input type="hidden" name="id" value={c.id} />
+                          <input type="hidden" name="designId" value={d.id} />
+                          <label className="flex flex-col gap-1 text-xs">
+                            Title
+                            <input
+                              name="title"
+                              defaultValue={d.title}
+                              className="rounded-md border border-border bg-background px-2 py-1 text-sm"
+                            />
+                          </label>
+                          {(() => {
+                            const g = suggestCategory(
+                              [d.title, d.descriptionEn, d.descriptionAr, ...d.tags].join(" "),
+                            );
+                            return (
+                              <CategorySelect
+                                matched={g.matched}
+                                suggested={d.categoryId ?? g.categoryId}
+                              />
+                            );
+                          })()}
+                          <ProductPicks hintColors={d.colors} hintTypeId={d.productTypeId} />
+                          <SupplierNote />
+                          <div>
+                            <button
+                              className="rounded-full bg-foreground px-4 py-1.5 text-background cursor-pointer"
+                              type="submit"
+                            >
+                              Create Shopify drafts
+                            </button>
+                          </div>
+                        </form>
+                      </details>
+                    )}
                     <div className="flex flex-wrap gap-2">
-                      {!d.shopifyProductId && d.status !== "rejected" && (
-                        <DesignButton
-                          id={c.id}
-                          designId={d.id}
-                          op="draft"
-                          label="Create Shopify draft"
-                        />
-                      )}
-                      {d.shopifyProductId && d.status === "draft" && (
-                        <DesignButton
-                          id={c.id}
-                          designId={d.id}
-                          op="publish"
-                          label="Publish to store"
-                          primary
-                        />
-                      )}
+                      {(d.shopifyProductId || d.applied?.some((a) => a.status === "draft")) &&
+                        d.status === "draft" && (
+                          <DesignButton
+                            id={c.id}
+                            designId={d.id}
+                            op="publish"
+                            label="Publish to store"
+                            primary
+                          />
+                        )}
                       {d.status !== "rejected" && d.status !== "published" && (
                         <DesignButton id={c.id} designId={d.id} op="reject" label="Reject" />
                       )}
@@ -372,7 +517,7 @@ async function AdminContent({
               <input type="checkbox" name="confirm" value="delete" /> confirm
             </label>
             <button className="underline cursor-pointer" type="submit">
-              Delete creator and uploads
+              Delete designer and uploads
             </button>
           </form>
         </article>
@@ -455,13 +600,13 @@ async function Performance({ creators }: { creators: CreatorRecord[] }) {
   );
   const sum = (k: keyof PerformanceRow) => rows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
   const totals: [string, string][] = [
-    ["Approved creators", String(creators.filter((c) => c.status === "approved").length)],
+    ["Approved designers", String(creators.filter((c) => c.status === "approved").length)],
     ["Pending applications", String(creators.filter((c) => c.status === "pending").length)],
     ["Units (60 days)", String(sum("units60"))],
     ["Net sales (60 days)", usd.format(sum("net60"))],
     ["Net sales (QTD)", usd.format(sum("netQtd"))],
     ["Refunds", usd.format(sum("refunds"))],
-    ["Owed to creators", usd.format(sum("earnings"))],
+    ["Owed to designers", usd.format(sum("earnings"))],
     ["Payable now", usd.format(sum("payable"))],
     ["Designs live", `${sum("designsLive")} of ${sum("designsSubmitted")}`],
   ];

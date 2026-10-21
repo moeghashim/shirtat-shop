@@ -1,21 +1,55 @@
-/** Arabic copy for the creator program (Modern Standard Arabic). */
+/** Arabic copy for the designer program (Modern Standard Arabic). */
 export const arCreators = {
-  Creators: "المبدعون",
-  "Shirtat Creators": "مبدعو شيرتات",
+  "Sell on Shirtat": "بِع على شيرتات",
+  "Shop by designer": "تسوّق حسب المصمم",
+  "Browse Shirtat designs by the designers who made them.":
+    "تصفّح تصاميم شيرتات حسب المصممين الذين أبدعوها.",
+  "Our first designers are on their way.": "مصممونا الأوائل في الطريق.",
+  "1 design": "تصميم واحد",
+  "{count} designs": "{count} تصاميم",
+  "All designers": "كل المصممين",
+  "Designs by @{handle}": "تصاميم ‎@{handle}",
+  "No designs on sale yet. Check back soon.": "لا توجد تصاميم معروضة للبيع بعد. عُد قريبًا.",
+  "Logo or profile picture": "الشعار أو الصورة الشخصية",
+  "Shown on your designer page. Choose which one you are uploading.":
+    "تظهر في صفحتك كمصمم. اختر ما الذي ترفعه.",
+  "Profile picture": "صورة شخصية",
+  Logo: "شعار",
+  Preview: "معاينة",
+  "PNG, JPG or WebP, up to 2 MB. It is shown cropped to a circle; a square image works best.":
+    "PNG أو JPG أو WebP بحجم أقصاه 2 ميغابايت. تُعرض مقصوصة على شكل دائرة، والصورة المربعة هي الأفضل.",
+  "Add a logo or profile picture.": "أضف شعارًا أو صورة شخصية.",
+  "Logo or profile picture must be PNG, JPG or WebP.":
+    "يجب أن يكون الشعار أو الصورة بصيغة PNG أو JPG أو WebP.",
+  "Logo or profile picture must be 2 MB or smaller.":
+    "يجب ألا يتجاوز حجم الشعار أو الصورة 2 ميغابايت.",
+  "Save picture": "حفظ الصورة",
+  "Saved. Your picture now appears on your designer page.":
+    "تم الحفظ. تظهر صورتك الآن في صفحتك كمصمم.",
+  "Add your logo or profile picture": "أضف شعارك أو صورتك الشخصية",
+  "Every designer needs one. Until you add it, your designer page shows your initials.":
+    "كل مصمم يحتاج إلى واحدة. وإلى أن تضيفها، تعرض صفحتك الأحرف الأولى من اسمك.",
+  "1. Suggest a product type (optional)": "1. اقترح نوع المنتج (اختياري)",
+  "We choose the final products and colours for each design. Your suggestions help.":
+    "نحن نختار المنتجات والألوان النهائية لكل تصميم، واقتراحاتك تساعدنا.",
+  "Category (optional)": "الفئة (اختياري)",
+  "2. Suggest colours (optional)": "2. اقترح الألوان (اختياري)",
+  Designers: "المصممون",
+  "Shirtat Designers": "مصممو شيرتات",
   "Submit your Arabic calligraphy designs and earn 15–20% of every sale.":
     "قدّم تصاميمك بالخط العربي واحصل على ‎15–20%‎ من كل عملية بيع.",
-  "Creator program": "برنامج المبدعين",
+  "Designer program": "برنامج المصممين",
   "Your calligraphy, worn around the world": "خطّك العربي، يرتديه الناس حول العالم",
   "Submit your Arabic calligraphy designs. We print, sell and ship them, and you earn a share of every sale.":
     "قدّم تصاميمك بالخط العربي، ونحن نتولى طباعتها وبيعها وشحنها، وتحصل أنت على حصة من كل عملية بيع.",
   "Apply now": "قدّم الآن",
-  "Creator sign in": "دخول المبدعين",
+  "Designer sign in": "دخول المصممين",
   "Standard rate": "النسبة الأساسية",
   "Of the net item price after discounts, excluding tax and shipping.":
     "من صافي سعر المنتج بعد الخصومات، دون الضرائب والشحن.",
-  "Top creator rate": "نسبة كبار المبدعين",
-  "For creators who sell {units} or more units in a calendar quarter.":
-    "للمبدعين الذين يبيعون {units} قطعة أو أكثر خلال ربع سنة تقويمي.",
+  "Top designer rate": "نسبة كبار المصممين",
+  "For designers who sell {units} or more units in a calendar quarter.":
+    "للمصممين الذين يبيعون {units} قطعة أو أكثر خلال ربع سنة تقويمي.",
   "How it works": "كيف يعمل البرنامج",
   "Apply with a few sample designs and links to your work.":
     "قدّم طلبك مع بعض نماذج تصاميمك وروابط لأعمالك.",
@@ -23,8 +57,8 @@ export const arCreators = {
     "نراجع كل طلب يدويًا ونرد خلال أيام قليلة.",
   "Once approved, your designs go on Shirtat products. Shirtat covers printing, stock, payments, shipping and customer service.":
     "بعد القبول، تُطبع تصاميمك على منتجات شيرتات. وتتكفّل شيرتات بالطباعة والمخزون والمدفوعات والشحن وخدمة العملاء.",
-  "Track your sales and earnings in your creator dashboard.":
-    "تابِع مبيعاتك وأرباحك من لوحة المبدع الخاصة بك.",
+  "Track your sales and earnings in your designer dashboard.":
+    "تابِع مبيعاتك وأرباحك من لوحة المصمم الخاصة بك.",
   "Terms at a glance": "الشروط باختصار",
   "Payouts monthly, by the {day}th, for earnings older than {days} days.":
     "تُصرف الأرباح شهريًا بحلول اليوم {day} من كل شهر، للأرباح التي مضى عليها أكثر من {days} يومًا.",
@@ -51,14 +85,14 @@ export const arCreators = {
   "When do I get paid?": "متى أحصل على أرباحي؟",
   "Earnings are held for 30 days to cover returns, then paid monthly by the 15th once your balance reaches $25. Smaller balances roll over.":
     "تُحجز الأرباح 30 يومًا لتغطية المرتجعات، ثم تُصرف شهريًا بحلول اليوم 15 متى بلغ رصيدك 25 دولارًا، وتُرحَّل الأرصدة الأقل.",
-  "How do I reach the top tier?": "كيف أصل إلى فئة كبار المبدعين؟",
+  "How do I reach the top tier?": "كيف أصل إلى فئة كبار المصممين؟",
   "Sell 50 or more units in a calendar quarter and your rate becomes 20% for that quarter.":
     "بِع 50 قطعة أو أكثر خلال ربع سنة تقويمي لترتفع نسبتك إلى 20% عن ذلك الربع.",
   "Can the terms change?": "هل يمكن أن تتغير الشروط؟",
   "Only with 60 days' notice, never retroactively, and the base rate will never fall below 15%.":
     "فقط بإشعار مسبق قبل 60 يومًا، ودون أثر رجعي، ولن تقل النسبة الأساسية أبدًا عن 15%.",
   "Ready to share your work?": "هل أنت مستعد لمشاركة أعمالك؟",
-  "Apply to become a creator": "قدّم لتصبح مبدعًا",
+  "Apply to become a designer": "قدّم لتصبح مصممًا",
   "Tell us about yourself and share a few designs. Every application is reviewed by hand.":
     "عرّفنا بنفسك وشاركنا بعض تصاميمك. نراجع كل طلب يدويًا.",
   "Full name": "الاسم الكامل",
@@ -77,7 +111,7 @@ export const arCreators = {
   "Short bio": "نبذة قصيرة عنك",
   "Preferred payout method": "طريقة الدفع المفضلة",
   "I agree to the": "أوافق على",
-  "Shirtat creator program terms": "شروط برنامج مبدعي شيرتات",
+  "Shirtat designer program terms": "شروط برنامج مصممي شيرتات",
   "I confirm I created these designs and own all rights to them, and I grant Shirtat a non-exclusive licence to print and sell approved designs.":
     "أؤكد أنني صاحب هذه التصاميم وأملك جميع حقوقها، وأمنح شيرتات ترخيصًا غير حصري لطباعة التصاميم المقبولة وبيعها.",
   "Sending…": "جارٍ الإرسال…",
@@ -87,7 +121,7 @@ export const arCreators = {
   "New here?": "جديد هنا؟",
   "Note (optional)": "ملاحظة (اختياري)",
   "Submit design": "أرسل التصميم",
-  "Creator dashboard": "لوحة المبدع",
+  "Designer dashboard": "لوحة المصمم",
   "Loading…": "جارٍ التحميل…",
   "Sign out": "تسجيل الخروج",
   "Hello, {name}.": "مرحبًا، {name}.",
@@ -111,10 +145,10 @@ export const arCreators = {
   "Paid by the {day}th of the month once over ${min}.":
     "يُصرف بحلول اليوم {day} من الشهر متى تجاوز {min} دولارًا.",
   Tier: "الفئة",
-  "Top creator": "كبار المبدعين",
+  "Top designer": "كبار المصممين",
   Standard: "أساسية",
   "Progress to the top tier: {units} of {target} units this quarter":
-    "التقدم نحو فئة كبار المبدعين: {units} من {target} قطعة هذا الربع",
+    "التقدم نحو فئة كبار المصممين: {units} من {target} قطعة هذا الربع",
   "Your products": "منتجاتك",
   "No products are linked to your account yet.": "لا توجد منتجات مرتبطة بحسابك بعد.",
   Product: "المنتج",
@@ -140,7 +174,7 @@ export const arCreators = {
     "يوجد حساب بهذا البريد الإلكتروني. يُرجى تسجيل الدخول.",
   "Incorrect email or password.": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
   "Please sign in.": "يُرجى تسجيل الدخول.",
-  "Only approved creators can submit designs.": "يمكن للمبدعين المقبولين فقط إرسال التصاميم.",
+  "Only approved designers can submit designs.": "يمكن للمصممين المقبولين فقط إرسال التصاميم.",
   "Add a file or a link.": "أضف ملفًا أو رابطًا.",
   "Design submitted. We will review it soon.": "تم إرسال التصميم، وسنراجعه قريبًا.",
   "All figures are in US dollars.": "جميع المبالغ بالدولار الأمريكي.",
@@ -164,7 +198,7 @@ export const arCreators = {
   "In review": "قيد المراجعة",
   "Live in the store": "متاح في المتجر",
   "Not accepted": "غير مقبول",
-  "Creator details": "بيانات المبدع",
+  "Designer details": "بيانات المصمم",
   "We use these details to pay you and to keep our tax records correct. Only the Shirtat team can see them.":
     "نستخدم هذه البيانات لتحويل أرباحك والحفاظ على صحة سجلاتنا الضريبية، ولا يطّلع عليها إلا فريق شيرتات.",
   "This link has expired or is invalid. Ask us for a new one.":

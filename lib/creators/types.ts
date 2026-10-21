@@ -26,7 +26,21 @@ export interface StoredFile {
 
 export type DesignStatus = "submitted" | "draft" | "published" | "rejected";
 
+export interface AppliedProduct {
+  colors: string[];
+  error?: string;
+  price: string;
+  shopifyProductHandle?: string;
+  shopifyProductId?: string;
+  status: "draft" | "published" | "rejected" | "failed";
+  typeId: string;
+}
+
 export interface DesignRecord {
+  /** Products the admin applied this design to (workflow B). */
+  applied?: AppliedProduct[];
+  categoryId?: string;
+  /** Designer suggestions only; the admin decides the products. */
   colors: string[];
   createdAt: string;
   descriptionAr: string;
@@ -59,6 +73,8 @@ export interface CreatorDetails {
 }
 
 export interface CreatorRecord {
+  /** Required logo or profile picture shown on /designers. */
+  avatar?: StoredFile & { kind: "logo" | "photo" };
   designs?: DesignRecord[];
   details?: CreatorDetails;
   detailsEmail?: {

@@ -43,11 +43,11 @@ export function HeroRail() {
   const name = (i: number) => (ar ? bannerItems[i].nameAr : bannerItems[i].nameEn);
   const isOpen = open !== null;
   const ticker = ar
-    ? ["تصاميم جديدة كل يوم", "خط عربي", "انضم كمبدع", "شعر", "فكاهة", "ثقافات", "مناسبات"]
+    ? ["تصاميم جديدة كل يوم", "خط عربي", "انضم كمصمم", "شعر", "فكاهة", "ثقافات", "مناسبات"]
     : [
         "New designs daily",
         "Arabic calligraphy",
-        "Become a creator",
+        "Become a designer",
         "Poetry",
         "Humor",
         "Cultures",

@@ -1,7 +1,9 @@
+import { priceForType } from "@/lib/catalog/pricing";
+
 /**
  * Product types creators can choose for a design. One config drives the upload form (EN/AR),
  * the Shopify draft (productType, standard category, variants) and the matching collection.
- * basePrice is the USD placeholder price set natively on the Shopify draft (store currency is USD).
+ * basePrice is the USD retail price: Printify cost × 3 rounded up to .99 (lib/catalog/pricing.ts).
  */
 export interface ProductTypeConfig {
   basePrice: string;
@@ -25,7 +27,7 @@ const BASIC_COLORS = [
 
 export const PRODUCT_TYPES: ProductTypeConfig[] = [
   {
-    basePrice: "30.00",
+    basePrice: priceForType("t-shirt")!,
     category: "gid://shopify/TaxonomyCategory/aa-1-13-8",
     collectionHandle: "t-shirts",
     colors: [...BASIC_COLORS, { ar: "زيتي", en: "Olive" }],
@@ -36,7 +38,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     sizes: APPAREL_SIZES,
   },
   {
-    basePrice: "55.00",
+    basePrice: priceForType("hoodie")!,
     category: "gid://shopify/TaxonomyCategory/aa-1-13-13",
     collectionHandle: "hoodies",
     colors: BASIC_COLORS,
@@ -47,7 +49,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     sizes: APPAREL_SIZES,
   },
   {
-    basePrice: "50.00",
+    basePrice: priceForType("sweatshirt")!,
     category: "gid://shopify/TaxonomyCategory/aa-1-13-14",
     collectionHandle: "sweatshirts",
     colors: BASIC_COLORS,
@@ -58,7 +60,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     sizes: APPAREL_SIZES,
   },
   {
-    basePrice: "22.00",
+    basePrice: priceForType("tote-bag")!,
     category: "gid://shopify/TaxonomyCategory/lb-13",
     collectionHandle: "tote-bags",
     colors: [
@@ -72,7 +74,7 @@ export const PRODUCT_TYPES: ProductTypeConfig[] = [
     sizes: ["One size"],
   },
   {
-    basePrice: "25.00",
+    basePrice: priceForType("print")!,
     category: "gid://shopify/TaxonomyCategory/hg-3-4-2-1",
     collectionHandle: "posters-prints",
     colors: [{ ar: "ورق أبيض", en: "White paper" }],

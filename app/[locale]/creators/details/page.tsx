@@ -10,7 +10,7 @@ import { getT } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
-  return { title: t("Creator details"), robots: { index: false, follow: false } };
+  return { title: t("Designer details"), robots: { index: false, follow: false } };
 }
 
 export default async function DetailsPage({
@@ -20,7 +20,7 @@ export default async function DetailsPage({
   return (
     <Page>
       <Container className="max-w-2xl">
-        <h1 className="mb-3 text-3xl md:text-4xl font-semibold">{t("Creator details")}</h1>
+        <h1 className="mb-3 text-3xl md:text-4xl font-semibold">{t("Designer details")}</h1>
         <p className="mb-8 text-muted-foreground">
           {t(
             "We use these details to pay you and to keep our tax records correct. Only the Shirtat team can see them.",

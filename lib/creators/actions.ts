@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 
 import { redirect } from "next/navigation";
 
+import { getCategory } from "@/lib/collections/categories";
 import { isLocale, localizePath, type Locale } from "@/lib/i18n";
 
 import {
@@ -16,8 +17,6 @@ import {
   verifyPassword,
 } from "./auth";
 import { queueResetEmail, sendApprovalEmail } from "./email";
-import { getCategory } from "@/lib/collections/categories";
-
 import { getProductType } from "./product-types";
 import { archiveProduct, createDraftProduct, publishProduct } from "./shopify-admin";
 import {
@@ -98,6 +97,34 @@ async function uploadAll(id: string, files: File[]): Promise<DesignSubmission["f
   return Promise.all(files.map((f) => uploadDesignFile(id, f)));
 }
 
+const AVATAR_TYPES = ["image/png", "image/jpeg", "image/webp"];
+const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+
+/** Logo or profile picture: required, PNG/JPG/WebP, up to 2 MB (shown cropped to a square). */
+function validAvatar(value: FormDataEntryValue | null): File | string {
+  if (!value || typeof value !== "object" || !("size" in value) || value.size === 0)
+    return "Add a logo or profile picture.";
+  if (!AVATAR_TYPES.includes(value.type))
+    return "Logo or profile picture must be PNG, JPG or WebP.";
+  if (value.size > AVATAR_MAX_BYTES) return "Logo or profile picture must be 2 MB or smaller.";
+  return value;
+}
+
+export async function avatarAction(_prev: FormState, form: FormData): Promise<FormState> {
+  const session = await getSession();
+  if (!session || session.isAdmin) return { error: "Please sign in." };
+  const creator = await getCreator(session.uid);
+  if (!creator) return { error: "Please sign in." };
+  const file = validAvatar(form.get("avatar"));
+  if (typeof file === "string") return { error: file };
+  creator.avatar = {
+    ...(await uploadDesignFile(creator.id, file)),
+    kind: str(form, "avatarKind", 10) === "logo" ? "logo" : "photo",
+  };
+  await saveCreator(creator);
+  return { ok: "Saved. Your picture now appears on your designer page." };
+}
+
 export async function applyAction(_prev: FormState, form: FormData): Promise<FormState> {
   const locale = localeOf(form);
   const name = str(form, "name", 120);
@@ -125,6 +152,9 @@ export async function applyAction(_prev: FormState, form: FormData): Promise<For
   if (files.length === 0 && designLinks.length === 0) {
     return { error: "Add at least one sample design (upload or link)." };
   }
+  const avatarFile = validAvatar(form.get("avatar"));
+  if (typeof avatarFile === "string") return { error: avatarFile };
+  const avatarKind = str(form, "avatarKind", 10) === "logo" ? "logo" : "photo";
   if (isAdminEmail(email) || (await getUserByEmail(email))) {
     return { error: "An account with this email already exists. Please sign in." };
   }
@@ -133,8 +163,10 @@ export async function applyAction(_prev: FormState, form: FormData): Promise<For
   const now = new Date().toISOString();
   await saveUser({ createdAt: now, email, id, name, passwordHash: await hashPassword(password) });
   const uploaded = await uploadAll(id, files);
+  const avatar = { ...(await uploadDesignFile(id, avatarFile)), kind: avatarKind } as const;
   const creator: CreatorRecord = {
     agreedToTermsAt: now,
+    avatar,
     bio,
     country,
     createdAt: now,
@@ -180,7 +212,7 @@ export async function submitDesignAction(_prev: FormState, form: FormData): Prom
   if (!session || session.isAdmin) return { error: "Please sign in." };
   const creator = await getCreator(session.uid);
   if (!creator || creator.status !== "approved")
-    return { error: "Only approved creators can submit designs." };
+    return { error: "Only approved designers can submit designs." };
   const links = parseLinks(str(form, "designLinks", 2000));
   const files = validFiles(form, "designFiles");
   if (typeof files === "string") return { error: files };
@@ -323,17 +355,16 @@ export async function uploadDesignAction(_prev: FormState, form: FormData): Prom
   if (!session || session.isAdmin) return { error: "Please sign in." };
   const creator = await getCreator(session.uid);
   if (!creator || creator.status !== "approved" || !creator.handle) {
-    return { error: "Only approved creators can submit designs." };
+    return { error: "Only approved designers can submit designs." };
   }
-  const type = getProductType(str(form, "productType", 40));
   const title = str(form, "title", 120);
+  if (!title) return { error: "Please fill in all required fields." };
+  const type = getProductType(str(form, "productType", 40));
   const category = getCategory(str(form, "category", 40));
-  if (!type || !title || !category) return { error: "Please fill in all required fields." };
-  const allowed = new Set(type.colors.map((c) => c.en));
+  const allowed = new Set(type?.colors.map((c) => c.en) ?? []);
   const colors = form
     .getAll("colors")
     .filter((c): c is string => typeof c === "string" && allowed.has(c));
-  if (colors.length === 0) return { error: "Pick at least one colour." };
   const file = form.get("design");
   if (!file || typeof file !== "object" || !("size" in file) || file.size === 0)
     return { error: "Add your design file." };
@@ -341,29 +372,29 @@ export async function uploadDesignAction(_prev: FormState, form: FormData): Prom
   if (file.size > DESIGN_MAX_BYTES) return { error: "Each file must be 4 MB or smaller." };
   const now = new Date().toISOString();
   const design: DesignRecord = {
+    categoryId: category?.id,
     colors,
     createdAt: now,
     descriptionAr: str(form, "descriptionAr", 2000),
     descriptionEn: str(form, "descriptionEn", 2000),
     file: await uploadDesignFile(creator.id, file),
     id: newId(),
-    productTypeId: type.id,
+    productTypeId: type?.id ?? "",
     status: "submitted",
     tags: [
-      `category:${category.id}`,
+      ...(category ? [`category:${category.id}`] : []),
       ...str(form, "tags", 300)
         .split(",")
         .map((t) => t.trim().slice(0, 40))
         .filter((t) => {
           const l = t.toLowerCase();
-          return t && !l.startsWith("creator:") && !l.startsWith("category:");
+          return t && !/^(creator|designer|category):/.test(l);
         })
         .slice(0, 10),
     ],
     title,
     updatedAt: now,
   };
-  await createDraft(creator, design);
   creator.designs = [design, ...(creator.designs ?? [])];
   await saveCreator(creator);
   return { ok: "Design submitted. We will review it soon." };
@@ -398,12 +429,27 @@ export async function adminDesignAction(form: FormData): Promise<void> {
     if (op === "draft" && !design.shopifyProductId) {
       await createDraft(creator, design);
       if (design.error) result = "shopify";
+    } else if (op === "publish" && design.applied?.some((a) => a.shopifyProductId)) {
+      for (const a of design.applied) {
+        if (a.shopifyProductId && a.status === "draft") {
+          await publishProduct(a.shopifyProductId);
+          a.status = "published";
+        }
+      }
+      design.status = "published";
+      design.error = undefined;
     } else if (op === "publish" && design.shopifyProductId) {
       await publishProduct(design.shopifyProductId);
       design.status = "published";
       design.error = undefined;
     } else if (op === "reject") {
       if (design.shopifyProductId) await archiveProduct(design.shopifyProductId);
+      for (const a of design.applied ?? []) {
+        if (a.shopifyProductId && a.status !== "published") {
+          await archiveProduct(a.shopifyProductId);
+          a.status = "rejected";
+        }
+      }
       design.status = "rejected";
       design.error = undefined;
     }
@@ -483,4 +529,115 @@ export async function changePasswordAction(_prev: FormState, form: FormData): Pr
     await saveUser({ ...user, passwordHash: await hashPassword(password) });
   }
   return { ok: "Your password has been changed." };
+}
+
+/** Reads the admin's product picks: checked `types` plus `colors:<typeId>` per type. */
+function readPicks(form: FormData): { colors: string[]; typeId: string }[] {
+  return form
+    .getAll("types")
+    .filter((t): t is string => typeof t === "string")
+    .map((typeId) => getProductType(typeId))
+    .filter((t): t is NonNullable<typeof t> => Boolean(t))
+    .map((t) => {
+      const allowed = new Set(t.colors.map((c) => c.en));
+      const colors = form
+        .getAll(`colors:${t.id}`)
+        .filter((c): c is string => typeof c === "string" && allowed.has(c));
+      return { colors: colors.length ? colors : [t.colors[0]!.en], typeId: t.id };
+    });
+}
+
+/** Workflow C: the admin applies a designer's submitted design to chosen products (drafts via workflow B). */
+export async function adminApplyDesignAction(form: FormData): Promise<void> {
+  const { creator, design } = await findDesign(form);
+  const picks = readPicks(form);
+  const category = getCategory(str(form, "category", 40));
+  if (!picks.length || !category || !creator.handle) redirect("/admin/creators?error=picks");
+  design.title = str(form, "title", 120) || design.title;
+  design.categoryId = category.id;
+  const { applyDesign } = await import("@/lib/catalog/workflow");
+  const results = await applyDesign(
+    {
+      categoryId: category.id,
+      descriptionAr: design.descriptionAr,
+      descriptionEn: design.descriptionEn,
+      designerHandle: creator.handle,
+      designerName: creator.details?.displayName || creator.name,
+      extraTags: design.tags,
+      file: design.file,
+      title: design.title,
+    },
+    picks,
+  );
+  design.applied = [...(design.applied ?? []), ...results];
+  design.status = results.some((r) => r.status === "draft") ? "draft" : design.status;
+  design.error = results.find((r) => r.error)?.error;
+  design.updatedAt = new Date().toISOString();
+  await saveCreator(creator);
+  redirect(design.error ? "/admin/creators?error=shopify" : "/admin/creators?applied=1");
+}
+
+/** Workflow B for our own (studio) designs or any approved designer, uploaded by the admin. */
+export async function adminCreateFromDesignAction(form: FormData): Promise<void> {
+  await requireAdmin();
+  const picks = readPicks(form);
+  const title = str(form, "title", 120);
+  const { suggestCategory } = await import("@/lib/catalog/categorize");
+  const category = getCategory(
+    form.get("autoCategory") === "on"
+      ? suggestCategory(
+          [title, str(form, "descriptionEn", 2000), str(form, "descriptionAr", 2000)].join(" "),
+        ).categoryId
+      : str(form, "category", 40),
+  );
+  const file = form.get("design");
+  if (!picks.length || !category || !title) redirect("/admin/creators?error=picks");
+  if (!file || typeof file !== "object" || !("size" in file) || file.size === 0)
+    redirect("/admin/creators?error=picks");
+  if (!["image/png", "image/jpeg"].includes(file.type) || file.size > DESIGN_MAX_BYTES)
+    redirect("/admin/creators?error=file");
+  const { applyDesign, STUDIO_HANDLE } = await import("@/lib/catalog/workflow");
+  const handle = str(form, "designer", 40) || STUDIO_HANDLE;
+  const designer =
+    handle === STUDIO_HANDLE
+      ? null
+      : (await listCreators()).find((c) => c.handle === handle && c.status === "approved");
+  if (handle !== STUDIO_HANDLE && !designer) redirect("/admin/creators?error=notfound");
+  const stored = await uploadDesignFile(designer?.id ?? "studio", file);
+  const results = await applyDesign(
+    {
+      categoryId: category.id,
+      descriptionAr: str(form, "descriptionAr", 2000),
+      descriptionEn: str(form, "descriptionEn", 2000),
+      designerHandle: handle,
+      designerName: designer ? designer.details?.displayName || designer.name : "Shirtat Studio",
+      file: stored,
+      title,
+    },
+    picks,
+  );
+  if (designer) {
+    const now = new Date().toISOString();
+    designer.designs = [
+      {
+        applied: results,
+        categoryId: category.id,
+        colors: [],
+        createdAt: now,
+        descriptionAr: str(form, "descriptionAr", 2000),
+        descriptionEn: str(form, "descriptionEn", 2000),
+        file: stored,
+        id: newId(),
+        productTypeId: "",
+        status: results.some((r) => r.status === "draft") ? "draft" : "submitted",
+        tags: [],
+        title,
+        updatedAt: now,
+      },
+      ...(designer.designs ?? []),
+    ];
+    await saveCreator(designer);
+  }
+  const failed = results.find((r) => r.error);
+  redirect(failed ? "/admin/creators?error=shopify" : `/admin/creators?created=${results.length}`);
 }

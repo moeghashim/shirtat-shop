@@ -25,7 +25,7 @@ export interface PerformanceRow {
 }
 
 const COLUMNS: { key: keyof PerformanceRow; label: string; money?: boolean; pct?: boolean }[] = [
-  { key: "name", label: "Creator" },
+  { key: "name", label: "Designer" },
   { key: "status", label: "Status" },
   { key: "rate", label: "Tier / rate", pct: true },
   { key: "units60", label: "Units 60d" },

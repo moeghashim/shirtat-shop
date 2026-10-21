@@ -1,7 +1,7 @@
 import { LegalPageView, legalMetadata } from "@/components/legal/legal-page";
 
-export const generateMetadata = () => legalMetadata("creator-terms");
+export const generateMetadata = () => legalMetadata("designer-terms");
 
 export default function LegalRoute() {
-  return <LegalPageView slug="creator-terms" />;
+  return <LegalPageView slug="designer-terms" />;
 }

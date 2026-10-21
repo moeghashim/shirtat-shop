@@ -3,8 +3,10 @@
 import { useActionState, useState } from "react";
 
 import { Link } from "@/components/ui/link";
+import { CATEGORIES } from "@/lib/collections/categories";
 import {
   applyAction,
+  avatarAction,
   changePasswordAction,
   forgotPasswordAction,
   resetPasswordAction,
@@ -14,7 +16,6 @@ import {
   uploadDesignAction,
 } from "@/lib/creators/actions";
 import { PRODUCT_TYPES } from "@/lib/creators/product-types";
-import { CATEGORIES } from "@/lib/collections/categories";
 import { useLocale, useT } from "@/lib/i18n/client";
 
 const input =
@@ -46,6 +47,83 @@ function Message({ state }: { state: FormState }) {
     );
   }
   return null;
+}
+
+function AvatarField() {
+  const t = useT();
+  const [preview, setPreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <fieldset className="flex flex-col gap-3 rounded-xl border border-border p-4">
+      <legend className="px-1 text-sm font-medium">{t("Logo or profile picture")} *</legend>
+      <p className="text-xs text-muted-foreground">
+        {t("Shown on your designer page. Choose which one you are uploading.")}
+      </p>
+      <div className="flex gap-4 text-sm">
+        <label className="flex items-center gap-2">
+          <input type="radio" name="avatarKind" value="photo" defaultChecked />{" "}
+          {t("Profile picture")}
+        </label>
+        <label className="flex items-center gap-2">
+          <input type="radio" name="avatarKind" value="logo" /> {t("Logo")}
+        </label>
+      </div>
+      <div className="flex items-center gap-4">
+        <span className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-xs text-muted-foreground">
+          {preview ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img alt="" className="h-full w-full object-cover" src={preview} />
+          ) : (
+            t("Preview")
+          )}
+        </span>
+        <label className={label}>
+          <input
+            className="text-sm"
+            name="avatar"
+            type="file"
+            required
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(e) => {
+              const f = e.currentTarget.files?.[0];
+              setError(null);
+              setPreview(null);
+              if (!f) return;
+              if (!["image/png", "image/jpeg", "image/webp"].includes(f.type)) {
+                setError(t("Logo or profile picture must be PNG, JPG or WebP."));
+                e.currentTarget.value = "";
+              } else if (f.size > 2 * 1024 * 1024) {
+                setError(t("Logo or profile picture must be 2 MB or smaller."));
+                e.currentTarget.value = "";
+              } else setPreview(URL.createObjectURL(f));
+            }}
+          />
+          <span className="text-xs font-normal text-muted-foreground">
+            {t(
+              "PNG, JPG or WebP, up to 2 MB. It is shown cropped to a circle; a square image works best.",
+            )}
+          </span>
+          {error && <span className="text-xs text-red-700">{error}</span>}
+        </label>
+      </div>
+    </fieldset>
+  );
+}
+
+export function AvatarForm() {
+  const t = useT();
+  const [state, action, pending] = useActionState(avatarAction, {});
+  return (
+    <form action={action} className="flex flex-col gap-4">
+      <Message state={state} />
+      <AvatarField />
+      <div>
+        <button className={button} disabled={pending} type="submit">
+          {pending ? t("Sending…") : t("Save picture")}
+        </button>
+      </div>
+    </form>
+  );
 }
 
 export function ApplyForm() {
@@ -138,6 +216,7 @@ export function ApplyForm() {
           />
         </label>
       </fieldset>
+      <AvatarField />
       <label className={label}>
         {t("Short bio")} *
         <textarea className={input} name="bio" rows={4} required maxLength={1200} />
@@ -156,7 +235,7 @@ export function ApplyForm() {
         <span>
           {t("I agree to the")}{" "}
           <Link className="underline" href="/creators">
-            {t("Shirtat creator program terms")}
+            {t("Shirtat designer program terms")}
           </Link>
           .
         </span>
@@ -227,7 +306,7 @@ export function SignInForm() {
       <p className="text-sm text-muted-foreground">
         {t("New here?")}{" "}
         <Link className="underline" href="/creators/apply">
-          {t("Apply to become a creator")}
+          {t("Apply to become a designer")}
         </Link>
       </p>
     </form>
@@ -238,13 +317,18 @@ export function SubmitDesignForm() {
   const t = useT();
   const locale = useLocale();
   const [state, action, pending] = useActionState(uploadDesignAction, {});
-  const [typeId, setTypeId] = useState(PRODUCT_TYPES[0]!.id);
-  const type = PRODUCT_TYPES.find((p) => p.id === typeId) ?? PRODUCT_TYPES[0]!;
+  const [typeId, setTypeId] = useState("");
+  const type = PRODUCT_TYPES.find((p) => p.id === typeId);
   return (
     <form action={action} className="flex flex-col gap-5">
       <Message state={state} />
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 text-sm font-medium">{t("1. Choose a product type")} *</legend>
+        <legend className="mb-2 text-sm font-medium">
+          {t("1. Suggest a product type (optional)")}
+        </legend>
+        <p className="text-xs text-muted-foreground">
+          {t("We choose the final products and colours for each design. Your suggestions help.")}
+        </p>
         <div className="flex flex-wrap gap-2">
           {PRODUCT_TYPES.map((p) => (
             <label
@@ -263,37 +347,39 @@ export function SubmitDesignForm() {
             </label>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">
-          {t("Sizes")}: <span dir="ltr">{type.sizes.join(" · ")}</span>
-        </p>
+        {type && (
+          <p className="text-xs text-muted-foreground">
+            {t("Sizes")}: <span dir="ltr">{type.sizes.join(" · ")}</span>
+          </p>
+        )}
       </fieldset>
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 text-sm font-medium">{t("Category")} *</legend>
+        <legend className="mb-2 text-sm font-medium">{t("Category (optional)")}</legend>
         <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((c, i) => (
+          {CATEGORIES.map((c) => (
             <label
               key={c.id}
               className="cursor-pointer rounded-full border border-border px-4 py-2 text-sm has-[:checked]:border-foreground has-[:checked]:bg-foreground has-[:checked]:text-background"
             >
-              <input className="sr-only" type="radio" name="category" value={c.id} defaultChecked={i === 0} />
+              <input className="sr-only" type="radio" name="category" value={c.id} />
               {locale === "ar" ? c.labelAr : c.labelEn}
             </label>
           ))}
         </div>
       </fieldset>
-      <fieldset className="flex flex-col gap-2" key={type.id}>
-        <legend className="mb-2 text-sm font-medium">
-          {t("2. Pick the colours it can be printed on")} *
-        </legend>
-        <div className="flex flex-wrap gap-3">
-          {type.colors.map((c, i) => (
-            <label key={c.en} className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="colors" value={c.en} defaultChecked={i === 0} />
-              {locale === "ar" ? c.ar : c.en}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      {type && (
+        <fieldset className="flex flex-col gap-2" key={type.id}>
+          <legend className="mb-2 text-sm font-medium">{t("2. Suggest colours (optional)")}</legend>
+          <div className="flex flex-wrap gap-3">
+            {type.colors.map((c) => (
+              <label key={c.en} className="flex items-center gap-2 text-sm">
+                <input type="checkbox" name="colors" value={c.en} />
+                {locale === "ar" ? c.ar : c.en}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
       <p className="text-sm font-medium">{t("3. Upload your design")}</p>
       <label className={label}>
         {t("Design file (PNG or SVG, high resolution, up to 4 MB)")} *

@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
   const locale = await getLocale();
   return {
-    title: t("Shirtat Creators"),
+    title: t("Sell on Shirtat"),
     description: t("Submit your Arabic calligraphy designs and earn 15–20% of every sale."),
     alternates: buildAlternates({ locale, pathname: "/creators" }),
   };
@@ -69,7 +69,7 @@ export default async function CreatorsPage() {
       <Container className="max-w-3xl">
         <section className="flex flex-col gap-5">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            {t("Creator program")}
+            {t("Sell on Shirtat")}
           </p>
           <h1 className="text-4xl md:text-6xl font-semibold">
             {t("Your calligraphy, worn around the world")}
@@ -90,7 +90,7 @@ export default async function CreatorsPage() {
               className="rounded-full border border-border px-6 py-3 font-medium"
               href="/creators/signin"
             >
-              {t("Creator sign in")}
+              {t("Designer sign in")}
             </Link>
           </div>
         </section>
@@ -105,9 +105,9 @@ export default async function CreatorsPage() {
           </div>
           <div className="rounded-2xl border border-border bg-muted/60 p-6">
             <p className="text-5xl font-semibold">{pct(CREATOR_TERMS.topRate)}</p>
-            <p className="mt-2 font-medium">{t("Top creator rate")}</p>
+            <p className="mt-2 font-medium">{t("Top designer rate")}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {t("For creators who sell {units} or more units in a calendar quarter.", {
+              {t("For designers who sell {units} or more units in a calendar quarter.", {
                 units: CREATOR_TERMS.topUnitsPerQuarter,
               })}
             </p>
@@ -124,7 +124,7 @@ export default async function CreatorsPage() {
                 "Once approved, your designs go on Shirtat products. Shirtat covers printing, stock, payments, shipping and customer service.",
               )}
             </li>
-            <li>{t("Track your sales and earnings in your creator dashboard.")}</li>
+            <li>{t("Track your sales and earnings in your designer dashboard.")}</li>
           </ol>
         </section>
 
@@ -137,7 +137,7 @@ export default async function CreatorsPage() {
           </ul>
           <p className="text-sm">
             <Link className="underline" href="/creators/terms">
-              {t("Read the full creator terms")}
+              {t("Read the full designer terms")}
             </Link>
           </p>
           <p className="text-sm text-muted-foreground">

@@ -1,0 +1,170 @@
+import { CATEGORIES } from "@/lib/collections/categories";
+
+/** Keyword hints (EN, AR, transliterated Arabic) for the four storefront categories. */
+const KEYWORDS: Record<string, string[]> = {
+  occasions: [
+    "eid",
+    "عيد",
+    "ramadan",
+    "رمضان",
+    "birthday",
+    "ميلاد",
+    "engagement",
+    "خطوبة",
+    "خطوبه",
+    "wedding",
+    "عرس",
+    "زفاف",
+    "فرح",
+    "graduation",
+    "تخرج",
+    "mubarak",
+    "مبارك",
+    "kareem",
+    "كريم",
+    "henna",
+    "حنة",
+    "baby",
+    "مولود",
+    "anniversary",
+    "new year",
+    "congrat",
+    "مبروك",
+    "mabrouk",
+  ],
+  humor: [
+    "funny",
+    "slang",
+    "joke",
+    "lol",
+    "haha",
+    "هههه",
+    "يلا",
+    "yalla",
+    "habibi",
+    "حبيبي",
+    "shu",
+    "شو",
+    "khalas",
+    "خلاص",
+    "wallah",
+    "والله",
+    "mafi",
+    "مافي",
+    "mish",
+    "مش",
+    "mosh",
+    "inshallah",
+    "إن شاء الله",
+    "ان شاء الله",
+    "عادي",
+    "3adi",
+    "يا حبيبي",
+    "زهقان",
+    "تعبان",
+    "صاحي",
+    "قهوة",
+    "coffee",
+    "street",
+  ],
+  poetry: [
+    "poem",
+    "poetry",
+    "verse",
+    "شعر",
+    "قصيدة",
+    "بيت",
+    "mutanabbi",
+    "المتنبي",
+    "darwish",
+    "درويش",
+    "qabbani",
+    "قباني",
+    "qifa",
+    "قفا",
+    "imru",
+    "امرؤ",
+    "حب",
+    "love",
+    "الهوى",
+    "القلب",
+    "heart",
+    "ghazal",
+    "غزل",
+    "rumi",
+    "الرومي",
+    "سهر",
+    "ليل",
+  ],
+  cultures: [
+    "culture",
+    "heritage",
+    "تراث",
+    "ثقافة",
+    "tea",
+    "شاي",
+    "bread",
+    "خبز",
+    "falafel",
+    "فلافل",
+    "dabke",
+    "دبكة",
+    "palestine",
+    "فلسطين",
+    "lebanon",
+    "لبنان",
+    "egypt",
+    "مصر",
+    "morocco",
+    "المغرب",
+    "saudi",
+    "السعودية",
+    "iraq",
+    "العراق",
+    "syria",
+    "سوريا",
+    "yemen",
+    "اليمن",
+    "gulf",
+    "خليج",
+    "khaleeji",
+    "desert",
+    "صحراء",
+    "camel",
+    "جمل",
+    "souk",
+    "سوق",
+    "oud",
+    "عود",
+    "keffiyeh",
+    "كوفية",
+    "tatreez",
+    "تطريز",
+  ],
+};
+
+export interface CategoryGuess {
+  categoryId: string;
+  matched: string[];
+  scores: Record<string, number>;
+}
+
+/** Picks the category whose keywords best match the design's title, description and tags. Poetry is the default. */
+export function suggestCategory(text: string): CategoryGuess {
+  const hay = ` ${text.toLowerCase()} `;
+  const scores: Record<string, number> = {};
+  const matchedBy: Record<string, string[]> = {};
+  for (const c of CATEGORIES) {
+    matchedBy[c.id] = (KEYWORDS[c.id] ?? []).filter((k) => hay.includes(k.toLowerCase()));
+    scores[c.id] = matchedBy[c.id]!.length;
+  }
+  const explicit = hay.match(/category:(\w+)/);
+  if (explicit && scores[explicit[1]!] !== undefined) {
+    return { categoryId: explicit[1]!, matched: [`category:${explicit[1]}`], scores };
+  }
+  const best = CATEGORIES.map((c) => c.id).reduce(
+    (a, b) => (scores[b]! > scores[a]! ? b : a),
+    "poetry",
+  );
+  return { categoryId: best, matched: matchedBy[best]!, scores };
+}

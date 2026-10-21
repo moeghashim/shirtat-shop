@@ -29,6 +29,18 @@ export const roadmapPhases: RoadmapPhase[] = [
     summary: "Adding the first shirts featuring Arabic calligraphy.",
   },
   {
+    title: "Supplier and product workflow",
+    status: "in-progress",
+    summary:
+      "Printify chosen as the print-on-demand supplier with prices at cost × 3. Moe applies each design to products from the admin page, which creates Shopify drafts; automatic Printify sync waits for an API token.",
+  },
+  {
+    title: "Shop by designer",
+    status: "done",
+    summary:
+      "Designer pages at /designers in English and Arabic, with each designer's logo or photo and products.",
+  },
+  {
     title: "Payments and launch",
     status: "next",
     summary: "Setting up checkout and payments, then opening the store.",

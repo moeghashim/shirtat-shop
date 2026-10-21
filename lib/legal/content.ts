@@ -25,7 +25,7 @@ export type LegalSlug =
   | "privacy"
   | "shipping"
   | "contact"
-  | "creator-terms";
+  | "designer-terms";
 
 const A = COMPANY.address;
 const E = COMPANY.email;
@@ -45,7 +45,7 @@ export const LEGAL: Record<
         {
           heading: "What we do",
           body: [
-            "We turn Arabic calligraphy into everyday clothing: T-shirts, hoodies, sweatshirts, tote bags and prints. Designs come from our own studio and from independent calligraphers and artists in our creator program, who earn a share of every sale.",
+            "We turn Arabic calligraphy into everyday clothing: T-shirts, hoodies, sweatshirts, tote bags and prints. Designs come from our own studio and from independent calligraphers and artists in our designer program, who earn a share of every sale.",
           ],
         },
         {
@@ -65,7 +65,7 @@ export const LEGAL: Record<
         {
           heading: "ماذا نفعل",
           body: [
-            "نحوّل الخط العربي إلى ملابس يومية: تيشيرتات وهوديز وسويتشيرتات وحقائب قماشية ولوحات. تأتي التصاميم من الاستوديو الخاص بنا ومن خطاطين وفنانين مستقلين في برنامج المبدعين، ويحصلون على نسبة من كل عملية بيع.",
+            "نحوّل الخط العربي إلى ملابس يومية: تيشيرتات وهوديز وسويتشيرتات وحقائب قماشية ولوحات. تأتي التصاميم من الاستوديو الخاص بنا ومن خطاطين وفنانين مستقلين في برنامج المصممين، ويحصلون على نسبة من كل عملية بيع.",
           ],
         },
         {
@@ -112,13 +112,13 @@ export const LEGAL: Record<
         {
           heading: "5. Intellectual property",
           body: [
-            "All designs, text, logos and images on the site belong to Shirtat or its creators and are protected by copyright and trademark law. You may not copy, reproduce or resell them without written permission. Buying a product does not transfer any rights in its design.",
+            "All designs, text, logos and images on the site belong to Shirtat or its designers and are protected by copyright and trademark law. You may not copy, reproduce or resell them without written permission. Buying a product does not transfer any rights in its design.",
           ],
         },
         {
-          heading: "6. Custom and creator designs",
+          heading: "6. Custom and designer-submitted designs",
           body: [
-            "Creator designs are submitted under our Creator Terms. If you believe any design infringes your rights, email us and we will review it promptly.",
+            "Designs from our designers are submitted under our Designer Terms. If you believe any design infringes your rights, email us and we will review it promptly.",
           ],
         },
         {
@@ -179,13 +179,13 @@ export const LEGAL: Record<
         {
           heading: "5. الملكية الفكرية",
           body: [
-            "جميع التصاميم والنصوص والشعارات والصور على الموقع مملوكة لشيرتات أو للمبدعين، ومحمية بقوانين حقوق النشر والعلامات التجارية. لا يجوز نسخها أو إعادة إنتاجها أو بيعها دون إذن كتابي. ولا ينقل شراء المنتج أي حقوق في تصميمه.",
+            "جميع التصاميم والنصوص والشعارات والصور على الموقع مملوكة لشيرتات أو للمصممين، ومحمية بقوانين حقوق النشر والعلامات التجارية. لا يجوز نسخها أو إعادة إنتاجها أو بيعها دون إذن كتابي. ولا ينقل شراء المنتج أي حقوق في تصميمه.",
           ],
         },
         {
-          heading: "6. تصاميم المبدعين",
+          heading: "6. تصاميم المصممين",
           body: [
-            "تُقدَّم تصاميم المبدعين وفق شروط المبدعين. إذا رأيت أن أي تصميم ينتهك حقوقك، فراسلنا وسنراجعه سريعًا.",
+            "تُقدَّم تصاميم المصممين وفق شروط المصممين. إذا رأيت أن أي تصميم ينتهك حقوقك، فراسلنا وسنراجعه سريعًا.",
           ],
         },
         {
@@ -297,13 +297,13 @@ export const LEGAL: Record<
     path: "/privacy",
     en: {
       title: "Privacy Policy",
-      intro: `This policy explains how ${COMPANY.name} ("Shirtat", "we") collects and uses personal information when you visit shirtat.co, buy from us, or join our creator program.`,
+      intro: `This policy explains how ${COMPANY.name} ("Shirtat", "we") collects and uses personal information when you visit shirtat.co, buy from us, or join our designer program.`,
       sections: [
         {
           heading: "What we collect",
           body: [
             "Order information: name, email, shipping and billing address, phone number and order details. Payment details are handled by our payment provider; we don't store full card numbers.",
-            "Creator program: account email, a hashed password, application details, payout and tax details, and the designs you upload.",
+            "Designer program: account email, a hashed password, application details, payout and tax details, and the designs you upload.",
             "Usage data: basic analytics such as pages visited, device and approximate location, collected through cookies and similar technologies.",
           ],
         },
@@ -328,7 +328,7 @@ export const LEGAL: Record<
         {
           heading: "Retention",
           body: [
-            "We keep order records for as long as needed for tax and accounting (typically up to 7 years) and creator records while your account is active and as required afterwards.",
+            "We keep order records for as long as needed for tax and accounting (typically up to 7 years) and designer records while your account is active and as required afterwards.",
           ],
         },
         {
@@ -354,20 +354,20 @@ export const LEGAL: Record<
     },
     ar: {
       title: "سياسة الخصوصية",
-      intro: `توضح هذه السياسة كيف تجمع شركة ${COMPANY.name} ("شيرتات" أو "نحن") معلوماتك الشخصية وتستخدمها عند زيارتك shirtat.co أو الشراء منا أو انضمامك إلى برنامج المبدعين.`,
+      intro: `توضح هذه السياسة كيف تجمع شركة ${COMPANY.name} ("شيرتات" أو "نحن") معلوماتك الشخصية وتستخدمها عند زيارتك shirtat.co أو الشراء منا أو انضمامك إلى برنامج المصممين.`,
       sections: [
         {
           heading: "ما الذي نجمعه",
           body: [
             "بيانات الطلب: الاسم والبريد الإلكتروني وعنوان الشحن والفوترة ورقم الهاتف وتفاصيل الطلب. يتولى مزوّد الدفع بيانات الدفع، ولا نحتفظ بأرقام البطاقات كاملة.",
-            "برنامج المبدعين: بريد الحساب، وكلمة مرور مشفّرة، وتفاصيل الطلب، وبيانات الدفع والضرائب، والتصاميم التي ترفعها.",
+            "برنامج المصممين: بريد الحساب، وكلمة مرور مشفّرة، وتفاصيل الطلب، وبيانات الدفع والضرائب، والتصاميم التي ترفعها.",
             "بيانات الاستخدام: تحليلات أساسية مثل الصفحات التي زرتها والجهاز والموقع التقريبي، تُجمع عبر ملفات تعريف الارتباط وتقنيات مشابهة.",
           ],
         },
         {
           heading: "كيف نستخدمها",
           body: [
-            "لتنفيذ الطلبات وتوصيلها، وتقديم الدعم، ودفع أرباح المبدعين، ومنع الاحتيال، وتحسين الموقع، والوفاء بالالتزامات القانونية والضريبية. ولا نرسل رسائل تسويقية إلا بموافقتك، ويمكنك إلغاء الاشتراك في أي وقت.",
+            "لتنفيذ الطلبات وتوصيلها، وتقديم الدعم، ودفع أرباح المصممين، ومنع الاحتيال، وتحسين الموقع، والوفاء بالالتزامات القانونية والضريبية. ولا نرسل رسائل تسويقية إلا بموافقتك، ويمكنك إلغاء الاشتراك في أي وقت.",
           ],
         },
         {
@@ -385,7 +385,7 @@ export const LEGAL: Record<
         {
           heading: "مدة الاحتفاظ",
           body: [
-            "نحتفظ بسجلات الطلبات للمدة اللازمة لأغراض الضرائب والمحاسبة (عادةً حتى 7 سنوات)، وبسجلات المبدعين ما دام الحساب نشطًا وبعده حسب ما يقتضيه القانون.",
+            "نحتفظ بسجلات الطلبات للمدة اللازمة لأغراض الضرائب والمحاسبة (عادةً حتى 7 سنوات)، وبسجلات المصممين ما دام الحساب نشطًا وبعده حسب ما يقتضيه القانون.",
           ],
         },
         {
@@ -528,12 +528,12 @@ export const LEGAL: Record<
       ],
     },
   },
-  "creator-terms": {
+  "designer-terms": {
     legal: true,
     path: "/creators/terms",
     en: {
-      title: "Creator Terms",
-      intro: `These terms apply to creators who submit designs to Shirtat, operated by ${COMPANY.name}, ${A}. By applying or submitting a design you agree to them.`,
+      title: "Designer Terms",
+      intro: `These terms apply to designers who submit designs to Shirtat, operated by ${COMPANY.name}, ${A}. By applying or submitting a design you agree to them.`,
       sections: [
         {
           heading: "1. Eligibility and approval",
@@ -587,8 +587,8 @@ export const LEGAL: Record<
       ],
     },
     ar: {
-      title: "شروط المبدعين",
-      intro: `تسري هذه الشروط على المبدعين الذين يقدّمون تصاميمهم إلى شيرتات، التي تُديرها شركة ${COMPANY.name}، ${A}. بتقديم طلبك أو تصميمك فإنك توافق عليها.`,
+      title: "شروط المصممين",
+      intro: `تسري هذه الشروط على المصممين الذين يقدّمون تصاميمهم إلى شيرتات، التي تُديرها شركة ${COMPANY.name}، ${A}. بتقديم طلبك أو تصميمك فإنك توافق عليها.`,
       sections: [
         {
           heading: "1. الأهلية والقبول",

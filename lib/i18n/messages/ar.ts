@@ -123,6 +123,6 @@ export const ar = {
   "Refunds & returns": "الاسترداد والإرجاع",
   "Terms & conditions": "الشروط والأحكام",
   Privacy: "الخصوصية",
-  "Creator terms": "شروط المبدعين",
-  "Read the full creator terms": "اقرأ شروط المبدعين كاملة",
+  "Designer terms": "شروط المصممين",
+  "Read the full designer terms": "اقرأ شروط المصممين كاملة",
 } as const;

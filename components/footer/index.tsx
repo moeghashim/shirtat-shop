@@ -38,7 +38,7 @@ export async function Footer() {
               ["/refunds", "Refunds & returns"],
               ["/terms", "Terms & conditions"],
               ["/privacy", "Privacy"],
-              ["/creators/terms", "Creator terms"],
+              ["/creators/terms", "Designer terms"],
             ].map(([href, label]) => (
               <Link key={href} href={href!} className="transition-colors hover:text-foreground">
                 {t(label!)}
@@ -60,7 +60,7 @@ export async function Footer() {
                 href="/creators"
                 className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                {t("Creators")}
+                {t("Sell on Shirtat")}
               </Link>
               <Link
                 href="/roadmap"

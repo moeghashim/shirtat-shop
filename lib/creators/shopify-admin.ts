@@ -1,7 +1,6 @@
 import { getAdminToken } from "@/lib/sales/server";
 
 import { getProductType } from "./product-types";
-import { signedAssetUrl } from "./tokens";
 import type { CreatorRecord, DesignRecord } from "./types";
 
 const API_VERSION = "2025-01";
@@ -11,7 +10,10 @@ export const HEADLESS_PUBLICATION_ID =
 
 export class ShopifyWriteError extends Error {}
 
-async function adminGraphql<T>(query: string, variables: Record<string, unknown>): Promise<T> {
+export async function adminGraphql<T>(
+  query: string,
+  variables: Record<string, unknown>,
+): Promise<T> {
   const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
   if (!domain) throw new ShopifyWriteError("Store domain not configured");
   const token = await getAdminToken(domain);
@@ -47,72 +49,27 @@ function escapeHtml(s: string): string {
   );
 }
 
-/** Creates the design as a DRAFT product tagged creator:<handle>, with type, category, variants and image. */
+/** Legacy single-type draft for a designer upload; delegates to the product workflow. */
 export async function createDraftProduct(
   creator: CreatorRecord,
   design: DesignRecord,
 ): Promise<{ handle: string; id: string }> {
   const type = getProductType(design.productTypeId);
   if (!type) throw new ShopifyWriteError("Unknown product type");
-  if (!creator.handle) throw new ShopifyWriteError("Creator has no handle");
-  const colors = design.colors.length ? design.colors : [type.colors[0]!.en];
-  const descriptionHtml = [
-    design.descriptionEn && `<p>${escapeHtml(design.descriptionEn)}</p>`,
-    design.descriptionAr && `<p dir="rtl" lang="ar">${escapeHtml(design.descriptionAr)}</p>`,
-    `<p>Design by ${escapeHtml(creator.details?.displayName || creator.name)}.</p>`,
-  ]
-    .filter(Boolean)
-    .join("\n");
-  const variants = type.sizes.flatMap((size) =>
-    colors.map((color) => ({
-      optionValues: [
-        { name: size, optionName: "Size" },
-        { name: color, optionName: "Color" },
-      ],
-      price: type.basePrice,
-    })),
-  );
-  const files =
-    design.file.contentType === "image/png" || design.file.contentType === "image/jpeg"
-      ? [
-          {
-            alt: design.title,
-            contentType: "IMAGE",
-            originalSource: signedAssetUrl(design.file.pathname),
-          },
-        ]
-      : [];
-  const data = await adminGraphql<{
-    productSet: {
-      product: { handle: string; id: string } | null;
-      userErrors: { message: string }[];
-    };
-  }>(
-    `mutation CreateDraft($input: ProductSetInput!) {
-      productSet(synchronous: true, input: $input) { product { id handle } userErrors { field message } }
-    }`,
-    {
-      input: {
-        category: type.category,
-        descriptionHtml,
-        files,
-        productOptions: [
-          { name: "Size", values: type.sizes.map((name) => ({ name })) },
-          { name: "Color", values: colors.map((name) => ({ name })) },
-        ],
-        productType: type.productType,
-        status: "DRAFT",
-        tags: [`creator:${creator.handle}`, ...design.tags].slice(0, 20),
-        title: design.title,
-        variants,
-        vendor: "Shirtat",
-      },
-    },
-  );
-  const err = data.productSet.userErrors[0];
-  if (err || !data.productSet.product)
-    throw new ShopifyWriteError(err?.message ?? "Product not created");
-  return data.productSet.product;
+  if (!creator.handle) throw new ShopifyWriteError("Designer has no handle");
+  const { createDraftForType } = await import("@/lib/catalog/workflow");
+  return createDraftForType({
+    categoryId: design.tags.find((t) => t.startsWith("category:"))?.slice(9) ?? "poetry",
+    colors: design.colors,
+    descriptionAr: design.descriptionAr,
+    descriptionEn: design.descriptionEn,
+    designerHandle: creator.handle,
+    designerName: creator.details?.displayName || creator.name,
+    extraTags: design.tags,
+    file: design.file,
+    title: design.title,
+    typeId: type.id,
+  });
 }
 
 /** Sets the product ACTIVE and publishes it to the headless channel used by shirtat.co. */

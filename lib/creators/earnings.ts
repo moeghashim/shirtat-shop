@@ -66,7 +66,7 @@ export function rateOn(rates: Map<string, number>, date: string): number | undef
   return found ?? rates.get(dates[0] ?? "");
 }
 
-/** Products tagged `creator:<handle>` in Shopify (read through the Storefront API). */
+/** Products tagged `designer:<handle>` (or the legacy `creator:<handle>`) in Shopify, via the Storefront API. */
 export async function getCreatorProducts(
   handle: string,
 ): Promise<{ handle: string; id: string; title: string }[]> {
@@ -81,7 +81,7 @@ export async function getCreatorProducts(
       headers: { "Content-Type": "application/json", "X-Shopify-Storefront-Access-Token": token },
       body: JSON.stringify({
         query: `query($q: String!, $cursor: String) { products(first: 100, after: $cursor, query: $q) { pageInfo { hasNextPage endCursor } nodes { id handle title tags } } }`,
-        variables: { q: `tag:'creator:${handle}'`, cursor },
+        variables: { q: `tag:'designer:${handle}' OR tag:'creator:${handle}'`, cursor },
       }),
       cache: "no-store",
     });
@@ -97,7 +97,8 @@ export async function getCreatorProducts(
     const products = json.data?.products;
     if (!products) break;
     for (const p of products.nodes) {
-      if (p.tags.some((tag) => tag.toLowerCase() === `creator:${handle}`.toLowerCase())) {
+      const wanted = [`designer:${handle}`, `creator:${handle}`].map((t) => t.toLowerCase());
+      if (p.tags.some((tag) => wanted.includes(tag.toLowerCase()))) {
         out.push({ handle: p.handle, id: p.id, title: p.title });
       }
     }

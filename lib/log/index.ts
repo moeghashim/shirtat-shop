@@ -9,6 +9,10 @@ export const logDays: LogDay[] = [
   {
     date: "2026-10-21",
     entries: [
+      "Chose Printify as the print-on-demand supplier (Shopify app, public API, no minimums, US and international print providers, puff and other special prints) and set prices to supplier cost × 3, rounded up to .99: T-shirt $32.99, sweatshirt $53.99, hoodie $64.99, tote bag $28.99, print $14.99.",
+      "Added a product workflow to the admin page: upload a design or pick a designer's submission, get an automatic category suggestion (Poetry, Humor, Cultures, Occasions) that can be overridden, choose product types and colours, and create Shopify drafts tagged with the category and designer. Designers now only suggest types and colours.",
+      "Renamed creators to designers across the site in English and Arabic, retitled the program page Sell on Shirtat (also at /sell), and added Shop by designer pages at /designers with each designer's products.",
+      "Designers now upload a logo or profile picture when they apply; approved designers without one see a prompt on their dashboard and show initials until they add it.",
       "Added a new favicon set: a bold white S from the SHIRTAT wordmark on a black tile for browser tabs, with the full SHIRTAT wordmark on larger app icons.",
       "Made the SHIRTAT wordmark in the logo slightly bolder.",
       "Launched an Arabic version of the storefront at /ar, with right-to-left layout, an Arabic font and an EN / العربية switcher. The roadmap, sales and daily log stay in English.",

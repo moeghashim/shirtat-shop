@@ -9,7 +9,7 @@ import { buildAlternates } from "@/lib/seo";
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
   return {
-    title: t("Apply to become a creator"),
+    title: t("Apply to become a designer"),
     alternates: buildAlternates({ locale: await getLocale(), pathname: "/creators/apply" }),
   };
 }
@@ -19,7 +19,7 @@ export default async function ApplyPage() {
   return (
     <Page>
       <Container className="max-w-2xl">
-        <h1 className="text-3xl md:text-5xl font-semibold">{t("Apply to become a creator")}</h1>
+        <h1 className="text-3xl md:text-5xl font-semibold">{t("Apply to become a designer")}</h1>
         <p className="mt-3 mb-10 text-muted-foreground">
           {t(
             "Tell us about yourself and share a few designs. Every application is reviewed by hand.",

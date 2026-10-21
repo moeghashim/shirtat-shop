@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { ChangePasswordForm, SubmitDesignForm } from "@/components/creators/forms";
+import { ChangePasswordForm, AvatarForm, SubmitDesignForm } from "@/components/creators/forms";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { Page } from "@/components/ui/page";
@@ -24,7 +24,7 @@ const DESIGN_STATUS = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
-  return { title: t("Creator dashboard"), robots: { index: false } };
+  return { title: t("Designer dashboard"), robots: { index: false } };
 }
 
 export default async function DashboardPage() {
@@ -32,7 +32,7 @@ export default async function DashboardPage() {
   return (
     <Page>
       <Container className="max-w-4xl">
-        <h1 className="text-3xl md:text-5xl font-semibold">{t("Creator dashboard")}</h1>
+        <h1 className="text-3xl md:text-5xl font-semibold">{t("Designer dashboard")}</h1>
         <Suspense fallback={<p className="mt-8 text-muted-foreground">{t("Loading…")}</p>}>
           <DashboardContent />
         </Suspense>
@@ -120,6 +120,17 @@ async function DashboardContent() {
         </p>
         <SignOut locale={locale} t={t} />
       </div>
+      {!creator.avatar && !creator.details?.avatar && (
+        <section className="flex flex-col gap-3 rounded-2xl border-2 border-foreground p-6">
+          <h2 className="text-xl font-semibold">{t("Add your logo or profile picture")}</h2>
+          <p className="text-muted-foreground">
+            {t(
+              "Every designer needs one. Until you add it, your designer page shows your initials.",
+            )}
+          </p>
+          <AvatarForm />
+        </section>
+      )}
       {!data ? (
         <p className="text-muted-foreground">
           {t("Sales data is temporarily unavailable. Please try again later.")}
@@ -164,7 +175,7 @@ async function DashboardContent() {
             />
             <Stat
               label={t("Tier")}
-              value={data.tier === "top" ? t("Top creator") : t("Standard")}
+              value={data.tier === "top" ? t("Top designer") : t("Standard")}
             />
           </div>
           <div className="flex flex-col gap-2">
