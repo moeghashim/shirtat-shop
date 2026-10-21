@@ -13,7 +13,7 @@ import {
 } from "@/lib/creators/actions";
 import { getSession } from "@/lib/creators/auth";
 import { getProductType } from "@/lib/creators/product-types";
-import { listCreators } from "@/lib/creators/store";
+import { listCreators, listQueuedEmails } from "@/lib/creators/store";
 
 export const metadata: Metadata = {
   title: "Creators admin",
@@ -56,13 +56,19 @@ async function AdminContent({
   const message = emailFlag
     ? emailFlag === "sent"
       ? "Details email sent."
-      : emailFlag === "not_configured"
-        ? "Email provider not configured yet. A new link was generated; copy it below and send it manually."
-        : "Email failed to send. A new link was generated; copy it below."
+      : emailFlag === "queued"
+        ? "Details email queued. It will be sent from moeg@mail.grokbot.com; the link is also shown below."
+        : emailFlag === "not_configured"
+          ? "Email provider not configured yet. A new link was generated; copy it below and send it manually."
+          : "Email failed to send. A new link was generated; copy it below."
     : typeof flag === "string"
       ? MESSAGES[flag]
       : undefined;
-  const creators = await listCreators();
+  const [creators, queue] = await Promise.all([listCreators(), listQueuedEmails()]);
+  const latestEmail = new Map(
+    queue.filter((e) => e.status !== "cancelled").map((e) => [e.creatorId, e]),
+  );
+  const queuedCount = queue.filter((e) => e.status === "queued").length;
   const pending = creators.filter((c) => c.status === "pending").length;
   const field = "rounded-md border border-border bg-background px-2 py-1 text-sm";
 
@@ -70,7 +76,8 @@ async function AdminContent({
     <div className="mt-6 flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p>
-          <strong>{pending}</strong> pending · {creators.length} total
+          <strong>{pending}</strong> pending · {creators.length} total · {queuedCount} email(s)
+          queued
         </p>
         <form action={signOutAction}>
           <input type="hidden" name="locale" value="en" />
@@ -164,9 +171,13 @@ async function AdminContent({
                 {c.detailsEmail
                   ? c.detailsEmail.status === "sent"
                     ? `sent ${c.detailsEmail.sentAt?.slice(0, 16).replace("T", " ")} UTC`
-                    : c.detailsEmail.status === "not_configured"
-                      ? "not sent (email provider not configured)"
-                      : `failed (${c.detailsEmail.error ?? "error"})`
+                    : c.detailsEmail.status === "queued"
+                      ? latestEmail.get(c.id)?.status === "sent"
+                        ? `sent from ${latestEmail.get(c.id)?.sentFrom ?? "Grok Bot inbox"} ${latestEmail.get(c.id)?.sentAt?.slice(0, 16).replace("T", " ")} UTC`
+                        : `queued ${c.detailsEmail.sentAt?.slice(0, 16).replace("T", " ")} UTC (sent from moeg@mail.grokbot.com by routine)`
+                      : c.detailsEmail.status === "not_configured"
+                        ? "not sent (email provider not configured)"
+                        : `failed (${c.detailsEmail.error ?? "error"})`
                   : "not sent"}
               </p>
               {c.details && (

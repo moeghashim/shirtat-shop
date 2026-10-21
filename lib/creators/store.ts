@@ -92,3 +92,54 @@ export async function deleteCreatorAndUser(creator: CreatorRecord): Promise<void
   ];
   await del(paths);
 }
+
+export interface QueuedEmail {
+  createdAt: string;
+  creatorId: string;
+  html: string;
+  id: string;
+  sentAt?: string;
+  sentFrom?: string;
+  status: "queued" | "sent" | "cancelled";
+  subject: string;
+  text: string;
+  to: string;
+}
+
+/** Outgoing emails waiting to be sent from the Grok Bot inbox by a routine (no SMTP/API available). */
+export async function queueEmail(email: QueuedEmail): Promise<void> {
+  await writeJson(`email-queue/${email.id}.json`, email);
+}
+
+export async function getQueuedEmail(id: string): Promise<QueuedEmail | null> {
+  return readJson<QueuedEmail>(`email-queue/${id}.json`);
+}
+
+export async function listQueuedEmails(): Promise<QueuedEmail[]> {
+  const out: QueuedEmail[] = [];
+  let cursor: string | undefined;
+  do {
+    const page = await list({ prefix: "email-queue/", cursor, limit: 1000 });
+    for (const blob of page.blobs) {
+      const record = await readJson<QueuedEmail>(blob.pathname);
+      if (record) out.push(record);
+    }
+    cursor = page.hasMore ? page.cursor : undefined;
+  } while (cursor);
+  return out.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+/** Cancels any still-queued emails for a creator (on resend or deletion). */
+export async function cancelQueuedEmails(creatorId: string): Promise<void> {
+  for (const e of await listQueuedEmails()) {
+    if (e.creatorId === creatorId && e.status === "queued")
+      await queueEmail({ ...e, status: "cancelled" });
+  }
+}
+
+export async function deleteQueuedEmails(creatorId: string): Promise<void> {
+  const ids = (await listQueuedEmails())
+    .filter((e) => e.creatorId === creatorId)
+    .map((e) => `email-queue/${e.id}.json`);
+  if (ids.length) await del(ids);
+}

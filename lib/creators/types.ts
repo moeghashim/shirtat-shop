@@ -61,7 +61,11 @@ export interface CreatorDetails {
 export interface CreatorRecord {
   designs?: DesignRecord[];
   details?: CreatorDetails;
-  detailsEmail?: { error?: string; sentAt?: string; status: "sent" | "failed" | "not_configured" };
+  detailsEmail?: {
+    error?: string;
+    sentAt?: string;
+    status: "sent" | "failed" | "not_configured" | "queued";
+  };
   detailsLink?: string;
   detailsToken?: { expiresAt: string; hash: string };
   agreedToTermsAt: string;

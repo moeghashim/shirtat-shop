@@ -1,6 +1,10 @@
+import { cancelQueuedEmails, newId, queueEmail } from "./store";
 import type { CreatorRecord } from "./types";
 
-export type EmailResult = { error?: string; status: "sent" | "failed" | "not_configured" };
+export type EmailResult = {
+  error?: string;
+  status: "sent" | "failed" | "not_configured" | "queued";
+};
 
 function esc(s: string): string {
   return s.replace(
@@ -19,7 +23,6 @@ export async function sendApprovalEmail(
 ): Promise<EmailResult> {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
-  if (!key || !from) return { status: "not_configured" };
   const name = esc(creator.name);
   const safeLink = esc(link);
   const html = `<div style="font-family:system-ui,sans-serif;max-width:560px;margin:auto;line-height:1.6">
@@ -35,6 +38,23 @@ export async function sendApprovalEmail(
 <p><a href="${safeLink}" style="background:#000;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none">إكمال بياناتي</a></p>
 </div>
 <p style="color:#888;font-size:12px">Shirtat · shirtat.co</p></div>`;
+  const subject = "You're approved: complete your Shirtat creator details · تمت الموافقة على طلبك";
+  const text = `Hi ${creator.name}, your Shirtat creator application is approved. Complete your details (link expires in 14 days): ${link}\n\nمرحبًا ${creator.name}، تمت الموافقة على طلبك. أكمل بياناتك (تنتهي صلاحية الرابط خلال 14 يومًا): ${link}\n\nShirtat · shirtat.co`;
+  if (!key || !from) {
+    // No sending API on the server: queue it for the Grok Bot inbox routine to send.
+    await cancelQueuedEmails(creator.id);
+    await queueEmail({
+      createdAt: new Date().toISOString(),
+      creatorId: creator.id,
+      html,
+      id: newId(),
+      status: "queued",
+      subject,
+      text,
+      to: creator.email,
+    });
+    return { status: "queued" };
+  }
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -42,9 +62,9 @@ export async function sendApprovalEmail(
       body: JSON.stringify({
         from,
         to: [creator.email],
-        subject: "You're approved: complete your Shirtat creator details · تمت الموافقة على طلبك",
+        subject,
         html,
-        text: `Hi ${creator.name}, your Shirtat creator application is approved. Complete your details: ${link}\n\nمرحبًا ${creator.name}، تمت الموافقة على طلبك. أكمل بياناتك: ${link}`,
+        text,
       }),
       cache: "no-store",
     });

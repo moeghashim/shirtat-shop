@@ -17,6 +17,7 @@ import { getProductType } from "./product-types";
 import { archiveProduct, createDraftProduct, publishProduct } from "./shopify-admin";
 import {
   deleteCreatorAndUser,
+  deleteQueuedEmails,
   getCreator,
   getUserByEmail,
   listCreators,
@@ -216,7 +217,10 @@ export async function adminUpdateAction(form: FormData): Promise<void> {
 export async function adminDeleteAction(form: FormData): Promise<void> {
   await requireAdmin();
   const creator = await getCreator(str(form, "id", 80));
-  if (creator && form.get("confirm") === "delete") await deleteCreatorAndUser(creator);
+  if (creator && form.get("confirm") === "delete") {
+    await deleteQueuedEmails(creator.id);
+    await deleteCreatorAndUser(creator);
+  }
   redirect("/admin/creators?deleted=1");
 }
 

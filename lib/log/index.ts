@@ -19,6 +19,7 @@ export const logDays: LogDay[] = [
       "Added product categories to the Shopify store (T-Shirts, Hoodies, Sweatshirts, Tote Bags, Posters & Prints) and a creator details form that approved creators get a secure link to.",
       "Creators can now upload designs from their dashboard, choosing the product type and colours. Each upload is set up to become a draft product in the store that Moe publishes in one click, once the store connection has product permissions.",
       "Connected creator uploads to the store and tested the whole flow live: a test creator applied, was approved, filled in their details and uploaded a hoodie design, which became a draft product with sizes and colours, went live on shirtat.co in one click, and was then removed.",
+      "Creator approval emails are now queued by the site and sent from the Grok Bot inbox, with their status shown on the admin page.",
     ],
   },
   {
