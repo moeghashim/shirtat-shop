@@ -51,12 +51,12 @@ export const roadmapPhases: RoadmapPhase[] = [
   },
   {
     title: "Design uploads",
-    status: "in-progress",
+    status: "done",
     summary: "Creators upload designs that go to the store as drafts, which Moe publishes in one click.",
   },
   {
     title: "Product types",
-    status: "in-progress",
+    status: "done",
     summary:
       "Creators pick a T-shirt, hoodie, sweatshirt, tote bag or print, plus colours. Categories are set up in Shopify, and each draft carries its type, sizes and colours.",
   },
