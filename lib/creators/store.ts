@@ -139,7 +139,7 @@ export async function cancelQueuedEmails(creatorId: string): Promise<void> {
 
 export async function deleteQueuedEmails(creatorId: string): Promise<void> {
   const ids = (await listQueuedEmails())
-    .filter((e) => e.creatorId === creatorId)
+    .filter((e) => e.creatorId === creatorId || e.creatorId === `reset:${creatorId}`)
     .map((e) => `email-queue/${e.id}.json`);
   if (ids.length) await del(ids);
 }
