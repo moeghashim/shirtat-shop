@@ -35,8 +35,8 @@ import { shopConfig } from "@/lib/config";
 import { getLocale, getT } from "@/lib/i18n/server";
 import {
   getProductPurchaseOptions,
-  getSelectedColorImage,
-  getSharedImages,
+  getColorImagesOrdered,
+  getNonColorImages,
   hasColorImagePartitioning,
   toProductFormInput,
   toStaticOptionGroups,
@@ -107,7 +107,7 @@ function ProductMediaArea({
 
   return (
     <ProductMedia
-      otherImages={getSharedImages(product.images, product.options)}
+      otherImages={getNonColorImages(product.images, product.options)}
       videos={product.videos}
       title={product.title}
       className="lg:col-span-6"
@@ -143,9 +143,9 @@ async function ResolvedColorImageGrid({
   product: ProductDetails;
   selectedOptionsPromise: Promise<SelectedOptions>;
 }) {
-  const image = getSelectedColorImage(product, await selectedOptionsPromise);
-  if (!image) return null;
-  return <ColorImageGrid images={[image]} title={product.title} />;
+  const images = getColorImagesOrdered(product, await selectedOptionsPromise);
+  if (images.length === 0) return null;
+  return <ColorImageGrid images={images} title={product.title} />;
 }
 
 async function ResolvedColorImageCarousel({
@@ -155,9 +155,9 @@ async function ResolvedColorImageCarousel({
   product: ProductDetails;
   selectedOptionsPromise: Promise<SelectedOptions>;
 }) {
-  const image = getSelectedColorImage(product, await selectedOptionsPromise);
-  if (!image) return null;
-  return <ColorImageCarouselItems images={[image]} title={product.title} />;
+  const images = getColorImagesOrdered(product, await selectedOptionsPromise);
+  if (images.length === 0) return null;
+  return <ColorImageCarouselItems images={images} title={product.title} />;
 }
 
 async function ProductInfoArea({

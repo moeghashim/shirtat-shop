@@ -193,6 +193,35 @@ export function getSharedImages(images: Image[], options: ProductOption[]): Imag
   return shared.length > 0 ? shared : images;
 }
 
+/** Non-colour images only (lifestyle, details); colour mockups are rendered by the colour slot. */
+export function getNonColorImages(images: Image[], options: ProductOption[]): Image[] {
+  const color = findColorOption(options);
+  if (!color) return images;
+  const colorUrls = new Set(
+    color.values.map((value) => value.image).filter((url): url is string => Boolean(url)),
+  );
+  return images.filter((image) => !colorUrls.has(image.url));
+}
+
+/** Selected colour's image first, then the other colours' images. */
+export function getColorImagesOrdered(
+  product: ProductDetails,
+  selectedOptions: SelectedOptions,
+): Image[] {
+  const color = findColorOption(product.options);
+  if (!color) return [];
+  const selected = getSelectedColorImage(product, selectedOptions);
+  const seen = new Set<string>(selected ? [selected.url] : []);
+  const rest: Image[] = [];
+  for (const value of color.values) {
+    if (!value.image || seen.has(value.image)) continue;
+    seen.add(value.image);
+    const img = product.images.find((image) => image.url === value.image);
+    if (img) rest.push(img);
+  }
+  return selected ? [selected, ...rest] : rest;
+}
+
 export function getSelectedColorImage(
   product: ProductDetails,
   selectedOptions: SelectedOptions,
