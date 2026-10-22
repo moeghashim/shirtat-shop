@@ -6,7 +6,14 @@ import { adminGraphql } from "@/lib/creators/shopify-admin";
  * Takes no input, so calling it repeatedly is harmless.
  */
 const CALLBACK = "https://shirtat.co/api/webhooks/shopify";
-const TOPICS = ["PRODUCTS_CREATE", "PRODUCTS_UPDATE", "PRODUCTS_DELETE", "ORDERS_PAID", "COLLECTIONS_UPDATE"];
+const TOPICS = [
+  "PRODUCTS_CREATE",
+  "PRODUCTS_UPDATE",
+  "PRODUCTS_DELETE",
+  "ORDERS_PAID",
+  "ORDERS_UPDATED",
+  "COLLECTIONS_UPDATE",
+];
 
 export async function POST() {
   try {

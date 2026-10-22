@@ -198,3 +198,19 @@ export async function sendPrintifyOrderToProduction(orderId: string): Promise<st
   await pf("POST", `/shops/${shop}/orders/${orderId}/send_to_production.json`, {});
   return "sending-to-production";
 }
+
+/** Printify order ids created for a Shopify order (matched on external_id `shopify-<id>`). */
+export async function findPrintifyOrderIds(shopifyOrderId: number | string): Promise<string[]> {
+  const shop = process.env.PRINTIFY_SHOP_ID;
+  const want = `shopify-${shopifyOrderId}`;
+  const ids: string[] = [];
+  for (let page = 1; page <= 5; page++) {
+    const res = await pf<{ data: { external_id?: string; id: string }[]; last_page?: number }>(
+      "GET",
+      `/shops/${shop}/orders.json?limit=50&page=${page}`,
+    );
+    for (const o of res.data ?? []) if (o.external_id === want) ids.push(o.id);
+    if (!res.last_page || page >= res.last_page) break;
+  }
+  return ids;
+}

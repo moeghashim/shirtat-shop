@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import { revalidateTag } from "next/cache";
 
 import { autoCategorizeProduct } from "@/lib/catalog/auto-categorize";
-import { routeOrderToPods } from "@/lib/catalog/pod";
+import { approvePodOrder, routeOrderToPods } from "@/lib/catalog/pod";
 import { getNumericShopifyId } from "@/lib/shopify/id/server";
 
 // Webhooks registered by the site's own Admin app are signed with that app's client secret.
@@ -33,6 +33,11 @@ export async function POST(request: Request) {
 
   if (!topic) {
     return Response.json({ error: "Missing topic header" }, { status: 400 });
+  }
+
+  if (topic === "orders/updated") {
+    const sent = await approvePodOrder(JSON.parse(body));
+    return Response.json({ sent });
   }
 
   if (topic === "orders/paid") {

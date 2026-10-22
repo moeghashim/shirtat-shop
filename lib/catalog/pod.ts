@@ -12,6 +12,7 @@ import { sendOpsEmail } from "@/lib/creators/email";
 import { adminGraphql } from "@/lib/creators/shopify-admin";
 
 import {
+  findPrintifyOrderIds,
   parseSku,
   printifyEnabled,
   sendPrintifyOrderToProduction,
@@ -117,9 +118,9 @@ export interface PodOrderRecord {
   }[];
   pod: string;
   podOrderId?: string;
-  /** Printify status after the send-to-production step, e.g. "sending-to-production". */
+  /** Printify status: "on-hold" until approved, then e.g. "sending-to-production". */
   productionStatus?: string;
-  status: "placed" | "placed_on_hold" | "needs_manual_placement" | "failed";
+  status: "placed" | "needs_manual_placement" | "failed";
 }
 
 function esc(s: string) {
@@ -177,15 +178,8 @@ export async function routeOrderToPods(order: ShopifyOrderPayload): Promise<PodO
           const id = await submitPrintifyOrder(order, pfLines);
           if (!id) rec.error = "No shipping address";
           else {
-            rec.podOrderId = id;
-            try {
-              rec.productionStatus = await sendPrintifyOrderToProduction(id);
-              rec.status = "placed";
-            } catch (e) {
-              rec.status = "placed_on_hold";
-              rec.error = `Printify order ${id} created but send to production failed: ${e instanceof Error ? e.message : String(e)}`;
-              console.error(`[POD] ${order.name}: send to production failed`, rec.error);
-            }
+            // Held in Printify until the Shopify order is tagged `approve-pod` (see approvePodOrder).
+            Object.assign(rec, { podOrderId: id, productionStatus: "on-hold", status: "placed" });
           }
         } catch (e) {
           rec.error = e instanceof Error ? e.message : "Printify order failed";
@@ -221,10 +215,7 @@ export async function routeOrderToPods(order: ShopifyOrderPayload): Promise<PodO
 
 async function recordOnOrder(order: ShopifyOrderPayload, records: PodOrderRecord[]) {
   const ownerId = order.admin_graphql_api_id ?? `gid://shopify/Order/${order.id}`;
-  const tags = records.map(
-    (r) =>
-      `pod:${r.pod.toLowerCase()}:${r.podOrderId ?? r.status}${r.status === "placed_on_hold" ? ":on-hold" : ""}`,
-  );
+  const tags = records.map((r) => `pod:${r.pod.toLowerCase()}:${r.podOrderId ?? r.status}`);
   await adminGraphql(
     `mutation Rec($m: [MetafieldsSetInput!]!, $id: ID!, $tags: [String!]!) {
       metafieldsSet(metafields: $m) { userErrors { message } }
@@ -240,7 +231,54 @@ async function recordOnOrder(order: ShopifyOrderPayload, records: PodOrderRecord
           value: JSON.stringify(records),
         },
       ],
-      tags,
+      tags: records.some((r) => r.status === "placed") ? [...tags, POD_AWAITING_TAG] : tags,
     },
   );
+}
+
+export const POD_APPROVE_TAG = "approve-pod";
+export const POD_AWAITING_TAG = "pod:awaiting-approval";
+export const POD_SENT_TAG = "pod:sent";
+
+interface OrderUpdatedPayload {
+  admin_graphql_api_id?: string;
+  id: number;
+  name: string;
+  tags?: string;
+}
+
+/**
+ * orders/updated: when an order carries `approve-pod` (and not yet `pod:sent`), send its held
+ * Printify order(s) to production. Idempotent: `pod:sent` short-circuits, and Printify orders that
+ * are no longer on-hold are skipped. Failures are logged with [POD] and emailed to ops.
+ */
+export async function approvePodOrder(order: OrderUpdatedPayload): Promise<string | null> {
+  const tags = (order.tags ?? "").split(",").map((t) => t.trim().toLowerCase());
+  if (!tags.includes(POD_APPROVE_TAG) || tags.includes(POD_SENT_TAG)) return null;
+  const ownerId = order.admin_graphql_api_id ?? `gid://shopify/Order/${order.id}`;
+  try {
+    const ids = await findPrintifyOrderIds(order.id);
+    if (!ids.length) throw new Error("No Printify order found for this Shopify order");
+    const results = [];
+    for (const id of ids) results.push(`${id}:${await sendPrintifyOrderToProduction(id)}`);
+    await adminGraphql(
+      `mutation Sent($id: ID!, $add: [String!]!, $rm: [String!]!) {
+        a: tagsAdd(id: $id, tags: $add) { userErrors { message } }
+        r: tagsRemove(id: $id, tags: $rm) { userErrors { message } } }`,
+      { add: [POD_SENT_TAG], id: ownerId, rm: [POD_AWAITING_TAG] },
+    ).catch((e) =>
+      console.error(`[POD] ${order.name}: sent, but could not tag ${POD_SENT_TAG}`, e),
+    );
+    console.log(`[POD] ${order.name}: approved, sent to production`, results.join(", "));
+    return results.join(", ");
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error(`[POD] ${order.name}: approve-pod failed`, msg);
+    await sendOpsEmail({
+      html: `<h2>Order ${esc(order.name)}: approve-pod failed</h2><p>${esc(msg)}</p><p>Send it to production in Printify by hand.</p>`,
+      subject: `Shirtat ${order.name}: send to production failed`,
+      text: `Order ${order.name}: approve-pod failed.\n\n${msg}\n\nSend it to production in Printify by hand.`,
+    }).catch((err) => console.error("[POD] ops email failed", err));
+    return null;
+  }
 }
