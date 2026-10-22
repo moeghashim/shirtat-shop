@@ -5,6 +5,8 @@ const API_VERSION = "2025-01";
 export interface SourceClip {
   id: string;
   isShort: boolean;
+  /** Video host; defaults to YouTube. */
+  provider?: "facebook" | "youtube";
   url: string;
 }
 
@@ -36,6 +38,29 @@ export function parseYouTube(url: string): SourceClip | null {
   }
 }
 
+/** Extracts a Facebook video id from watch/?v=, /videos/<id>, /reel/<id> or fb.watch links. */
+export function parseFacebook(url: string): SourceClip | null {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\.|^m\.|^web\./, "");
+    if (host !== "facebook.com" && host !== "fb.watch") return null;
+    let id = u.searchParams.get("v");
+    if (!id) {
+      const m = u.pathname.match(/\/(?:videos|reel)\/(?:[^/]+\/)?(\d{5,25})/);
+      id = m?.[1] ?? null;
+    }
+    if (!id || !/^\d{5,25}$/.test(id)) return null;
+    const isShort = u.pathname.startsWith("/reel/");
+    return { id, isShort, provider: "facebook", url: `https://www.facebook.com/watch/?v=${id}` };
+  } catch {
+    return null;
+  }
+}
+
+export function parseClip(url: string): SourceClip | null {
+  return parseYouTube(url) ?? parseFacebook(url);
+}
+
 /** Reads shirtat.source_clips (list.url) and shirtat.source_note_en / _ar metafields. */
 export async function getProductSource(handle: string): Promise<ProductSource | null> {
   "use cache: remote";
@@ -55,7 +80,13 @@ export async function getProductSource(handle: string): Promise<ProductSource | 
     });
     if (!res.ok) return null;
     const json = (await res.json()) as {
-      data?: { product: { clips: { value: string } | null; en: { value: string } | null; ar: { value: string } | null } | null };
+      data?: {
+        product: {
+          clips: { value: string } | null;
+          en: { value: string } | null;
+          ar: { value: string } | null;
+        } | null;
+      };
     };
     const p = json.data?.product;
     if (!p?.clips?.value) return null;
@@ -67,7 +98,7 @@ export async function getProductSource(handle: string): Promise<ProductSource | 
     }
     const clips = (Array.isArray(urls) ? urls : [])
       .filter((u): u is string => typeof u === "string")
-      .map(parseYouTube)
+      .map(parseClip)
       .filter((c): c is SourceClip => c !== null);
     if (clips.length === 0) return null;
     return { clips, noteAr: p.ar?.value, noteEn: p.en?.value };
