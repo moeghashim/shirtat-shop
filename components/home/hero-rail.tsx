@@ -157,7 +157,7 @@ export function HeroRail() {
           <p className={`text-2xl md:text-3xl ${ar ? "font-semibold" : "font-serif italic"}`}>
             {name(open)}
           </p>
-          <Link href={localizeHref(locale, "/collections/all")} className={`mt-3 ${PILL}`}>
+          <Link href={localizeHref(locale, bannerItems[open].href)} className={`mt-3 ${PILL}`}>
             {ar ? "تسوّق الآن" : "Shop now"}
           </Link>
         </div>
