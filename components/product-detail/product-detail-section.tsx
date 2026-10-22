@@ -176,9 +176,9 @@ async function ProductInfoArea({
   const allInStock = product.defaultVariant?.availableForSale ?? product.availableForSale;
   const hasOptions = options.some((option) => option.values.length > 1);
   return (
-    <div className="grid gap-10 lg:sticky lg:top-20 lg:col-span-4">
+    <div className="grid gap-8 lg:sticky lg:top-20 lg:col-span-4">
       <div
-        className="grid data-[uniform-price=true]:gap-10"
+        className="grid gap-6 data-[uniform-price=true]:gap-6"
         data-uniform-price={product.hasUniformPricing}
       >
         <div data-slot="product-info-header" className="grid gap-2">
@@ -190,9 +190,6 @@ async function ProductInfoArea({
               compareAtAmount={product.compareAtPriceRange?.minVariantPrice.amount}
             />
           ) : null}
-          <Suspense fallback={null}>
-            <DesignStoryBlock handle={handle} isArabic={isArabic} />
-          </Suspense>
         </div>
 
         {singleVariant ? (
@@ -231,7 +228,15 @@ async function ProductInfoArea({
         <ComplementaryProducts handle={handle} limit={4} title={t("Pairs Well With")} />
       ) : null}
 
-      <PdpTrustAndDetails handle={handle} isArabic={isArabic} />
+      <PdpTrustAndDetails
+        handle={handle}
+        isArabic={isArabic}
+        storySlot={
+          <Suspense fallback={null}>
+            <DesignStoryBlock handle={handle} isArabic={isArabic} />
+          </Suspense>
+        }
+      />
 
       <ProductInfoDescription descriptionHtml={descriptionHtml} />
     </div>
@@ -279,7 +284,7 @@ function ProductInfoContent({
 
   return (
     <ProductForm product={formProduct}>
-      <div className="grid gap-10">
+      <div className="grid gap-6">
         {!product.hasUniformPricing ? (
           <div data-slot="product-info-price">
             {priceSlot ?? <ProductFormPrice fallbackVariant={fallbackVariant} />}
@@ -313,7 +318,7 @@ function ProductInfoFallback({
   showLabel: boolean;
 }) {
   return (
-    <div className="grid gap-10">
+    <div className="grid gap-6">
       {!product.hasUniformPricing ? <div className="h-7" aria-hidden /> : null}
       {hasOptions ? (
         <ProductInfoOptions options={toStaticOptionGroups(product)} hideImages />

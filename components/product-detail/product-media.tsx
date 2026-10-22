@@ -143,11 +143,22 @@ function Carousel({
     container.scrollTo({ left: 0 });
     sync();
 
+    // The colour slot is the first slide; when the colour changes, jump back to it.
+    let firstSrc = container.querySelector("img")?.getAttribute("src");
+    const onMutate = () => {
+      const src = container.querySelector("img")?.getAttribute("src");
+      if (src && src !== firstSrc) {
+        firstSrc = src;
+        container.scrollTo({ left: 0, behavior: "smooth" });
+      }
+      sync();
+    };
+
     container.addEventListener("scroll", sync, { passive: true });
     const resizeObserver = new ResizeObserver(sync);
     resizeObserver.observe(container);
-    const mutationObserver = new MutationObserver(sync);
-    mutationObserver.observe(container, { childList: true });
+    const mutationObserver = new MutationObserver(onMutate);
+    mutationObserver.observe(container, { childList: true, subtree: true, attributes: true, attributeFilter: ["src"] });
 
     return () => {
       container.removeEventListener("scroll", sync);
@@ -159,6 +170,7 @@ function Carousel({
     <div className="grid gap-5">
       <div
         ref={setContainer}
+        data-slot="pdp-carousel"
         className="relative overflow-x-auto flex snap-x snap-mandatory overscroll-x-contain scrollbar-hide -mx-5 w-[calc(100%+2.5rem)]"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >

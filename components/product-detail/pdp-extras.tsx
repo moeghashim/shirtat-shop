@@ -69,15 +69,19 @@ export async function DesignStoryBlock({ handle, isArabic }: { handle: string; i
   const { story } = await getPdpExtras(handle, isArabic);
   if (!story?.phrase) return null;
   return (
-    <div
+    <section
       data-slot="design-story"
-      className="grid gap-2 rounded-xl border border-border bg-muted/40 p-4"
+      className="grid gap-1.5 border-t border-border pt-5"
       dir={isArabic ? "rtl" : "ltr"}
     >
-      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      <h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
         {t("story", isArabic)}
-      </p>
-      <p dir="rtl" lang="ar" className="text-2xl leading-snug font-semibold">
+      </h2>
+      <p
+        dir="rtl"
+        lang="ar"
+        className={`font-arabic text-4xl leading-tight font-semibold ${isArabic ? "text-right" : "text-left"}`}
+      >
         {story.phrase}
       </p>
       {story.meaning ? (
@@ -92,7 +96,7 @@ export async function DesignStoryBlock({ handle, isArabic }: { handle: string; i
           {story.origin}
         </p>
       ) : null}
-    </div>
+    </section>
   );
 }
 
@@ -108,7 +112,15 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-export function PdpTrustAndDetails({ handle, isArabic }: { handle: string; isArabic: boolean }) {
+export function PdpTrustAndDetails({
+  handle,
+  isArabic,
+  storySlot,
+}: {
+  handle: string;
+  isArabic: boolean;
+  storySlot?: React.ReactNode;
+}) {
   const kind = productKind(handle);
   const rows = SIZE_ROWS[kind];
   const trust = [
@@ -117,7 +129,7 @@ export function PdpTrustAndDetails({ handle, isArabic }: { handle: string; isAra
     { icon: RotateCcwIcon, label: t("returns", isArabic), href: "/refunds" },
   ];
   return (
-    <div className="grid gap-6" dir={isArabic ? "rtl" : "ltr"}>
+    <div className="grid gap-5" dir={isArabic ? "rtl" : "ltr"}>
       <ul className="grid grid-cols-3 gap-2">
         {trust.map(({ icon: Icon, label, href }) => {
           const inner = (
@@ -147,6 +159,7 @@ export function PdpTrustAndDetails({ handle, isArabic }: { handle: string; isAra
           Shirtat
         </Link>
       </p>
+      {storySlot}
       <div className="border-t border-border">
         {rows ? (
           <Accordion title={t("sizeGuide", isArabic)}>
