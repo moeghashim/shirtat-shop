@@ -85,6 +85,8 @@ async function BrowseResultsGrid({ results }: BrowseResultsGridProps) {
     );
   }
   return (
+    <>
+    <h2 className="sr-only">{t("Products")}</h2>
     <InfiniteProductGrid
       key={`${JSON.stringify(source)}?${dataSearch}`}
       initialPageInfo={pageInfo}
@@ -101,5 +103,6 @@ async function BrowseResultsGrid({ results }: BrowseResultsGridProps) {
         />
       ))}
     </InfiniteProductGrid>
+    </>
   );
 }

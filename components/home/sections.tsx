@@ -102,7 +102,7 @@ export async function ProductTypeRow() {
                 <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
                   {p?.image && (
                     <Image
-                      alt={t(pt.label)}
+                      alt=""
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       fill
                       sizes="(min-width: 768px) 20vw, 160px"

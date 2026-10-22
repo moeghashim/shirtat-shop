@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n/client";
 
 import { getSortByValue } from "@shopify/hydrogen";
 import { useCollection, useCollectionActions } from "@shopify/hydrogen/react";
@@ -22,6 +23,7 @@ const SORT_LABELS: Record<SortValue, string> = {
 export function CollectionsSortSelect({ exclude = [] }: { exclude?: SortValue[] } = {}) {
   const { reverse, sortKey, status } = useCollection();
   const { setSortByValue } = useCollectionActions();
+  const t = useT();
   const options = SORT_VALUES.filter((value) => !exclude.includes(value));
   return (
     <Select
@@ -29,7 +31,7 @@ export function CollectionsSortSelect({ exclude = [] }: { exclude?: SortValue[] 
       onValueChange={(value) => setSortByValue(value ?? "manual")}
       disabled={status === "loading"}
     >
-      <SelectTrigger className="border-0 shadow-none bg-transparent px-0">
+      <SelectTrigger aria-label={t("Sort")} className="border-0 shadow-none bg-transparent px-0">
         <span>
           <T k="Sort" />
         </span>
