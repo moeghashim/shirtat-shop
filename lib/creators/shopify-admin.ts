@@ -34,7 +34,7 @@ export async function adminGraphql<T>(
     );
     throw new ShopifyWriteError(
       denied
-        ? "Shopify app is missing write_products (and read_products, write_publications) scopes"
+        ? `Shopify app is missing a required Admin API scope (write_orders/read_orders for order records; write_products/read_products/write_publications for catalog): ${json.errors[0]!.message}`
         : json.errors[0]!.message,
     );
   }

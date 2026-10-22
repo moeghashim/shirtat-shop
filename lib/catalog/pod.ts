@@ -1,3 +1,4 @@
+import { sendOpsEmail } from "@/lib/creators/email";
 /**
  * POD routing. Every product carries (namespace "shirtat"):
  *   pod               list of POD companies, first = primary (Printify, Tapstitch, Prodigi, Inkse, Teepig)
@@ -9,16 +10,22 @@
  * "needs manual placement" and emailed to Moe rather than failing the webhook.
  */
 import { adminGraphql } from "@/lib/creators/shopify-admin";
-import { sendOpsEmail } from "@/lib/creators/email";
 
-import { parseSku, printifyEnabled, submitPrintifyOrder, type ShopifyOrderPayload } from "./printify";
+import {
+  parseSku,
+  printifyEnabled,
+  sendPrintifyOrderToProduction,
+  submitPrintifyOrder,
+  type ShopifyOrderPayload,
+} from "./printify";
 
 export const POD_COMPANIES = ["Printify", "Tapstitch", "Prodigi", "Inkse", "Teepig"] as const;
 export type PodCompany = (typeof POD_COMPANIES)[number];
 
 export const PRODUCTION_NOTES: Record<string, string> = {
   hoodie: "Front centre on chest above pocket, DTG, transparent PNG artwork.",
-  print: "Full-bleed poster artwork (poster file), matte paper, no borders, no cropping of the calligraphy.",
+  print:
+    "Full-bleed poster artwork (poster file), matte paper, no borders, no cropping of the calligraphy.",
   sweatshirt: "Front centre on chest, DTG, transparent PNG artwork.",
   "t-shirt":
     "Front centre, DTG print on chest, transparent PNG artwork. Keep original colours; no white underbase on white/light garments.",
@@ -33,12 +40,25 @@ export function podMetafields(input: {
   podProductId?: string;
   typeId: string;
 }) {
-  const m = (key: string, type: string, value: string) => ({ key, namespace: "shirtat", type, value });
+  const m = (key: string, type: string, value: string) => ({
+    key,
+    namespace: "shirtat",
+    type,
+    value,
+  });
   return [
     m("pod", "list.single_line_text_field", JSON.stringify(input.pod ?? ["Printify"])),
-    ...(input.podProductId ? [m("pod_product_id", "single_line_text_field", input.podProductId)] : []),
+    ...(input.podProductId
+      ? [m("pod_product_id", "single_line_text_field", input.podProductId)]
+      : []),
     ...(input.designFileUrl ? [m("design_file", "url", input.designFileUrl)] : []),
-    m("production_notes", "multi_line_text_field", input.notes ?? PRODUCTION_NOTES[input.typeId] ?? "Front centre, DTG, transparent PNG artwork."),
+    m(
+      "production_notes",
+      "multi_line_text_field",
+      input.notes ??
+        PRODUCTION_NOTES[input.typeId] ??
+        "Front centre, DTG, transparent PNG artwork.",
+    ),
   ];
 }
 
@@ -88,21 +108,37 @@ async function loadProductPods(productIds: number[]): Promise<Map<number, Produc
 
 export interface PodOrderRecord {
   error?: string;
-  lines: { designFile?: string; notes?: string; quantity: number; sku: string | null; title: string }[];
+  lines: {
+    designFile?: string;
+    notes?: string;
+    quantity: number;
+    sku: string | null;
+    title: string;
+  }[];
   pod: string;
   podOrderId?: string;
-  status: "placed" | "needs_manual_placement" | "failed";
+  /** Printify status after the send-to-production step, e.g. "sending-to-production". */
+  productionStatus?: string;
+  status: "placed" | "placed_on_hold" | "needs_manual_placement" | "failed";
 }
 
 function esc(s: string) {
-  return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+  return s.replace(
+    /[&<>"]/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!,
+  );
 }
 
 /** Routes a paid order's lines to their PODs, records the result on the order and emails manual work. */
 export async function routeOrderToPods(order: ShopifyOrderPayload): Promise<PodOrderRecord[]> {
-  const ids = [...new Set(order.line_items.map((l) => l.product_id).filter((x): x is number => Boolean(x)))];
+  const ids = [
+    ...new Set(order.line_items.map((l) => l.product_id).filter((x): x is number => Boolean(x))),
+  ];
   const pods = await loadProductPods(ids);
-  const groups = new Map<string, { info?: ProductPod; line: ShopifyOrderPayload["line_items"][number] }[]>();
+  const groups = new Map<
+    string,
+    { info?: ProductPod; line: ShopifyOrderPayload["line_items"][number] }[]
+  >();
   for (const line of order.line_items) {
     const info = line.product_id ? pods.get(line.product_id) : undefined;
     const pod = info?.pod || (parseSku(line.sku) ? "Printify" : "");
@@ -123,15 +159,34 @@ export async function routeOrderToPods(order: ShopifyOrderPayload): Promise<PodO
     if (pod === "Printify") {
       const pfLines = items.flatMap(({ info, line }) => {
         const p = parseSku(line.sku);
-        return p ? [{ productId: info?.podProductId ?? p.productId, quantity: line.quantity, variantId: p.variantId }] : [];
+        return p
+          ? [
+              {
+                productId: info?.podProductId ?? p.productId,
+                quantity: line.quantity,
+                variantId: p.variantId,
+              },
+            ]
+          : [];
       });
       if (!printifyEnabled()) rec.error = "Printify is disabled (PRINTIFY_ENABLED / token)";
-      else if (pfLines.length !== items.length) rec.error = "Some lines have no Printify variant SKU";
+      else if (pfLines.length !== items.length)
+        rec.error = "Some lines have no Printify variant SKU";
       else {
         try {
           const id = await submitPrintifyOrder(order, pfLines);
-          if (id) Object.assign(rec, { podOrderId: id, status: "placed" });
-          else rec.error = "No shipping address";
+          if (!id) rec.error = "No shipping address";
+          else {
+            rec.podOrderId = id;
+            try {
+              rec.productionStatus = await sendPrintifyOrderToProduction(id);
+              rec.status = "placed";
+            } catch (e) {
+              rec.status = "placed_on_hold";
+              rec.error = `Printify order ${id} created but send to production failed: ${e instanceof Error ? e.message : String(e)}`;
+              console.error(`[POD] ${order.name}: send to production failed`, rec.error);
+            }
+          }
         } catch (e) {
           rec.error = e instanceof Error ? e.message : "Printify order failed";
         }
@@ -143,12 +198,17 @@ export async function routeOrderToPods(order: ShopifyOrderPayload): Promise<PodO
   }
   if (!records.length) return records;
 
-  await recordOnOrder(order, records).catch((e) => console.error("[POD] could not record on order", e));
+  await recordOnOrder(order, records).catch((e) =>
+    console.error("[POD] could not record on order", e),
+  );
   const manual = records.filter((r) => r.status !== "placed");
   if (manual.length) {
     console.warn(`[POD] ${order.name}: manual placement needed`, JSON.stringify(manual));
     const text = manual
-      .map((r) => `${r.pod}: ${r.error ?? ""}\n${r.lines.map((l) => `- ${l.quantity} × ${l.title} (SKU ${l.sku ?? "none"})\n  Design: ${l.designFile ?? "n/a"}\n  Notes: ${l.notes ?? "n/a"}`).join("\n")}`)
+      .map(
+        (r) =>
+          `${r.pod}: ${r.error ?? ""}\n${r.lines.map((l) => `- ${l.quantity} × ${l.title} (SKU ${l.sku ?? "none"})\n  Design: ${l.designFile ?? "n/a"}\n  Notes: ${l.notes ?? "n/a"}`).join("\n")}`,
+      )
       .join("\n\n");
     await sendOpsEmail({
       html: `<h2>Order ${esc(order.name)} needs manual POD placement</h2><pre style="white-space:pre-wrap">${esc(text)}</pre>`,
@@ -161,14 +221,25 @@ export async function routeOrderToPods(order: ShopifyOrderPayload): Promise<PodO
 
 async function recordOnOrder(order: ShopifyOrderPayload, records: PodOrderRecord[]) {
   const ownerId = order.admin_graphql_api_id ?? `gid://shopify/Order/${order.id}`;
-  const tags = records.map((r) => `pod:${r.pod.toLowerCase()}:${r.status === "placed" ? r.podOrderId : r.status}`);
+  const tags = records.map(
+    (r) =>
+      `pod:${r.pod.toLowerCase()}:${r.podOrderId ?? r.status}${r.status === "placed_on_hold" ? ":on-hold" : ""}`,
+  );
   await adminGraphql(
     `mutation Rec($m: [MetafieldsSetInput!]!, $id: ID!, $tags: [String!]!) {
       metafieldsSet(metafields: $m) { userErrors { message } }
       tagsAdd(id: $id, tags: $tags) { userErrors { message } } }`,
     {
       id: ownerId,
-      m: [{ key: "pod_orders", namespace: "shirtat", ownerId, type: "json", value: JSON.stringify(records) }],
+      m: [
+        {
+          key: "pod_orders",
+          namespace: "shirtat",
+          ownerId,
+          type: "json",
+          value: JSON.stringify(records),
+        },
+      ],
       tags,
     },
   );

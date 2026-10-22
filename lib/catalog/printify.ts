@@ -59,7 +59,9 @@ export interface PrintifyProductResult {
 
 export const skuFor = (productId: string, variantId: number) => `PFY-${productId}-${variantId}`;
 
-export function parseSku(sku: string | null | undefined): { productId: string; variantId: number } | null {
+export function parseSku(
+  sku: string | null | undefined,
+): { productId: string; variantId: number } | null {
   const m = sku?.match(/^PFY-([a-f0-9]+)-(\d+)$/);
   return m ? { productId: m[1]!, variantId: Number(m[2]) } : null;
 }
@@ -155,28 +157,44 @@ export async function submitPrintifyOrder(
   if (!printifyEnabled()) return null;
   if (!lines.length || !order.shipping_address) return null;
   const a = order.shipping_address;
-  const res = await pf<{ id: string }>("POST", `/shops/${process.env.PRINTIFY_SHOP_ID}/orders.json`, {
-    address_to: {
-      address1: a.address1,
-      address2: a.address2 ?? "",
-      city: a.city,
-      country: a.country_code,
-      email: order.email,
-      first_name: a.first_name,
-      last_name: a.last_name,
-      phone: a.phone ?? "",
-      region: a.province_code ?? "",
-      zip: a.zip,
+  const res = await pf<{ id: string }>(
+    "POST",
+    `/shops/${process.env.PRINTIFY_SHOP_ID}/orders.json`,
+    {
+      address_to: {
+        address1: a.address1,
+        address2: a.address2 ?? "",
+        city: a.city,
+        country: a.country_code,
+        email: order.email,
+        first_name: a.first_name,
+        last_name: a.last_name,
+        phone: a.phone ?? "",
+        region: a.province_code ?? "",
+        zip: a.zip,
+      },
+      external_id: `shopify-${order.id}`,
+      label: order.name,
+      line_items: lines.map((l) => ({
+        product_id: l.productId,
+        quantity: l.quantity,
+        variant_id: l.variantId,
+      })),
+      send_shipping_notification: false,
+      shipping_method: 1,
     },
-    external_id: `shopify-${order.id}`,
-    label: order.name,
-    line_items: lines.map((l) => ({
-      product_id: l.productId,
-      quantity: l.quantity,
-      variant_id: l.variantId,
-    })),
-    send_shipping_notification: false,
-    shipping_method: 1,
-  });
+  );
   return res.id;
+}
+
+/**
+ * Sends a held Printify order to production. Idempotent: only an order still "on-hold" is sent;
+ * anything already sent (or further along) is left alone. Returns the resulting status.
+ */
+export async function sendPrintifyOrderToProduction(orderId: string): Promise<string> {
+  const shop = process.env.PRINTIFY_SHOP_ID;
+  const current = await pf<{ status?: string }>("GET", `/shops/${shop}/orders/${orderId}.json`);
+  if (current.status && current.status !== "on-hold") return current.status;
+  await pf("POST", `/shops/${shop}/orders/${orderId}/send_to_production.json`, {});
+  return "sending-to-production";
 }
