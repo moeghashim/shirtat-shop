@@ -1,12 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { type PointerEvent, type RefObject, useEffect, useRef, useState } from "react";
+import { type CSSProperties, type PointerEvent, useEffect, useRef, useState } from "react";
 
 import type { BannerItem } from "@/lib/banner";
 
 const REST_TURN = 64;
-const SIDE_SLOT = 0.4;
 const FRONT_SLOT = 0.82;
 const LAYOUT_K = 102;
 const LAYOUT_C = 19;
@@ -24,13 +23,23 @@ const HOOK_AXIS = HOOK_W / 2;
 const HOOK_ROD_Y = 9.9;
 const HOOK_CURL = 7.5;
 const HOOK_RISE = 7;
+const CHROME_TUBE =
+  "linear-gradient(to bottom, #2a2d31 0%, #6c7178 8%, #f4f6f8 20%, #ffffff 26%, #c4c9cf 36%, #7c828a 46%, #2f3236 54%, #5a5f66 60%, #b9bec5 70%, #eef0f2 80%, #aab0b7 90%, #3b3e43 100%)";
+const CHROME_SMEAR =
+  "linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.28) 6%, rgba(255,255,255,0) 14%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.38) 38%, rgba(0,0,0,0.5) 47%, rgba(0,0,0,0.28) 56%, rgba(0,0,0,0) 64%, rgba(255,255,255,0.22) 82%, rgba(255,255,255,0) 90%, rgba(255,255,255,0.3) 97%, rgba(255,255,255,0) 100%)";
+
+interface Geometry {
+  pad: number;
+  rack: number;
+  slot: number;
+  w: number;
+}
 
 interface HeroRackProps {
   ar: boolean;
   items: BannerItem[];
   locked: boolean;
   onOpen: (index: number) => void;
-  scroller: RefObject<HTMLDivElement | null>;
 }
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
@@ -40,19 +49,17 @@ const ramp = (v: number, lo: number, hi: number) => {
 };
 const slotOrder = (ar: boolean, n: number, k: number) => (ar ? n - 1 - k : k);
 
-export function rackWidthFactor(n: number) {
-  return n * SIDE_SLOT + (FRONT_SLOT - SIDE_SLOT) + 0.7;
-}
-
 function hookPath(openness: number) {
   const curl = HOOK_CURL * Math.sin((clamp(Math.abs(openness), 0, 90) * Math.PI) / 180);
   const x = HOOK_AXIS;
   return `M${x} ${HOOK_H} L${x} 21 C${x} 17 ${x + curl} 17 ${x + curl} 13 L${x + curl} ${HOOK_ROD_Y} A${curl.toFixed(2)} ${HOOK_RISE} 0 0 0 ${(x - curl).toFixed(2)} ${HOOK_ROD_Y} L${(x - curl).toFixed(2)} ${HOOK_ROD_Y + 3.4}`;
 }
 
-export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps) {
+export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
   const n = items.length;
   const [caption, setCaption] = useState<number | null>(null);
+  const [coarse, setCoarse] = useState(false);
+  const touch = useRef({ dragged: false, startX: 0 });
   const rack = useRef<HTMLUListElement>(null);
   const wakeRef = useRef<() => void>(() => {});
   const swings = useRef<(HTMLDivElement | null)[]>([]);
@@ -79,26 +86,29 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
     target: null as number | null,
   });
   const dir = ar ? -1 : 1;
-  const rackFactor = rackWidthFactor(n);
-  const restPad = (FRONT_SLOT - SIDE_SLOT + 0.7) / 2;
 
   useEffect(() => {
     const s = sim.current;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    const measure = () => {
+    const measure = (): Geometry => {
       const ul = rack.current;
-      return ul ? Number.parseFloat(getComputedStyle(ul).getPropertyValue("--w")) || 230 : 230;
+      const css = ul ? getComputedStyle(ul) : null;
+      const read = (name: string, fallback: number) =>
+        css ? Number.parseFloat(css.getPropertyValue(name)) || fallback : fallback;
+      const slot = read("--slot", 0.4);
+      const pad = read("--pad", 0.7);
+      const rackFactor = n * slot + (FRONT_SLOT - slot) + pad;
+      return { pad, rack: rackFactor, slot, w: ul ? ul.offsetWidth / rackFactor : 253 };
     };
     let cached = measure();
     const width = () => cached;
     const lastHook = new Array<number>(n).fill(Number.NaN);
     const lastZ = new Array<number>(n).fill(Number.NaN);
 
-    const layout = (w: number) => {
-      const slots = s.openness.map(
-        (o) => (SIDE_SLOT + (FRONT_SLOT - SIDE_SLOT) * clamp(o, 0, 1.04)) * w,
-      );
+    const layout = ({ pad, rack: rackFactor, slot: side, w }: Geometry) => {
+      const restPad = (FRONT_SLOT - side + pad) / 2;
+      const slots = s.openness.map((o) => (side + (FRONT_SLOT - side) * clamp(o, 0, 1.04)) * w);
       let x = (rackFactor * w - slots.reduce((a, b) => a + b, 0)) / 2;
       for (let k = 0; k < n; k++) {
         const i = slotOrder(ar, n, k);
@@ -106,12 +116,12 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
         s.centers[i] = x + slots[i] / 2;
         x += slots[i];
       }
-      return (i: number) => s.centers[i] - (restPad + (slotOrder(ar, n, i) + 0.5) * SIDE_SLOT) * w;
+      return (i: number) => s.centers[i] - (restPad + (slotOrder(ar, n, i) + 0.5) * side) * w;
     };
 
-    const step = (h: number, w: number) => {
-      const restDelta = layout(w);
-      const arm = 0.9 * 1.2 * w;
+    const step = (h: number, g: Geometry) => {
+      const restDelta = layout(g);
+      const arm = 0.9 * 1.2 * g.w;
       for (let i = 0; i < n; i++) {
         const open = s.target === i;
         const a = LAYOUT_K * ((open ? 1 : 0) - s.openness[i]) - LAYOUT_C * s.opennessV[i];
@@ -121,7 +131,7 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
         s.phiV[i] += spin * h;
         s.phi[i] = clamp(s.phi[i] + s.phiV[i] * h, -34, 86);
       }
-      layout(w);
+      layout(g);
       for (let i = 0; i < n; i++) {
         const delta = restDelta(i);
         const vx = (delta - s.prevDelta[i]) / h;
@@ -135,8 +145,8 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
       }
     };
 
-    const render = (w: number) => {
-      const delta = layout(w);
+    const render = (g: Geometry) => {
+      const delta = layout(g);
       for (let i = 0; i < n; i++) {
         const o = clamp(s.openness[i], 0, 1.04);
         const phi = s.phi[i];
@@ -175,7 +185,7 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
     };
 
     const tick = (now: number) => {
-      const w = width();
+      const g = width();
       const dt = Math.min(1 / 30, (now - s.last) / 1000 || 1 / 60);
       s.last = now;
       if (reduce.matches) {
@@ -185,14 +195,14 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
           s.phi[i] = open ? 0 : REST_TURN;
           s.opennessV[i] = s.phiV[i] = s.alpha[i] = s.alphaV[i] = 0;
         }
-        layout(w);
-        render(w);
+        layout(g);
+        render(g);
         s.frame = 0;
         return;
       }
       const steps = Math.max(1, Math.ceil(dt / STEP));
-      for (let k = 0; k < steps; k++) step(dt / steps, w);
-      render(w);
+      for (let k = 0; k < steps; k++) step(dt / steps, g);
+      render(g);
       let moving = false;
       for (let i = 0; i < n; i++) {
         const open = s.target === i;
@@ -229,7 +239,7 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
       if (s.frame) cancelAnimationFrame(s.frame);
       s.frame = 0;
     };
-  }, [ar, n, restPad, rackFactor, dir]);
+  }, [ar, n, dir]);
 
   const aim = (target: number | null, push = 0) => {
     const s = sim.current;
@@ -244,48 +254,12 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
   };
 
   useEffect(() => {
-    const el = scroller.current;
-    const ul = rack.current;
-    if (!el || !ul || !window.matchMedia("(hover: none)").matches) return;
-    let frame = 0;
-    let last = el.scrollLeft;
-    const focus = () => {
-      frame = 0;
-      if (locked) return;
-      const w = Number.parseFloat(getComputedStyle(ul).getPropertyValue("--w")) || 150;
-      const x =
-        el.getBoundingClientRect().left + el.clientWidth / 2 - ul.getBoundingClientRect().left;
-      const rest = (i: number) => (restPad + (slotOrder(ar, n, i) + 0.5) * SIDE_SLOT) * w;
-      let best = 0;
-      for (let i = 1; i < n; i++) if (Math.abs(x - rest(i)) < Math.abs(x - rest(best))) best = i;
-      const current = sim.current.target;
-      const outside = Math.abs(x - rest(best)) > SIDE_SLOT * w * 1.2;
-      const next = outside ? null : best;
-      if (next === current) return;
-      if (
-        next !== null &&
-        current !== null &&
-        Math.abs(x - rest(next)) > Math.abs(x - rest(current)) - 0.1 * SIDE_SLOT * w
-      )
-        return;
-      const velocity = el.scrollLeft - last;
-      last = el.scrollLeft;
-      aim(next, -velocity * 2.2);
-    };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(focus);
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    const boot = window.setTimeout(focus, 200);
-    return () => {
-      el.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      window.clearTimeout(boot);
-      if (frame) cancelAnimationFrame(frame);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ar, n, restPad, locked, scroller]);
+    const query = window.matchMedia("(hover: none)");
+    const sync = () => setCoarse(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
 
   const hit = (clientX: number) => {
     const ul = rack.current;
@@ -299,8 +273,11 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
   };
 
   const move = (e: PointerEvent<HTMLUListElement>) => {
-    if (e.pointerType !== "mouse" || locked) return;
+    if (locked) return;
     const s = sim.current;
+    if (e.pointerType !== "mouse" && Math.abs(e.clientX - touch.current.startX) > 8) {
+      touch.current.dragged = true;
+    }
     const now = performance.now();
     const dt = now - s.pointerT;
     if (dt > 0 && dt < 120)
@@ -311,43 +288,96 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
     if (found !== null || s.target === null) aim(found, s.pointerVx * 0.012);
   };
 
+  const press = (e: PointerEvent<HTMLUListElement>) => {
+    touch.current = { dragged: false, startX: e.clientX };
+    if (e.pointerType === "mouse" || locked) return;
+    const s = sim.current;
+    s.pointerT = performance.now();
+    s.pointerX = e.clientX;
+    s.pointerVx = 0;
+    const found = hit(e.clientX);
+    if (found !== null) aim(found);
+  };
+
   return (
     <>
-      <div className="relative mx-4 sm:mx-24 md:mx-20">
+      <div
+        className="relative mx-8 [--pad:0.25] [--slot:0.32] [--w:clamp(64px,calc((100vw-64px)/var(--rack)),160px)] md:mx-20 md:[--pad:0.7] md:[--slot:0.4] md:[--w:clamp(120px,calc((100vw-160px)/var(--rack)),253px)]"
+        style={
+          {
+            "--n": n,
+            "--rack": "calc(var(--n) * var(--slot) + 0.82 - var(--slot) + var(--pad))",
+            "--rod": "max(6px, calc(var(--w) * 0.05))",
+          } as CSSProperties
+        }
+      >
         <div
           className="pointer-events-none absolute inset-x-0 z-0"
-          style={{ top: `calc(var(--w) * 1.2 * ${ROD_Y} - 6px)` }}
+          style={{ top: `calc(var(--w) * 1.2 * ${ROD_Y} - var(--rod) / 2)` }}
           aria-hidden
         >
-          <div className="absolute inset-x-1 top-[10px] h-2.5 rounded-[50%] bg-[#1f2430]/25 blur-[5px]" />
           <div
-            className="relative h-3 rounded-[2px]"
-            style={{
-              backgroundImage:
-                "linear-gradient(to bottom, #565b62 0%, #aeb3ba 14%, #ffffff 32%, #e6e9ed 46%, #a3a9b0 64%, #62686f 86%, #8a9097 100%), linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.45) 9%, rgba(255,255,255,0) 22%, rgba(255,255,255,0.25) 58%, rgba(255,255,255,0) 74%, rgba(255,255,255,0.4) 93%, rgba(255,255,255,0) 100%)",
-              boxShadow: "0 1px 0 rgba(255,255,255,0.5) inset, 0 1px 2px rgba(0,0,0,0.35)",
-            }}
+            className="absolute inset-x-2 rounded-[50%] bg-[#1f2430]/30 blur-[5px]"
+            style={{ height: "calc(var(--rod) * 0.8)", top: "calc(var(--rod) * 0.95)" }}
           />
-          {["-start-6", "-end-6"].map((side) => (
-            <div key={side} className={`absolute -top-[13px] ${side} h-[38px] w-[38px]`}>
+          <div
+            className="relative"
+            style={{
+              backgroundImage: `${CHROME_SMEAR}, ${CHROME_TUBE}`,
+              borderRadius: "calc(var(--rod) * 0.08)",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.4)",
+              height: "var(--rod)",
+            }}
+          >
+            <div
+              className="absolute inset-x-0"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to right, transparent, rgba(255,255,255,0.95) 7%, rgba(255,255,255,0.95) 93%, transparent)",
+                height: "max(1px, calc(var(--rod) * 0.07))",
+                top: "calc(var(--rod) * 0.2)",
+              }}
+            />
+          </div>
+          {(["left", "right"] as const).map((side) => (
+            <div key={side}>
               <div
-                className="absolute inset-0 rounded-full"
+                className="absolute"
                 style={{
-                  backgroundImage:
-                    "radial-gradient(circle at 34% 28%, #ffffff 0%, #d9dde2 38%, #9aa0a7 78%, #767c83 100%)",
-                  boxShadow: "0 4px 7px rgba(20,24,40,0.4), 0 0 0 1px rgba(90,96,104,0.55) inset",
+                  [side]: "calc(var(--rod) * -1.75)",
+                  backgroundImage: "linear-gradient(135deg, #f6f7f9, #c6cace 55%, #9fa4ab)",
+                  borderRadius: "calc(var(--rod) * 0.14)",
+                  boxShadow: "0 2px 4px rgba(20,24,40,0.35), 0 0 0 1px rgba(110,116,124,0.7) inset",
+                  height: "calc(var(--rod) * 3.7)",
+                  top: "calc(var(--rod) * -1.35)",
+                  width: "calc(var(--rod) * 1.55)",
+                }}
+              >
+                {(["top", "bottom"] as const).map((edge) => (
+                  <span
+                    key={edge}
+                    className="absolute left-1/2 -translate-x-1/2 rounded-full"
+                    style={{
+                      [edge]: "calc(var(--rod) * 0.3)",
+                      backgroundImage: "radial-gradient(circle at 35% 30%, #e9ebee, #7d838a)",
+                      height: "calc(var(--rod) * 0.34)",
+                      width: "calc(var(--rod) * 0.34)",
+                    }}
+                  />
+                ))}
+              </div>
+              <div
+                className="absolute"
+                style={{
+                  [side]: "calc(var(--rod) * -0.3)",
+                  backgroundImage: `repeating-linear-gradient(to right, rgba(0,0,0,0.22) 0 1px, transparent 1px calc(var(--rod) * 0.28)), ${CHROME_TUBE}`,
+                  borderRadius: "calc(var(--rod) * 0.12)",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.4)",
+                  height: "calc(var(--rod) * 1.4)",
+                  top: "calc(var(--rod) * -0.2)",
+                  width: "calc(var(--rod) * 1.1)",
                 }}
               />
-              <div
-                className="absolute inset-[9px] rounded-full"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle at 36% 30%, #f4f5f7 0%, #b8bdc3 60%, #8a9097 100%)",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.35)",
-                }}
-              />
-              <span className="absolute start-1/2 top-[3px] size-[3px] -translate-x-1/2 rounded-full bg-[#5d636a]" />
-              <span className="absolute start-1/2 bottom-[3px] size-[3px] -translate-x-1/2 rounded-full bg-[#5d636a]" />
             </div>
           ))}
         </div>
@@ -357,13 +387,18 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
           className="relative z-10 cursor-pointer"
           style={{
             height: "calc(var(--w) * 1.2)",
-            touchAction: "pan-x pan-y",
-            width: `calc(var(--w) * ${rackFactor})`,
+            touchAction: "pan-y",
+            width: "calc(var(--w) * var(--rack))",
           }}
           onClick={(e) => {
+            if (touch.current.dragged) {
+              touch.current.dragged = false;
+              return;
+            }
             const found = hit(e.clientX);
             if (found !== null) onOpen(found);
           }}
+          onPointerDown={press}
           onPointerLeave={(e) => {
             if (e.pointerType === "mouse") aim(null);
           }}
@@ -378,7 +413,9 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
                   anchors.current[i] = el;
                 }}
                 className="absolute top-0 w-0 will-change-transform"
-                style={{ left: `calc(var(--w) * ${restPad + (k + 0.5) * SIDE_SLOT})` }}
+                style={{
+                  left: `calc(var(--w) * ((0.82 - var(--slot) + var(--pad)) / 2 + ${k + 0.5} * var(--slot)))`,
+                }}
               >
                 <div
                   ref={(el) => {
@@ -475,7 +512,9 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
         className={`sticky left-0 mt-14 h-5 w-screen text-center text-xs text-[#3d4670]/70 transition-opacity duration-300 md:static md:mt-16 md:w-auto ${caption === null ? "opacity-0" : "opacity-100"}`}
         aria-hidden
       >
-        {caption === null ? "" : ar ? items[caption].nameAr : items[caption].nameEn}
+        {caption === null
+          ? ""
+          : `${ar ? items[caption].nameAr : items[caption].nameEn}${coarse ? ` · ${ar ? "اضغط للعرض" : "Tap to view"}` : ""}`}
       </p>
     </>
   );
