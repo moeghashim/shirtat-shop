@@ -67,54 +67,8 @@ const KEYWORDS: Record<string, string[]> = {
     "coffee",
     "street",
   ],
-  poetry: [
-    "poem",
-    "poetry",
-    "verse",
-    "شعر",
-    "قصيدة",
-    "بيت",
-    "mutanabbi",
-    "المتنبي",
-    "darwish",
-    "درويش",
-    "qabbani",
-    "قباني",
-    "qifa",
-    "قفا",
-    "imru",
-    "امرؤ",
-    "حب",
-    "love",
-    "الهوى",
-    "القلب",
-    "heart",
-    "ghazal",
-    "غزل",
-    "rumi",
-    "الرومي",
-    "سهر",
-    "ليل",
-    "fly",
-    "أطير",
-    "سأطير",
-    "dream",
-    "حلم",
-    "يوماً",
-    "يوما",
-    "الأدب",
-    "adab",
-    "literature",
-    "wisdom",
-    "حكمة",
-    "proverb",
-    "مثل",
-    "العقل",
-    "الجهل",
-    "الظلم",
-    "injustice",
-    "verse",
-  ],
+  // Poetry is never auto-assigned: only when an admin explicitly tags a design `category:poetry`.
+  poetry: [],
   cultures: [
     "culture",
     "heritage",
@@ -185,7 +139,7 @@ export interface CategoryGuess {
   scores: Record<string, number>;
 }
 
-/** Picks the category whose keywords best match the design's title, description and tags. Poetry is the default. */
+/** Picks the category whose keywords best match the design's title, description and tags. Cultures is the default; Poetry only via an explicit tag. */
 export function suggestCategory(text: string): CategoryGuess {
   const hay = ` ${text.toLowerCase()} `;
   const scores: Record<string, number> = {};
@@ -200,7 +154,7 @@ export function suggestCategory(text: string): CategoryGuess {
   }
   const best = CATEGORIES.map((c) => c.id).reduce(
     (a, b) => (scores[b]! > scores[a]! ? b : a),
-    "poetry",
+    "cultures",
   );
   return { categoryId: best, matched: matchedBy[best]!, scores };
 }
@@ -212,7 +166,7 @@ export interface CategoriesGuess {
 
 /**
  * Multi-category version: every category with at least one keyword hit (strongest first), plus any
- * explicit `category:<id>` tags already present. Falls back to Poetry when nothing matches.
+ * explicit `category:<id>` tags already present. Falls back to Cultures when nothing matches.
  */
 export function suggestCategories(text: string): CategoriesGuess {
   const hay = ` ${text.toLowerCase()} `;
@@ -224,5 +178,5 @@ export function suggestCategories(text: string): CategoriesGuess {
   const explicit = [...hay.matchAll(/category:(\w+)/g)].map((m) => m[1]!).filter((id) => ids.includes(id));
   const hits = ids.filter((id) => scores[id]! > 0).sort((a, b) => scores[b]! - scores[a]!);
   const categoryIds = [...new Set([...explicit, ...hits])];
-  return { categoryIds: categoryIds.length ? categoryIds : ["poetry"], scores };
+  return { categoryIds: categoryIds.length ? categoryIds : ["cultures"], scores };
 }

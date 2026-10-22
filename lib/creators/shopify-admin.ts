@@ -59,7 +59,7 @@ export async function createDraftProduct(
   if (!creator.handle) throw new ShopifyWriteError("Designer has no handle");
   const { createDraftForType } = await import("@/lib/catalog/workflow");
   return createDraftForType({
-    categoryId: design.tags.find((t) => t.startsWith("category:"))?.slice(9) ?? "poetry",
+    categoryId: design.tags.find((t) => t.startsWith("category:"))?.slice(9) ?? "cultures",
     colors: design.colors,
     descriptionAr: design.descriptionAr,
     descriptionEn: design.descriptionEn,
