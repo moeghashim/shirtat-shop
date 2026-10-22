@@ -68,15 +68,12 @@ export function HeroRail() {
         style={{ filter: isOpen ? "blur(10px)" : "none", opacity: isOpen ? 0.45 : 1 }}
         aria-hidden={isOpen}
       >
-        <div ref={scroller} className="w-full min-w-0 overflow-x-auto overscroll-x-contain [scrollbar-width:none]">
-          <div className="relative mx-auto w-max pt-10 pb-2 [--w:128px] sm:pt-14 sm:pb-4 sm:[--w:150px] md:pt-20 md:[--w:230px]">
-            <HeroRack
-              ar={ar}
-              items={bannerItems}
-              locked={isOpen}
-              onOpen={setOpen}
-              scroller={scroller}
-            />
+        <div
+          ref={scroller}
+          className="w-full min-w-0 overflow-x-auto overscroll-x-contain [scrollbar-width:none]"
+        >
+          <div className="relative mx-auto w-max pt-10 pb-2 sm:pt-14 sm:pb-4 md:pt-20">
+            <HeroRack ar={ar} items={bannerItems} locked={isOpen} onOpen={setOpen} />
           </div>
         </div>
       </div>
