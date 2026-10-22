@@ -74,3 +74,7 @@ public/              Logo, icons, banner items, OG images
 ## License
 
 See [LICENSE](LICENSE).
+
+## Contributing
+
+Any website code change must keep Lighthouse at 99 or above in performance, accessibility, best practices and SEO, on mobile and desktop. Run `npx @lhci/cli autorun` (config: `lighthouserc.json`) against your Vercel preview before merging; the `Lighthouse` GitHub Action checks every deployment. Don't weaken the thresholds. See `AGENTS.md`.

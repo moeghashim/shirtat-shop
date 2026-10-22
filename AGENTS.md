@@ -156,3 +156,11 @@ Do not add tests, test files, runners, dependencies, or scripts unless the user 
 Default to none. A comment is one line stating a hidden constraint, an upstream workaround, a non-obvious invariant, or a cross-system quirk, and survives only if an agent would otherwise break behavior. Never restate names, narrate code, reference current work or PRs, add banners, leave a `TODO` without `TODO(handle): reason`, or write multi-line prose. Keep tooling directives and generated or license headers.
 
 <!-- END:vercel-shop-style -->
+
+## Lighthouse rule (mandatory)
+
+Every change to website code must keep Lighthouse scores **>= 99 in all four categories** (performance, accessibility, best-practices, SEO), on **both mobile and desktop**, for `/`, `/ar`, a collection page, `/products/tafakkar-t-shirt` and `/ar/products/tafakkar-t-shirt`.
+
+- Before merging, run against the Vercel preview: `npx @lhci/cli autorun --collect.url=<preview>/ ...` (config in `lighthouserc.json`; add `--collect.settings.preset=desktop` for desktop).
+- CI enforces it: `.github/workflows/lighthouse.yml` runs on every successful Vercel deployment (PR previews and production).
+- Never lower the thresholds in `lighthouserc.json`, remove URLs, or disable the workflow to get a change through. Fix the regression instead.

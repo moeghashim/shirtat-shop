@@ -438,6 +438,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
                         width={800}
                         height={960}
                         priority
+                        sizes="(min-width: 768px) 253px, 160px"
                         className="h-auto w-full drop-shadow-[0_8px_10px_rgba(0,0,0,0.16)]"
                       />
                     </span>
@@ -457,7 +458,8 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
                       alt=""
                       width={800}
                       height={960}
-                      priority
+                      priority={!item.sideImage}
+                      sizes="(min-width: 768px) 253px, 160px"
                       className="h-auto w-full drop-shadow-[0_8px_10px_rgba(0,0,0,0.16)]"
                     />
                   </span>

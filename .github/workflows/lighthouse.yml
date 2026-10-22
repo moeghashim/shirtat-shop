@@ -1,0 +1,55 @@
+name: Lighthouse
+
+# Rule: every website code change must keep Lighthouse >= 99 in performance,
+# accessibility, best-practices and SEO on mobile and desktop. Do not weaken.
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Base URL to audit
+        default: https://shirtat.co
+
+jobs:
+  lighthouse:
+    # Runs for each successful Vercel deployment (previews for PRs, production for main).
+    if: github.event_name == 'workflow_dispatch' || github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [mobile, desktop]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Resolve URLs
+        id: urls
+        run: |
+          BASE="${{ github.event.deployment_status.environment_url || inputs.url || 'https://shirtat.co' }}"
+          BASE="${BASE%/}"
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+      - name: Lighthouse CI (${{ matrix.preset }})
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          # Needed if Vercel deployment protection is on for previews.
+          VERCEL_BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          B="${{ steps.urls.outputs.base }}"
+          EXTRA=""
+          if [ "${{ matrix.preset }}" = "desktop" ]; then EXTRA="--collect.settings.preset=desktop"; fi
+          HDR=""
+          if [ -n "$VERCEL_BYPASS" ]; then HDR="--collect.settings.extraHeaders={\"x-vercel-protection-bypass\":\"$VERCEL_BYPASS\"}"; fi
+          npx -y @lhci/cli@0.14.x autorun \
+            --collect.url="$B/" \
+            --collect.url="$B/ar" \
+            --collect.url="$B/collections/cultures" \
+            --collect.url="$B/products/tafakkar-t-shirt" \
+            --collect.url="$B/ar/products/tafakkar-t-shirt" \
+            $EXTRA $HDR
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-${{ matrix.preset }}
+          path: .lighthouseci/
