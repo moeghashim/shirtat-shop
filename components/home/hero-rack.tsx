@@ -23,6 +23,10 @@ const HOOK_AXIS = HOOK_W / 2;
 const HOOK_ROD_Y = 9.9;
 const HOOK_CURL = 7.5;
 const HOOK_RISE = 7;
+const CHROME_TUBE =
+  "linear-gradient(to bottom, #2a2d31 0%, #6c7178 8%, #f4f6f8 20%, #ffffff 26%, #c4c9cf 36%, #7c828a 46%, #2f3236 54%, #5a5f66 60%, #b9bec5 70%, #eef0f2 80%, #aab0b7 90%, #3b3e43 100%)";
+const CHROME_SMEAR =
+  "linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.28) 6%, rgba(255,255,255,0) 14%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.38) 38%, rgba(0,0,0,0.5) 47%, rgba(0,0,0,0.28) 56%, rgba(0,0,0,0) 64%, rgba(255,255,255,0.22) 82%, rgba(255,255,255,0) 90%, rgba(255,255,255,0.3) 97%, rgba(255,255,255,0) 100%)";
 
 interface Geometry {
   pad: number;
@@ -303,43 +307,77 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
           {
             "--n": n,
             "--rack": "calc(var(--n) * var(--slot) + 0.82 - var(--slot) + var(--pad))",
+            "--rod": "max(6px, calc(var(--w) * 0.05))",
           } as CSSProperties
         }
       >
         <div
           className="pointer-events-none absolute inset-x-0 z-0"
-          style={{ top: `calc(var(--w) * 1.2 * ${ROD_Y} - 6px)` }}
+          style={{ top: `calc(var(--w) * 1.2 * ${ROD_Y} - var(--rod) / 2)` }}
           aria-hidden
         >
-          <div className="absolute inset-x-1 top-[10px] h-2.5 rounded-[50%] bg-[#1f2430]/25 blur-[5px]" />
           <div
-            className="relative h-3 rounded-[2px]"
-            style={{
-              backgroundImage:
-                "linear-gradient(to bottom, #565b62 0%, #aeb3ba 14%, #ffffff 32%, #e6e9ed 46%, #a3a9b0 64%, #62686f 86%, #8a9097 100%), linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.45) 9%, rgba(255,255,255,0) 22%, rgba(255,255,255,0.25) 58%, rgba(255,255,255,0) 74%, rgba(255,255,255,0.4) 93%, rgba(255,255,255,0) 100%)",
-              boxShadow: "0 1px 0 rgba(255,255,255,0.5) inset, 0 1px 2px rgba(0,0,0,0.35)",
-            }}
+            className="absolute inset-x-2 rounded-[50%] bg-[#1f2430]/30 blur-[5px]"
+            style={{ height: "calc(var(--rod) * 0.8)", top: "calc(var(--rod) * 0.95)" }}
           />
-          {["-start-6", "-end-6"].map((side) => (
-            <div key={side} className={`absolute -top-[13px] ${side} h-[38px] w-[38px]`}>
+          <div
+            className="relative"
+            style={{
+              backgroundImage: `${CHROME_SMEAR}, ${CHROME_TUBE}`,
+              borderRadius: "calc(var(--rod) * 0.08)",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.4)",
+              height: "var(--rod)",
+            }}
+          >
+            <div
+              className="absolute inset-x-0"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to right, transparent, rgba(255,255,255,0.95) 7%, rgba(255,255,255,0.95) 93%, transparent)",
+                height: "max(1px, calc(var(--rod) * 0.07))",
+                top: "calc(var(--rod) * 0.2)",
+              }}
+            />
+          </div>
+          {(["left", "right"] as const).map((side) => (
+            <div key={side}>
               <div
-                className="absolute inset-0 rounded-full"
+                className="absolute"
                 style={{
-                  backgroundImage:
-                    "radial-gradient(circle at 34% 28%, #ffffff 0%, #d9dde2 38%, #9aa0a7 78%, #767c83 100%)",
-                  boxShadow: "0 4px 7px rgba(20,24,40,0.4), 0 0 0 1px rgba(90,96,104,0.55) inset",
+                  [side]: "calc(var(--rod) * -1.75)",
+                  backgroundImage: "linear-gradient(135deg, #f6f7f9, #c6cace 55%, #9fa4ab)",
+                  borderRadius: "calc(var(--rod) * 0.14)",
+                  boxShadow: "0 2px 4px rgba(20,24,40,0.35), 0 0 0 1px rgba(110,116,124,0.7) inset",
+                  height: "calc(var(--rod) * 3.7)",
+                  top: "calc(var(--rod) * -1.35)",
+                  width: "calc(var(--rod) * 1.55)",
+                }}
+              >
+                {(["top", "bottom"] as const).map((edge) => (
+                  <span
+                    key={edge}
+                    className="absolute left-1/2 -translate-x-1/2 rounded-full"
+                    style={{
+                      [edge]: "calc(var(--rod) * 0.3)",
+                      backgroundImage: "radial-gradient(circle at 35% 30%, #e9ebee, #7d838a)",
+                      height: "calc(var(--rod) * 0.34)",
+                      width: "calc(var(--rod) * 0.34)",
+                    }}
+                  />
+                ))}
+              </div>
+              <div
+                className="absolute"
+                style={{
+                  [side]: "calc(var(--rod) * -0.3)",
+                  backgroundImage: `repeating-linear-gradient(to right, rgba(0,0,0,0.22) 0 1px, transparent 1px calc(var(--rod) * 0.28)), ${CHROME_TUBE}`,
+                  borderRadius: "calc(var(--rod) * 0.12)",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.4)",
+                  height: "calc(var(--rod) * 1.4)",
+                  top: "calc(var(--rod) * -0.2)",
+                  width: "calc(var(--rod) * 1.1)",
                 }}
               />
-              <div
-                className="absolute inset-[9px] rounded-full"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle at 36% 30%, #f4f5f7 0%, #b8bdc3 60%, #8a9097 100%)",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.35)",
-                }}
-              />
-              <span className="absolute start-1/2 top-[3px] size-[3px] -translate-x-1/2 rounded-full bg-[#5d636a]" />
-              <span className="absolute start-1/2 bottom-[3px] size-[3px] -translate-x-1/2 rounded-full bg-[#5d636a]" />
             </div>
           ))}
         </div>
