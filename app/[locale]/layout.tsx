@@ -89,9 +89,9 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
         </LocaleProvider>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-6DT5S4QRGT"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-gtag" strategy="afterInteractive">
+        <Script id="google-gtag" strategy="lazyOnload">
           {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
