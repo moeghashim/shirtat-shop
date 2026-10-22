@@ -25,7 +25,7 @@ export function MobileMenu({ items }: { items: MenuItem[] }) {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         render={
-          <button type="button" className="xl:hidden -ms-2 p-2" aria-label={t("Menu")}>
+          <button type="button" className="xl:hidden -ms-3 flex size-11 items-center justify-center" aria-label={t("Menu")}>
             <Menu className="size-5" />
           </button>
         }
@@ -55,7 +55,7 @@ function MobileMenuList({ items, onLinkClick }: { items: MenuItem[]; onLinkClick
             <MenuLink
               url={item.url}
               onClick={onLinkClick}
-              className="text-base transition-colors hover:text-muted-foreground"
+              className="block py-2.5 text-lg transition-colors hover:text-muted-foreground"
             >
               {item.title}
             </MenuLink>

@@ -3,7 +3,7 @@
 import { getShopPayButtonUrl } from "@shopify/hydrogen";
 import { cn } from "cn";
 import { Loader2, MinusIcon, PlusIcon } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { useCartDrawer } from "@/components/cart/context";
 import { T } from "@/components/i18n/t";
@@ -42,6 +42,18 @@ export function BuyButtons({
   const { plans, selectedPlan } = getProductPurchaseOptions(selectedVariant, purchaseOption);
   const missingRequiredPlan = Boolean(selectedVariant?.requiresSellingPlan && !selectedPlan);
   const { openOverlay } = useCartDrawer();
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [showSticky, setShowSticky] = useState(false);
+
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => {
+      setShowSticky(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     const handlePageShow = (e: PageTransitionEvent) => {
@@ -99,7 +111,7 @@ export function BuyButtons({
       <input type="hidden" name="sellingPlanId" value={selectedPlan?.sellingPlan.id ?? ""} />
       <input type="hidden" {...register("merchandiseId", {})} />
       <input type="hidden" {...register("quantity", { value: quantity })} />
-      <div className="flex flex-wrap gap-2.5">
+      <div ref={rowRef} className="flex flex-wrap gap-2.5">
         {quantityPicker ? (
           <div
             aria-label={t("Item quantity")}
@@ -180,6 +192,32 @@ export function BuyButtons({
           )}
         </a>
       ) : null}
+      <div
+        aria-hidden={!showSticky}
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-6px_20px_rgba(0,0,0,0.08)] backdrop-blur transition-transform duration-300 md:hidden",
+          showSticky ? "translate-y-0" : "pointer-events-none translate-y-full",
+        )}
+      >
+        <span className="shrink-0 text-base font-semibold tabular-nums">
+          {formatPrice(selectedVariant.price)}
+        </span>
+        <Button
+          type="button"
+          tabIndex={showSticky ? 0 : -1}
+          disabled={isOutOfStock || requiresBundleConfiguration || missingRequiredPlan || pending}
+          className="h-12 flex-1 justify-center"
+          onClick={() => {
+            if (isSelectionUnresolved) {
+              rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+              return;
+            }
+            rowRef.current?.querySelector<HTMLButtonElement>('button[type="submit"], button:not([type="button"])')?.click();
+          }}
+        >
+          {getButtonText()}
+        </Button>
+      </div>
     </form>
   );
 }

@@ -28,29 +28,25 @@ export async function Footer() {
         <Sections className="gap-10">
           {items.length > 0 && <FooterMenu items={items} />}
           <div className="flex flex-col items-center gap-3 text-center sm:items-start sm:text-start">
-            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-semibold sm:justify-start">
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm font-semibold [&>a]:py-2 sm:justify-start">
               <Link href="/collections/all" className="transition-colors hover:opacity-70">
                 {t("Shop")}
               </Link>
               <Link href="/creators" className="transition-colors hover:opacity-70">
                 {t("Sell on Shirtat")}
               </Link>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {t("We ship to every country our print-on-demand partners cover.")}{" "}
-              <Link href="/shipping" className="underline underline-offset-2 hover:text-foreground">
-                {t("Shipping details")}
+              <Link href="/shipping" className="transition-colors hover:opacity-70">
+                {t("Shipping")}
               </Link>
-            </p>
+            </div>
           </div>
           <nav
             aria-label={t("Policies")}
-            className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground sm:justify-start"
+            className="flex flex-wrap justify-center gap-x-5 gap-y-1 text-sm text-muted-foreground sm:justify-start [&>a]:py-2"
           >
             {[
               ["/about", "About"],
               ["/contact", "Contact"],
-              ["/shipping", "Shipping"],
               ["/refunds", "Refunds & returns"],
               ["/terms", "Terms & conditions"],
               ["/privacy", "Privacy"],

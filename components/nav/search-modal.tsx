@@ -52,7 +52,7 @@ function SearchTrigger() {
       render={
         <button
           type="button"
-          className="flex items-center justify-center text-foreground hover:text-foreground/80 transition-colors"
+          className="flex size-11 items-center justify-center text-foreground hover:text-foreground/80 transition-colors"
         >
           <Search className="size-5" />
           <span className="sr-only">

@@ -19,7 +19,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
 
   return (
     <a
-      className={cn("text-sm transition-opacity hover:opacity-70", className)}
+      className={cn("inline-flex min-h-11 min-w-11 items-center justify-center px-1 text-sm transition-opacity hover:opacity-70", className)}
       href={href}
       hrefLang={target}
       lang={target}

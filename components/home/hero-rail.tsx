@@ -58,7 +58,7 @@ export function HeroRail() {
   return (
     <section
       aria-label={ar ? "تصاميم مختارة" : "Featured designs"}
-      className="relative overflow-hidden bg-[#e6e6e2] text-[#3d4670]"
+      className="relative w-full min-w-0 max-w-full overflow-hidden bg-[#e6e6e2] text-[#3d4670]"
       style={{ backgroundImage: PEGBOARD, backgroundSize: "34px 34px" }}
     >
       <h1 className="sr-only">{ar ? "خط عربي، تلبسه" : "Arabic calligraphy, made to wear"}</h1>
@@ -68,8 +68,8 @@ export function HeroRail() {
         style={{ filter: isOpen ? "blur(10px)" : "none", opacity: isOpen ? 0.45 : 1 }}
         aria-hidden={isOpen}
       >
-        <div ref={scroller} className="overflow-x-auto [scrollbar-width:none]">
-          <div className="relative mx-auto w-max pt-14 pb-4 [--w:150px] md:pt-20 md:[--w:230px]">
+        <div ref={scroller} className="w-full min-w-0 overflow-x-auto overscroll-x-contain [scrollbar-width:none]">
+          <div className="relative mx-auto w-max pt-10 pb-2 [--w:84px] min-[400px]:[--w:92px] sm:pt-14 sm:pb-4 sm:[--w:150px] md:pt-20 md:[--w:230px]">
             <HeroRack
               ar={ar}
               items={bannerItems}
@@ -82,7 +82,7 @@ export function HeroRail() {
       </div>
 
       <div
-        className="flex justify-center pt-4 pb-10 transition-opacity duration-500 motion-reduce:transition-none"
+        className="flex justify-center pt-3 pb-8 sm:pt-4 sm:pb-10 transition-opacity duration-500 motion-reduce:transition-none"
         style={{ ...fade, pointerEvents: isOpen ? "none" : "auto" }}
       >
         <Link href={localizeHref(locale, "/collections/all")} className={PILL}>

@@ -24,7 +24,7 @@ export function OptionPicker({
         {option.values.map((value) => {
           const classes = cn(
             "grid px-5 text-center text-sm rounded-lg transition-all border",
-            compact ? "py-1" : "py-2",
+            compact ? "py-1" : "min-h-11 min-w-12 content-center py-2",
             !value.available
               ? "font-normal border-dashed border-border text-muted-foreground/50 line-through cursor-not-allowed"
               : value.selected

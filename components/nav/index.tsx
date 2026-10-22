@@ -41,7 +41,7 @@ export async function Nav() {
         <Link className="flex items-center shrink-0 justify-self-center" href="/">
           <Image
             alt="Shirtat"
-            className="h-14 w-auto md:h-19 dark:invert"
+            className="h-12 w-auto sm:h-14 md:h-19 dark:invert"
             height={461}
             priority
             src="/shirtat-logo.svg"
@@ -50,7 +50,7 @@ export async function Nav() {
           />
         </Link>
 
-        <div className="flex items-center gap-3 md:gap-5 justify-self-end">
+        <div className="flex items-center gap-0 sm:gap-2 md:gap-5 justify-self-end -me-2.5 md:me-0">
           <LanguageSwitcher />
           {shopConfig.search.isEnabled && (
             <PredictiveSearchProvider
