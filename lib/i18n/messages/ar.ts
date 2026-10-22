@@ -124,5 +124,6 @@ export const ar = {
   "Terms & conditions": "الشروط والأحكام",
   Privacy: "الخصوصية",
   "Designer terms": "شروط المصممين",
+  Footer: "تذييل الصفحة",
   "Read the full designer terms": "اقرأ شروط المصممين كاملة",
 } as const;

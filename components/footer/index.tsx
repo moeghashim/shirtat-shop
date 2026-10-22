@@ -11,11 +11,11 @@ import { getLocale, getT } from "@/lib/i18n/server";
 import type { MenuItem } from "@/lib/menu/types";
 import { getShopPolicies } from "@/lib/policies/server";
 
+import { socialLinks } from "@/lib/config/social";
+
 import { SocialLinks } from "./social-links";
-import type { SocialLink } from "./social-links";
 
 export async function Footer() {
-  const socialLinks: SocialLink[] = [];
   const items: MenuItem[] = [];
   const locale = await getLocale();
   const t = await getT();
@@ -27,36 +27,29 @@ export async function Footer() {
       <Container className={cn("pt-20 pb-10", shopConfig.agent.isEnabled && "pb-22")}>
         <Sections className="gap-10">
           {items.length > 0 && <FooterMenu items={items} />}
-          <div className="flex flex-col items-center gap-3 text-center sm:items-start sm:text-start">
-            <div className="flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm font-semibold [&>a]:py-2 sm:justify-start">
-              <Link href="/collections/all" className="transition-colors hover:opacity-70">
-                {t("Shop")}
-              </Link>
-              <Link href="/creators" className="transition-colors hover:opacity-70">
-                {t("Sell on Shirtat")}
-              </Link>
-              <Link href="/shipping" className="transition-colors hover:opacity-70">
-                {t("Shipping")}
-              </Link>
-            </div>
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+            <nav
+              aria-label={t("Footer")}
+              className="flex flex-wrap justify-center gap-x-5 text-sm font-semibold sm:justify-start [&>a]:inline-flex [&>a]:min-h-11 [&>a]:items-center"
+            >
+              {[
+                ["/collections/all", "Shop"],
+                ["/creators", "Sell on Shirtat"],
+                ["/shipping", "Shipping"],
+                ["/about", "About"],
+                ["/contact", "Contact"],
+                ["/refunds", "Refunds & returns"],
+                ["/terms", "Terms & conditions"],
+                ["/privacy", "Privacy"],
+                ["/creators/terms", "Designer terms"],
+              ].map(([href, label]) => (
+                <Link key={href} href={href!} className="transition-opacity hover:opacity-70">
+                  {t(label!)}
+                </Link>
+              ))}
+            </nav>
+            {socialLinks.length > 0 && <SocialLinks links={socialLinks} />}
           </div>
-          <nav
-            aria-label={t("Policies")}
-            className="flex flex-wrap justify-center gap-x-5 gap-y-1 text-sm text-muted-foreground sm:justify-start [&>a]:py-2"
-          >
-            {[
-              ["/about", "About"],
-              ["/contact", "Contact"],
-              ["/refunds", "Refunds & returns"],
-              ["/terms", "Terms & conditions"],
-              ["/privacy", "Privacy"],
-              ["/creators/terms", "Designer terms"],
-            ].map(([href, label]) => (
-              <Link key={href} href={href!} className="transition-colors hover:text-foreground">
-                {t(label!)}
-              </Link>
-            ))}
-          </nav>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 sm:justify-start">
               <p className="text-sm text-muted-foreground leading-5">
@@ -124,7 +117,6 @@ export async function Footer() {
                 </Link>
               ))}
             </div>
-            {socialLinks.length > 0 && <SocialLinks links={socialLinks} />}
           </div>
         </Sections>
       </Container>

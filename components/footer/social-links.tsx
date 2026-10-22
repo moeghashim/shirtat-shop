@@ -26,14 +26,14 @@ const PLATFORM_LABELS: Record<string, string> = {
 
 export function SocialLinks({ links }: { links: readonly SocialLink[] }) {
   return (
-    <div className="flex items-center gap-5 leading-5">
+    <div className="flex items-center gap-1 leading-5">
       {links.map((link) => (
         <a
           key={link.platform}
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
           aria-label={PLATFORM_LABELS[link.platform] ?? link.platform}
         >
           <SocialIcon platform={link.platform} />

@@ -1,4 +1,5 @@
 import { shopConfig } from "@/lib/config";
+import { socialLinks } from "@/lib/config/social";
 
 function buildSiteSchema() {
   return [
@@ -8,6 +9,7 @@ function buildSiteSchema() {
       name: shopConfig.site.name,
       url: shopConfig.site.url,
       logo: `${shopConfig.site.url}/icons/icon-512.png`,
+      sameAs: socialLinks.map((link) => link.url),
     },
     {
       "@context": "https://schema.org",
