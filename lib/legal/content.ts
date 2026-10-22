@@ -416,6 +416,12 @@ export const LEGAL: Record<
       intro: "Every item is printed to order, then shipped to you with tracking.",
       sections: [
         {
+          heading: "Where we ship",
+          body: [
+            "We ship to every country covered by our print-on-demand partners. If we can deliver to your address, you'll see shipping options at checkout.",
+          ],
+        },
+        {
           heading: "Production time",
           body: [
             "Orders are usually printed and dispatched within 2–5 business days. Busy periods may take a little longer.",
@@ -424,7 +430,7 @@ export const LEGAL: Record<
         {
           heading: "Delivery times",
           body: [
-            "After dispatch, delivery usually takes 3–7 business days in the United States and the United Kingdom, and 7–20 business days for other international destinations. These are estimates, not guarantees.",
+            "After dispatch, delivery usually takes 3–7 business days for domestic routes and 7–20 business days for international destinations, depending on where your order is printed and where it's going. These are estimates, not guarantees.",
           ],
         },
         {
@@ -460,6 +466,12 @@ export const LEGAL: Record<
       intro: "تُطبع كل قطعة حسب الطلب، ثم تُشحن إليك مع رقم تتبع.",
       sections: [
         {
+          heading: "وجهات الشحن",
+          body: [
+            "نشحن إلى كل الدول التي يغطيها شركاؤنا في الطباعة حسب الطلب. إذا كان التوصيل إلى عنوانك متاحًا، ستظهر لك خيارات الشحن عند الدفع.",
+          ],
+        },
+        {
           heading: "مدة الإنتاج",
           body: [
             "تُطبع الطلبات وتُشحن عادةً خلال 2 إلى 5 أيام عمل، وقد تطول المدة قليلًا في أوقات الذروة.",
@@ -468,7 +480,7 @@ export const LEGAL: Record<
         {
           heading: "مدة التوصيل",
           body: [
-            "بعد الشحن، يستغرق التوصيل عادةً من 3 إلى 7 أيام عمل داخل الولايات المتحدة والمملكة المتحدة، ومن 7 إلى 20 يوم عمل للوجهات الدولية الأخرى. وهذه تقديرات وليست ضمانات.",
+            "بعد الشحن، يستغرق التوصيل عادةً من 3 إلى 7 أيام عمل للشحن المحلي، ومن 7 إلى 20 يوم عمل للوجهات الدولية، حسب مكان طباعة الطلب ووجهته. وهذه تقديرات وليست ضمانات.",
           ],
         },
         { heading: "تكلفة الشحن", body: ["تُحتسب تكلفة الشحن عند الدفع حسب عنوانك وطلبك."] },

@@ -19,7 +19,6 @@ import { SearchModal } from "./search-modal";
 export async function Nav() {
   const t = await getT();
   const items: MenuItem[] = [
-    { id: "default-nav-shop", items: [], title: t("Shop"), url: "/collections/all" },
     ...CATEGORIES.map((c) => ({
       id: `nav-category-${c.id}`,
       items: [],

@@ -27,6 +27,22 @@ export async function Footer() {
       <Container className={cn("pt-20 pb-10", shopConfig.agent.isEnabled && "pb-22")}>
         <Sections className="gap-10">
           {items.length > 0 && <FooterMenu items={items} />}
+          <div className="flex flex-col items-center gap-3 text-center sm:items-start sm:text-start">
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-semibold sm:justify-start">
+              <Link href="/collections/all" className="transition-colors hover:opacity-70">
+                {t("Shop")}
+              </Link>
+              <Link href="/creators" className="transition-colors hover:opacity-70">
+                {t("Sell on Shirtat")}
+              </Link>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {t("We ship to every country our print-on-demand partners cover.")}{" "}
+              <Link href="/shipping" className="underline underline-offset-2 hover:text-foreground">
+                {t("Shipping details")}
+              </Link>
+            </p>
+          </div>
           <nav
             aria-label={t("Policies")}
             className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground sm:justify-start"
@@ -55,12 +71,6 @@ export async function Footer() {
                 className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {t("The making of Shirtat")}
-              </Link>
-              <Link
-                href="/creators"
-                className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {t("Sell on Shirtat")}
               </Link>
               <Link
                 href="/roadmap"

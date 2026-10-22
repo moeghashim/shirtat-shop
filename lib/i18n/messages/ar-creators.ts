@@ -262,4 +262,7 @@ export const arCreators = {
   "Have Arabic designs people would love to wear? Upload them, we print and ship, and you earn on every sale.":
     "لديك تصاميم عربية يحب الناس ارتداءها؟ ارفعها، ونحن نطبع ونشحن، وتربح من كل عملية بيع.",
   "New arrivals": "وصل حديثًا",
+  "We ship to every country our print-on-demand partners cover.":
+    "نشحن إلى كل الدول التي يغطيها شركاؤنا في الطباعة حسب الطلب.",
+  "Shipping details": "تفاصيل الشحن",
 } as const;
