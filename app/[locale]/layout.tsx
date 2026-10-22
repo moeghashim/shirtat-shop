@@ -21,7 +21,7 @@ import { shopConfig } from "@/lib/config";
 import { locales, localeDir, translate } from "@/lib/i18n";
 import { LocaleProvider } from "@/lib/i18n/client";
 import { getLocale } from "@/lib/i18n/server";
-import { buildAlternates } from "@/lib/seo";
+import { buildAlternates, ogLocale, siteOgImages } from "@/lib/seo";
 
 export const ensureStatic = "prefetch";
 
@@ -118,7 +118,20 @@ export const generateMetadata = async (): Promise<Metadata> => {
     manifest: "/site.webmanifest",
     metadataBase: new URL(shopConfig.site.url),
     openGraph: {
-      images: [{ url: "/og-default.png", width: 1200, height: 628 }],
+      type: "website",
+      siteName: shopConfig.site.name,
+      title: shopConfig.site.name,
+      description: translate(locale, shopConfig.site.description),
+      url: locale === "ar" ? "/ar" : "/",
+      locale: ogLocale(locale),
+      alternateLocale: [ogLocale(locale === "ar" ? "en" : "ar")],
+      images: siteOgImages(locale),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: shopConfig.site.name,
+      description: translate(locale, shopConfig.site.description),
+      images: siteOgImages(locale).map((image) => image.url),
     },
     title: {
       default: shopConfig.site.name,

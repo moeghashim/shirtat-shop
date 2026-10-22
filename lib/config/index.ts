@@ -66,7 +66,7 @@ export const shopConfig = {
     },
   },
   site: {
-    description: "Shirtat sells t-shirts and clothing featuring Arabic calligraphy.",
+    description: "Arabic calligraphy apparel: T-shirts, hoodies, sweatshirts, totes and prints with Arabic poetry, humor and culture.",
     name: "Shirtat",
     url: defaultUrl,
   },

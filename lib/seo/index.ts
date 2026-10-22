@@ -69,8 +69,10 @@ export function buildOpenGraph({
   description,
   url,
   type,
-  images = ["/og-default.png"],
+  images,
+  locale,
 }: {
+  locale?: Locale;
   title: string;
   description?: string;
   url: string;
@@ -92,6 +94,24 @@ export function buildOpenGraph({
     description,
     url,
     siteName: shopConfig.site.name,
-    images,
+    locale: ogLocale(locale ?? defaultLocale),
+    images: images ?? siteOgImages(locale ?? defaultLocale),
   };
+}
+
+/** Shirtat-branded share image (1200x630) for the given locale. */
+export function siteOgImages(locale: Locale = defaultLocale) {
+  const lang = locale === "ar" ? "ar" : "en";
+  return [
+    {
+      url: `/og/${lang}.png?v=2`,
+      width: 1200,
+      height: 630,
+      alt: lang === "ar" ? "شِرتات: ملابس بالخط العربي" : "Shirtat: Arabic calligraphy apparel",
+    },
+  ];
+}
+
+export function ogLocale(locale: Locale = defaultLocale): string {
+  return locale === "ar" ? "ar_AR" : "en_US";
 }

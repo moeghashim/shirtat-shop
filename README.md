@@ -1,88 +1,35 @@
-<p align="center">
-  <img src="public/shirtat-logo.svg" alt="Shirtat" width="220" />
-</p>
+![Shirtat: Arabic calligraphy apparel](public/og/en.png)
 
 # Shirtat
 
-Shirtat (شيرتات, “t-shirts” in Arabic) is an apparel brand that puts Arabic calligraphy on clothing: Thuluth, Kufic, Diwani and words chosen for their meaning. This repository is the storefront for **[shirtat.co](https://shirtat.co)**.
+Arabic calligraphy and culture apparel: T-shirts, hoodies, sweatshirts, totes and prints.
+Live at **[shirtat.co](https://shirtat.co)** in English and Arabic ([shirtat.co/ar](https://shirtat.co/ar), right-to-left).
 
-## Live links
-
-| Page | URL |
-| --- | --- |
-| Store (English) | https://shirtat.co |
-| Store (Arabic) | https://shirtat.co/ar |
-| The making of Shirtat and the daily log | https://shirtat.co/making-of |
-| Roadmap (Kanban board) | https://shirtat.co/roadmap |
-| Sales totals | https://shirtat.co/sales |
-
-## Stack
-
-- **Next.js 16** (App Router, Cache Components), built from the [Vercel Shop](https://vercel.shop) template
-- **Shopify Storefront API** for products, collections, cart and checkout. The store is `shirtatco.myshopify.com`.
-- **Shopify Admin API** (read-only `read_orders`) for the public sales totals
-- **Vercel** hosting. Every push to `main` deploys to production automatically.
+Shirtat is part of [10claws Inc](https://10claws.com/) and is fully managed by Grok Bot.
+Contact: **shirtat@10claws.com**
 
 ## Features
 
-- **English and Arabic.** English is at `/` and Arabic is at `/ar`.
-  - Arabic pages are right-to-left (`dir="rtl"`) and use the El Messiri font through `next/font`.
-  - The header has an EN / العربية switcher, and pages carry hreflang alternates.
-  - Product data asks Shopify for Arabic content and falls back to English.
-- **Public sales totals.** `/sales` shows order totals for the last 30 and 60 days. The server gets its own short-lived Admin API token with Shopify's client-credentials grant, so no long-lived admin token is stored.
-- **Daily log.** `/making-of` tells how the store is being built, with a newest-first log kept in `lib/log/index.ts` (English only).
-- **Kanban roadmap.** `/roadmap` shows Done, In progress and Next columns, with data in `lib/roadmap`.
-- **Brand assets.** The stacked logo (Thuluth calligraphy over SHIRTAT) and a full favicon and app-icon set with a web manifest.
+- **Categories**: Poetry, Humor, Cultures and Occasions, built as Shopify smart collections that match `category:<handle>` tags.
+  New products are tagged automatically from English and Arabic keywords in the title, description and tags.
+  A product can sit in several categories, and tagging only adds, never removes, so manual tags are kept.
+- **Designers program**: [Sell on Shirtat](https://shirtat.co/creators) (`/sell` redirects there) lets designers sign up with a logo or profile picture and submit designs.
+  Designers are listed at `/designers` with their products at `/designers/<handle>`.
+  Commissions are paid in USD, with a $25 minimum payout.
+- **Print on demand**: each product carries POD metafields (POD company, POD product ID, design file link, production instructions).
+  On Shopify `orders/paid` (`/api/webhooks/shopify`), line items are grouped by POD company. Printify items are placed automatically when `PRINTIFY_ENABLED=1`; anything else emails ops with the design file and instructions, and the outcome is noted on the order.
+  Prices are POD cost × 3, rounded up to .99, in USD.
+- **Shopping assistant**: an AI chat panel that searches the catalogue, shows product cards, adds to cart and answers shipping/returns/policy questions in the shopper's language.
+- **SEO and sharing**: per-locale Open Graph/Twitter images (`public/og/en.png`, `public/og/ar.png`), product pages share the product image.
+- Shipping to every country our print-on-demand partners cover.
 
-## Creator program
+## Tech stack
 
-Creators submit Arabic calligraphy designs and earn a share of sales: **15%** of the net item price (after discounts, excluding tax and shipping), or **20%** for creators with 50+ units in a calendar quarter. Earnings are held 30 days, paid monthly by the 15th via PayPal or Wise, with a $25 minimum.
-
-| Page | Purpose |
-| --- | --- |
-| `/creators` (and `/ar/creators`) | Program overview, rates, terms and FAQ |
-| `/creators/apply` | Application form, which also creates the creator account (email and password) |
-| `/creators/signin` | Sign in for creators and the admin |
-| `/creators/dashboard` | Approved creators: units, net sales, earnings, pending vs payable, tier progress and per-product breakdown; design uploads with status |
-| `/creators/details?t=…` | Creator details form (legal name, display name, payout, tax country/address, socials, bio, avatar), opened from a single-use link that expires after 14 days |
-| `/admin/creators` | Admin only (the admin account): approve or reject, assign handle, set tier override, see creator details and email status, resend the details link, publish or reject designs, delete |
-
-- **Linking products to a creator:** in Shopify admin, add the product tag `creator:<handle>` (for example `creator:layla`). The handle is the one assigned in `/admin/creators`.
-- **Data:** creator accounts, applications and uploads are stored in a private Vercel Blob store (`shirtat-creators`). Passwords are hashed with scrypt, and sessions are signed, httpOnly cookies.
-- **Admin sign-in:** the admin email cannot be registered publicly; it signs in with the password whose hash is in `ADMIN_PASSWORD_HASH`.
-- **Emails (approval and password reset):** sent directly through Cloudflare Email Service (`CLOUDFLARE_EMAIL_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `EMAIL_FROM`), or Resend (`RESEND_API_KEY`) if configured instead. If sending fails or nothing is configured, the email is queued in Blob (`email-queue/`) and exposed at `GET /api/creators/email-queue` (bearer `EMAIL_QUEUE_TOKEN`; `POST {id, from}` marks one sent). The admin page shows sent/queued status and the details link as a fallback.
-- **Design uploads:** creators pick a product type and colours (config in `lib/creators/product-types.ts`: type, Shopify standard category, sizes, colours, USD placeholder price), then upload a PNG or SVG. The upload creates a `DRAFT` Shopify product tagged `creator:<handle>` with Size and Color variants; matching smart collections (`t-shirts`, `hoodies`, `sweatshirts`, `tote-bags`, `posters-prints`) pick it up by product type. "Publish to store" sets it `ACTIVE` and publishes it to the Shirtat Vercel headless channel; "Reject" archives it. Shopify fetches the image through a signed, expiring URL (`/api/creators/asset`). This needs the Admin app to have `write_products`, `read_products` and `write_publications` scopes; until then uploads are saved and the admin can create the draft later.
-- **Admin performance:** `/admin/creators` opens with program totals and a sortable per-creator table (status, tier/rate, units and net sales for 60 days and quarter-to-date, refunds, owed/pending/payable, designs submitted/live/rejected, last sign-in and upload).
-- **Passwords:** `/creators/forgot` queues a bilingual reset email (single-use link, 1 hour) in the same email queue, without revealing whether the account exists; `/creators/reset` sets the new password. Signed-in users can change their password on the dashboard. Admin reset links go to the admin's own email, and the new admin hash is stored in Blob (`admin/password.json`), overriding `ADMIN_PASSWORD_HASH`.
-- **Limitations:** sales come from the last 60 days of orders only (Shopify `read_orders` without `read_all_orders`), so quarterly tier progress counts orders within that window. Refunds (Shopify refund line items) are deducted from net sales and earnings. There are no new-application notifications; the admin page shows the pending count.
-
-## Info and legal pages
-
-`/about`, `/contact`, `/shipping`, `/refunds`, `/terms`, `/privacy` and `/creators/terms` (EN at `/…`, AR at `/ar/…`), with content in `lib/legal/content.ts` (10claws Inc, Houston, Texas law, last updated 21 Oct 2026). The text is a print-on-demand template and should be reviewed by a lawyer.
-
-## Currency
-
-The Shopify store currency is USD, so storefront, cart and checkout prices come natively from Shopify. `/sales` and creator figures still convert any historical non-USD (GBP) orders to USD at each order date's rate.
-
-## Project structure
-
-```
-app/
-  [locale]/            Storefront routes; en is served at / and ar at /ar
-    page.tsx           Homepage (hero + Inspiration section)
-    making-of/         Story and daily log
-    roadmap/  sales/   English-only pages
-    products/  collections/  search/  cart/ ...
-  api/  md/  sitemap/  Non-localized handlers
-components/            UI (nav, footer, home, cart, product, collections, ...)
-lib/
-  i18n/                Locales, Arabic messages, locale helpers
-  log/                 Daily log entries
-  roadmap/  sales/     Roadmap data and Admin API sales totals
-  shopify/             Storefront API operations
-proxy.ts               Shopify route handling and locale routing (/ to /en internally, /ar)
-public/                Logo, favicons, site.webmanifest, credit logos
-```
+- Next.js (App Router) on Vercel
+- Shopify Storefront API (catalogue, cart, checkout) and Admin API (products, metafields, orders)
+- Printify for fulfilment
+- Cloudflare Email Routing and Email sending, with Resend as an option
+- Google Analytics (gtag)
 
 ## Local development
 
@@ -90,33 +37,40 @@ Requires Node 24 and pnpm.
 
 ```bash
 pnpm install
-cp .env.example .env.local   # then fill in the values
-pnpm dev
+cp .env.example .env.local   # if present; otherwise create it with the variables below
+pnpm dev                     # http://localhost:3000
+pnpm build
 ```
 
-Environment variables (names only; never commit values):
+## Environment variables
 
-| Variable | Purpose |
-| --- | --- |
-| `NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN` | Shopify store domain |
-| `NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN` | Storefront API token (Headless channel) |
-| `NEXT_PUBLIC_SHOPIFY_SHOP_ID` | Shopify shop ID |
-| `SHOPIFY_ADMIN_CLIENT_ID` | Admin app client ID for sales totals (server only) |
-| `SHOPIFY_ADMIN_CLIENT_SECRET` | Admin app client secret for sales totals (server only) |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Blob store for creator data and uploads (set by the Blob integration) |
-| `AUTH_SECRET` | Secret that signs creator session cookies (32+ characters) |
-| `ADMIN_PASSWORD_HASH` | scrypt hash of the admin password |
+Names only. Never commit values.
 
-Other optional variables are listed in `.env.example`.
+| Area | Variables |
+|---|---|
+| Site | `NEXT_PUBLIC_SITE_URL` |
+| Shopify Storefront | `NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN`, `NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `NEXT_PUBLIC_SHOPIFY_STOREFRONT_ID`, `NEXT_PUBLIC_SHOPIFY_SHOP_ID`, `SHOPIFY_API_VERSION`, `SHOPIFY_HEADLESS_PUBLICATION_ID` |
+| Shopify Admin | `SHOPIFY_ADMIN_CLIENT_ID`, `SHOPIFY_ADMIN_CLIENT_SECRET`, `SHOPIFY_WEBHOOK_SECRET` |
+| Customer accounts | `SHOPIFY_CUSTOMER_ACCOUNT_API_CLIENT_ID`, `SHOPIFY_CUSTOMER_ACCOUNT_API_CLIENT_SECRET`, `CUSTOMER_ACCOUNT_SESSION_SECRET` |
+| Admin / auth | `ADMIN_PASSWORD_HASH`, `AUTH_SECRET` |
+| Printify | `PRINTIFY_API_TOKEN`, `PRINTIFY_SHOP_ID`, `PRINTIFY_ENABLED` |
+| Email | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_EMAIL_API_TOKEN`, `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_QUEUE_TOKEN`, `OPS_EMAIL` |
 
-## Deployment
+## Project structure
 
-- The Vercel project is `shirtat-shop`. Pushing to `main` builds and deploys to production.
-- Secrets live only in Vercel environment variables (encrypted). Never commit them.
-- The domain `shirtat.co` is pointed at Vercel through DNS records at name.com, and `www` redirects to the apex.
+```
+app/[locale]/        Pages for en and ar (home, products, collections, designers, creators, making-of, roadmap, sales, policies)
+app/api/             Assistant agent, designers/creators APIs, Shopify webhooks
+agent/               Shopping assistant
+components/          UI components
+lib/catalog/         Printify catalogue, pricing and fulfilment
+lib/creators/        Designers program (terms, actions)
+lib/i18n/            Locales and Arabic messages
+lib/seo/             Metadata, Open Graph images
+lib/shopify/         Storefront and Admin clients
+public/              Logo, icons, banner items, OG images
+```
 
-## Credits
+## License
 
-This project is part of [10claws](https://10claws.com/) and is fully managed by Grok Bot.
-
-Built on the [Vercel Shop](https://vercel.shop) template (MIT, see [LICENSE](LICENSE)).
+See [LICENSE](LICENSE).

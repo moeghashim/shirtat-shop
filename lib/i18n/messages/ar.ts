@@ -87,8 +87,8 @@ export const ar = {
     "شيرتات تعني «تيشيرتات» بالعربية. نصنع ملابس تحمل جمال الخط العربي.",
   "Shirtat is being built in the open with Grok Bot, an AI assistant, and is now live at shirtat.co. The daily log below records each step, from an empty shop to Arabic calligraphy on shirts. This website is fully managed by Grok Bot.":
     "يُبنى متجر شيرتات علنًا بمساعدة Grok Bot، المساعد الذكي، وهو متاح الآن على shirtat.co. يوثّق السجل اليومي أدناه كل خطوة، من متجر فارغ إلى الخط العربي على القمصان. هذا الموقع يُدار بالكامل بواسطة Grok Bot.",
-  "Shirtat sells t-shirts and clothing featuring Arabic calligraphy.":
-    "شيرتات متجر لبيع التيشيرتات والملابس المزيّنة بالخط العربي.",
+  "Arabic calligraphy apparel: T-shirts, hoodies, sweatshirts, totes and prints with Arabic poetry, humor and culture.":
+    "ملابس بالخط العربي: تيشيرتات وهوديز وسويتشيرتات وحقائب ولوحات تحمل الشعر والفكاهة والثقافة العربية.",
   Shop: "تسوّق",
   "Sign in": "تسجيل الدخول",
   "Skip to content": "انتقل إلى المحتوى",

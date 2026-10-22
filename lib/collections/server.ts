@@ -14,7 +14,7 @@ import type { CommerceLocale } from "@/lib/config/types";
 import { commerceLocale, type Locale, translate } from "@/lib/i18n";
 import { getLocale } from "@/lib/i18n/server";
 import { tagProducts } from "@/lib/product/server";
-import { buildAlternates, buildOpenGraph } from "@/lib/seo";
+import { buildAlternates, buildOpenGraph, siteOgImages } from "@/lib/seo";
 import {
   fetchCollection,
   fetchCollections,
@@ -223,12 +223,12 @@ function browseMetadata(
     title,
     description,
     alternates: buildAlternates({ locale, pathname: url }),
-    openGraph: buildOpenGraph({ title, description, url, type: "website" }),
+    openGraph: buildOpenGraph({ locale, title, description, url, type: "website" }),
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ["/og-default.png"],
+      images: siteOgImages(locale),
     },
   };
 }

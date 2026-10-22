@@ -1,3 +1,4 @@
+import { getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -31,7 +32,7 @@ export async function generateMetadata({
   return {
     alternates: buildAlternates({ pathname }),
     description: blog.seo.description,
-    openGraph: buildOpenGraph({
+    openGraph: buildOpenGraph({ locale: await getLocale(),
       description: blog.seo.description,
       title: blog.seo.title,
       type: "website",

@@ -13,7 +13,7 @@ import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
 import { shopConfig } from "@/lib/config";
 import { getLocale, getT } from "@/lib/i18n/server";
-import { buildAlternates, buildOpenGraph } from "@/lib/seo";
+import { buildAlternates, buildOpenGraph, siteOgImages } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -21,15 +21,21 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = t("Home");
   const description = t(shopConfig.site.description);
   return {
-    title: `${title} | ${shopConfig.site.name}`,
+    title: { absolute: shopConfig.site.name },
     description,
     alternates: buildAlternates({ locale, pathname: "/" }),
-    openGraph: buildOpenGraph({
-      title,
+    openGraph: buildOpenGraph({ locale: await getLocale(),
+      title: shopConfig.site.name,
       description,
       url: "/",
       type: "website",
     }),
+    twitter: {
+      card: "summary_large_image",
+      title: shopConfig.site.name,
+      description,
+      images: siteOgImages(locale).map((image) => image.url),
+    },
   };
 }
 

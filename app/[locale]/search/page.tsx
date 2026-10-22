@@ -16,7 +16,7 @@ import type { BrowseResults, BrowseState } from "@/lib/collections/types";
 import { formatCount } from "@/lib/content";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { fetchSearchResults } from "@/lib/search/server";
-import { buildAlternates, buildOpenGraph } from "@/lib/seo";
+import { buildAlternates, buildOpenGraph, siteOgImages } from "@/lib/seo";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -45,7 +45,7 @@ export async function generateMetadata({
       pathname: "/search",
       searchParams: resolvedSearchParams,
     }),
-    openGraph: buildOpenGraph({
+    openGraph: buildOpenGraph({ locale: await getLocale(),
       title,
       description,
       url: "/search",
@@ -55,7 +55,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: ["/og-default.png"],
+      images: siteOgImages(await getLocale()),
     },
     robots: {
       index: false,

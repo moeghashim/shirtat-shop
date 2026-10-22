@@ -8,7 +8,7 @@ import { Sections } from "@/components/ui/sections";
 import { getCollectionsListing } from "@/lib/collections/server";
 import { commerceLocale } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
-import { buildAlternates, buildOpenGraph } from "@/lib/seo";
+import { buildAlternates, buildOpenGraph, siteOgImages } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
       locale,
       pathname: "/collections",
     }),
-    openGraph: buildOpenGraph({
+    openGraph: buildOpenGraph({ locale: await getLocale(),
       title,
       description,
       url: "/collections",
@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title,
       description,
-      images: ["/og-default.png"],
+      images: siteOgImages(await getLocale()),
     },
   };
 }

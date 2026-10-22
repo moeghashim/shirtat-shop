@@ -19,7 +19,7 @@ import { defaultSelectedOptions, parseSelectedOptions, toSelectedOptionList } fr
 import { getProduct, getSearchIndexProducts } from "@/lib/product/server";
 import { type SelectedOptions } from "@/lib/product/types";
 import type { ProductVariant } from "@/lib/product/types";
-import { buildAlternates, buildOpenGraph } from "@/lib/seo";
+import { buildAlternates, buildOpenGraph, siteOgImages } from "@/lib/seo";
 import { fetchProductVariant } from "@/lib/shopify/operations/products/server";
 import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
 import { SourceClipsSection } from "@/components/product-detail/source-clips";
@@ -41,7 +41,7 @@ async function buildProductMetadata(handle: string, canonicalPath: string): Prom
           alt: product.featuredImage.altText,
         },
       ]
-    : ["/og-default.png"];
+    : siteOgImages(await getLocale());
   return {
     title: product.seo.title,
     description: product.seo.description,
@@ -49,7 +49,7 @@ async function buildProductMetadata(handle: string, canonicalPath: string): Prom
       locale,
       pathname: canonicalPath,
     }),
-    openGraph: buildOpenGraph({
+    openGraph: buildOpenGraph({ locale: await getLocale(),
       title: product.seo.title,
       description: product.seo.description,
       url: canonicalPath,
