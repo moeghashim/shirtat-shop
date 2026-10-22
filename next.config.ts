@@ -14,8 +14,10 @@ const nextConfig: NextConfig = {
     return [{ source: "/log", destination: "/making-of", permanent: true }];
   },
   images: {
-    deviceSizes: [1320, 1920],
-    imageSizes: [],
+    // Small widths so phones don't download 1320px+ images (Lighthouse LCP).
+    deviceSizes: [640, 750, 828, 1080, 1320, 1920],
+    imageSizes: [128, 256, 384],
+    formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 31536000,
     remotePatterns: [
       {

@@ -71,7 +71,7 @@ function MediaImage({
       height={item.image.height}
       width={item.image.width}
       className={cn("absolute inset-0 size-full object-cover", className)}
-      sizes="100vw"
+      sizes="(min-width: 1024px) 50vw, 100vw"
       {...(priority ? LCP_IMAGE_PROPS : LAZY_IMAGE_PROPS)}
       draggable={false}
     />
@@ -183,20 +183,24 @@ function Carousel({
       </div>
 
       {/* Dot indicators – reserve space but hide when there's only one image */}
-      <div className={cn("flex justify-center gap-2", itemCount <= 1 && "invisible")}>
+      <div className={cn("flex justify-center", itemCount <= 1 && "invisible")}>
         {Array.from({ length: itemCount }, (_, idx) => (
           <button
             type="button"
             key={idx}
             onClick={() => scrollToImage(idx)}
-            className={cn(
-              "h-1.5 rounded-full transition-all",
-              idx === selectedIndex
-                ? "bg-foreground w-8"
-                : "bg-muted-foreground/30 w-1.5 hover:bg-muted-foreground/50",
-            )}
+            className="group flex h-6 min-w-6 items-center justify-center px-1"
             aria-label={`Go to image ${idx + 1}`}
-          />
+          >
+            <span
+              className={cn(
+                "h-1.5 rounded-full transition-all",
+                idx === selectedIndex
+                  ? "bg-foreground w-8"
+                  : "bg-muted-foreground/30 w-1.5 group-hover:bg-muted-foreground/50",
+              )}
+            />
+          </button>
         ))}
       </div>
     </div>
@@ -294,7 +298,7 @@ export function ColorImageCarouselItems({ images, title }: { images: ImageType[]
         height={image.height}
         width={image.width}
         className="absolute inset-0 size-full object-cover"
-        sizes="100vw"
+        sizes="(min-width: 1024px) 50vw, 100vw"
         {...(idx === 0 ? LCP_IMAGE_PROPS : LAZY_IMAGE_PROPS)}
         draggable={false}
       />

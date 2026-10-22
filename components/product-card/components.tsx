@@ -65,7 +65,7 @@ function ProductCardImage({
           {...(width && height ? { height, width } : { fill: true })}
           className="absolute inset-0 size-full object-cover"
           loading={loading}
-          sizes="100vw"
+          sizes="(min-width: 1024px) 25vw, 50vw"
         />
       ) : (
         <ImagePlaceholder className="size-full" />

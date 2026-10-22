@@ -43,6 +43,7 @@ const messiri = El_Messiri({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 export const generateStaticParams = async () => locales.map((locale) => ({ locale }));
@@ -55,6 +56,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
   return (
     <html lang={locale} dir={localeDir(locale)}>
       <head>
+        <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="" />
         {shopConfig.botid.isEnabled && <BotIdClient protect={botIdProtectedRoutes} />}
         <CartStandardActionsScript />
       </head>

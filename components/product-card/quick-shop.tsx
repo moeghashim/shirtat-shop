@@ -318,7 +318,7 @@ function QuickShopLayout({ children, image, title }: QuickShopLayoutProps) {
     <div className="grid min-h-0 sm:aspect-[2/1] sm:grid-cols-2 sm:grid-rows-[auto_minmax(0,1fr)]">
       <div className="relative aspect-square overflow-hidden sm:row-span-2">
         {image ? (
-          <Image alt={title} className="object-cover" fill sizes="100vw" src={image} />
+          <Image alt={title} className="object-cover" fill sizes="(min-width: 768px) 400px, 90vw" src={image} />
         ) : (
           <ImagePlaceholder className="size-full" />
         )}
