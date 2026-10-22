@@ -22,6 +22,8 @@ import type { ProductVariant } from "@/lib/product/types";
 import { buildAlternates, buildOpenGraph } from "@/lib/seo";
 import { fetchProductVariant } from "@/lib/shopify/operations/products/server";
 import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
+import { SourceClipsSection } from "@/components/product-detail/source-clips";
+import { getProductSource } from "@/lib/product/source-clips";
 
 async function buildProductMetadata(handle: string, canonicalPath: string): Promise<Metadata> {
   const locale = await getLocale();
@@ -161,9 +163,27 @@ async function ProductPageContent({
         selectedOptionsPromise={selectedOptionsPromise}
         variantPromise={variantPromise}
       />
+      <ProductSourceClips handle={handle} isArabic={String(locale).toLowerCase().startsWith("ar")} />
       {shopConfig.pdp.relatedProducts.isEnabled ? (
         <RelatedProductsSection handle={handle} limit={4} />
       ) : null}
     </>
+  );
+}
+
+async function ProductSourceClips({ handle, isArabic }: { handle: string; isArabic: boolean }) {
+  const source = await getProductSource(handle);
+  if (!source) return null;
+  return (
+    <SourceClipsSection
+      clips={source.clips}
+      dir={isArabic ? "rtl" : "ltr"}
+      heading={isArabic ? "من أين جاءت" : "Where it\u2019s from"}
+      line={
+        (isArabic ? source.noteAr : source.noteEn) ??
+        (isArabic ? "العبارة مأخوذة من هذه المقاطع." : "The phrase comes from these clips.")
+      }
+      playLabel={isArabic ? "تشغيل المقطع" : "Play clip"}
+    />
   );
 }
