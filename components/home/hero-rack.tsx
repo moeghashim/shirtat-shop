@@ -20,7 +20,8 @@ const ROD_Y = 0.036;
 const HOOK_W = 46;
 const HOOK_H = 26;
 const HOOK_AXIS = HOOK_W / 2;
-const HOOK_ROD_Y = 9.9;
+const HOOK_ROD_Y = 9.8;
+const HOOK_ROD_TOP = HOOK_ROD_Y - 5.75;
 const HOOK_CURL = 7.5;
 const HOOK_RISE = 7;
 const CHROME_TUBE =
@@ -49,15 +50,23 @@ const ramp = (v: number, lo: number, hi: number) => {
 };
 const slotOrder = (ar: boolean, n: number, k: number) => (ar ? n - 1 - k : k);
 
-function hookPath(openness: number) {
+function hookPaths(openness: number) {
   const curl = HOOK_CURL * Math.sin((clamp(Math.abs(openness), 0, 90) * Math.PI) / 180);
   const x = HOOK_AXIS;
-  return `M${x} ${HOOK_H} L${x} 21 C${x} 17 ${x + curl} 17 ${x + curl} 13 L${x + curl} ${HOOK_ROD_Y} A${curl.toFixed(2)} ${HOOK_RISE} 0 0 0 ${(x - curl).toFixed(2)} ${HOOK_ROD_Y} L${(x - curl).toFixed(2)} ${HOOK_ROD_Y + 3.4}`;
+  const top = HOOK_ROD_Y - HOOK_RISE;
+  const c = curl.toFixed(2);
+  const left = (x - curl).toFixed(2);
+  return {
+    back: `M${x} ${top} A${c} ${HOOK_RISE} 0 0 0 ${left} ${HOOK_ROD_Y} L${left} ${HOOK_ROD_Y + 3.4}`,
+    front: `M${x} ${HOOK_H} L${x} 21 C${x} 17 ${x + curl} 17 ${x + curl} 13 L${x + curl} ${HOOK_ROD_Y} A${c} ${HOOK_RISE} 0 0 0 ${x} ${top}`,
+  };
 }
 
 export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
   const n = items.length;
-  const [caption, setCaption] = useState<number | null>(null);
+  const initial = Math.floor((n - 1) / 2);
+  const [caption, setCaption] = useState<number>(initial);
+  const [warm, setWarm] = useState(false);
   const [coarse, setCoarse] = useState(false);
   const touch = useRef({ dragged: false, startX: 0 });
   const rack = useRef<HTMLUListElement>(null);
@@ -73,9 +82,9 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
     centers: [] as number[],
     frame: 0,
     last: 0,
-    openness: new Array<number>(n).fill(0),
+    openness: Array.from({ length: n }, (_, i): number => (i === initial ? 1 : 0)),
     opennessV: new Array<number>(n).fill(0),
-    phi: new Array<number>(n).fill(REST_TURN),
+    phi: Array.from({ length: n }, (_, i): number => (i === initial ? 0 : REST_TURN)),
     phiV: new Array<number>(n).fill(0),
     pointerT: 0,
     pointerVx: 0,
@@ -83,7 +92,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
     prevDelta: new Array<number>(n).fill(0),
     prevVx: new Array<number>(n).fill(0),
     slots: [] as number[],
-    target: null as number | null,
+    target: initial,
   });
   const dir = ar ? -1 : 1;
 
@@ -99,7 +108,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
       const slot = read("--slot", 0.4);
       const pad = read("--pad", 0.7);
       const rackFactor = n * slot + (FRONT_SLOT - slot) + pad;
-      return { pad, rack: rackFactor, slot, w: ul ? ul.offsetWidth / rackFactor : 253 };
+      return { pad, rack: rackFactor, slot, w: ul ? ul.offsetWidth / rackFactor : 300 };
     };
     let cached = measure();
     const width = () => cached;
@@ -157,7 +166,6 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
         const front = fronts.current[i];
         const hook = hooks.current[i];
         if (anchor) {
-          anchor.style.transform = `translate3d(${delta(i).toFixed(2)}px,0,0)`;
           const z = Math.round(o * 10);
           if (z !== lastZ[i]) {
             lastZ[i] = z;
@@ -166,20 +174,28 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
         }
         if (swing) {
           const lag = clamp(-s.phiV[i] * dir * 0.03, -6, 6);
-          swing.style.transform = `rotate(${s.alpha[i].toFixed(3)}deg) skewX(${lag.toFixed(3)}deg)`;
+          swing.style.transform = `translate(${delta(i).toFixed(2)}px, 0) rotate(${s.alpha[i].toFixed(3)}deg) skewX(${lag.toFixed(3)}deg)`;
         }
         if (front) {
           front.style.transform = `perspective(2400px) rotateY(${(dir * phi).toFixed(2)}deg) scale(${(1 + 0.02 * o).toFixed(4)})`;
-          if (side) front.style.opacity = String(1 - ramp(turn, 0.5 * REST_TURN, 1.05 * REST_TURN));
+          if (side) {
+            const opacity = 1 - ramp(turn, 0.5 * REST_TURN, 1.05 * REST_TURN);
+            front.style.opacity = String(opacity);
+            front.style.visibility = opacity < 0.01 ? "hidden" : "visible";
+          }
         }
         if (side) {
-          side.style.opacity = String(ramp(turn, 0.05 * REST_TURN, 0.85 * REST_TURN));
+          const opacity = ramp(turn, 0.05 * REST_TURN, 0.85 * REST_TURN);
+          side.style.opacity = String(opacity);
+          side.style.visibility = opacity < 0.01 ? "hidden" : "visible";
           side.style.transform = `perspective(2400px) rotateY(${(dir * phi).toFixed(2)}deg)`;
         }
         if (hook && !(Math.abs(phi - lastHook[i]) < 0.3)) {
           lastHook[i] = phi;
-          const d = hookPath(phi);
-          for (const path of hook.children) path.setAttribute("d", d);
+          const d = hookPaths(phi);
+          for (const path of hook.querySelectorAll("path")) {
+            path.setAttribute("d", path.dataset.part === "back" ? d.back : d.front);
+          }
         }
       }
     };
@@ -198,6 +214,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
         layout(g);
         render(g);
         s.frame = 0;
+        rack.current?.removeAttribute("data-moving");
         return;
       }
       const steps = Math.max(1, Math.ceil(dt / STEP));
@@ -216,11 +233,16 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
         )
           moving = true;
       }
-      s.frame = moving ? requestAnimationFrame(tick) : 0;
+      if (moving) s.frame = requestAnimationFrame(tick);
+      else {
+        s.frame = 0;
+        rack.current?.removeAttribute("data-moving");
+      }
     };
 
     const wake = () => {
       if (!s.frame) {
+        rack.current?.setAttribute("data-moving", "true");
         s.last = performance.now();
         s.frame = requestAnimationFrame(tick);
       }
@@ -231,7 +253,8 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
       cached = measure();
       wake();
     };
-    layout(width());
+    const start = layout(width());
+    for (let i = 0; i < n; i++) s.prevDelta[i] = start(i);
     render(width());
     window.addEventListener("resize", onResize);
     return () => {
@@ -241,7 +264,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
     };
   }, [ar, n, dir]);
 
-  const aim = (target: number | null, push = 0) => {
+  const aim = (target: number, push = 0) => {
     const s = sim.current;
     if (s.target === target) return;
     const previous = s.target;
@@ -252,6 +275,19 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
     setCaption(target);
     wakeRef.current();
   };
+
+  useEffect(() => {
+    const idle = window as Window & {
+      cancelIdleCallback?: (handle: number) => void;
+      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+    };
+    if (idle.requestIdleCallback) {
+      const handle = idle.requestIdleCallback(() => setWarm(true), { timeout: 2500 });
+      return () => idle.cancelIdleCallback?.(handle);
+    }
+    const handle = window.setTimeout(() => setWarm(true), 1500);
+    return () => window.clearTimeout(handle);
+  }, []);
 
   useEffect(() => {
     const query = window.matchMedia("(hover: none)");
@@ -278,21 +314,22 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
     if (e.pointerType !== "mouse" && Math.abs(e.clientX - touch.current.startX) > 8) {
       touch.current.dragged = true;
     }
-    const now = performance.now();
+    const now = e.timeStamp;
     const dt = now - s.pointerT;
     if (dt > 0 && dt < 120)
       s.pointerVx = 0.6 * s.pointerVx + 0.4 * ((e.clientX - s.pointerX) / dt) * 1000;
     s.pointerT = now;
     s.pointerX = e.clientX;
     const found = hit(e.clientX);
-    if (found !== null || s.target === null) aim(found, s.pointerVx * 0.012);
+    if (found !== null) aim(found, s.pointerVx * 0.012);
   };
 
   const press = (e: PointerEvent<HTMLUListElement>) => {
     touch.current = { dragged: false, startX: e.clientX };
     if (e.pointerType === "mouse" || locked) return;
+    setWarm(true);
     const s = sim.current;
-    s.pointerT = performance.now();
+    s.pointerT = e.timeStamp;
     s.pointerX = e.clientX;
     s.pointerVx = 0;
     const found = hit(e.clientX);
@@ -302,12 +339,12 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
   return (
     <>
       <div
-        className="relative mx-8 [--pad:0.25] [--slot:0.32] [--w:clamp(64px,calc((100vw-64px)/var(--rack)),160px)] md:mx-20 md:[--pad:0.7] md:[--slot:0.4] md:[--w:clamp(120px,calc((100vw-160px)/var(--rack)),253px)]"
+        className="relative mx-8 [--pad:0.25] [--slot:0.32] [--w:clamp(64px,calc((100vw-64px)/var(--rack)),160px)] md:mx-20 md:[--pad:0.7] md:[--slot:0.4] md:[--w:clamp(120px,calc((100vw-160px)/var(--rack)),300px)]"
         style={
           {
             "--n": n,
             "--rack": "calc(var(--n) * var(--slot) + 0.82 - var(--slot) + var(--pad))",
-            "--rod": "max(6px, calc(var(--w) * 0.05))",
+            "--rod": "calc(var(--w) * 0.05)",
           } as CSSProperties
         }
       >
@@ -384,7 +421,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
 
         <ul
           ref={rack}
-          className="relative z-10 cursor-pointer"
+          className="group/rack relative z-10 cursor-pointer"
           style={{
             height: "calc(var(--w) * 1.2)",
             touchAction: "pan-y",
@@ -399,70 +436,98 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
             if (found !== null) onOpen(found);
           }}
           onPointerDown={press}
+          onPointerEnter={() => setWarm(true)}
           onPointerLeave={(e) => {
-            if (e.pointerType === "mouse") aim(null);
+            if (e.pointerType === "mouse") aim(initial);
           }}
           onPointerMove={move}
         >
           {items.map((item, i) => {
             const k = slotOrder(ar, n, i);
+            const isDefault = i === initial;
+            const sign = k < slotOrder(ar, n, initial) ? -1 : 1;
+            const sideNeeded = !isDefault;
+            const frontNeeded = isDefault || !item.sideImage;
+            const rest = `perspective(2400px) rotateY(${dir * REST_TURN}deg)`;
+            const hookD = hookPaths(isDefault ? 0 : REST_TURN);
+            const clip = `hook-back-${item.slug}`;
+            const label = ar ? item.nameAr : item.nameEn;
             return (
               <li
                 key={item.slug}
                 ref={(el) => {
                   anchors.current[i] = el;
                 }}
-                className="absolute top-0 w-0 will-change-transform"
+                className="absolute top-0 w-0"
                 style={{
                   left: `calc(var(--w) * ((0.82 - var(--slot) + var(--pad)) / 2 + ${k + 0.5} * var(--slot)))`,
+                  zIndex: isDefault ? 10 : 0,
                 }}
               >
                 <div
                   ref={(el) => {
                     swings.current[i] = el;
                   }}
-                  className="absolute top-0 left-0 w-(--w) -translate-x-1/2 will-change-transform"
-                  style={{ transformOrigin: `50% ${ROD_Y * 100}%` }}
+                  className="absolute top-0 left-0 w-(--w) -translate-x-1/2 group-data-[moving=true]/rack:will-change-transform"
+                  style={{
+                    transform: isDefault
+                      ? undefined
+                      : `translate(calc(var(--w) * ${sign * 0.5} * (0.82 - var(--slot))), 0)`,
+                    transformOrigin: `50% ${ROD_Y * 100}%`,
+                  }}
                 >
-                  {item.sideImage ? (
+                  {item.sideImage && (sideNeeded || warm) ? (
                     <span
                       ref={(el) => {
                         sides.current[i] = el;
                       }}
-                      className="absolute inset-x-0 top-0 block origin-top will-change-[transform,opacity]"
-                      style={{ transform: `perspective(2400px) rotateY(${dir * REST_TURN}deg)` }}
+                      className="absolute inset-x-0 top-0 block origin-top group-data-[moving=true]/rack:will-change-[transform,opacity]"
+                      style={{
+                        opacity: isDefault ? 0 : 1,
+                        transform: rest,
+                        visibility: isDefault ? "hidden" : "visible",
+                      }}
                     >
                       <Image
                         src={item.sideImage}
                         alt=""
                         width={800}
                         height={960}
-                        priority
+                        priority={sideNeeded}
+                        loading={sideNeeded ? undefined : "eager"}
+                        fetchPriority={sideNeeded ? undefined : "low"}
                         sizes="(min-width: 768px) 253px, 160px"
-                        className="h-auto w-full drop-shadow-[0_8px_10px_rgba(0,0,0,0.16)]"
+                        className="h-auto w-full"
                       />
                     </span>
                   ) : null}
-                  <span
-                    ref={(el) => {
-                      fronts.current[i] = el;
-                    }}
-                    className="block origin-top will-change-[transform,opacity]"
-                    style={{
-                      opacity: item.sideImage ? 0 : 1,
-                      transform: `perspective(2400px) rotateY(${dir * REST_TURN}deg)`,
-                    }}
-                  >
-                    <Image
-                      src={item.image}
-                      alt=""
-                      width={800}
-                      height={960}
-                      priority={!item.sideImage}
-                      sizes="(min-width: 768px) 253px, 160px"
-                      className="h-auto w-full drop-shadow-[0_8px_10px_rgba(0,0,0,0.16)]"
-                    />
-                  </span>
+                  {frontNeeded || warm ? (
+                    <span
+                      ref={(el) => {
+                        fronts.current[i] = el;
+                      }}
+                      className="block origin-top group-data-[moving=true]/rack:will-change-[transform,opacity]"
+                      style={{
+                        opacity: isDefault || !item.sideImage ? 1 : 0,
+                        transform: isDefault
+                          ? "perspective(2400px) rotateY(0deg) scale(1.02)"
+                          : rest,
+                        visibility: isDefault || !item.sideImage ? "visible" : "hidden",
+                      }}
+                    >
+                      <Image
+                        src={item.image}
+                        alt=""
+                        width={800}
+                        height={960}
+                        priority={frontNeeded}
+                        loading={frontNeeded ? undefined : "eager"}
+                        fetchPriority={frontNeeded ? undefined : "low"}
+                        sizes="(min-width: 768px) 253px, 160px"
+                        className="h-auto w-full"
+                      />
+                    </span>
+                  ) : null}
                   <svg
                     viewBox={`0 0 ${HOOK_W} ${HOOK_H}`}
                     className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 overflow-visible drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
@@ -472,13 +537,22 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
                     strokeLinejoin="round"
                     aria-hidden
                   >
+                    <defs>
+                      <clipPath id={clip}>
+                        <rect x="-30" y="-30" width={HOOK_W + 60} height={HOOK_ROD_TOP + 30} />
+                      </clipPath>
+                    </defs>
                     <g
                       ref={(el) => {
                         hooks.current[i] = el;
                       }}
                     >
-                      <path d={hookPath(REST_TURN)} stroke="#555b62" strokeWidth="2.1" />
-                      <path d={hookPath(REST_TURN)} stroke="#eef1f4" strokeWidth="0.8" />
+                      <g clipPath={`url(#${clip})`}>
+                        <path d={hookD.back} data-part="back" stroke="#555b62" strokeWidth="2.1" />
+                        <path d={hookD.back} data-part="back" stroke="#eef1f4" strokeWidth="0.8" />
+                      </g>
+                      <path d={hookD.front} data-part="front" stroke="#555b62" strokeWidth="2.1" />
+                      <path d={hookD.front} data-part="front" stroke="#eef1f4" strokeWidth="0.8" />
                     </g>
                     <rect
                       x="20.7"
@@ -494,7 +568,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
                 </div>
                 <button
                   type="button"
-                  onBlur={() => aim(null)}
+                  onBlur={() => aim(initial)}
                   onClick={(e) => {
                     e.stopPropagation();
                     onOpen(i);
@@ -503,7 +577,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
                   tabIndex={locked ? -1 : 0}
                   className="pointer-events-none absolute top-0 left-0 w-(--w) -translate-x-1/2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-[#3d4670]/60"
                   style={{ height: "calc(var(--w) * 1.2)" }}
-                  aria-label={ar ? item.nameAr : item.nameEn}
+                  aria-label={label}
                 />
               </li>
             );
@@ -511,12 +585,10 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
         </ul>
       </div>
       <p
-        className={`sticky left-0 mt-14 h-5 w-screen text-center text-xs text-[#3d4670]/70 transition-opacity duration-300 md:static md:mt-16 md:w-auto ${caption === null ? "opacity-0" : "opacity-100"}`}
+        className="sticky left-0 mt-14 h-5 w-screen text-center text-xs text-[#3d4670]/70 md:static md:mt-16 md:w-auto"
         aria-hidden
       >
-        {caption === null
-          ? ""
-          : `${ar ? items[caption].nameAr : items[caption].nameEn}${coarse ? ` · ${ar ? "اضغط للعرض" : "Tap to view"}` : ""}`}
+        {`${ar ? items[caption].nameAr : items[caption].nameEn}${coarse ? ` · ${ar ? "اضغط للعرض" : "Tap to view"}` : ""}`}
       </p>
     </>
   );
