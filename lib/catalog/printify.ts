@@ -121,9 +121,17 @@ export async function deletePrintifyProduct(id: string): Promise<void> {
   await pf("DELETE", `/shops/${process.env.PRINTIFY_SHOP_ID}/products/${id}.json`);
 }
 
-interface ShopifyOrderPayload {
+export interface ShopifyOrderPayload {
+  admin_graphql_api_id?: string;
   id: number;
-  line_items: { quantity: number; sku: string | null }[];
+  line_items: {
+    id?: number;
+    product_id?: number | null;
+    quantity: number;
+    sku: string | null;
+    title?: string;
+    variant_title?: string | null;
+  }[];
   name: string;
   email?: string;
   shipping_address?: {
@@ -139,12 +147,12 @@ interface ShopifyOrderPayload {
   };
 }
 
-/** Creates a Printify order for the Printify-made lines of a paid Shopify order (held until sent to production). */
-export async function submitPrintifyOrder(order: ShopifyOrderPayload): Promise<string | null> {
+/** Creates a Printify order for the given lines of a paid Shopify order (held until sent to production). */
+export async function submitPrintifyOrder(
+  order: ShopifyOrderPayload,
+  lines: { productId: string; quantity: number; variantId: number }[],
+): Promise<string | null> {
   if (!printifyEnabled()) return null;
-  const lines = order.line_items
-    .map((l) => ({ l, p: parseSku(l.sku) }))
-    .filter((x): x is { l: ShopifyOrderPayload["line_items"][number]; p: NonNullable<ReturnType<typeof parseSku>> } => Boolean(x.p));
   if (!lines.length || !order.shipping_address) return null;
   const a = order.shipping_address;
   const res = await pf<{ id: string }>("POST", `/shops/${process.env.PRINTIFY_SHOP_ID}/orders.json`, {
@@ -162,10 +170,10 @@ export async function submitPrintifyOrder(order: ShopifyOrderPayload): Promise<s
     },
     external_id: `shopify-${order.id}`,
     label: order.name,
-    line_items: lines.map(({ l, p }) => ({
-      product_id: p.productId,
+    line_items: lines.map((l) => ({
+      product_id: l.productId,
       quantity: l.quantity,
-      variant_id: p.variantId,
+      variant_id: l.variantId,
     })),
     send_shipping_notification: false,
     shipping_method: 1,

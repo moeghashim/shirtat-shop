@@ -155,3 +155,25 @@ export async function queueResetEmail({
     to,
   });
 }
+
+/** Internal operations email (e.g. an order that needs manual POD placement). Never queued. */
+export async function sendOpsEmail({
+  html,
+  subject,
+  text,
+  to = process.env.OPS_EMAIL || "moe@10claws.com",
+}: {
+  html: string;
+  subject: string;
+  text: string;
+  to?: string;
+}): Promise<EmailResult> {
+  const email = { creatorId: "ops", html, subject, text, to };
+  const errors: string[] = [];
+  for (const send of [sendViaCloudflare, sendViaResend]) {
+    const err = await send(email);
+    if (!err) return { status: "sent" };
+    if (err !== "not_configured") errors.push(err);
+  }
+  return errors.length ? { error: errors.join("; "), status: "failed" } : { status: "not_configured" };
+}

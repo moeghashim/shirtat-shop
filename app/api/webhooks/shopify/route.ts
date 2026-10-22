@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import { revalidateTag } from "next/cache";
 
 import { autoCategorizeProduct } from "@/lib/catalog/auto-categorize";
-import { submitPrintifyOrder } from "@/lib/catalog/printify";
+import { routeOrderToPods } from "@/lib/catalog/pod";
 import { getNumericShopifyId } from "@/lib/shopify/id/server";
 
 // Webhooks registered by the site's own Admin app are signed with that app's client secret.
@@ -37,11 +37,11 @@ export async function POST(request: Request) {
 
   if (topic === "orders/paid") {
     try {
-      const printifyOrderId = await submitPrintifyOrder(JSON.parse(body));
-      return Response.json({ printifyOrderId });
+      const pod = await routeOrderToPods(JSON.parse(body));
+      return Response.json({ pod });
     } catch (e) {
-      console.error("Printify order failed", e);
-      return Response.json({ error: "Printify order failed" }, { status: 500 });
+      console.error("POD routing failed", e);
+      return Response.json({ error: "POD routing failed" }, { status: 500 });
     }
   }
 

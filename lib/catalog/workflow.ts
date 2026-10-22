@@ -6,6 +6,7 @@ import type { AppliedProduct, StoredFile } from "@/lib/creators/types";
 
 import { suggestCategories } from "./categorize";
 import { priceForType, variantPrice } from "./pricing";
+import { podMetafields } from "./pod";
 import { createPrintifyProduct, deletePrintifyProduct, skuFor } from "./printify";
 
 /** The Shirtat studio's own designs use this designer handle. */
@@ -97,16 +98,24 @@ export async function createDraftForType(
           category: type.category,
           descriptionHtml,
           files: media,
-          metafields: printify
-            ? [
-                {
-                  key: "printify_product_id",
-                  namespace: "shirtat",
-                  type: "single_line_text_field",
-                  value: printify.id,
-                },
-              ]
-            : [],
+          metafields: [
+            ...(printify
+              ? [
+                  {
+                    key: "printify_product_id",
+                    namespace: "shirtat",
+                    type: "single_line_text_field",
+                    value: printify.id,
+                  },
+                ]
+              : []),
+            ...podMetafields({
+              designFileUrl: await designFileUrl(file),
+              pod: ["Printify"],
+              podProductId: printify?.id,
+              typeId: type.id,
+            }),
+          ],
           productOptions: [
             { name: "Size", values: type.sizes.map((name) => ({ name })) },
             { name: "Color", values: colors.map((name) => ({ name })) },
@@ -157,6 +166,29 @@ export async function createDraftForType(
     if (printify) await deletePrintifyProduct(printify.id).catch(() => undefined);
     throw e;
   }
+}
+
+/** Copies the print-ready file into Shopify Files and returns its CDN URL (falls back to a long-lived signed URL). */
+async function designFileUrl(file: StoredFile): Promise<string> {
+  const fallback = signedAssetUrl(file.pathname, 5 * 365 * 24 * 3600);
+  try {
+    const created = await adminGraphql<{ fileCreate: { files: { id: string }[] } }>(
+      `mutation F($files: [FileCreateInput!]!) { fileCreate(files: $files) { files { id } userErrors { message } } }`,
+      { files: [{ alt: `Design file: ${file.name}`, contentType: "IMAGE", originalSource: signedAssetUrl(file.pathname, 3600) }] },
+    );
+    const id = created.fileCreate.files[0]?.id;
+    for (let i = 0; id && i < 8; i++) {
+      await new Promise((r) => setTimeout(r, 1000));
+      const d = await adminGraphql<{ node: { image?: { url: string } | null } | null }>(
+        `query N($id: ID!) { node(id: $id) { ... on MediaImage { image { url } } } }`,
+        { id },
+      );
+      if (d.node?.image?.url) return d.node.image.url.split("?")[0]!;
+    }
+  } catch (e) {
+    console.error("[POD] design file upload failed", e);
+  }
+  return fallback;
 }
 
 /** Workflow B: apply one design to several product types/colours; one Shopify draft per type. */
