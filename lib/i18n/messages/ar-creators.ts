@@ -245,4 +245,21 @@ export const arCreators = {
   "Your password has been changed.": "تم تغيير كلمة المرور.",
   "Your password has been changed. You can sign in now.":
     "تم تغيير كلمة المرور، ويمكنك تسجيل الدخول الآن.",
+  "Categories": "الفئات",
+  "Shop by category": "تسوّق حسب الفئة",
+  "Shop by product": "تسوّق حسب المنتج",
+  "T-shirts": "تيشيرتات",
+  "Hoodies": "هوديز",
+  "Sweatshirts": "سويتشيرتات",
+  "Tote bags": "حقائب قماشية",
+  "Prints": "لوحات مطبوعة",
+  "Design spotlight": "تصميم مميّز",
+  "Shop the design": "تسوّق التصميم",
+  "Every piece is made by a designer. Browse by the people behind the calligraphy, starting with the Shirtat studio.":
+    "وراء كل قطعة مصمّم. تصفّح التصاميم حسب أصحابها، بدءًا من استوديو شِرتات.",
+  "Meet the designers": "تعرّف على المصممين",
+  "Start selling": "ابدأ البيع",
+  "Have Arabic designs people would love to wear? Upload them, we print and ship, and you earn on every sale.":
+    "لديك تصاميم عربية يحب الناس ارتداءها؟ ارفعها، ونحن نطبع ونشحن، وتربح من كل عملية بيع.",
+  "New arrivals": "وصل حديثًا",
 } as const;

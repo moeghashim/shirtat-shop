@@ -95,6 +95,25 @@ const KEYWORDS: Record<string, string[]> = {
     "الرومي",
     "سهر",
     "ليل",
+    "fly",
+    "أطير",
+    "سأطير",
+    "dream",
+    "حلم",
+    "يوماً",
+    "يوما",
+    "الأدب",
+    "adab",
+    "literature",
+    "wisdom",
+    "حكمة",
+    "proverb",
+    "مثل",
+    "العقل",
+    "الجهل",
+    "الظلم",
+    "injustice",
+    "verse",
   ],
   cultures: [
     "culture",
@@ -140,6 +159,23 @@ const KEYWORDS: Record<string, string[]> = {
     "كوفية",
     "tatreez",
     "تطريز",
+    "reflect",
+    "تفكّر",
+    "تفكر",
+    "tafakkar",
+    "wisdom",
+    "حكمة",
+    "proverb",
+    "saying",
+    "الأدب",
+    "adab",
+    "manners",
+    "العقل",
+    "mind",
+    "الجهل",
+    "الظلم",
+    "injustice",
+    "calligraphy",
   ],
 };
 
@@ -167,4 +203,26 @@ export function suggestCategory(text: string): CategoryGuess {
     "poetry",
   );
   return { categoryId: best, matched: matchedBy[best]!, scores };
+}
+
+export interface CategoriesGuess {
+  categoryIds: string[];
+  scores: Record<string, number>;
+}
+
+/**
+ * Multi-category version: every category with at least one keyword hit (strongest first), plus any
+ * explicit `category:<id>` tags already present. Falls back to Poetry when nothing matches.
+ */
+export function suggestCategories(text: string): CategoriesGuess {
+  const hay = ` ${text.toLowerCase()} `;
+  const ids = CATEGORIES.map((c) => c.id);
+  const scores: Record<string, number> = {};
+  for (const id of ids) {
+    scores[id] = new Set((KEYWORDS[id] ?? []).filter((k) => hay.includes(k.toLowerCase()))).size;
+  }
+  const explicit = [...hay.matchAll(/category:(\w+)/g)].map((m) => m[1]!).filter((id) => ids.includes(id));
+  const hits = ids.filter((id) => scores[id]! > 0).sort((a, b) => scores[b]! - scores[a]!);
+  const categoryIds = [...new Set([...explicit, ...hits])];
+  return { categoryIds: categoryIds.length ? categoryIds : ["poetry"], scores };
 }

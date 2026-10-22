@@ -2,10 +2,13 @@ import crypto from "node:crypto";
 
 import { revalidateTag } from "next/cache";
 
+import { autoCategorizeProduct } from "@/lib/catalog/auto-categorize";
 import { submitPrintifyOrder } from "@/lib/catalog/printify";
 import { getNumericShopifyId } from "@/lib/shopify/id/server";
 
-const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET;
+// Webhooks registered by the site's own Admin app are signed with that app's client secret.
+const SHOPIFY_WEBHOOK_SECRET =
+  process.env.SHOPIFY_WEBHOOK_SECRET || process.env.SHOPIFY_ADMIN_CLIENT_SECRET;
 
 function verifyWebhook(body: string, hmacHeader: string | null, secret: string): boolean {
   if (!hmacHeader) return false;
@@ -43,6 +46,15 @@ export async function POST(request: Request) {
   }
 
   const tagsInvalidated: string[] = [];
+  let categoriesAdded: string[] = [];
+
+  if (topic === "products/create") {
+    try {
+      categoriesAdded = await autoCategorizeProduct(JSON.parse(body));
+    } catch (e) {
+      console.error("Auto-categorize failed", e);
+    }
+  }
 
   if (topic.startsWith("products/")) {
     // Product tags cascade through every surface without purging the full catalog.
@@ -122,5 +134,6 @@ export async function POST(request: Request) {
     success: true,
     topic,
     tagsInvalidated,
+    categoriesAdded,
   });
 }

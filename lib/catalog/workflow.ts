@@ -4,6 +4,7 @@ import { adminGraphql, ShopifyWriteError } from "@/lib/creators/shopify-admin";
 import { signedAssetUrl } from "@/lib/creators/tokens";
 import type { AppliedProduct, StoredFile } from "@/lib/creators/types";
 
+import { suggestCategories } from "./categorize";
 import { priceForType, variantPrice } from "./pricing";
 import { createPrintifyProduct, deletePrintifyProduct, skuFor } from "./printify";
 
@@ -113,7 +114,15 @@ export async function createDraftForType(
           productType: type.productType,
           status: "DRAFT",
           tags: [
-            `category:${category.id}`,
+            // Admin's pick first, plus any other categories the design matches (multi-category).
+            ...[
+              ...new Set([
+                category.id,
+                ...suggestCategories(
+                  [input.title, input.descriptionEn, input.descriptionAr, ...extra].join(" "),
+                ).categoryIds,
+              ]),
+            ].map((id) => `category:${id}`),
             `designer:${input.designerHandle}`,
             "supplier:printify",
             ...extra,

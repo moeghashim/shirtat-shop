@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 
 import { HeroRail } from "@/components/home/hero-rail";
 import { Inspiration } from "@/components/home/inspiration";
+import {
+  CategoryTiles,
+  DesignersAndSell,
+  DesignSpotlight,
+  ProductTypeRow,
+} from "@/components/home/sections";
 import { ProductsGrid } from "@/components/product/products-grid";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
@@ -34,16 +40,24 @@ export default async function HomePage() {
       <Sections>
         <HeroRail />
 
-        <Inspiration />
+        <CategoryTiles />
 
         <Container>
           <ProductsGrid
-            title="Products"
+            title="New arrivals"
             eagerCount={4}
             limit={8}
             collectionUrl="/collections/all"
           />
         </Container>
+
+        <DesignSpotlight />
+
+        <ProductTypeRow />
+
+        <Inspiration />
+
+        <DesignersAndSell />
       </Sections>
     </Page>
   );
