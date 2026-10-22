@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: buildOpenGraph({ locale: await getLocale(),
       title: shopConfig.site.name,
       description,
-      url: "/",
+      url: locale === "ar" ? "/ar" : "/",
       type: "website",
     }),
     twitter: {
