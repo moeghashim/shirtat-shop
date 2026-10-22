@@ -193,6 +193,11 @@ export function getSharedImages(images: Image[], options: ProductOption[]): Imag
   return shared.length > 0 ? shared : images;
 }
 
+/** The first AI model (lifestyle) photo; shown right after the selected colour's mockup. */
+export function getLeadModelImage(images: Image[]): Image | undefined {
+  return images.find((image) => /^AI-generated model/i.test(image.altText ?? ""));
+}
+
 /** Non-colour images only (lifestyle, details); colour mockups are rendered by the colour slot. */
 export function getNonColorImages(images: Image[], options: ProductOption[]): Image[] {
   const color = findColorOption(options);
@@ -200,7 +205,8 @@ export function getNonColorImages(images: Image[], options: ProductOption[]): Im
   const colorUrls = new Set(
     color.values.map((value) => value.image).filter((url): url is string => Boolean(url)),
   );
-  return images.filter((image) => !colorUrls.has(image.url));
+  const lead = getLeadModelImage(images);
+  return images.filter((image) => !colorUrls.has(image.url) && image.url !== lead?.url);
 }
 
 /** Selected colour's image first, then the other colours' images. */
@@ -219,7 +225,9 @@ export function getColorImagesOrdered(
     const img = product.images.find((image) => image.url === value.image);
     if (img) rest.push(img);
   }
-  return selected ? [selected, ...rest] : rest;
+  const lead = getLeadModelImage(product.images);
+  const others = lead && !seen.has(lead.url) ? [lead, ...rest] : rest;
+  return selected ? [selected, ...others] : others;
 }
 
 export function getSelectedColorImage(
