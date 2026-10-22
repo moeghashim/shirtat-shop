@@ -43,10 +43,10 @@ export const bannerItems: BannerItem[] = [
   },
   {
     href: "/products/la-ghina-kal-aql-hoodie",
-    image: "/banner/la-ghina-kal-aql-hoodie-front.webp",
+    image: "/banner/la-ghina-kal-aql-hoodie-maroon-front.webp",
     nameAr: "هودي لا غنى كالعقل",
     nameEn: "No Wealth Like the Mind Hoodie",
-    sideImage: "/banner/la-ghina-kal-aql-hoodie-side.webp",
+    sideImage: "/banner/la-ghina-kal-aql-hoodie-maroon-side.webp",
     slug: "la-ghina-kal-aql-hoodie",
   },
   {
@@ -56,5 +56,12 @@ export const bannerItems: BannerItem[] = [
     nameEn: "Tafakkar T-shirt",
     sideImage: "/banner/tafakkar-t-shirt-side.webp",
     slug: "tafakkar-t-shirt",
+  },
+  {
+    href: "/products/lahez-kalamak-garh-hoodie",
+    image: "/banner/lahez-kalamak-garh-hoodie-front.webp",
+    nameAr: "هودي لاحظ إن كلامك جارح",
+    nameEn: "Lahez en Kalamak Garh Hoodie",
+    slug: "lahez-kalamak-garh-hoodie",
   },
 ];
