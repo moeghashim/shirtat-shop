@@ -69,8 +69,14 @@ export function HeroRail() {
         aria-hidden={isOpen}
       >
         <div ref={scroller} className="overflow-x-auto [scrollbar-width:none]">
-          <div className="relative mx-auto w-max px-12 pt-14 pb-4 [--w:170px] md:px-20 md:pt-20 md:[--w:230px]">
-            <HeroRack ar={ar} items={bannerItems} locked={isOpen} onOpen={setOpen} />
+          <div className="relative mx-auto w-max pt-14 pb-4 [--w:150px] md:pt-20 md:[--w:230px]">
+            <HeroRack
+              ar={ar}
+              items={bannerItems}
+              locked={isOpen}
+              onOpen={setOpen}
+              scroller={scroller}
+            />
           </div>
         </div>
       </div>
