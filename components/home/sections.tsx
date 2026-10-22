@@ -54,24 +54,24 @@ export async function CategoryTiles() {
   return (
     <Container>
       <SectionHeader eyebrow={t("Categories")} title={t("Shop by category")} />
-      <ul className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {CATEGORIES.map((c) => {
           const style = CATEGORY_STYLE[c.id] ?? CATEGORY_STYLE.poetry!;
           return (
             <li key={c.id}>
               <Link
-                className={`group relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-3xl bg-gradient-to-br ${style.bg} p-5 text-white sm:aspect-square`}
+                className={`group relative flex h-32 flex-col justify-end overflow-hidden rounded-2xl bg-gradient-to-br ${style.bg} p-4 text-white sm:h-auto sm:aspect-square sm:rounded-3xl sm:p-5`}
                 href={`/collections/${c.id}`}
               >
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute -top-2 end-3 font-serif text-6xl leading-none opacity-20 transition-transform duration-500 group-hover:scale-110 sm:text-8xl"
+                  className="pointer-events-none absolute -top-2 end-3 font-serif text-5xl leading-none opacity-25 transition-transform duration-500 group-hover:scale-110 sm:text-8xl"
                   dir="rtl"
                 >
                   {style.glyph}
                 </span>
-                <span className="text-xl font-semibold sm:text-2xl">{locale === "ar" ? c.labelAr : c.labelEn}</span>
-                <span className="mt-1 line-clamp-2 text-xs text-white/80 sm:text-sm">
+                <span className="text-lg font-semibold sm:text-2xl">{locale === "ar" ? c.labelAr : c.labelEn}</span>
+                <span className="mt-1 line-clamp-2 hidden text-xs text-white/80 sm:block sm:text-sm">
                   {locale === "ar" ? c.descriptionAr : c.descriptionEn}
                 </span>
               </Link>
@@ -178,7 +178,7 @@ export async function DesignSpotlight() {
 function CtaCard({ body, cta, href, title, dark, eyebrow }: { body: string; cta: string; dark?: boolean; eyebrow: string; href: string; title: string }) {
   return (
     <Link
-      className={`group flex flex-col justify-between gap-6 rounded-3xl p-8 md:p-10 ${dark ? "bg-foreground text-background" : "border border-border bg-background"}`}
+      className={`group flex flex-col justify-between gap-6 rounded-3xl p-6 sm:p-8 md:p-10 ${dark ? "bg-foreground text-background" : "border border-border bg-background"}`}
       href={href}
     >
       <div className="flex flex-col gap-3">
@@ -238,7 +238,7 @@ export async function NewArrivals() {
   return (
     <Container>
       <SectionHeader href="/collections/all" linkText={t("View All")} title={t("New arrivals")} />
-      <ul className="grid grid-cols-2 gap-5 lg:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-5 lg:grid-cols-4">
         {picks.map((p, i) => (
           <li key={p.handle}>
             <Link className="group block" href={`/products/${p.handle}`}>

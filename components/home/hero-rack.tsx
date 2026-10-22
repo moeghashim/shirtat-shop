@@ -313,7 +313,7 @@ export function HeroRack({ ar, items, locked, onOpen, scroller }: HeroRackProps)
 
   return (
     <>
-      <div className="relative mx-6 sm:mx-24 md:mx-20">
+      <div className="relative mx-4 sm:mx-24 md:mx-20">
         <div
           className="pointer-events-none absolute inset-x-0 z-0"
           style={{ top: `calc(var(--w) * 1.2 * ${ROD_Y} - 6px)` }}
