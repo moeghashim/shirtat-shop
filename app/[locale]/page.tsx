@@ -6,10 +6,9 @@ import {
   CategoryTiles,
   DesignersAndSell,
   DesignSpotlight,
+  NewArrivals,
   ProductTypeRow,
 } from "@/components/home/sections";
-import { ProductsGrid } from "@/components/product/products-grid";
-import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
 import { shopConfig } from "@/lib/config";
@@ -42,14 +41,7 @@ export default async function HomePage() {
 
         <CategoryTiles />
 
-        <Container>
-          <ProductsGrid
-            title="New arrivals"
-            eagerCount={4}
-            limit={8}
-            collectionUrl="/collections/all"
-          />
-        </Container>
+        <NewArrivals />
 
         <DesignSpotlight />
 

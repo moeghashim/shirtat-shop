@@ -16,11 +16,11 @@ const CATEGORY_STYLE: Record<string, { bg: string; glyph: string }> = {
 };
 
 const PRODUCT_TYPES = [
-  { handle: "t-shirts", label: "T-shirts", type: "T-Shirt" },
-  { handle: "hoodies", label: "Hoodies", type: "Hoodie" },
-  { handle: "sweatshirts", label: "Sweatshirts", type: "Sweatshirt" },
-  { handle: "tote-bags", label: "Tote bags", type: "Tote Bag" },
-  { handle: "posters-prints", label: "Prints", type: "Poster" },
+  { handle: "t-shirts", search: "T-shirt", label: "T-shirts", type: "T-Shirt" },
+  { handle: "hoodies", search: "Hoodie", label: "Hoodies", type: "Hoodie" },
+  { handle: "sweatshirts", search: "Sweatshirt", label: "Sweatshirts", type: "Sweatshirt" },
+  { handle: "tote-bags", search: "Tote", label: "Tote bags", type: "Tote Bag" },
+  { handle: "posters-prints", search: "Print", label: "Prints", type: "Poster" },
 ];
 
 /** "English (العربية) Type" → the part for the current locale. */
@@ -98,7 +98,7 @@ export async function ProductTypeRow() {
           const p = pickByType(products, pt.type);
           return (
             <li className="w-40 shrink-0 snap-start md:w-auto" key={pt.handle}>
-              <Link className="group block" href={`/collections/${pt.handle}`}>
+              <Link className="group block" href={`/search?q=${encodeURIComponent(pt.search)}`}>
                 <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
                   {p?.image && (
                     <Image
@@ -214,6 +214,53 @@ export async function DesignersAndSell() {
           title={t("Sell on Shirtat")}
         />
       </div>
+    </Container>
+  );
+}
+
+export async function NewArrivals() {
+  const t = await getT();
+  const locale = await getLocale();
+  const all = (await getHomeProducts()).filter((p) => p.image);
+  // Interleave designs so the grid shows variety rather than five of one design.
+  const byDesign = new Map<string, HomeProduct[]>();
+  for (const p of all) {
+    const key = p.title.replace(/\s*\S+$/, "");
+    byDesign.set(key, [...(byDesign.get(key) ?? []), p]);
+  }
+  const groups = [...byDesign.values()];
+  const picks: HomeProduct[] = [];
+  for (let i = 0; picks.length < 8 && groups.some((g) => g[i]); i++) {
+    for (const g of groups) if (g[i] && picks.length < 8) picks.push(g[i]!);
+  }
+  if (picks.length === 0) return null;
+  const fmt = new Intl.NumberFormat(locale === "ar" ? "ar-u-nu-latn" : "en-US", { currency: "USD", style: "currency" });
+  return (
+    <Container>
+      <SectionHeader href="/collections/all" linkText={t("View All")} title={t("New arrivals")} />
+      <ul className="grid grid-cols-2 gap-5 lg:grid-cols-4">
+        {picks.map((p, i) => (
+          <li key={p.handle}>
+            <Link className="group block" href={`/products/${p.handle}`}>
+              <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
+                <Image
+                  alt={localTitle(p.title, locale)}
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  fill
+                  loading={i < 4 ? "eager" : "lazy"}
+                  sizes="(min-width: 1024px) 25vw, 50vw"
+                  src={p.image!.url}
+                />
+              </div>
+              <p className="mt-3 line-clamp-1 font-medium">{localTitle(p.title, locale)}</p>
+              <p className="text-sm text-muted-foreground">
+                {t(PRODUCT_TYPES.find((x) => x.type === p.productType)?.label ?? p.productType)} ·{" "}
+                {fmt.format(Number(p.price.amount))}
+              </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </Container>
   );
 }
