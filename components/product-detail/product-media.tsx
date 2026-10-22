@@ -252,7 +252,8 @@ function Grid({
   }
 
   const grid = (
-    <div className="grid grid-cols-2 gap-2.5">
+    // Main image spans the full width; the rest sit below as a thumbnail strip.
+    <div className="grid grid-cols-4 gap-2.5 [&>*:first-child]:col-span-4 [&>*:not(:first-child)]:rounded-lg [&>*:first-child]:rounded-xl">
       {children}
       {mediaItems.map((item, idx) => (
         <GridItem

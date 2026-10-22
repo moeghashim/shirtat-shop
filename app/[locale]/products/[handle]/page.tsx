@@ -8,11 +8,9 @@ import {
   ProductDetailSkeleton,
 } from "@/components/product-detail/product-detail-section";
 import { RecentlyViewedRecorder } from "@/components/product-detail/recently-viewed";
-import { RelatedProductsSection } from "@/components/product/related-products-section";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
-import { shopConfig } from "@/lib/config";
 import { commerceLocale } from "@/lib/i18n";
 import { getLocale } from "@/lib/i18n/server";
 import { defaultSelectedOptions, parseSelectedOptions, toSelectedOptionList } from "@/lib/product";
@@ -24,6 +22,7 @@ import { fetchProductVariant } from "@/lib/shopify/operations/products/server";
 import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
 import { SourceClipsSection } from "@/components/product-detail/source-clips";
 import { getProductSource } from "@/lib/product/source-clips";
+import { AlsoLikeRow, MoreFromDesignRow } from "@/components/product-detail/pdp-extras";
 
 async function buildProductMetadata(handle: string, canonicalPath: string): Promise<Metadata> {
   const locale = await getLocale();
@@ -164,9 +163,20 @@ async function ProductPageContent({
         variantPromise={variantPromise}
       />
       <ProductSourceClips handle={handle} isArabic={String(locale).toLowerCase().startsWith("ar")} />
-      {shopConfig.pdp.relatedProducts.isEnabled ? (
-        <RelatedProductsSection handle={handle} limit={4} />
-      ) : null}
+      <Suspense fallback={null}>
+        <MoreFromDesignRow
+          handle={handle}
+          isArabic={String(locale).toLowerCase().startsWith("ar")}
+          locale={commerceLocale(locale)}
+        />
+      </Suspense>
+      <Suspense fallback={null}>
+        <AlsoLikeRow
+          handle={handle}
+          isArabic={String(locale).toLowerCase().startsWith("ar")}
+          locale={commerceLocale(locale)}
+        />
+      </Suspense>
     </>
   );
 }

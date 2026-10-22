@@ -24,7 +24,7 @@ export function ProductPrice({
     : null;
   return (
     <div className={cn("flex items-center gap-2.5 flex-wrap", className)} {...props}>
-      <Price amount={amount} currencyCode={currencyCode} className="text-xl" />
+      <Price amount={amount} currencyCode={currencyCode} className="text-2xl font-semibold" />
       {markedDown && (
         <Price
           amount={compareAtAmount}

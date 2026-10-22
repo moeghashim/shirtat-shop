@@ -23,6 +23,7 @@ import {
   ColorImageGrid,
   ProductMedia,
 } from "@/components/product-detail/product-media";
+import { DesignStoryBlock, PdpTrustAndDetails } from "@/components/product-detail/pdp-extras";
 import { ProductPrice } from "@/components/product-detail/product-price";
 import { ProductSchema } from "@/components/product-detail/schema";
 import { BreadcrumbSchema } from "@/components/schema/breadcrumb-schema";
@@ -31,7 +32,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { shopConfig } from "@/lib/config";
-import { getT } from "@/lib/i18n/server";
+import { getLocale, getT } from "@/lib/i18n/server";
 import {
   getProductPurchaseOptions,
   getSelectedColorImage,
@@ -78,7 +79,7 @@ export function ProductDetailSection({
           { name: product.title, path: `/products/${product.handle}` },
         ]}
       />
-      <div className="grid gap-10 lg:grid-cols-10 lg:items-start lg:gap-5">
+      <div className="grid min-w-0 gap-8 lg:grid-cols-10 lg:items-start lg:gap-10">
         <ProductMediaArea product={product} selectedOptionsPromise={selectedOptionsPromise} />
         <ProductInfoArea product={product} variantPromise={variantPromise} />
       </div>
@@ -167,6 +168,7 @@ async function ProductInfoArea({
   variantPromise: Promise<ProductVariant | undefined>;
 }) {
   const t = await getT();
+  const isArabic = String(await getLocale()).toLowerCase().startsWith("ar");
   const { options, handle, descriptionHtml } = product;
   const uniformStock = product.allVariantsInStock;
   const singleVariant = product.variantsCount === 1;
@@ -179,8 +181,8 @@ async function ProductInfoArea({
         className="grid data-[uniform-price=true]:gap-10"
         data-uniform-price={product.hasUniformPricing}
       >
-        <div data-slot="product-info-header">
-          <h1 className="text-foreground text-3xl">{product.title}</h1>
+        <div data-slot="product-info-header" className="grid gap-2">
+          <h1 className="text-foreground text-2xl leading-tight font-semibold sm:text-3xl">{product.title}</h1>
           {product.hasUniformPricing ? (
             <ProductPrice
               amount={product.priceRange.minVariantPrice.amount}
@@ -188,6 +190,9 @@ async function ProductInfoArea({
               compareAtAmount={product.compareAtPriceRange?.minVariantPrice.amount}
             />
           ) : null}
+          <Suspense fallback={null}>
+            <DesignStoryBlock handle={handle} isArabic={isArabic} />
+          </Suspense>
         </div>
 
         {singleVariant ? (
@@ -225,6 +230,8 @@ async function ProductInfoArea({
       {!product.isGiftCard && shopConfig.pdp.complementaryProducts.isEnabled ? (
         <ComplementaryProducts handle={handle} limit={4} title={t("Pairs Well With")} />
       ) : null}
+
+      <PdpTrustAndDetails handle={handle} isArabic={isArabic} />
 
       <ProductInfoDescription descriptionHtml={descriptionHtml} />
     </div>
