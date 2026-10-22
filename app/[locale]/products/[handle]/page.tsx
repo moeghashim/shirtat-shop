@@ -87,7 +87,7 @@ export default function ProductPage({
 }: PageProps<"/[locale]/products/[handle]">) {
   return (
     <Page className="pt-0">
-      <Container className="bg-background">
+      <Container className="bg-background min-h-dvh">
         <Sections>
           <Suspense fallback={<ProductDetailSkeleton />}>
             <ProductPageContent params={params} searchParams={searchParams} />
