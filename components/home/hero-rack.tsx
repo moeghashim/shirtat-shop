@@ -5,12 +5,12 @@ import { type PointerEvent, useEffect, useRef, useState } from "react";
 
 import type { BannerItem } from "@/lib/banner";
 
-const SIDE_YAW = 70;
-const SIDE_SLOT = 0.36;
+const REST_TURN = 74;
+const SIDE_SLOT = 0.34;
 const FRONT_SLOT = 0.82;
-const STIFFNESS = 170;
-const DAMPING = 21;
-const SWAY_LIMIT = 5;
+const STIFFNESS = 230;
+const DAMPING = 25;
+const SWAY_LIMIT = 2.5;
 const ROD = "calc(var(--w) * 1.2 * 0.036)";
 
 interface HeroRackProps {
@@ -21,6 +21,10 @@ interface HeroRackProps {
 }
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+const ramp = (v: number, lo: number, hi: number) => {
+  const t = clamp((v - lo) / (hi - lo), 0, 1);
+  return t * t * (3 - 2 * t);
+};
 const slotOrder = (ar: boolean, n: number, k: number) => (ar ? n - 1 - k : k);
 
 export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
@@ -43,7 +47,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
     target: null as number | null,
     velocity: new Array<number>(n).fill(0),
   });
-  const yaw = ar ? -SIDE_YAW : SIDE_YAW;
+  const dir = ar ? -1 : 1;
   const rackFactor = n * SIDE_SLOT + (FRONT_SLOT - SIDE_SLOT) + 0.7;
   const restPad = (FRONT_SLOT - SIDE_SLOT + 0.7) / 2;
 
@@ -77,7 +81,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
         const vx = dt > 0 ? (delta - s.prevDelta[i]) / dt : 0;
         s.prevDelta[i] = delta;
         s.sway[i] +=
-          (clamp(-vx * 0.0055, -SWAY_LIMIT, SWAY_LIMIT) - s.sway[i]) * Math.min(1, dt * 10);
+          (clamp(-vx * 0.003, -SWAY_LIMIT, SWAY_LIMIT) - s.sway[i]) * Math.min(1, dt * 10);
 
         const anchor = anchors.current[i];
         const swing = swings.current[i];
@@ -88,14 +92,14 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
           anchor.style.zIndex = String(Math.round(o * 10));
         }
         if (swing) swing.style.transform = `rotate(${s.sway[i].toFixed(3)}deg)`;
-        const pose = clamp(o, 0, 1);
+        const turn = REST_TURN * (1 - clamp(o, 0, 1));
         if (front) {
-          front.style.transform = `perspective(3200px) rotateY(${(yaw * (1 - pose)).toFixed(2)}deg) scale(${(1 + 0.02 * o).toFixed(4)})`;
-          if (side) front.style.opacity = String(clamp(pose * 1.6 - 0.2, 0, 1));
+          front.style.transform = `perspective(2400px) rotateY(${(dir * turn).toFixed(2)}deg) scale(${(1 + 0.02 * o).toFixed(4)})`;
+          if (side) front.style.opacity = String(1 - ramp(turn, 38, 72));
         }
         if (side) {
-          side.style.opacity = String(clamp(1 - pose * 1.6, 0, 1));
-          side.style.transform = `perspective(3200px) rotateY(${((ar ? 1 : -1) * 35 * pose).toFixed(2)}deg)`;
+          side.style.opacity = String(ramp(turn, 4, 58));
+          side.style.transform = `perspective(2400px) rotateY(${(dir * turn).toFixed(2)}deg)`;
         }
       }
     };
@@ -141,7 +145,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
       if (s.frame) cancelAnimationFrame(s.frame);
       s.frame = 0;
     };
-  }, [ar, n, restPad, rackFactor, yaw]);
+  }, [ar, n, restPad, rackFactor, dir]);
 
   const aim = (target: number | null) => {
     const s = sim.current;
@@ -243,6 +247,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
                       sides.current[i] = el;
                     }}
                     className="absolute inset-x-0 top-0 block origin-top"
+                    style={{ transform: `perspective(2400px) rotateY(${dir * REST_TURN}deg)` }}
                   >
                     <Image
                       src={item.sideImage}
@@ -261,7 +266,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
                   className="block origin-top"
                   style={{
                     opacity: item.sideImage ? 0 : 1,
-                    transform: `perspective(3200px) rotateY(${yaw}deg)`,
+                    transform: `perspective(2400px) rotateY(${dir * REST_TURN}deg)`,
                   }}
                 >
                   <Image
