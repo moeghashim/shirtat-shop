@@ -196,7 +196,7 @@ export function BuyButtons({
         aria-hidden={!showSticky}
         className={cn(
           "fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-6px_20px_rgba(0,0,0,0.08)] backdrop-blur transition-transform duration-300 md:hidden",
-          showSticky ? "translate-y-0" : "pointer-events-none translate-y-full",
+          showSticky ? "translate-y-0" : "pointer-events-none invisible translate-y-full",
         )}
       >
         <span className="shrink-0 text-base font-semibold tabular-nums">
