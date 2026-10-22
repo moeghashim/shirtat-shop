@@ -14,7 +14,7 @@ const PEGBOARD =
   "radial-gradient(circle at center, transparent 2.6px, rgba(40,48,80,0.09) 3px, rgba(40,48,80,0.09) 3.8px, transparent 4.2px)";
 
 const PILL =
-  "rounded-full border border-[#3d4670]/60 px-5 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-[#3d4670] transition hover:bg-[#3d4670] hover:text-white";
+  "rounded-full border border-[#3d4670]/60 inline-flex min-h-11 items-center px-6 py-2 text-xs sm:min-h-0 sm:px-5 sm:py-1.5 sm:text-[11px] font-medium uppercase tracking-[0.14em] text-[#3d4670] transition hover:bg-[#3d4670] hover:text-white";
 
 export function HeroRail() {
   const locale = useLocale();
