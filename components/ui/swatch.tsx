@@ -25,7 +25,7 @@ export function Swatch({
       className={cn(
         "relative block size-9 shrink-0 overflow-hidden rounded-full transition-all",
         "after:pointer-events-none after:absolute after:inset-0 after:rounded-full after:inset-ring after:inset-ring-foreground/10",
-        "data-[selected=true]:ring-2 data-[selected=true]:ring-foreground data-[selected=true]:ring-offset-2 data-[selected=true]:ring-offset-background",
+        "data-[selected=true]:ring-2 data-[selected=true]:ring-foreground data-[selected=true]:ring-offset-[3px] data-[selected=true]:ring-offset-background",
         className,
       )}
       {...props}

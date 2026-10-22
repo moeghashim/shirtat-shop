@@ -34,10 +34,13 @@ export async function Nav() {
       className="sticky top-0 z-30 w-full bg-background pt-[env(safe-area-inset-top,0px)] transition-shadow duration-250"
       id="nav-outer"
     >
-      <Container className="flex h-18 items-center gap-2.5 md:h-24 md:gap-5">
-        <MobileMenu items={items} />
+      <Container className="grid h-18 grid-cols-[1fr_auto_1fr] items-center gap-2.5 md:h-24 md:gap-5">
+        <div className="flex min-w-0 items-center gap-5 justify-self-start">
+          <MobileMenu items={items} />
+          <QuickLinks items={items} />
+        </div>
 
-        <Link className="flex items-center shrink-0" href="/">
+        <Link className="flex items-center shrink-0 justify-self-center" href="/">
           <Image
             alt="Shirtat"
             className="h-14 w-auto md:h-19 dark:invert"
@@ -49,9 +52,7 @@ export async function Nav() {
           />
         </Link>
 
-        <QuickLinks items={items} />
-
-        <div className="flex items-center gap-5 ms-auto">
+        <div className="flex items-center gap-3 md:gap-5 justify-self-end">
           <LanguageSwitcher />
           {shopConfig.search.isEnabled && (
             <PredictiveSearchProvider
