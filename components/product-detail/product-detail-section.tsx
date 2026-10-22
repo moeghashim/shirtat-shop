@@ -34,6 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { shopConfig } from "@/lib/config";
 import { getLocale, getT } from "@/lib/i18n/server";
 import {
+  defaultSelectedOptions,
   getProductPurchaseOptions,
   getColorImagesOrdered,
   getNonColorImages,
@@ -105,6 +106,7 @@ function ProductMediaArea({
     );
   }
 
+  const defaultImages = getColorImagesOrdered(product, defaultSelectedOptions(product));
   return (
     <ProductMedia
       otherImages={getNonColorImages(product.images, product.options)}
@@ -113,7 +115,8 @@ function ProductMediaArea({
       className="lg:col-span-6"
       desktopSlot={
         // Color image is the LCP slot; a pulsing skeleton flashes harder than an empty image canvas.
-        <Suspense fallback={<div className="aspect-square w-full" />}>
+        // Fallback is the default-colour image so the LCP image is in the first HTML flush (no wait on searchParams).
+        <Suspense fallback={<ColorImageGrid images={defaultImages} title={product.title} />}>
           <ResolvedColorImageGrid
             product={product}
             selectedOptionsPromise={selectedOptionsPromise}
@@ -122,9 +125,7 @@ function ProductMediaArea({
       }
       mobileSlot={
         <Suspense
-          fallback={
-            <div className="relative shrink-0 w-full snap-start snap-always overflow-hidden aspect-square" />
-          }
+          fallback={<ColorImageCarouselItems images={defaultImages} title={product.title} />}
         >
           <ResolvedColorImageCarousel
             product={product}
