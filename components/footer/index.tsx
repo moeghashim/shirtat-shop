@@ -59,7 +59,7 @@ export async function Footer() {
                 href="/making-of"
                 className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                {t("The making of Shirtat")}
+                {t("Making of")}
               </Link>
               <Link
                 href="/roadmap"

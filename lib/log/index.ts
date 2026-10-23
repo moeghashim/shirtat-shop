@@ -7,6 +7,28 @@ export interface LogDay {
 /** Newest day first. Add new days to the top. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-10-22",
+    entries: [
+      "Received the first order on shirtat.co.",
+      "Connected checkout.shirtat.co as the store's primary checkout domain, so checkout stays on a Shirtat address and the logo at checkout returns to shirtat.co instead of the default Shopify store.",
+      "Replaced the default Shopify theme with a redirect theme: anyone landing on the Shopify store address is sent to shirtat.co, while checkout, account and cart keep working.",
+      "Connected account.shirtat.co for customer accounts.",
+      "Added worldwide shipping with a flat $12.99 standard rate per order, fixing the 'not available for delivery' message at checkout for the US and other countries.",
+      "Added an approval step for print orders: paid orders are created in Printify on hold, and adding the approve-pod tag to the order in Shopify sends it to production automatically through a verified webhook. Orders can't be sent twice, sent orders are tagged pod:sent, and any failure sends an alert email.",
+      "Set up an hourly order monitor that checks every paid order reaches Printify and flags anything stuck on hold or unfulfilled.",
+      "Performance work for Lighthouse: product pages send the main image in the first response, Google Analytics loads after the page, layout shift on product pages fixed, responsive image sizes with AVIF, and a Lighthouse check of 99+ on every update.",
+      "Redesigned product pages: main image with thumbnails, the design story below the buy box, accordions, a trust row, and more-from-this-design and you-may-also-like rows. The gallery shows the selected colour first and a model photo second.",
+      "Added a 'Where it's from' section to product pages with the source clips behind each design (YouTube and Facebook videos, loaded on click).",
+      "Homepage: newest arrivals grid, product-type tiles, and a hanging rack of six real Shirtat garments with front and side views that turn as you browse, sized for phones.",
+      "Mobile fixes: bigger tap targets, sticky add-to-cart, larger size pills and no horizontal overflow.",
+      "Added Shirtat share images for links in English and Arabic.",
+      "Footer: one row of links, X, Instagram and Facebook links, and a shipping coverage line; Shop and Sell on Shirtat moved to the footer.",
+      "Products can belong to more than one category, and Poetry is only given to designs marked as poetry.",
+      "Changed the contact email to shirtat@10claws.com across the site and emails.",
+      "Made an internal map comparing the products we use with equivalents at other print-on-demand providers, including baby and occasion items.",
+    ],
+  },
+  {
     date: "2026-10-21",
     entries: [
       "Connected Printify through its API with real catalog costs: Bella+Canvas 3001 tee, Gildan 18500 hoodie and 18000 sweatshirt from Printify Choice (US), AS Colour tote from The Print Bar and a matte poster from Printify Choice. Prices are cost × 3 per variant, rounded up to .99. Applying a design now creates the Printify product first and puts its mockups and variant SKUs on the Shopify draft; paid orders are passed to Printify, held until sent to production.",

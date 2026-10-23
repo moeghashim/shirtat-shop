@@ -100,7 +100,7 @@ export const ar = {
   "The daily log is kept in English.": "السجل اليومي متاح باللغة الإنجليزية فقط.",
   "The flowing script of royal decrees, full of curves, rhythm and movement.":
     "خط المراسيم السلطانية الانسيابي، المليء بالانحناءات والإيقاع والحركة.",
-  "The making of Shirtat": "قصة صناعة شيرتات",
+  "Making of": "كواليس الصنع",
   "The oldest Arabic script, with bold geometric lines that feel strikingly modern.":
     "أقدم الخطوط العربية، بخطوط هندسية جريئة تبدو عصرية على نحو لافت.",
   "This project is part of": "هذا المشروع جزء من",

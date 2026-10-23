@@ -25,14 +25,14 @@ export const roadmapPhases: RoadmapPhase[] = [
   },
   {
     title: "Products",
-    status: "next",
-    summary: "Adding the first shirts featuring Arabic calligraphy.",
+    status: "done",
+    summary: "First Arabic calligraphy and poetry shirts, hoodies, sweatshirts and prints are live, with redesigned product pages.",
   },
   {
     title: "Supplier and product workflow",
-    status: "in-progress",
+    status: "done",
     summary:
-      "Printify chosen as the print-on-demand supplier with prices at cost × 3. Moe applies each design to products from the admin page, which creates Shopify drafts; automatic Printify sync waits for an API token.",
+      "Printify connected with prices at cost × 3. Designs become Printify products with mockups and Shopify drafts; paid orders go to Printify on hold and are sent to production when the order is tagged approve-pod.",
   },
   {
     title: "Shop by designer",
@@ -42,8 +42,8 @@ export const roadmapPhases: RoadmapPhase[] = [
   },
   {
     title: "Payments and launch",
-    status: "next",
-    summary: "Setting up checkout and payments, then opening the store.",
+    status: "done",
+    summary: "Checkout on checkout.shirtat.co, worldwide shipping at $12.99, and the first order received.",
   },
   {
     title: "Creator program",
@@ -85,5 +85,30 @@ export const roadmapPhases: RoadmapPhase[] = [
     status: "next",
     summary:
       "Automated or half-automated payouts at 15% or 20%, with a $25 minimum, in USD at the order-day exchange rate.",
+  },
+  {
+    title: "Order monitoring",
+    status: "done",
+    summary: "An hourly check that every paid order reaches Printify, with alerts for orders stuck on hold or unfulfilled.",
+  },
+  {
+    title: "Mobile performance",
+    status: "in-progress",
+    summary: "Desktop Lighthouse is near 100; pushing the mobile performance score higher.",
+  },
+  {
+    title: "Saudi Arabia shipping",
+    status: "next",
+    summary: "Getting shipping options to show at checkout for Saudi Arabia.",
+  },
+  {
+    title: "Customer account link",
+    status: "next",
+    summary: "An Account link on the site for customers to sign in and see their orders.",
+  },
+  {
+    title: "Creator video ads",
+    status: "next",
+    summary: "A small group of hand-picked creators making video ads, starting with free shirts and a fixed fee, then moving to a share of sales.",
   },
 ];
