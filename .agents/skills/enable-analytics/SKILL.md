@@ -1,6 +1,6 @@
 ---
 name: enable-analytics
-description: Add Vercel Analytics, Vercel Speed Insights, and Google Tag Manager to the storefront.
+description: Add Vercel Analytics, Vercel Speed Insights, and Google Tag Manager to the storefront. Use when the user wants traffic analytics, performance monitoring, Core Web Vitals or GTM tracking tags.
 ---
 
 # Enable Analytics

@@ -3,8 +3,10 @@ name: enable-shopify-markets
 description: >
   Enable Shopify Markets with regional locales, localized Storefront API context,
   and next-intl routing. Supports locale-prefixed, invisible cookie-based, and
-  per-domain routing without a separate market URL segment or market mapping.
-argument-hint: "[sub-path|invisible-cookie|per-domain]"
+  per-domain routing without a separate market URL segment or market mapping. Use when the user wants multi-region
+  or multi-currency selling, Shopify Markets, or region-aware pricing.
+metadata:
+  argument-hint: "[sub-path|invisible-cookie|per-domain]"
 ---
 
 # Enable Shopify Markets

@@ -1,6 +1,6 @@
 ---
 name: enable-shopify-menus
-description: Replace the hardcoded nav and footer links with Shopify-managed menus, cached until a protected endpoint refreshes them.
+description: Replace the hardcoded nav and footer links with Shopify-managed menus, cached until a protected endpoint refreshes them. Use when the user wants to edit nav or footer links from Shopify admin instead of code.
 ---
 
 # Enable Shopify Menus
