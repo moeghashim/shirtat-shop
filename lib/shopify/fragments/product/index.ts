@@ -150,6 +150,18 @@ export const PRODUCT_CARD_FRAGMENT = gql(
         width
         height
     }
+    media(first: 6) {
+      nodes {
+        ... on MediaImage {
+          image {
+            url
+        altText
+        width
+        height
+          }
+        }
+      }
+    }
     priceRange {
       minVariantPrice {
         amount

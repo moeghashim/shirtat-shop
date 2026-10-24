@@ -156,6 +156,26 @@ function transformOption(option: ShopifyOption): ProductOption {
   };
 }
 
+const DESIGN_ALT = /\b(design|artwork|calligraphy)\b/i;
+const LIFESTYLE_ALT = /\bmodel wearing\b/i;
+
+// Hover image: flat design art (alt mentions design/artwork/calligraphy), else the on-model lifestyle shot, else the next media image.
+function buildCardGallery(
+  featured: Image | null,
+  nodes: ReadonlyArray<{ image?: ShopifyImage | null } | Record<string, never>>,
+): Image[] {
+  const featuredBase = featured?.url.split("?")[0];
+  const rest: Image[] = [];
+  for (const node of nodes) {
+    const img = "image" in node ? transformImage(node.image) : null;
+    if (img && img.url.split("?")[0] !== featuredBase) rest.push(img);
+  }
+  let hoverIndex = rest.findIndex((img) => DESIGN_ALT.test(img.altText));
+  if (hoverIndex < 0) hoverIndex = rest.findIndex((img) => LIFESTYLE_ALT.test(img.altText));
+  if (hoverIndex > 0) rest.unshift(...rest.splice(hoverIndex, 1));
+  return featured ? [featured, ...rest] : rest;
+}
+
 function transformProductCard(
   product: ShopifyProductCard,
   selectedOptionValue?: string,
@@ -176,6 +196,10 @@ function transformProductCard(
     handle: product.handle,
     title: product.title,
     featuredImage: transformImage(matchedVariant?.image ?? product.featuredImage),
+    galleryImages: buildCardGallery(
+      transformImage(matchedVariant?.image ?? product.featuredImage),
+      product.media?.nodes ?? [],
+    ),
     price: product.priceRange.minVariantPrice,
     maxPrice: product.priceRange.maxVariantPrice,
     compareAtPrice: product.compareAtPriceRange.minVariantPrice,

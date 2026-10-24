@@ -5,12 +5,15 @@ import type { ComponentProps, ReactNode } from "react";
 import { DiscountBadge } from "@/components/product/discount-badge";
 import { Price } from "@/components/product/price";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
+import type { Image as ImageType } from "@/lib/media/types";
+
+import { CardGallery } from "./card-gallery";
 
 function ProductCard({ className, children, ...props }: ComponentProps<"article">) {
   return (
     <article
       data-slot="product-card"
-      className={cn("relative flex flex-col h-full overflow-hidden", className)}
+      className={cn("group/card relative flex flex-col h-full overflow-hidden", className)}
       {...props}
     >
       {children}
@@ -38,6 +41,7 @@ interface ProductCardImageProps {
   loading?: "eager" | "lazy";
   outOfStock?: boolean;
   outOfStockText?: string;
+  gallery?: ImageType[];
   src?: string | null;
   width?: number;
 }
@@ -46,6 +50,7 @@ function ProductCardImage({
   alt,
   children,
   className,
+  gallery,
   height,
   loading = "lazy",
   outOfStock = false,
@@ -58,7 +63,9 @@ function ProductCardImage({
       data-slot="product-card-image"
       className={cn("relative aspect-square overflow-hidden", className)}
     >
-      {src ? (
+      {gallery && gallery.length > 0 ? (
+        <CardGallery alt={alt} images={gallery} loading={loading} />
+      ) : src ? (
         <Image
           src={src}
           alt={alt}

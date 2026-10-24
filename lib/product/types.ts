@@ -60,6 +60,8 @@ export interface ProductCard {
   compareAtPrice?: Money;
   defaultVariantSelectedOptions?: SelectedOption[];
   featuredImage: Image | null;
+  /** Card gallery order: featured image, then the hover image (design art or second media), then the rest. */
+  galleryImages?: Image[];
   handle: string;
   id: string;
   isGiftCard: boolean;
