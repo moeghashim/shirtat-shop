@@ -1,4 +1,5 @@
 import { flattenConnection } from "@shopify/hydrogen";
+import { withStyleTest } from "@/lib/style-test";
 
 import type { Image, Video } from "@/lib/media/types";
 import type {
@@ -24,17 +25,11 @@ import type {
   ShopifyVariant,
 } from "@/lib/shopify/transforms/product/types";
 
-// STYLE TEST ONLY (branch style-test): swap on-model photos for the editorial-style test shots.
-const STYLE_TEST = new Set(["al-adab", "al-hubb-wal-salam", "al-zulm", "la-ghina-kal-aql", "lahez-kalamak-garh", "sa-ateer-yawman", "tafakkar"]);
-export function styleTestUrl(url: string): string {
-  const m = /\/lifestyle-(.+)-t-shirt\.jpg/.exec(url);
-  return m && STYLE_TEST.has(m[1]!) ? `/style-test/${m[1]}-t-shirt.jpg` : url;
-}
 
 export function transformImage(image: ShopifyImage | null | undefined): Image | null {
   if (!image) return null;
   return {
-    url: styleTestUrl(image.url),
+    url: image.url,
     altText: image.altText ?? "",
     width: image.width ?? 0,
     height: image.height ?? 0,
@@ -66,7 +61,7 @@ function extractMediaFromProduct(product: ShopifyProduct): {
     }
   }
 
-  return { images, videos };
+  return { images: withStyleTest(product.handle, product.title, images), videos };
 }
 
 function transformCategory(category: ShopifyCategory | null | undefined): Category | null {
@@ -170,6 +165,8 @@ const LIFESTYLE_ALT = /\bmodel wearing\b/i;
 function buildCardGallery(
   featured: Image | null,
   nodes: ReadonlyArray<object>,
+  handle: string,
+  title: string,
 ): Image[] {
   const featuredBase = featured?.url.split("?")[0];
   const rest: Image[] = [];
@@ -180,7 +177,13 @@ function buildCardGallery(
   let hoverIndex = rest.findIndex((img) => DESIGN_ALT.test(img.altText));
   if (hoverIndex < 0) hoverIndex = rest.findIndex((img) => LIFESTYLE_ALT.test(img.altText));
   if (hoverIndex > 0) rest.unshift(...rest.splice(hoverIndex, 1));
-  return featured ? [featured, ...rest] : rest;
+  const all = featured ? [featured, ...rest] : rest;
+  // STYLE TEST: on-model shot goes right after the hover design art.
+  const styled = withStyleTest(handle, title, all);
+  if (styled === all) return all;
+  const shot = styled.find((img) => img.url.startsWith("/style-test/"))!;
+  const others = all.filter((img) => !/\/lifestyle-[^/?]+\.jpg/.test(img.url));
+  return [...others.slice(0, 2), shot, ...others.slice(2)];
 }
 
 function transformProductCard(
@@ -206,6 +209,8 @@ function transformProductCard(
     galleryImages: buildCardGallery(
       transformImage(matchedVariant?.image ?? product.featuredImage),
       product.media?.nodes ?? [],
+      product.handle,
+      product.title,
     ),
     price: product.priceRange.minVariantPrice,
     maxPrice: product.priceRange.maxVariantPrice,

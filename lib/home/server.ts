@@ -1,6 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
 
-import { styleTestUrl } from "@/lib/shopify/transforms/product";
+import { withStyleTest } from "@/lib/style-test";
 
 const API_VERSION = "2025-01";
 
@@ -51,7 +51,7 @@ export async function getHomeProducts(): Promise<HomeProduct[]> {
     return (json.data?.products.nodes ?? [])
       .filter((p) => !p.tags.includes("example"))
       .map((p) => ({
-        gallery: homeGallery(p.featuredImage, p.media.nodes),
+        gallery: styleTestGallery(p.handle, p.title, homeGallery(p.featuredImage, p.media.nodes)),
         handle: p.handle,
         image: p.featuredImage,
         price: p.priceRange.minVariantPrice,
@@ -73,7 +73,7 @@ function homeGallery(
 ): HomeProduct["gallery"] {
   const base = (u: string) => u.split("?")[0];
   const imgs = nodes.flatMap((n) =>
-    n.image ? [{ altText: n.image.altText ?? "", height: n.image.height ?? 1, url: styleTestUrl(n.image.url), width: n.image.width ?? 1 }] : [],
+    n.image ? [{ altText: n.image.altText ?? "", height: n.image.height ?? 1, url: n.image.url, width: n.image.width ?? 1 }] : [],
   );
   const first = featured ? imgs.find((i) => base(i.url) === base(featured.url)) : undefined;
   const rest = imgs.filter((i) => i !== first);
@@ -81,4 +81,13 @@ function homeGallery(
   if (h < 0) h = rest.findIndex((i) => LIFESTYLE_ALT.test(i.altText));
   if (h > 0) rest.unshift(...rest.splice(h, 1));
   return first ? [first, ...rest] : rest;
+}
+
+// STYLE TEST: on-model shot right after the hover design art.
+function styleTestGallery(handle: string, title: string, all: HomeProduct["gallery"]): HomeProduct["gallery"] {
+  const styled = withStyleTest(handle, title, all);
+  if (styled === all) return all;
+  const shot = styled.find((img) => img.url.startsWith("/style-test/"))!;
+  const others = all.filter((img) => !/\/lifestyle-[^/?]+\.jpg/.test(img.url));
+  return [...others.slice(0, 2), shot, ...others.slice(2)];
 }
