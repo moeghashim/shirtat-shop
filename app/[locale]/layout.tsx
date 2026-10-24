@@ -8,7 +8,6 @@ import { Suspense } from "react";
 import { ActionBar } from "@/components/action-bar";
 import { AgentButton } from "@/components/agent/agent-button";
 import { AnalyticsComponents } from "@/components/analytics";
-import { GoogleTag } from "@/components/analytics/google-tag";
 import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/google-tag-manager";
 import { CartUI } from "@/components/cart/cart-ui";
 import { CartProviderWrapper } from "@/components/cart/context";
@@ -89,7 +88,6 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
             </Suspense>
           </CartProviderWrapper>
         </LocaleProvider>
-        <GoogleTag />
         <GoogleTagManager />
       </body>
     </html>

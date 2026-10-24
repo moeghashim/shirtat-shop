@@ -6,7 +6,13 @@ export const GTM_ID = "GTM-TDX7NTW3";
 const EVENTS = ["keydown", "pointerdown", "scroll", "touchstart"] as const;
 
 // Standard GTM loader, deferred to the first interaction or a few seconds after load
-// so it never competes with LCP. Shares window.dataLayer with GoogleTag.
+// so it never competes with LCP. GTM owns GA4 (G-6DT5S4QRGT); push custom events to window.dataLayer.
+declare global {
+  interface Window {
+    dataLayer?: unknown[];
+  }
+}
+
 export function GoogleTagManager() {
   useEffect(() => {
     let done = false;

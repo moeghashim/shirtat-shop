@@ -29,7 +29,7 @@ Contact: **shirtat@10claws.com**
 - Shopify Storefront API (catalogue, cart, checkout) and Admin API (products, metafields, orders)
 - Printify for fulfilment
 - Cloudflare Email Routing and Email sending, with Resend as an option
-- Google Analytics (gtag)
+- Google Tag Manager (GTM-TDX7NTW3), which runs Google Analytics
 
 ## Local development
 
