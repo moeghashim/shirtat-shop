@@ -25,23 +25,24 @@ export function ColorPicker({
       <p className="text-sm font-medium text-foreground/70">
         {option.name}: <span className="font-semibold text-foreground">{selectedValue}</span>
       </p>
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3" role="radiogroup" aria-label={option.name}>
         {option.values.map((value) => {
           const named = colorFromName(value.name);
-          const fill = value.swatch?.color || named.hex;
-          const imageUrl = hideImages
-            ? undefined
-            : value.swatch?.image || (fill ? undefined : value.image);
+          const fill = named.background ? undefined : value.swatch?.color || named.hex;
+          // Swatches are always solid fabric colours; images only as last resort.
+          const imageUrl =
+            hideImages || named.background || fill ? undefined : value.swatch?.image;
           const unavailable = !value.exists || !value.available;
           const swatch = (
             <Swatch
               color={fill}
+              background={named.background}
               image={imageUrl}
               label={value.name}
               selected={value.selected}
               className={cn(
                 "size-10",
-                named.light && "after:inset-ring-foreground/25",
+                named.light && "after:inset-ring-1 after:inset-ring-foreground/40",
                 unavailable &&
                   "before:pointer-events-none before:absolute before:inset-0 before:z-10 before:m-auto before:h-px before:w-[140%] before:-translate-x-[15%] before:-rotate-45 before:bg-foreground/60",
               )}
@@ -65,7 +66,9 @@ export function ColorPicker({
               scroll={false}
               className="block cursor-pointer rounded-full transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 focus-visible:ring-offset-2"
               aria-label={`Select ${option.name}: ${value.name}`}
-              aria-current={value.selected ? "true" : undefined}
+              role="radio"
+              aria-checked={value.selected}
+              title={value.name}
               onClick={
                 onSelectValue && !value.crossProduct
                   ? (event) => {

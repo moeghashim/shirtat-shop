@@ -4,6 +4,7 @@ import type { ComponentProps } from "react";
 
 interface SwatchProps extends ComponentProps<"span"> {
   color?: string;
+  background?: string;
   image?: string;
   label: string;
   selected?: boolean;
@@ -11,6 +12,7 @@ interface SwatchProps extends ComponentProps<"span"> {
 
 export function Swatch({
   color,
+  background,
   image,
   label,
   selected = false,
@@ -25,7 +27,7 @@ export function Swatch({
       className={cn(
         "relative block size-9 shrink-0 overflow-hidden rounded-full transition-all",
         "after:pointer-events-none after:absolute after:inset-0 after:rounded-full after:inset-ring after:inset-ring-foreground/10",
-        "data-[selected=true]:ring-2 data-[selected=true]:ring-foreground data-[selected=true]:ring-offset-[3px] data-[selected=true]:ring-offset-background",
+        "data-[selected=true]:ring-2 data-[selected=true]:ring-offset-2 data-[selected=true]:ring-foreground data-[selected=true]:ring-offset-[3px] data-[selected=true]:ring-offset-background",
         className,
       )}
       {...props}
@@ -42,7 +44,7 @@ export function Swatch({
       ) : (
         <span
           className="block size-full bg-accent"
-          style={color ? { backgroundColor: color } : undefined}
+          style={background ? { background } : color ? { backgroundColor: color } : undefined}
         />
       )}
     </span>
