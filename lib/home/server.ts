@@ -1,5 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 
+import { styleTestUrl } from "@/lib/shopify/transforms/product";
+
 const API_VERSION = "2025-01";
 
 export interface HomeProduct {
@@ -71,7 +73,7 @@ function homeGallery(
 ): HomeProduct["gallery"] {
   const base = (u: string) => u.split("?")[0];
   const imgs = nodes.flatMap((n) =>
-    n.image ? [{ altText: n.image.altText ?? "", height: n.image.height ?? 1, url: n.image.url, width: n.image.width ?? 1 }] : [],
+    n.image ? [{ altText: n.image.altText ?? "", height: n.image.height ?? 1, url: styleTestUrl(n.image.url), width: n.image.width ?? 1 }] : [],
   );
   const first = featured ? imgs.find((i) => base(i.url) === base(featured.url)) : undefined;
   const rest = imgs.filter((i) => i !== first);

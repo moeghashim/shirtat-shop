@@ -24,10 +24,17 @@ import type {
   ShopifyVariant,
 } from "@/lib/shopify/transforms/product/types";
 
+// STYLE TEST ONLY (branch style-test): swap on-model photos for the editorial-style test shots.
+const STYLE_TEST = new Set(["al-adab", "al-hubb-wal-salam", "al-zulm", "la-ghina-kal-aql", "lahez-kalamak-garh", "sa-ateer-yawman", "tafakkar"]);
+export function styleTestUrl(url: string): string {
+  const m = /\/lifestyle-(.+)-t-shirt\.jpg/.exec(url);
+  return m && STYLE_TEST.has(m[1]!) ? `/style-test/${m[1]}-t-shirt.jpg` : url;
+}
+
 export function transformImage(image: ShopifyImage | null | undefined): Image | null {
   if (!image) return null;
   return {
-    url: image.url,
+    url: styleTestUrl(image.url),
     altText: image.altText ?? "",
     width: image.width ?? 0,
     height: image.height ?? 0,
