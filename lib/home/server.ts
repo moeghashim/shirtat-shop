@@ -27,7 +27,7 @@ export async function getHomeProducts(): Promise<HomeProduct[]> {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Shopify-Storefront-Access-Token": token },
       body: JSON.stringify({
-        query: `{ products(first: 100, sortKey: CREATED_AT, reverse: true) { nodes { handle title productType tags featuredImage { url altText } media(first: 6) { nodes { ... on MediaImage { image { url altText width height } } } } priceRange { minVariantPrice { amount currencyCode } } } } }`,
+        query: `{ products(first: 100, sortKey: CREATED_AT, reverse: true) { nodes { handle title productType tags featuredImage { url altText } media(first: 10) { nodes { ... on MediaImage { image { url altText width height } } } } priceRange { minVariantPrice { amount currencyCode } } } } }`,
       }),
     });
     if (!res.ok) return [];

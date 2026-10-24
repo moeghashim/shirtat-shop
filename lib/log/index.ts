@@ -12,6 +12,8 @@ export const logDays: LogDay[] = [
       "Product cards now swap to a second image on hover (the on-model photo, or the flat calligraphy artwork once one is added), with arrows to flip through each product's photos. The extra photos only load when you hover, arrows work with the keyboard and flip direction in Arabic, and taps on phones still open the product.",
       "Smaller product cards: five per row on desktop, four on tablets, three on small tablets and two on phones.",
       "Added an image style skill for Shirtat photography, and brought the repo's agent skills in line with the agentskills.io format.",
+      "Homepage new arrivals now use the same hover gallery cards, ten products in two rows of five, and every product image sits on a light grey tile so items stand out on the white page.",
+      "Added the flat calligraphy design to every product. Hovering a card on desktop shows the pure design on the grey tile, and on phones the first tap shows the design and a second tap opens the product.",
     ],
   },
   {

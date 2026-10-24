@@ -15,6 +15,7 @@ interface CardGalleryProps {
   loading?: "eager" | "lazy";
 }
 
+const DESIGN_ALT = /\b(design|artwork|calligraphy)\b/i;
 const SIZES = "(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw";
 
 // The first image is the only one in the initial HTML; the rest mount on hover/focus intent.
@@ -23,6 +24,7 @@ export function CardGallery({ alt, children, images, loading = "lazy" }: CardGal
   const [armed, setArmed] = useState(false);
   const [index, setIndex] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+  const revealed = useRef(false);
 
   // The stretched title link overlays the image, so hover intent is read from the whole card.
   useEffect(() => {
@@ -34,13 +36,40 @@ export function CardGallery({ alt, children, images, loading = "lazy" }: CardGal
       setArmed(false);
       setIndex(null);
     };
+    // Touch: the first tap on the card reveals the hover image (the flat design); the next tap opens the product.
+    let touch = false;
+    const down = (e: PointerEvent) => {
+      touch = e.pointerType !== "mouse";
+    };
+    const click = (e: MouseEvent) => {
+      if (!touch || revealed.current || images.length < 2) return;
+      const target = e.target as HTMLElement;
+      if (target.closest("button") || !target.closest("a")) return;
+      e.preventDefault();
+      e.stopPropagation();
+      revealed.current = true;
+      setArmed(true);
+      window.dispatchEvent(new CustomEvent("card-reveal", { detail: card }));
+    };
+    const other = (e: Event) => {
+      if ((e as CustomEvent).detail === card) return;
+      revealed.current = false;
+      setArmed(false);
+      setIndex(null);
+    };
     card.addEventListener("pointerenter", enter);
     card.addEventListener("pointerleave", leave);
+    card.addEventListener("pointerdown", down);
+    card.addEventListener("click", click, true);
+    window.addEventListener("card-reveal", other);
     return () => {
       card.removeEventListener("pointerenter", enter);
       card.removeEventListener("pointerleave", leave);
+      card.removeEventListener("pointerdown", down);
+      card.removeEventListener("click", click, true);
+      window.removeEventListener("card-reveal", other);
     };
-  }, []);
+  }, [images.length]);
   const count = images.length;
   const first = images[0];
   if (!first) return null;
@@ -69,7 +98,9 @@ export function CardGallery({ alt, children, images, loading = "lazy" }: CardGal
             loading={i === 0 ? loading : "eager"}
             className={cn(
               // Multiply blends white mockup backgrounds into the card's grey tile.
-              "object-cover mix-blend-multiply transition-opacity duration-300",
+              DESIGN_ALT.test(img.altText) && i > 0
+                ? "object-contain p-[12%] transition-opacity duration-300"
+                : "object-cover mix-blend-multiply transition-opacity duration-300",
               i === 0 ? "" : "absolute inset-0",
               i === shown ? "opacity-100" : "opacity-0",
             )}

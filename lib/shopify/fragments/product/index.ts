@@ -150,7 +150,7 @@ export const PRODUCT_CARD_FRAGMENT = gql(
         width
         height
     }
-    media(first: 6) {
+    media(first: 10) {
       nodes {
         ... on MediaImage {
           image {
