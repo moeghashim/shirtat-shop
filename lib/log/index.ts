@@ -18,6 +18,7 @@ export const logDays: LogDay[] = [
       "Launched Kids and Baby: a kids T-shirt and a baby bodysuit for each of the eight designs, printed with the same calligraphy, plus new Kids and Baby categories in English and Arabic. Also launched the Bayni wa Baynak range in eight styles. New arrivals now show one newest product per design so every new range appears.",
       "Added Google Tag Manager to every page in English and Arabic. It loads after the page is ready so speed scores hold, with the no-JavaScript fallback in place. Google Analytics keeps loading directly until it is set up inside Tag Manager. Added Ahrefs Web Analytics to every page. Tag Manager and Ahrefs load on the first tap, click, scroll or key press, so they never slow the first view.",
       "Colour swatches on product pages are now solid circles in each real fabric colour, from heather and natural to apricot, oat gray and a camo pattern, instead of tiny photos or blank circles. Light colours have a visible border, the selected colour has a clear ring and its name, and swatches work with screen readers and the keyboard.",
+      "New design: Ana Ibn Jala (أنا ابن جلا وطلاع الثنايا), the famous line by Suhaym ibn Wathil, on six products: a T-shirt, sweatshirt, tote bag and print with black calligraphy on light colours, and a hoodie and kids T-shirt with white calligraphy on dark colours, each with its design story, details and printing info in English and Arabic.",
     ],
   },
   {
