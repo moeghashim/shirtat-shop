@@ -68,7 +68,8 @@ export function CardGallery({ alt, children, images, loading = "lazy" }: CardGal
             sizes={SIZES}
             loading={i === 0 ? loading : "eager"}
             className={cn(
-              "object-cover transition-opacity duration-300",
+              // Multiply blends white mockup backgrounds into the card's grey tile.
+              "object-cover mix-blend-multiply transition-opacity duration-300",
               i === 0 ? "" : "absolute inset-0",
               i === shown ? "opacity-100" : "opacity-0",
             )}

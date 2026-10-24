@@ -61,7 +61,7 @@ function ProductCardImage({
   return (
     <div
       data-slot="product-card-image"
-      className={cn("relative aspect-square overflow-hidden", className)}
+      className={cn("relative aspect-square overflow-hidden bg-[#ececea]", className)}
     >
       {gallery && gallery.length > 0 ? (
         <CardGallery alt={alt} images={gallery} loading={loading} />
@@ -70,7 +70,7 @@ function ProductCardImage({
           src={src}
           alt={alt}
           {...(width && height ? { height, width } : { fill: true })}
-          className="absolute inset-0 size-full object-cover"
+          className="absolute inset-0 size-full object-cover mix-blend-multiply"
           loading={loading}
           sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
         />

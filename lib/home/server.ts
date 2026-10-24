@@ -4,6 +4,8 @@ const API_VERSION = "2025-01";
 
 export interface HomeProduct {
   handle: string;
+  /** Card gallery: featured image first, then the hover image (design art, else on-model photo, else next image). */
+  gallery: { altText: string; height: number; url: string; width: number }[];
   image: { altText: string | null; url: string } | null;
   price: { amount: string; currencyCode: string };
   productType: string;
@@ -25,7 +27,7 @@ export async function getHomeProducts(): Promise<HomeProduct[]> {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Shopify-Storefront-Access-Token": token },
       body: JSON.stringify({
-        query: `{ products(first: 100, sortKey: CREATED_AT, reverse: true) { nodes { handle title productType tags featuredImage { url altText } priceRange { minVariantPrice { amount currencyCode } } } } }`,
+        query: `{ products(first: 100, sortKey: CREATED_AT, reverse: true) { nodes { handle title productType tags featuredImage { url altText } media(first: 6) { nodes { ... on MediaImage { image { url altText width height } } } } priceRange { minVariantPrice { amount currencyCode } } } } }`,
       }),
     });
     if (!res.ok) return [];
@@ -35,6 +37,7 @@ export async function getHomeProducts(): Promise<HomeProduct[]> {
           nodes: {
             featuredImage: { altText: string | null; url: string } | null;
             handle: string;
+            media: { nodes: { image?: { altText: string | null; height: number | null; url: string; width: number | null } }[] };
             priceRange: { minVariantPrice: { amount: string; currencyCode: string } };
             productType: string;
             tags: string[];
@@ -46,6 +49,7 @@ export async function getHomeProducts(): Promise<HomeProduct[]> {
     return (json.data?.products.nodes ?? [])
       .filter((p) => !p.tags.includes("example"))
       .map((p) => ({
+        gallery: homeGallery(p.featuredImage, p.media.nodes),
         handle: p.handle,
         image: p.featuredImage,
         price: p.priceRange.minVariantPrice,
@@ -56,4 +60,23 @@ export async function getHomeProducts(): Promise<HomeProduct[]> {
   } catch {
     return [];
   }
+}
+
+const DESIGN_ALT = /\b(design|artwork|calligraphy)\b/i;
+const LIFESTYLE_ALT = /\bmodel wearing\b/i;
+
+function homeGallery(
+  featured: { altText: string | null; url: string } | null,
+  nodes: { image?: { altText: string | null; height: number | null; url: string; width: number | null } }[],
+): HomeProduct["gallery"] {
+  const base = (u: string) => u.split("?")[0];
+  const imgs = nodes.flatMap((n) =>
+    n.image ? [{ altText: n.image.altText ?? "", height: n.image.height ?? 1, url: n.image.url, width: n.image.width ?? 1 }] : [],
+  );
+  const first = featured ? imgs.find((i) => base(i.url) === base(featured.url)) : undefined;
+  const rest = imgs.filter((i) => i !== first);
+  let h = rest.findIndex((i) => DESIGN_ALT.test(i.altText));
+  if (h < 0) h = rest.findIndex((i) => LIFESTYLE_ALT.test(i.altText));
+  if (h > 0) rest.unshift(...rest.splice(h, 1));
+  return first ? [first, ...rest] : rest;
 }

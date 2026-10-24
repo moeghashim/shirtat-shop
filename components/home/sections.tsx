@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import { CardGallery } from "@/components/product-card/card-gallery";
+
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { CATEGORIES } from "@/lib/collections/categories";
@@ -230,34 +232,32 @@ export async function NewArrivals() {
   }
   const groups = [...byDesign.values()];
   const picks: HomeProduct[] = [];
-  for (let i = 0; picks.length < 8 && groups.some((g) => g[i]); i++) {
-    for (const g of groups) if (g[i] && picks.length < 8) picks.push(g[i]!);
+  for (let i = 0; picks.length < 10 && groups.some((g) => g[i]); i++) {
+    for (const g of groups) if (g[i] && picks.length < 10) picks.push(g[i]!);
   }
   if (picks.length === 0) return null;
   const fmt = new Intl.NumberFormat(locale === "ar" ? "ar-u-nu-latn" : "en-US", { currency: "USD", style: "currency" });
   return (
     <Container>
       <SectionHeader href="/collections/all" linkText={t("View All")} title={t("New arrivals")} />
-      <ul className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-5 lg:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {picks.map((p) => (
           <li key={p.handle}>
-            <Link className="group block" href={`/products/${p.handle}`}>
-              <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
-                <Image
-                  alt={localTitle(p.title, locale)}
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  fill
-                  loading="lazy"
-                  sizes="(min-width: 1024px) 25vw, 50vw"
-                  src={p.image!.url}
-                />
+            {/* Stretched link (not wrapping) so the gallery arrows aren't buttons inside an anchor. */}
+            <article className="group/card relative">
+              <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#ececea]">
+                <CardGallery alt={localTitle(p.title, locale)} images={p.gallery.length ? p.gallery : [{ altText: "", height: 1, url: p.image!.url, width: 1 }]} loading="lazy" />
               </div>
-              <p className="mt-3 line-clamp-1 font-medium">{localTitle(p.title, locale)}</p>
+              <p className="mt-3 line-clamp-1 font-medium">
+                <Link className="after:absolute after:inset-0" href={`/products/${p.handle}`}>
+                  {localTitle(p.title, locale)}
+                </Link>
+              </p>
               <p className="text-sm text-muted-foreground">
                 {t(PRODUCT_TYPES.find((x) => x.type === p.productType)?.label ?? p.productType)} ·{" "}
                 {fmt.format(Number(p.price.amount))}
               </p>
-            </Link>
+            </article>
           </li>
         ))}
       </ul>
