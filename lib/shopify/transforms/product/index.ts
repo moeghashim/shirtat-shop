@@ -162,12 +162,12 @@ const LIFESTYLE_ALT = /\bmodel wearing\b/i;
 // Hover image: flat design art (alt mentions design/artwork/calligraphy), else the on-model lifestyle shot, else the next media image.
 function buildCardGallery(
   featured: Image | null,
-  nodes: ReadonlyArray<{ image?: ShopifyImage | null } | Record<string, never>>,
+  nodes: ReadonlyArray<object>,
 ): Image[] {
   const featuredBase = featured?.url.split("?")[0];
   const rest: Image[] = [];
   for (const node of nodes) {
-    const img = "image" in node ? transformImage(node.image) : null;
+    const img = "image" in node ? transformImage(node.image as ShopifyImage | null) : null;
     if (img && img.url.split("?")[0] !== featuredBase) rest.push(img);
   }
   let hoverIndex = rest.findIndex((img) => DESIGN_ALT.test(img.altText));
