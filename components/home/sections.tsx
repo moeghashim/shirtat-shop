@@ -12,7 +12,9 @@ type Translate = Awaited<ReturnType<typeof getT>>;
 
 const CATEGORY_STYLE: Record<string, { bg: string; glyph: string }> = {
   cultures: { bg: "from-emerald-900 to-teal-700", glyph: "ثقافات" },
+  baby: { bg: "from-sky-700 to-cyan-600", glyph: "رضّع" },
   humor: { bg: "from-amber-600 to-orange-500", glyph: "فكاهة" },
+  kids: { bg: "from-violet-800 to-indigo-600", glyph: "أطفال" },
   occasions: { bg: "from-rose-800 to-fuchsia-700", glyph: "مناسبات" },
   poetry: { bg: "from-stone-900 to-stone-700", glyph: "شعر" },
 };

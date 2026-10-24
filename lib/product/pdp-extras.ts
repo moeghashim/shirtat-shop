@@ -7,7 +7,7 @@ import { fetchProductsByIds } from "@/lib/shopify/operations/products/server";
 const API_VERSION = "2025-01";
 
 /** Product-type suffixes every Shirtat design can be printed on; the handle is `${design}-${suffix}`. */
-const TYPE_SUFFIXES = ["t-shirt", "hoodie", "sweatshirt", "cap", "beanie", "tote-bag", "print"] as const;
+const TYPE_SUFFIXES = ["kids-t-shirt", "baby-bodysuit", "t-shirt", "hoodie", "sweatshirt", "cap", "beanie", "tote-bag", "print"] as const;
 
 export interface DesignStory {
   meaning?: string;
