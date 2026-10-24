@@ -3,10 +3,11 @@
 import { useEffect } from "react";
 
 export const GTM_ID = "GTM-TDX7NTW3";
+const AHREFS_KEY = "VYwSB5EaIOlVzu23N5ZNWg";
 const EVENTS = ["keydown", "pointerdown", "scroll", "touchstart"] as const;
 
-// Standard GTM loader, deferred to the first interaction or a few seconds after load
-// so it never competes with LCP. GTM owns GA4 (G-6DT5S4QRGT); push custom events to window.dataLayer.
+// Standard GTM loader, plus Ahrefs Web Analytics, deferred to the first user interaction
+// so it never competes with LCP. GA4 still loads via components/analytics/google-tag.tsx.
 declare global {
   interface Window {
     dataLayer?: unknown[];
@@ -16,11 +17,9 @@ declare global {
 export function GoogleTagManager() {
   useEffect(() => {
     let done = false;
-    let timer = 0;
     const load = () => {
       if (done) return;
       done = true;
-      window.clearTimeout(timer);
       for (const name of EVENTS) window.removeEventListener(name, load);
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
@@ -28,17 +27,15 @@ export function GoogleTagManager() {
       script.async = true;
       script.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
       document.head.appendChild(script);
+      const ahrefs = document.createElement("script");
+      ahrefs.async = true;
+      ahrefs.src = "https://analytics.ahrefs.com/analytics.js";
+      ahrefs.dataset.key = AHREFS_KEY;
+      document.head.appendChild(ahrefs);
     };
     for (const name of EVENTS) window.addEventListener(name, load, { once: true, passive: true });
-    const arm = () => {
-      timer = window.setTimeout(load, 4000);
-    };
-    if (document.readyState === "complete") arm();
-    else window.addEventListener("load", arm, { once: true });
     return () => {
       done = true;
-      window.clearTimeout(timer);
-      window.removeEventListener("load", arm);
       for (const name of EVENTS) window.removeEventListener(name, load);
     };
   }, []);
