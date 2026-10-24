@@ -15,7 +15,7 @@ interface CardGalleryProps {
   loading?: "eager" | "lazy";
 }
 
-const SIZES = "(min-width: 1024px) 25vw, 50vw";
+const SIZES = "(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw";
 
 // The first image is the only one in the initial HTML; the rest mount on hover/focus intent.
 export function CardGallery({ alt, children, images, loading = "lazy" }: CardGalleryProps) {

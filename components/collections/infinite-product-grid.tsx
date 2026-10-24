@@ -79,7 +79,7 @@ export function InfiniteProductGrid({
       className="transition-opacity duration-200 data-[pending=true]:pointer-events-none data-[pending=true]:opacity-50"
       data-pending={isPending}
     >
-      <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {children}
         {additionalProducts.map((product) => (
           <ProductCard

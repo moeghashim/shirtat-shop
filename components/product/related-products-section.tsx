@@ -10,7 +10,7 @@ function RelatedProductsSectionSkeleton({ limit }: { limit: number }) {
       <h2 className="text-2xl sm:text-3xl">
         <T k="You May Also Like" />
       </h2>
-      <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {Array.from({ length: limit }, (_, index) => (
           <ProductCardSkeleton key={index} />
         ))}
@@ -27,7 +27,7 @@ async function Render({ handle, limit }: { handle: string; limit: number }) {
       <h2 className="text-2xl sm:text-3xl">
         <T k="You May Also Like" />
       </h2>
-      <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {related.slice(0, limit).map((product) => (
           <ProductCard key={product.id} product={product} outOfStockText="Out of Stock" />
         ))}

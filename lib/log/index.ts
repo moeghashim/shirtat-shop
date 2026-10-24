@@ -7,6 +7,14 @@ export interface LogDay {
 /** Newest day first. Add new days to the top. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-10-24",
+    entries: [
+      "Product cards now swap to a second image on hover (the on-model photo, or the flat calligraphy artwork once one is added), with arrows to flip through each product's photos. The extra photos only load when you hover, arrows work with the keyboard and flip direction in Arabic, and taps on phones still open the product.",
+      "Smaller product cards: five per row on desktop, four on tablets, three on small tablets and two on phones.",
+      "Added an image style skill for Shirtat photography, and brought the repo's agent skills in line with the agentskills.io format.",
+    ],
+  },
+  {
     date: "2026-10-22",
     entries: [
       "Received the first order on shirtat.co.",
