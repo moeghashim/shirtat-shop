@@ -8,6 +8,8 @@ import { Suspense } from "react";
 import { ActionBar } from "@/components/action-bar";
 import { AgentButton } from "@/components/agent/agent-button";
 import { AnalyticsComponents } from "@/components/analytics";
+import { GoogleTag } from "@/components/analytics/google-tag";
+import Script from "next/script";
 import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/google-tag-manager";
 import { CartUI } from "@/components/cart/cart-ui";
 import { CartProviderWrapper } from "@/components/cart/context";
@@ -88,7 +90,9 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
             </Suspense>
           </CartProviderWrapper>
         </LocaleProvider>
+        <GoogleTag />
         <GoogleTagManager />
+        <Script src="https://analytics.ahrefs.com/analytics.js" data-key="VYwSB5EaIOlVzu23N5ZNWg" strategy="lazyOnload" />
       </body>
     </html>
   );

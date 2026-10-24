@@ -15,7 +15,7 @@ export const logDays: LogDay[] = [
       "Homepage new arrivals now use the same hover gallery cards, ten products in two rows of five, and every product image sits on a light grey tile so items stand out on the white page.",
       "Added the flat calligraphy design to every product. Hovering a card on desktop shows the pure design on the grey tile, and on phones the first tap shows the design and a second tap opens the product.",
       "Product pages now have Details and Printing sections in English and Arabic, taken from each product's print partner: fabric, weight, fit, sizes, size chart, care and origin, plus the print method, placement and print area. Anything the vendor doesn't publish is marked unknown.",
-      "Added Google Tag Manager to every page in English and Arabic. It loads after the page is ready so speed scores hold, with the no-JavaScript fallback in place. Google Analytics now runs only through Tag Manager, so visits are counted once.",
+      "Added Google Tag Manager to every page in English and Arabic. It loads after the page is ready so speed scores hold, with the no-JavaScript fallback in place. Google Analytics keeps loading directly until it is set up inside Tag Manager. Added Ahrefs Web Analytics to every page, loaded after the page is idle.",
     ],
   },
   {
