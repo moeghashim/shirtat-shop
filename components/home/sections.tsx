@@ -239,7 +239,7 @@ export async function NewArrivals() {
     <Container>
       <SectionHeader href="/collections/all" linkText={t("View All")} title={t("New arrivals")} />
       <ul className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-5 lg:grid-cols-4">
-        {picks.map((p, i) => (
+        {picks.map((p) => (
           <li key={p.handle}>
             <Link className="group block" href={`/products/${p.handle}`}>
               <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
@@ -247,7 +247,7 @@ export async function NewArrivals() {
                   alt={localTitle(p.title, locale)}
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                   fill
-                  loading={i < 4 ? "eager" : "lazy"}
+                  loading="lazy"
                   sizes="(min-width: 1024px) 25vw, 50vw"
                   src={p.image!.url}
                 />

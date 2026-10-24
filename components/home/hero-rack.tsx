@@ -493,9 +493,8 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
                         alt=""
                         width={800}
                         height={960}
-                        priority={sideNeeded}
-                        loading={sideNeeded ? undefined : "eager"}
-                        fetchPriority={sideNeeded ? undefined : "low"}
+                        fetchPriority="low"
+                        loading="eager"
                         sizes="(min-width: 768px) 253px, 160px"
                         className="h-auto w-full"
                       />
@@ -520,9 +519,9 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
                         alt=""
                         width={800}
                         height={960}
-                        priority={frontNeeded}
-                        loading={frontNeeded ? undefined : "eager"}
-                        fetchPriority={frontNeeded ? undefined : "low"}
+                        fetchPriority={isDefault ? "high" : "low"}
+                        loading="eager"
+                        preload={isDefault}
                         sizes="(min-width: 768px) 253px, 160px"
                         className="h-auto w-full"
                       />
