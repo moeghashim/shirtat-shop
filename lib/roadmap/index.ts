@@ -26,7 +26,7 @@ export const roadmapPhases: RoadmapPhase[] = [
   {
     title: "Products",
     status: "done",
-    summary: "First Arabic calligraphy and poetry shirts, hoodies, sweatshirts and prints are live, with redesigned product pages.",
+    summary: "Arabic calligraphy and poetry shirts, hoodies, sweatshirts, tote bags and prints are live, with redesigned product pages, solid fabric-colour swatches and new designs like Ana Ibn Jala.",
   },
   {
     title: "Supplier and product workflow",
@@ -95,6 +95,31 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: "Mobile performance",
     status: "in-progress",
     summary: "Desktop Lighthouse is near 100; pushing the mobile performance score higher.",
+  },
+  {
+    title: "Kids and Baby",
+    status: "done",
+    summary: "A kids T-shirt and a baby bodysuit for every design, with their own Kids and Baby categories in English and Arabic.",
+  },
+  {
+    title: "Product details and printing",
+    status: "done",
+    summary: "Every product page shows fabric, fit, sizes, care, origin and how it is printed, in English and Arabic, taken from the print partner.",
+  },
+  {
+    title: "Hover gallery cards",
+    status: "done",
+    summary: "Product cards show the calligraphy design on hover with arrows to flip through photos, five per row on desktop.",
+  },
+  {
+    title: "Analytics",
+    status: "done",
+    summary: "Google Tag Manager and Ahrefs Web Analytics on every page, loaded on first interaction so speed scores hold.",
+  },
+  {
+    title: "More print partners",
+    status: "next",
+    summary: "Adding Wearform and Tapstitch as print-on-demand options and comparing their prices to pick the best partner for each product.",
   },
   {
     title: "Saudi Arabia shipping",
