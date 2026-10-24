@@ -15,6 +15,7 @@ export const logDays: LogDay[] = [
       "Homepage new arrivals now use the same hover gallery cards, ten products in two rows of five, and every product image sits on a light grey tile so items stand out on the white page.",
       "Added the flat calligraphy design to every product. Hovering a card on desktop shows the pure design on the grey tile, and on phones the first tap shows the design and a second tap opens the product.",
       "Product pages now have Details and Printing sections in English and Arabic, taken from each product's print partner: fabric, weight, fit, sizes, size chart, care and origin, plus the print method, placement and print area. Anything the vendor doesn't publish is marked unknown.",
+      "Launched Kids and Baby: a kids T-shirt and a baby bodysuit for each of the eight designs, printed with the same calligraphy, plus new Kids and Baby categories in English and Arabic. Also launched the Bayni wa Baynak range in eight styles. New arrivals now show one newest product per design so every new range appears.",
       "Added Google Tag Manager to every page in English and Arabic. It loads after the page is ready so speed scores hold, with the no-JavaScript fallback in place. Google Analytics keeps loading directly until it is set up inside Tag Manager. Added Ahrefs Web Analytics to every page. Tag Manager and Ahrefs load on the first tap, click, scroll or key press, so they never slow the first view.",
     ],
   },

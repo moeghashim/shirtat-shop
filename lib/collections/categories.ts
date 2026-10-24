@@ -41,6 +41,20 @@ export const CATEGORIES: CategoryConfig[] = [
     labelAr: "مناسبات",
     labelEn: "Occasions",
   },
+  {
+    descriptionAr: "تصاميم شيرتات بالخط العربي بمقاسات الأطفال.",
+    descriptionEn: "Shirtat calligraphy designs in kids' sizes.",
+    id: "kids",
+    labelAr: "أطفال",
+    labelEn: "Kids",
+  },
+  {
+    descriptionAr: "بدلات رضّع قطنية ناعمة بتصاميم شيرتات.",
+    descriptionEn: "Soft cotton baby bodysuits with Shirtat designs.",
+    id: "baby",
+    labelAr: "رضّع",
+    labelEn: "Baby",
+  },
 ];
 
 export function getCategory(id: string): CategoryConfig | undefined {

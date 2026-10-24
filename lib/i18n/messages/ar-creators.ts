@@ -253,6 +253,11 @@ export const arCreators = {
   "Sweatshirts": "سويتشيرتات",
   "Tote bags": "حقائب قماشية",
   "Prints": "لوحات مطبوعة",
+  "Kids T-Shirt": "تيشيرت أطفال",
+  "Baby Bodysuit": "بدلة رضيع",
+  "Jacket": "جاكيت",
+  "Hoodie": "هودي",
+  "Sweatshirt": "سويتشيرت",
   "Design spotlight": "تصميم مميّز",
   "Shop the design": "تسوّق التصميم",
   "Every piece is made by a designer. Browse by the people behind the calligraphy, starting with the Shirtat studio.":
