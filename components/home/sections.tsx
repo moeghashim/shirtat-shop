@@ -245,7 +245,7 @@ export async function NewArrivals() {
           <li key={p.handle}>
             {/* Stretched link (not wrapping) so the gallery arrows aren't buttons inside an anchor. */}
             <article className="group/card relative">
-              <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
+              <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#ececea]">
                 <CardGallery alt={localTitle(p.title, locale)} images={p.gallery.length ? p.gallery : [{ altText: "", height: 1, url: p.image!.url, width: 1 }]} loading="lazy" />
               </div>
               <p className="mt-3 line-clamp-1 font-medium">
