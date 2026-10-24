@@ -3,12 +3,12 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, El_Messiri } from "next/font/google";
 
 import "../globals.css";
-import Script from "next/script";
 import { Suspense } from "react";
 
 import { ActionBar } from "@/components/action-bar";
 import { AgentButton } from "@/components/agent/agent-button";
 import { AnalyticsComponents } from "@/components/analytics";
+import { GoogleTag } from "@/components/analytics/google-tag";
 import { CartUI } from "@/components/cart/cart-ui";
 import { CartProviderWrapper } from "@/components/cart/context";
 import { CartStandardActionsScript } from "@/components/cart/standard-actions";
@@ -87,16 +87,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
             </Suspense>
           </CartProviderWrapper>
         </LocaleProvider>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-6DT5S4QRGT"
-          strategy="lazyOnload"
-        />
-        <Script id="google-gtag" strategy="lazyOnload">
-          {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-6DT5S4QRGT');`}
-        </Script>
+        <GoogleTag />
       </body>
     </html>
   );
