@@ -14,6 +14,7 @@ export const logDays: LogDay[] = [
       "Added an image style skill for Shirtat photography, and brought the repo's agent skills in line with the agentskills.io format.",
       "Homepage new arrivals now use the same hover gallery cards, ten products in two rows of five, and every product image sits on a light grey tile so items stand out on the white page.",
       "Added the flat calligraphy design to every product. Hovering a card on desktop shows the pure design on the grey tile, and on phones the first tap shows the design and a second tap opens the product.",
+      "Product pages now have Details and Printing sections in English and Arabic, taken from each product's print partner: fabric, weight, fit, sizes, size chart, care and origin, plus the print method, placement and print area. Anything the vendor doesn't publish is marked unknown.",
     ],
   },
   {

@@ -10,6 +10,11 @@ import { ComplementaryProducts } from "@/components/product-detail/complementary
 import { GiftCardPurchaseForm } from "@/components/product-detail/gift-card-purchase-form";
 import { ProductOpenGraph } from "@/components/product-detail/open-graph";
 import {
+  DesignStoryBlock,
+  PdpTrustAndDetails,
+  ProductSpecsBlock,
+} from "@/components/product-detail/pdp-extras";
+import {
   ProductForm,
   ProductFormOptions,
   ProductFormPrice,
@@ -23,7 +28,6 @@ import {
   ColorImageGrid,
   ProductMedia,
 } from "@/components/product-detail/product-media";
-import { DesignStoryBlock, PdpTrustAndDetails } from "@/components/product-detail/pdp-extras";
 import { ProductPrice } from "@/components/product-detail/product-price";
 import { ProductSchema } from "@/components/product-detail/schema";
 import { BreadcrumbSchema } from "@/components/schema/breadcrumb-schema";
@@ -169,7 +173,9 @@ async function ProductInfoArea({
   variantPromise: Promise<ProductVariant | undefined>;
 }) {
   const t = await getT();
-  const isArabic = String(await getLocale()).toLowerCase().startsWith("ar");
+  const isArabic = String(await getLocale())
+    .toLowerCase()
+    .startsWith("ar");
   const { options, handle, descriptionHtml } = product;
   const uniformStock = product.allVariantsInStock;
   const singleVariant = product.variantsCount === 1;
@@ -183,7 +189,9 @@ async function ProductInfoArea({
         data-uniform-price={product.hasUniformPricing}
       >
         <div data-slot="product-info-header" className="grid gap-2">
-          <h1 className="text-foreground text-2xl leading-tight font-semibold sm:text-3xl">{product.title}</h1>
+          <h1 className="text-foreground text-2xl leading-tight font-semibold sm:text-3xl">
+            {product.title}
+          </h1>
           {product.hasUniformPricing ? (
             <ProductPrice
               amount={product.priceRange.minVariantPrice.amount}
@@ -232,6 +240,11 @@ async function ProductInfoArea({
       <PdpTrustAndDetails
         handle={handle}
         isArabic={isArabic}
+        specsSlot={
+          <Suspense fallback={null}>
+            <ProductSpecsBlock handle={handle} isArabic={isArabic} />
+          </Suspense>
+        }
         storySlot={
           <Suspense fallback={null}>
             <DesignStoryBlock handle={handle} isArabic={isArabic} />
