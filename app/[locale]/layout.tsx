@@ -9,6 +9,7 @@ import { ActionBar } from "@/components/action-bar";
 import { AgentButton } from "@/components/agent/agent-button";
 import { AnalyticsComponents } from "@/components/analytics";
 import { GoogleTag } from "@/components/analytics/google-tag";
+import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/google-tag-manager";
 import { CartUI } from "@/components/cart/cart-ui";
 import { CartProviderWrapper } from "@/components/cart/context";
 import { CartStandardActionsScript } from "@/components/cart/standard-actions";
@@ -63,6 +64,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${messiri.variable} ${locale === "ar" ? "font-arabic" : "font-sans"} flex min-h-dvh flex-col antialiased`}
       >
+        <GoogleTagManagerNoScript />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-100 focus:rounded-md focus:bg-background focus:px-5 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-foreground focus:outline-none"
@@ -88,6 +90,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
           </CartProviderWrapper>
         </LocaleProvider>
         <GoogleTag />
+        <GoogleTagManager />
       </body>
     </html>
   );
