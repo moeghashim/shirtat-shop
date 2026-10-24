@@ -17,6 +17,7 @@ export const logDays: LogDay[] = [
       "Product pages now have Details and Printing sections in English and Arabic, taken from each product's print partner: fabric, weight, fit, sizes, size chart, care and origin, plus the print method, placement and print area. Anything the vendor doesn't publish is marked unknown.",
       "Launched Kids and Baby: a kids T-shirt and a baby bodysuit for each of the eight designs, printed with the same calligraphy, plus new Kids and Baby categories in English and Arabic. Also launched the Bayni wa Baynak range in eight styles. New arrivals now show one newest product per design so every new range appears.",
       "Added Google Tag Manager to every page in English and Arabic. It loads after the page is ready so speed scores hold, with the no-JavaScript fallback in place. Google Analytics keeps loading directly until it is set up inside Tag Manager. Added Ahrefs Web Analytics to every page. Tag Manager and Ahrefs load on the first tap, click, scroll or key press, so they never slow the first view.",
+      "Colour swatches on product pages are now solid circles in each real fabric colour, from heather and natural to apricot, oat gray and a camo pattern, instead of tiny photos or blank circles. Light colours have a visible border, the selected colour has a clear ring and its name, and swatches work with screen readers and the keyboard.",
     ],
   },
   {
