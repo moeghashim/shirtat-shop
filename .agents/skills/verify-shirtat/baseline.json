@@ -1,0 +1,9 @@
+{
+  "_note": "Lighthouse medians (0-100). A run fails if any score drops more than 2 points below these. Mobile home/ar from the Oct 24 2026 median runs; the rest from the first verify run on Oct 25 2026. Raise them when a speed fix lands; never lower them to make a run pass.",
+  "mobile_": { "performance": 88, "accessibility": 100, "best-practices": 100, "seo": 100 },
+  "mobile_ar": { "performance": 86, "accessibility": 100, "best-practices": 100, "seo": 100 },
+  "mobile_products_ana-ibn-jala-t-shirt": { "performance": 84, "accessibility": 100, "best-practices": 100, "seo": 100 },
+  "desktop_": { "performance": 99, "accessibility": 100, "best-practices": 100, "seo": 100 },
+  "desktop_ar": { "performance": 99, "accessibility": 100, "best-practices": 100, "seo": 100 },
+  "desktop_products_ana-ibn-jala-t-shirt": { "performance": 99, "accessibility": 100, "best-practices": 100, "seo": 100 }
+}
