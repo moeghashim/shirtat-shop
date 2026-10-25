@@ -7,6 +7,12 @@ export interface LogDay {
 /** Newest day first. Add new days to the top. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-10-25",
+    entries: [
+      "Added an automated check that uses the site the way a shopper does, in English and Arabic: the homepage, Kids and Baby, a product page with its colours, details and printing info, adding to the cart, and the making-of and roadmap pages. It also confirms the analytics tags wait for the first tap or scroll, and runs Lighthouse three times per page on mobile and desktop, failing if a score slips below the last measured median. It never goes to checkout or places an order.",
+    ],
+  },
+  {
     date: "2026-10-24",
     entries: [
       "Product cards now swap to a second image on hover (the on-model photo, or the flat calligraphy artwork once one is added), with arrows to flip through each product's photos. The extra photos only load when you hover, arrows work with the keyboard and flip direction in Arabic, and taps on phones still open the product.",
