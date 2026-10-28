@@ -123,6 +123,6 @@ function customerHandlers(
 export const config = {
   matcher: [
     // Only named static and metadata files skip the proxy: Shopify's dotted routes and `.md` mirrors must still match.
-    "/((?!_next/static|_next/image|_next/data|_vercel|eve(?:/|$)|_eve_internal(?:/|$)|agent/ucp-profile\\.json$|apple-icon\\.png$|favicon\\.ico$|icon\\.svg$|icons/|llms\\.txt$|manifest\\.webmanifest$|og-default\\.png$|robots\\.txt$|sitemap\\.xml$|sitemap/).*)",
+    "/((?!_next/static|_next/image|_next/data|_vercel|eve(?:/|$)|_eve_internal(?:/|$)|agent/ucp-profile\\.json$|apple-icon\\.png$|favicon\\.ico$|icon\\.svg$|icons/|llms\\.txt$|manifest\\.webmanifest$|og-default\\.png$|og/|banner/|10claws-logo\\.svg$|grokbot-icon\\.png$|shirtat-logo(?:-mark)?\\.svg$|favicon-(?:16x16|32x32)\\.png$|favicon\\.svg$|android-chrome-(?:192x192|512x512)\\.png$|apple-touch-icon\\.png$|site\\.webmanifest$|robots\\.txt$|sitemap\\.xml$|sitemap/).*)",
   ],
 };

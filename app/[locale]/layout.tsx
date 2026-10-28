@@ -22,7 +22,7 @@ import { shopConfig } from "@/lib/config";
 import { locales, localeDir, translate } from "@/lib/i18n";
 import { LocaleProvider } from "@/lib/i18n/client";
 import { getLocale } from "@/lib/i18n/server";
-import { buildAlternates, ogLocale, siteOgImages } from "@/lib/seo";
+import { ogLocale, siteOgImages } from "@/lib/seo";
 
 export const ensureStatic = "prefetch";
 
@@ -99,7 +99,6 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
 export const generateMetadata = async (): Promise<Metadata> => {
   const locale = await getLocale();
   return {
-    alternates: buildAlternates({ locale, pathname: "/" }),
     description: translate(locale, shopConfig.site.description),
     generator: shopConfig.site.name,
     icons: {
