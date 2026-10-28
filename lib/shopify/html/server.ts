@@ -4,7 +4,7 @@ const EMBED_DOMAINS = ["vimeo.com", "youtube-nocookie.com", "youtube.com"];
 
 const SHOPIFY_HTML_OPTIONS: sanitizeHtml.IOptions = {
   allowedAttributes: {
-    "*": ["style"],
+    "*": ["dir", "lang", "style"],
     a: ["href", "name", "rel", "target", "title"],
     iframe: [
       "allow",

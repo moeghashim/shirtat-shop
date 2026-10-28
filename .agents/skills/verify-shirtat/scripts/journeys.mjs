@@ -8,6 +8,8 @@ fs.mkdirSync(OUT, { recursive: true });
 const results = []; const ok = (name, pass, info = '') => { results.push({ name, pass, info }); console.log(`${pass ? 'PASS' : 'FAIL'} ${name}${info ? ' — ' + info : ''}`); };
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, extraHTTPHeaders: process.env.VERCEL_BYPASS ? { 'x-vercel-protection-bypass': process.env.VERCEL_BYPASS } : {} });
+// Protected preview: VERCEL_JWT is the _vercel_jwt cookie from a Vercel shareable link (never printed).
+if (process.env.VERCEL_JWT) await ctx.addCookies([{ name: '_vercel_jwt', value: process.env.VERCEL_JWT, domain: new URL(BASE).hostname, path: '/', secure: true, httpOnly: true }]);
 const IGNORE = /favicon|Failed to load resource.*(40[34])|googletagmanager|ahrefs|google-analytics/i;
 async function open(path, shot) {
   const page = await ctx.newPage(); const errs = []; const reqs = [];
