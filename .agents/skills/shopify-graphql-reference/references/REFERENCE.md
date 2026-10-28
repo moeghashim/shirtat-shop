@@ -26,6 +26,7 @@ Never duplicate Shopify API reference material here. Re-run Shopify validation w
 | `lib/product/types.ts`, `lib/collections/types.ts`, `lib/customer/types.ts`, `lib/filters/types.ts`, `lib/menu/types.ts` | Domain-owned models consumed by transforms and presentation |
 | `lib/cart/server.ts`                        | Cart cookie helpers and server-side cart read seeding                                                 |
 | `app/api/webhooks/shopify/route.ts`         | Public-content invalidation entry point                                                               |
+| `app/api/revalidate/route.ts`               | Protected refresh by cache tag for content Shopify sends no webhook for                               |
 
 ## Data flow
 
@@ -42,7 +43,7 @@ Do not add an internal HTTP hop between a Server Component and `lib/shopify/oper
 - Compose fragments by passing them as the second `gql(source, [FRAGMENT_A, FRAGMENT_B])` argument. Never interpolate a fragment string into another document.
 - Do not add a separate `MoneyFields` or `ImageFields` fragment. Inline `amount currencyCode` and `url altText width height`; two fragments that both embed the same leaf fragment would emit it twice in one document.
 - Keep documents static. Pass dynamic values as GraphQL variables or choose between separate static documents at the call site.
-- Call `storefront.request(QUERY, { variables })` for deployment defaults, or pass `locale: { country, language }` for explicit commerce context, then `assertStorefrontOk(response, operationName)`. `locale` is a `CommerceLocale` object from `lib/config/types.ts`, not the formatting locale string. Result and variable types come from the document; do not write a response type. Omit `country` and `language` from `variables` — the wrapper injects them from that context.
+- Call `storefront.request(QUERY, { variables })` for deployment defaults, or pass `locale: { country, language }` for explicit commerce context, then `assertStorefrontOk(response, operationName)`. `locale` is a `CommerceLocale` object from `lib/config/types.ts`, not the formatting locale string. Result and variable types come from the document; do not write a response type. Declare `$country: CountryCode` and `$language: LanguageCode` and omit them from `variables` — the wrapper injects them from that context. A same-named variable of another type, such as a `String!` metafield key, is yours to pass.
 - Derive raw Shopify types for transforms with `ResultOf<typeof FRAGMENT>` (Storefront) or `CustomerAccountResultOf<typeof FRAGMENT>` (Customer Account), imported from `lib/shopify/types.ts`, instead of hand-writing interfaces. Keep named resource contracts in the owning domain's `types.ts`; do not import shared types from a transport or operation's `server.ts`.
 - Select `__typename` on union or interface fields (`node`, `nodes`, `search` results) and narrow with `node.__typename === "Product"`.
 Shopify AI Toolkit validates documents; there is no local schema gate, and typecheck does not catch invalid fields. Exercise a new or changed operation against the store once.
@@ -52,7 +53,7 @@ Shopify AI Toolkit validates documents; there is no local schema gate, and typec
 | Render role                                                                                                    | Treatment                                                             |
 | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Public catalog and content reads, including static shell content                                               | `"use cache: remote"` in the domain `get*` wrapper with the established `cacheLife` and tags |
-| Default first page of a collection or `/collections/all`, with its facets                                      | `"use cache: remote"` with `cacheLife("minutes")` and webhook tags    |
+| Default first page of a collection or `/collections/all`, with its facets                                      | `"use cache: remote"` with `cacheLife("max")` and webhook tags        |
 | Filtered or sorted browse, Load more pages, search results, and their facets                                   | Uncached `fetch*` operations; no read-cache directive                 |
 | Cart, session, authorization, or Customer Account data                                                         | Uncached or private/request-scoped; never public remote cache         |
 | Mutation                                                                                                       | No read-cache directive; invalidate the affected domain after success |
@@ -62,8 +63,8 @@ Follow the closest existing operation with the same render role. Do not choose a
 Current examples of intent:
 
 - Product, collection, recommendation, blog, page, policy, and sitemap reads use `"use cache: remote"` in their `lib/<domain>/server.ts` wrapper, so every instance shares one cache in front of Shopify; remote reads still render into the static shell when the route prerenders.
-- The default first page of each collection and of `/collections/all` is cached for minutes in `lib/collections/server.ts`, tagged for product and collection webhooks.
-- Filtered or sorted browse, search results, facets, and cursor pages call the uncached `fetch*` operations directly from `lib/collections/server.ts` and `lib/search/server.ts`: cached cursor pages drift apart and duplicate boundary products, and Search & Discovery edits send no webhook.
+- The default first page of each collection and of `/collections/all` is cached with `cacheLife("max")` in `lib/collections/server.ts`, tagged for product and collection webhooks; Search & Discovery edits send no webhook, so they appear after the next one refreshes the page.
+- Filtered or sorted browse, search results, facets, and cursor pages call the uncached `fetch*` operations directly from `lib/collections/server.ts`, `lib/collections/action.ts` (Load more), and `lib/search/server.ts`: cached cursor pages drift apart and duplicate boundary products, and Search & Discovery edits send no webhook.
 - Customer Account operations and cart reads remain customer/request scoped.
 
 ## Deployment context versus copy locale
@@ -84,7 +85,7 @@ Country/language scope Shopify commerce data; the formatting locale and translat
 
 - Reuse established product, collection, menu, recommendation, sitemap, and CMS tags; carts have no public cache tags.
 - Add a new tag only when the webhook or mutation path can invalidate it correctly.
-- Keep public-content tags aligned with `app/api/webhooks/shopify/route.ts`.
+- Keep public-content tags aligned with `app/api/webhooks/shopify/route.ts` and the `/api/revalidate` tags listed in the Webhooks docs; callers pass those names.
 - Never place carts in the Next.js data cache; cart reads are memoized per request via `getCart`, so cart mutations need no cache invalidation step.
 - Never rely on public cache invalidation for Customer Account privacy or authorization.
 

@@ -48,15 +48,17 @@ export function ColorPicker({
               )}
             />
           );
-          if (!value.exists || !value.available) {
+          if (!value.exists) {
             return (
-              <span
+              <button
                 key={value.name}
                 className="block cursor-not-allowed rounded-full opacity-40"
                 aria-label={`${option.name}: ${value.name} (unavailable)`}
+                disabled
+                type="button"
               >
                 {swatch}
-              </span>
+              </button>
             );
           }
           return (
@@ -65,7 +67,7 @@ export function ColorPicker({
               href={value.href}
               scroll={false}
               className="block cursor-pointer rounded-full transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 focus-visible:ring-offset-2"
-              aria-label={`Select ${option.name}: ${value.name}`}
+              aria-label={`Select ${option.name}: ${value.name}${value.available ? "" : " (sold out)"}`}
               role="radio"
               aria-checked={value.selected}
               title={value.name}

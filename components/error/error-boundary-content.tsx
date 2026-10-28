@@ -24,10 +24,8 @@ export function ErrorBoundaryContent({ retry }: { retry: () => void }) {
         <Button onClick={() => retry()}>
           <T k="Try again" />
         </Button>
-        <Button variant="outline" asChild>
-          <Link href="/">
-            <T k="Go back to the home page" />
-          </Link>
+        <Button variant="outline" render={<Link href="/" />}>
+          <T k="Go back to the home page" />
         </Button>
       </div>
     </div>

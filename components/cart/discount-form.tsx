@@ -74,7 +74,14 @@ export function DiscountForm({ cart }: DiscountFormProps) {
           type="submit"
           disabled={isPending || code.trim() === ""}
         >
-          {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : t("Apply")}
+          {isPending ? (
+            <>
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+              <span className="sr-only">{t("Apply")}</span>
+            </>
+          ) : (
+            t("Apply")
+          )}
         </Button>
       </form>
 

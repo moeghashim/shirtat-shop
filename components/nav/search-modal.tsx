@@ -21,6 +21,7 @@ import { Dialog, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { localizeHref } from "@/lib/i18n";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { useRecentlyViewedProducts } from "@/lib/product/client";
+import { SEARCH_TERM_MAX_LENGTH } from "@/lib/search";
 import { usePredictiveSearch } from "@/lib/search/client";
 import type { PredictiveSearchProduct, SearchSuggestion } from "@/lib/search/types";
 
@@ -150,7 +151,7 @@ function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boo
                 name="q"
                 role="combobox"
                 placeholder={t("Search products")}
-                maxLength={100}
+                maxLength={SEARCH_TERM_MAX_LENGTH}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 aria-expanded={!!results}
