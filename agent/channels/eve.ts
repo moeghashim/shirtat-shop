@@ -21,8 +21,12 @@ function isAgentInfoRequest(request: Request) {
 const browserAuth: AuthFn<Request> = async (request) => {
   // Agent info exposes compiled instructions and tool config, so only operators may read it.
   if (isAgentInfoRequest(request)) return null;
+  // Preview-only escape hatch so automated checks can reach the chat; never honoured in production.
+  const skipBotId =
+    process.env.VERCEL_ENV === "preview" && process.env.SUPPORT_CHAT_SKIP_BOTID === "1";
   if (
     shopConfig.botid.isEnabled &&
+    !skipBotId &&
     (
       await checkBotId({
         advancedOptions: {
