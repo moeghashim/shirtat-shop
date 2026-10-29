@@ -8,7 +8,10 @@ export interface EscalationMail {
 
 export async function sendEscalationMail({ replyTo, subject, text }: EscalationMail) {
   const key = process.env.AGENTMAIL_API_KEY;
-  if (!key) return { ok: false as const, reason: "not-configured" };
+  if (!key) {
+    console.error("[support] escalation mail failed: AGENTMAIL_API_KEY not configured");
+    return { ok: false as const, reason: "not-configured" };
+  }
   const { inboxId, to } = shopConfig.support.escalation;
   const response = await fetch(
     `https://api.agentmail.to/v0/inboxes/${encodeURIComponent(inboxId)}/messages/send`,
@@ -25,6 +28,7 @@ export async function sendEscalationMail({ replyTo, subject, text }: EscalationM
       signal: AbortSignal.timeout(10_000),
     },
   );
+  if (!response.ok) console.error(`[support] escalation mail failed: agentmail-${response.status}`);
   return response.ok
     ? { ok: true as const }
     : { ok: false as const, reason: `agentmail-${response.status}` };
