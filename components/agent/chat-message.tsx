@@ -6,6 +6,7 @@ import { defaultUrlTransform, Streamdown, type UrlTransform } from "streamdown";
 
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { getCartMutationResult } from "@/lib/agent/cart";
+import { useT } from "@/lib/i18n/client";
 
 import { ShoppingResults } from "./shopping-results";
 import { AgentThinking } from "./thinking";
@@ -37,6 +38,7 @@ export function ChatMessage({
   isStreaming: boolean;
   message: EveMessage;
 }) {
+  const t = useT();
   const text = message.parts.flatMap((part) => (part.type === "text" ? [part.text] : [])).join("");
   if (message.role === "user")
     return text ? (
@@ -74,7 +76,7 @@ export function ChatMessage({
         confirmation={showsLiveCart ? { warnings } : undefined}
         fallback={
           isLatest && !isStreaming && !text && !waitsForInput ? (
-            <p className="text-muted-foreground">No response. Try asking again.</p>
+            <p className="text-muted-foreground">{t("No response. Try asking again.")}</p>
           ) : null
         }
         isLatest={isLatest}

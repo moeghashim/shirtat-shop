@@ -4,6 +4,7 @@ import { CornerDownLeftIcon, Loader2Icon, SquareIcon, XIcon } from "lucide-react
 import type { KeyboardEvent } from "react";
 
 import { InputGroup, InputGroupButton, InputGroupTextarea } from "@/components/ui/input-group";
+import { useT } from "@/lib/i18n/client";
 
 type AgentStatus = "error" | "ready" | "resuming" | "streaming" | "submitted";
 
@@ -26,6 +27,7 @@ export function AgentComposer({
   status,
   value,
 }: AgentComposerProps) {
+  const t = useT();
   const isBusy = status === "submitted" || status === "streaming";
   const submit = () => {
     if (disabled || status === "resuming") return;
@@ -56,7 +58,7 @@ export function AgentComposer({
     >
       <InputGroup className="h-auto flex-row items-end rounded-lg border-border bg-transparent shadow-none has-[[data-slot=input-group-control]:focus-visible]:border-foreground has-[[data-slot=input-group-control]:focus-visible]:ring-0">
         <InputGroupTextarea
-          aria-label="Message Shop Agent"
+          aria-label={t("Message Shirtat Support")}
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
@@ -67,7 +69,7 @@ export function AgentComposer({
           type="submit"
           size="icon-sm"
           variant="default"
-          aria-label={isBusy ? "Stop" : "Send"}
+          aria-label={isBusy ? t("Stop") : t("Send")}
           disabled={disabled || status === "resuming" || (!value.trim() && !isBusy)}
           className="me-1.5 mb-1.5"
         >

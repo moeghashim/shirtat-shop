@@ -2,8 +2,9 @@ import type { CommerceLocale } from "@/lib/config/types";
 
 import { ar as arBase } from "./messages/ar";
 import { arCreators } from "./messages/ar-creators";
+import { arSupport } from "./messages/ar-support";
 
-const ar = { ...arBase, ...arCreators };
+const ar = { ...arBase, ...arCreators, ...arSupport };
 
 export const locales = ["en", "ar"] as const;
 export type Locale = (typeof locales)[number];

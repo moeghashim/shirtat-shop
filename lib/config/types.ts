@@ -80,6 +80,16 @@ export interface ShopConfig {
       isEnabled: boolean;
     };
   };
+  support: {
+    escalation: {
+      inboxId: string;
+      isEnabled: boolean;
+      to: string;
+    };
+    orderLookup: {
+      isEnabled: boolean;
+    };
+  };
   site: {
     description: string;
     name: string;

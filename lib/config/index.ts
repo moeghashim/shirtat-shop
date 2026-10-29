@@ -6,7 +6,7 @@ const defaultUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 export const shopConfig = {
   agent: {
-    isEnabled: false,
+    isEnabled: true,
   },
   analytics: {
     shopify: {
@@ -28,7 +28,7 @@ export const shopConfig = {
   },
   botid: {
     checkLevel: "basic",
-    isEnabled: false,
+    isEnabled: true,
   },
   localization: {
     country: "US",
@@ -65,8 +65,19 @@ export const shopConfig = {
       isEnabled: false,
     },
   },
+  support: {
+    escalation: {
+      inboxId: "shirtat@agentmail.to",
+      isEnabled: true,
+      to: "moe@10claws.com",
+    },
+    orderLookup: {
+      isEnabled: true,
+    },
+  },
   site: {
-    description: "Arabic calligraphy apparel: T-shirts, hoodies, sweatshirts, totes and prints with Arabic poetry, humor and culture.",
+    description:
+      "Arabic calligraphy apparel: T-shirts, hoodies, sweatshirts, totes and prints with Arabic poetry, humor and culture.",
     name: "Shirtat",
     url: defaultUrl,
   },

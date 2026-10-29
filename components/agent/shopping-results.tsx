@@ -29,6 +29,7 @@ import {
 } from "@/lib/agent/products";
 import type { AgentProduct, AgentProductDetails } from "@/lib/agent/products/types";
 import { useCart, useCartForm } from "@/lib/cart/client";
+import { useT } from "@/lib/i18n/client";
 import { buildProductUrl } from "@/lib/product";
 
 interface CartConfirmation {
@@ -149,7 +150,8 @@ export function ShoppingResults({
 }
 
 function MissingData({ children }: { children: string }) {
-  return <p className="my-2 text-muted-foreground text-xs">{children}</p>;
+  const t = useT();
+  return <p className="my-2 text-muted-foreground text-xs">{t(children)}</p>;
 }
 
 interface AgentCartSummaryProps {
@@ -157,6 +159,7 @@ interface AgentCartSummaryProps {
 }
 
 function AgentCartSummary({ warnings = [] }: AgentCartSummaryProps) {
+  const t = useT();
   const cart = useCart((state) => state.data);
   const isLoading = useCart((state) => state.loading);
   const ref = useRef<HTMLDivElement>(null);
@@ -167,7 +170,7 @@ function AgentCartSummary({ warnings = [] }: AgentCartSummaryProps) {
     return (
       <div className="my-2 flex items-center gap-2.5 text-muted-foreground text-xs" role="status">
         <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-        Loading cart…
+        {t("Loading cart…")}
       </div>
     );
   if (cart.lines.nodes.length === 0) return <MissingData>Your cart is empty</MissingData>;
@@ -185,7 +188,7 @@ function AgentCartSummary({ warnings = [] }: AgentCartSummaryProps) {
       <CartLineItems lines={cart.lines.nodes} />
       <CartTotal cart={cart} />
       <CartCheckout />
-      <span className="sr-only">This cart updates as you change it.</span>
+      <span className="sr-only">{t("This cart updates as you change it.")}</span>
     </div>
   );
 }
@@ -195,6 +198,7 @@ interface AgentProductCardProps {
 }
 
 function AgentProductCard({ product }: AgentProductCardProps) {
+  const t = useT();
   if (!product)
     return (
       <SliderItem>
@@ -209,7 +213,7 @@ function AgentProductCard({ product }: AgentProductCardProps) {
             <ProductCardImage
               alt={product.title}
               outOfStock={!product.available}
-              outOfStockText="Out of Stock"
+              outOfStockText={t("Out of Stock")}
               src={product.image}
             />
             <ProductCardContent>
@@ -234,6 +238,7 @@ interface AgentVariantPickerProps {
 }
 
 function AgentVariantPicker({ isLatest, product }: AgentVariantPickerProps) {
+  const t = useT();
   const { formProps, register } = useCartForm();
   const cartBusy = useCart((state) =>
     Boolean(state.pending.lines.size || state.pending.cost || state.revalidating),
@@ -265,14 +270,14 @@ function AgentVariantPicker({ isLatest, product }: AgentVariantPickerProps) {
   const choosePlan = variant?.available && variant.requiresSellingPlan;
   const canAdd = variant?.available && !variant.requiresBundleConfiguration && !submitted;
   const buttonText = submitted
-    ? "Adding to Cart..."
+    ? t("Adding to Cart...")
     : !variant
-      ? "Add to Cart"
+      ? t("Add to Cart")
       : !variant.available
-        ? "Out of Stock"
+        ? t("Out of Stock")
         : variant.requiresBundleConfiguration
-          ? "Choose bundle items"
-          : "Add to Cart";
+          ? t("Choose bundle items")
+          : t("Add to Cart");
   return (
     <>
       <div className="my-2 overflow-hidden rounded-lg border">

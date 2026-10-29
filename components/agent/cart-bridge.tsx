@@ -10,6 +10,7 @@ import {
   useAgentCartStatus,
 } from "@/lib/agent/cart/client";
 import { useCart, useCartActions } from "@/lib/cart/client";
+import { useT } from "@/lib/i18n/client";
 
 export function AgentCartBridge({
   messages,
@@ -18,6 +19,7 @@ export function AgentCartBridge({
   messages: readonly EveMessage[];
   status: string;
 }) {
+  const t = useT();
   const { refresh } = useCartActions();
   const cart = useCart((state) => state);
   const seen = useRef(new Set<string>());
@@ -77,13 +79,15 @@ export function AgentCartBridge({
   if (cartStatus === "pending" || cart.loading || cart.revalidating)
     return (
       <p role="status" className="px-2.5 py-2 text-muted-foreground text-xs">
-        Confirming your cart…
+        {t("Confirming your cart…")}
       </p>
     );
   return (
     <div role="alert" className="grid gap-2.5 px-2.5 py-2 text-red-500 text-xs">
       <p>
-        We couldn't confirm your cart. Refresh it before checking out or requesting another change.
+        {t(
+          "We couldn't confirm your cart. Refresh it before checking out or requesting another change.",
+        )}
       </p>
       <button
         className="w-fit cursor-pointer underline underline-offset-4 disabled:cursor-not-allowed disabled:opacity-40"
@@ -96,7 +100,7 @@ export function AgentCartBridge({
         }}
         type="button"
       >
-        {cart.loading || cart.revalidating ? "Refreshing…" : "Refresh cart"}
+        {cart.loading || cart.revalidating ? t("Refreshing…") : t("Refresh cart")}
       </button>
     </div>
   );
