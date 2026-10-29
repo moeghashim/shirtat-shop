@@ -132,6 +132,16 @@ export const roadmapPhases: RoadmapPhase[] = [
     summary: "An Account link on the site for customers to sign in and see their orders.",
   },
   {
+    title: "Customer support",
+    status: "in-progress",
+    summary: "Customer emails are answered automatically, with refunds and complaints checked by Moe; a support chat in English and Arabic is in testing.",
+  },
+  {
+    title: "Designer discount codes",
+    status: "next",
+    summary: "Every new designer gets their own 15% discount code when their account is created, to share with their followers.",
+  },
+  {
     title: "Creator video ads",
     status: "next",
     summary: "A small group of hand-picked creators making video ads, starting with free shirts and a fixed fee, then moving to a share of sales.",

@@ -7,6 +7,13 @@ export interface LogDay {
 /** Newest day first. Add new days to the top. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-10-29",
+    entries: [
+      "Set up a dedicated customer support inbox that answers customer emails on its own, using the shop's real product, size and shipping information. Refunds and complaints are checked with Moe before anyone replies.",
+      "Built a support chat for shirtat.co in English and Arabic. It answers sizing, shipping and returns questions from the shop's policies, can look up an order's status, and passes anything it can't solve to Moe by email. It only loads when you tap it, so pages stay fast, and it is being tested on a preview before it goes live.",
+    ],
+  },
+  {
     date: "2026-10-25",
     entries: [
       "Added an automated check that uses the site the way a shopper does, in English and Arabic: the homepage, Kids and Baby, a product page with its colours, details and printing info, adding to the cart, and the making-of and roadmap pages. It also confirms the analytics tags wait for the first tap or scroll, and runs Lighthouse three times per page on mobile and desktop, failing if a score slips below the last measured median. It never goes to checkout or places an order.",
