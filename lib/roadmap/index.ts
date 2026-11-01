@@ -146,4 +146,9 @@ export const roadmapPhases: RoadmapPhase[] = [
     status: "next",
     summary: "A small group of hand-picked creators making video ads, starting with free shirts and a fixed fee, then moving to a share of sales.",
   },
+  {
+    title: "Search visibility",
+    status: "in-progress",
+    summary: "Google Search Console is connected and the sitemap lists every page in English and Arabic; next is watching search results and improving how products show up.",
+  },
 ];

@@ -7,6 +7,14 @@ export interface LogDay {
 /** Newest day first. Add new days to the top. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-01",
+    entries: [
+      "Connected Google Search Console with read-only access, so we can see how shirtat.co shows up in Google search.",
+      "Helped search engines find the Arabic site: the sitemap now lists every page in both English and Arabic, with each page pointing to its other-language version, and more pages are included, like the designers, making-of and legal pages. Shop pages, policies and blog posts now name the right language version as their main address.",
+      "Added a row of category links and a link to the other language in the footer, so shoppers and search engines can reach every collection from any page.",
+    ],
+  },
+  {
     date: "2026-10-29",
     entries: [
       "Set up a dedicated customer support inbox that answers customer emails on its own, using the shop's real product, size and shipping information. Refunds and complaints are checked with Moe before anyone replies.",
