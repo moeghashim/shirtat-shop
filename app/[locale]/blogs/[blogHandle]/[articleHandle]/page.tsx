@@ -51,7 +51,7 @@ export async function generateMetadata({
       ]
     : siteOgImages(await getLocale());
   return {
-    alternates: buildAlternates({ pathname }),
+    alternates: buildAlternates({ locale: await getLocale(), pathname }),
     description: article.seo.description,
     openGraph: buildOpenGraph({ locale: await getLocale(),
       description: article.seo.description,

@@ -30,7 +30,7 @@ export async function generateMetadata({
   if (!policy) notFound();
   const pathname = `/policies/${policy.handle}`;
   return {
-    alternates: buildAlternates({ pathname }),
+    alternates: buildAlternates({ locale: await getLocale(), pathname }),
     openGraph: buildOpenGraph({ locale: await getLocale(), title: policy.title, type: "website", url: pathname }),
     title: policy.title,
   };

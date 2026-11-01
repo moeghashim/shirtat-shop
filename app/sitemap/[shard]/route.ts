@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 
 import { shopConfig } from "@/lib/config";
+import { locales, localizePath, type Locale } from "@/lib/i18n";
+import { LEGAL } from "@/lib/legal/content";
 import { getShopPolicies } from "@/lib/policies/server";
 import { getShopifySitemapPage, getShopifySitemapPagesCount } from "@/lib/seo/server";
 import { type ShopifySitemapType } from "@/lib/shopify/operations/sitemap/types";
@@ -15,7 +17,7 @@ function toAbsoluteUrl(pathname: string): string {
 
 function urlsetWrap(body: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${body}
 </urlset>
 `;
@@ -27,11 +29,33 @@ function xmlResponse(body: string): Response {
   });
 }
 
+/** One <url> per language, each carrying the full hreflang set (en, ar, x-default). */
+function localizedEntries(pathname: string, lastmod?: string): string {
+  const href = (locale: Locale) => escapeXml(toAbsoluteUrl(localizePath(locale, pathname)));
+  const alternates = [
+    ...locales.map(
+      (locale) => `    <xhtml:link rel="alternate" hreflang="${locale}" href="${href(locale)}"/>`,
+    ),
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${href("en")}"/>`,
+  ].join("\n");
+  return locales
+    .map(
+      (locale) =>
+        `  <url>\n    <loc>${href(locale)}</loc>\n${lastmod ? `    <lastmod>${escapeXml(lastmod)}</lastmod>\n` : ""}${alternates}\n  </url>`,
+    )
+    .join("\n");
+}
+
+const STATIC_PATHS = ["/", "/collections", "/creators", "/designers", "/making-of"];
+
 async function renderStatic(): Promise<Response> {
   const policies = await getShopPolicies().catch(() => []);
-  const entries = ["/", ...policies.map(({ handle }) => `/policies/${handle}`)]
-    .map((pathname) => `  <url><loc>${escapeXml(toAbsoluteUrl(pathname))}</loc></url>`)
-    .join("\n");
+  const paths = new Set([
+    ...STATIC_PATHS,
+    ...Object.values(LEGAL).map(({ path }) => path),
+    ...policies.map(({ handle }) => `/policies/${handle}`),
+  ]);
+  const entries = [...paths].map((pathname) => localizedEntries(pathname)).join("\n");
   return xmlResponse(urlsetWrap(entries));
 }
 
@@ -44,11 +68,7 @@ async function renderShard(
   const { items } = await getShopifySitemapPage(type, page);
 
   const entries = items
-    .map((item) => {
-      const loc = escapeXml(toAbsoluteUrl(item.pathname ?? `/${segment}/${item.handle}`));
-      const lastmod = escapeXml(item.updatedAt);
-      return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`;
-    })
+    .map((item) => localizedEntries(item.pathname ?? `/${segment}/${item.handle}`, item.updatedAt))
     .join("\n");
 
   return xmlResponse(urlsetWrap(entries));

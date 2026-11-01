@@ -30,7 +30,7 @@ export async function generateMetadata({
   if (!page) notFound();
   const pathname = `/pages/${page.handle}`;
   return {
-    alternates: buildAlternates({ pathname }),
+    alternates: buildAlternates({ locale: await getLocale(), pathname }),
     description: page.seo.description,
     openGraph: buildOpenGraph({ locale: await getLocale(),
       description: page.seo.description,

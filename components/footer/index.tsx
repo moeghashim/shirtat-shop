@@ -5,6 +5,7 @@ import { MenuLink } from "@/components/nav/menu-link";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { Sections } from "@/components/ui/sections";
+import { CATEGORIES } from "@/lib/collections/categories";
 import { shopConfig } from "@/lib/config";
 import { commerceLocale } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
@@ -50,6 +51,29 @@ export async function Footer() {
             </nav>
             {socialLinks.length > 0 && <SocialLinks links={socialLinks} />}
           </div>
+          <nav
+            aria-label={t("Shop")}
+            className="flex flex-wrap justify-center gap-x-5 text-sm text-muted-foreground sm:justify-start [&>a]:inline-flex [&>a]:min-h-11 [&>a]:items-center"
+          >
+            {CATEGORIES.map((c) => (
+              <Link
+                key={c.id}
+                href={`/collections/${c.id}`}
+                className="transition-colors hover:text-foreground"
+              >
+                {locale === "ar" ? c.labelAr : c.labelEn}
+              </Link>
+            ))}
+            {/* Plain anchor: Link would re-localize the other language's homepage back to this one. */}
+            <a
+              className="transition-colors hover:text-foreground"
+              href={locale === "ar" ? "/" : "/ar"}
+              hrefLang={locale === "ar" ? "en" : "ar"}
+              lang={locale === "ar" ? "en" : "ar"}
+            >
+              {locale === "ar" ? "English" : "العربية"}
+            </a>
+          </nav>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 sm:justify-start">
               <p className="text-sm text-muted-foreground leading-5">
