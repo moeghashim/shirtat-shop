@@ -7,6 +7,18 @@ export interface LogDay {
 /** Newest day first. Add new days to the top. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-02",
+    entries: [
+      "Launched Design your own: customers can order a T-shirt or mug with their own text in Arabic calligraphy, choosing a style and either picking one of the ready-made example sentences or typing their own. A new Design your own section on the homepage links to the builder.",
+      "Added mugs to the shop, shipping to the US, Europe and the UK with their own lower mug shipping rates.",
+      "Added a custom hoodie to the builder, plus a Men's or Women's fit choice, using a real women's cut where the print partner offers one.",
+      "The builder preview now shows the design on real product photos in the colour the customer picks, and shows the calligraphy style they actually chose, with the ready-made artwork and a sample card for each style. Dark garments get a light-ink version of the design. Fixed right-to-left text being clipped and words breaking mid-letter in the preview.",
+      "Custom text now shows on the cart line, every colour, size and region combination now works, the page reserves space while the builder loads so nothing jumps, and the builder loads faster.",
+      "Added support for free-shipping promotions, so a promotion can cover shipping as well as the items.",
+      "Customer support emails and an hourly check on new orders keep running behind the scenes.",
+    ],
+  },
+  {
     date: "2026-11-01",
     entries: [
       "Connected Google Search Console with read-only access, so we can see how shirtat.co shows up in Google search.",

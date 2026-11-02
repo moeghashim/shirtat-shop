@@ -26,7 +26,8 @@ export const roadmapPhases: RoadmapPhase[] = [
   {
     title: "Products",
     status: "done",
-    summary: "Arabic calligraphy and poetry shirts, hoodies, sweatshirts, tote bags and prints are live, with redesigned product pages, solid fabric-colour swatches and new designs like Ana Ibn Jala.",
+    summary:
+      "Arabic calligraphy and poetry shirts, hoodies, sweatshirts, tote bags, prints and mugs are live, with redesigned product pages, solid fabric-colour swatches and new designs like Ana Ibn Jala.",
   },
   {
     title: "Supplier and product workflow",
@@ -43,7 +44,8 @@ export const roadmapPhases: RoadmapPhase[] = [
   {
     title: "Payments and launch",
     status: "done",
-    summary: "Checkout on checkout.shirtat.co, worldwide shipping at $12.99, and the first order received.",
+    summary:
+      "Checkout on checkout.shirtat.co, worldwide shipping at $12.99, and the first order received.",
   },
   {
     title: "Creator program",
@@ -89,7 +91,8 @@ export const roadmapPhases: RoadmapPhase[] = [
   {
     title: "Order monitoring",
     status: "done",
-    summary: "An hourly check that every paid order reaches Printify, with alerts for orders stuck on hold or unfulfilled.",
+    summary:
+      "An hourly check that every paid order reaches Printify, with alerts for orders stuck on hold or unfulfilled.",
   },
   {
     title: "Mobile performance",
@@ -99,27 +102,32 @@ export const roadmapPhases: RoadmapPhase[] = [
   {
     title: "Kids and Baby",
     status: "done",
-    summary: "A kids T-shirt and a baby bodysuit for every design, with their own Kids and Baby categories in English and Arabic.",
+    summary:
+      "A kids T-shirt and a baby bodysuit for every design, with their own Kids and Baby categories in English and Arabic.",
   },
   {
     title: "Product details and printing",
     status: "done",
-    summary: "Every product page shows fabric, fit, sizes, care, origin and how it is printed, in English and Arabic, taken from the print partner.",
+    summary:
+      "Every product page shows fabric, fit, sizes, care, origin and how it is printed, in English and Arabic, taken from the print partner.",
   },
   {
     title: "Hover gallery cards",
     status: "done",
-    summary: "Product cards show the calligraphy design on hover with arrows to flip through photos, five per row on desktop.",
+    summary:
+      "Product cards show the calligraphy design on hover with arrows to flip through photos, five per row on desktop.",
   },
   {
     title: "Analytics",
     status: "done",
-    summary: "Google Tag Manager and Ahrefs Web Analytics on every page, loaded on first interaction so speed scores hold.",
+    summary:
+      "Google Tag Manager and Ahrefs Web Analytics on every page, loaded on first interaction so speed scores hold.",
   },
   {
     title: "More print partners",
     status: "next",
-    summary: "Adding Wearform and Tapstitch as print-on-demand options and comparing their prices to pick the best partner for each product.",
+    summary:
+      "Adding Wearform and Tapstitch as print-on-demand options and comparing their prices to pick the best partner for each product.",
   },
   {
     title: "Saudi Arabia shipping",
@@ -134,21 +142,71 @@ export const roadmapPhases: RoadmapPhase[] = [
   {
     title: "Customer support",
     status: "in-progress",
-    summary: "Customer emails are answered automatically, with refunds and complaints checked by Moe; a support chat in English and Arabic is in testing.",
+    summary:
+      "Customer emails are answered automatically, with refunds and complaints checked by Moe; a support chat in English and Arabic is in testing.",
   },
   {
     title: "Designer discount codes",
     status: "next",
-    summary: "Every new designer gets their own 15% discount code when their account is created, to share with their followers.",
+    summary:
+      "Every new designer gets their own 15% discount code when their account is created, to share with their followers.",
   },
   {
     title: "Creator video ads",
     status: "next",
-    summary: "A small group of hand-picked creators making video ads, starting with free shirts and a fixed fee, then moving to a share of sales.",
+    summary:
+      "A small group of hand-picked creators making video ads, starting with free shirts and a fixed fee, then moving to a share of sales.",
   },
   {
     title: "Search visibility",
     status: "in-progress",
-    summary: "Google Search Console is connected and the sitemap lists every page in English and Arabic; next is watching search results and improving how products show up.",
+    summary:
+      "Google Search Console is connected and the sitemap lists every page in English and Arabic; next is watching search results and improving how products show up.",
+  },
+  {
+    title: "Design your own",
+    status: "done",
+    summary:
+      "Customers order a T-shirt, hoodie or mug with their own text in Arabic calligraphy, picking a style and a ready-made sentence or typing their own, linked from the homepage.",
+  },
+  {
+    title: "Mugs",
+    status: "done",
+    summary:
+      "Mugs in the shop, shipping to the US, Europe and the UK with their own lower shipping rates.",
+  },
+  {
+    title: "Custom hoodie and women's fit",
+    status: "done",
+    summary:
+      "A custom hoodie in the builder and a Men's or Women's fit choice, with a real women's cut where the print partner offers one.",
+  },
+  {
+    title: "Real product previews",
+    status: "done",
+    summary:
+      "The builder previews the design on real product photos in the chosen colour and in the calligraphy style picked, with light ink on dark garments.",
+  },
+  {
+    title: "Free-shipping promotions",
+    status: "done",
+    summary: "Promotions can now cover shipping as well as the items.",
+  },
+  {
+    title: "Marketplace expansion",
+    status: "next",
+    summary:
+      "Selling on marketplaces in Europe, the US and Asia to reach more shoppers before the end of the year.",
+  },
+  {
+    title: "Ads",
+    status: "next",
+    summary:
+      "Paid ads toward the end-of-year sales goal, tracked daily and weekly and adjusted based on results.",
+  },
+  {
+    title: "Affiliates and influencers",
+    status: "next",
+    summary: "Working with affiliates and influencers to bring new customers to Shirtat.",
   },
 ];
