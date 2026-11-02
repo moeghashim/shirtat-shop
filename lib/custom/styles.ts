@@ -84,6 +84,11 @@ export function presetImage(id: number): string {
   return `/design/g${String(id).padStart(2, "0")}.webp`;
 }
 
+/** The preset with its paper knocked out; `onDark` picks the light-ink version for dark fabric. */
+export function presetArt(id: number, onDark: boolean): string {
+  return `/design/art/g${String(id).padStart(2, "0")}-${onDark ? "light" : "dark"}.webp`;
+}
+
 export function styleImage(id: number): string {
   return `/design/s${String(id).padStart(2, "0")}.webp`;
 }

@@ -7,6 +7,7 @@ import { type CSSProperties, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { useCartDrawer } from "@/components/cart/context";
 import { Button } from "@/components/ui/button";
 import { expandForm, type CompactForm } from "@/lib/custom/compact";
+import { type ProductPhoto, productPhoto } from "@/lib/custom/mockups";
 import { checkCustomText } from "@/lib/custom/moderation";
 import {
   CUSTOM_PROPERTY,
@@ -19,6 +20,7 @@ import {
   DESIGN_PRESETS,
   DESIGN_STYLES,
   getStyle,
+  presetArt,
   presetImage,
   styleImage,
 } from "@/lib/custom/styles";
@@ -308,6 +310,7 @@ function ProductPanel({
     (selectedVariant?.selectedOptions ?? []).map((o) => [o.name, o.value]),
   );
   const color = GARMENT_COLORS[selected.Color ?? ""];
+  const onDark = kind !== "mug" && (color?.dark ?? false);
 
   useEffect(() => {
     if (kind !== "mug") return;
@@ -352,12 +355,16 @@ function ProductPanel({
     <div className="grid gap-6">
       <section aria-label={t("Preview")} className="grid gap-3">
         <Preview
-          dark={color?.dark ?? false}
-          fit={selected.Fit}
+          art={presetId ? presetArt(presetId, onDark) : undefined}
           fontKey={style.font}
-          garment={color?.hex ?? "#f6f6f4"}
           kind={kind}
-          art={presetId ? presetImage(presetId) : undefined}
+          label={`${t(KIND_LABEL[kind])}${selected.Color ? `, ${valueLabel("Color", selected.Color)}` : ""}`}
+          onDark={onDark}
+          photo={productPhoto(kind, {
+            color: selected.Color,
+            fit: selected.Fit,
+            size: selected.Size,
+          })}
           text={check.ok ? check.text : text.trim()}
           vertical={Boolean(style.vertical)}
         />
@@ -503,110 +510,65 @@ function ProductPanel({
 
 function Preview({
   art,
-  dark,
-  fit,
   fontKey,
-  garment,
   kind,
+  label,
+  onDark,
+  photo,
   text,
   vertical,
 }: {
   art?: string;
-  dark: boolean;
-  fit: string | undefined;
   fontKey: Parameters<typeof fontFamily>[0];
-  garment: string;
   kind: CustomKind;
+  label: string;
+  onDark: boolean;
+  photo: ProductPhoto;
   text: string;
   vertical: boolean;
 }) {
-  const isGarment = kind !== "mug";
-  const isHoodie = kind === "hoodie";
-  const ink = isGarment && dark ? "#f4f4f4" : "#141414";
-  const outline = "rgba(0,0,0,.18)";
+  const [left, top, width, height] = photo.art;
+  // Ink is printed, so on light fabric it multiplies into the shading; on dark fabric it stays light.
+  const blend = onDark ? "" : "mix-blend-multiply";
   return (
-    <div
-      className={cn(
-        "relative mx-auto w-full max-w-lg overflow-hidden rounded-2xl bg-muted",
-        isGarment ? "aspect-[10/11]" : "aspect-[4/3]",
-      )}
-    >
-      <svg
-        aria-hidden
-        className="absolute inset-0 size-full"
-        viewBox={isGarment ? "0 0 400 440" : "0 0 400 300"}
-      >
-        {isHoodie ? (
-          <g fill={garment} stroke={outline} strokeWidth="2">
-            <path d="M150 56 L82 84 L16 336 L74 350 L100 196 V404 H300 V196 L326 350 L384 336 L318 84 L250 56 Q200 98 150 56 Z" />
-            <path
-              d="M150 56 Q138 14 200 12 Q262 14 250 56 Q200 98 150 56 Z"
-              fill="rgba(0,0,0,.08)"
-            />
-            <path d="M138 304 H262 L276 366 H124 Z" fill="none" />
-          </g>
-        ) : isGarment ? (
-          <path
-            d={
-              fit === "Women's"
-                ? "M140 42 L82 66 L40 140 L92 166 L108 134 V402 H292 V134 L308 166 L360 140 L318 66 L260 42 Q200 92 140 42 Z"
-                : "M130 40 L60 70 L18 152 L76 178 L96 142 V402 H304 V142 L324 178 L382 152 L340 70 L270 40 Q200 84 130 40 Z"
-            }
-            fill={garment}
-            stroke={outline}
-            strokeWidth="2"
-          />
-        ) : (
-          <g>
-            <path
-              d="M292 100 Q372 96 366 160 Q360 214 286 212"
-              fill="none"
-              stroke="#efefec"
-              strokeLinecap="round"
-              strokeWidth="26"
-            />
-            <path
-              d="M292 100 Q372 96 366 160 Q360 214 286 212"
-              fill="none"
-              stroke="rgba(0,0,0,.14)"
-              strokeLinecap="round"
-              strokeWidth="2"
-              transform="translate(0 -13)"
-            />
-            <rect
-              fill="#f8f8f6"
-              height="190"
-              rx="16"
-              stroke={outline}
-              strokeWidth="2"
-              width="226"
-              x="64"
-              y="56"
-            />
-          </g>
-        )}
-      </svg>
+    <div className="relative mx-auto aspect-square w-full max-w-lg overflow-hidden rounded-2xl bg-white">
+      <Image
+        alt={label}
+        className="absolute inset-0 size-full object-cover"
+        data-testid="product-photo"
+        height={800}
+        loading="lazy"
+        sizes="(min-width: 512px) 512px, 100vw"
+        src={photo.src}
+        unoptimized
+        width={800}
+      />
       <div
-        className="absolute grid place-items-center overflow-hidden"
-        style={
-          isHoodie
-            ? { height: "26%", insetInlineStart: "32%", top: "30%", width: "36%" }
-            : isGarment
-              ? { height: "34%", insetInlineStart: "31%", top: "24%", width: "38%" }
-              : { height: "58%", insetInlineStart: "19%", top: "24%", width: "50%" }
-        }
+        className={cn("absolute grid place-items-center", blend)}
+        data-kind={kind}
+        style={{
+          height: `${height}%`,
+          left: `${left}%`,
+          top: `${top}%`,
+          width: `${width}%`,
+        }}
       >
         {art ? (
           <Image
             alt=""
-            className="size-full rounded-md object-contain shadow-md ring-1 ring-black/10"
+            className={cn("size-full object-contain object-top", onDark ? "opacity-95" : "")}
             height={248}
             src={art}
             unoptimized
             width={248}
           />
         ) : (
-          <FitText ink={ink} fontKey={fontKey} text={text} vertical={vertical} />
+          <FitText
+            ink={onDark ? "#f4f4f4" : "#141414"}
+            fontKey={fontKey}
+            text={text}
+            vertical={vertical}
+          />
         )}
       </div>
     </div>
