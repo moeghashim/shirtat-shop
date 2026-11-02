@@ -24,6 +24,7 @@ import type { FontKey } from "@/lib/custom/styles";
 // next/font needs literal options, so these are written out in full.
 const amiri = Amiri({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-amiri",
@@ -31,6 +32,7 @@ const amiri = Amiri({
 });
 const arefRuqaa = Aref_Ruqaa({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-aref",
@@ -38,6 +40,7 @@ const arefRuqaa = Aref_Ruqaa({
 });
 const cairo = Cairo({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-cairo",
@@ -45,6 +48,7 @@ const cairo = Cairo({
 });
 const changa = Changa({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-changa",
@@ -52,6 +56,7 @@ const changa = Changa({
 });
 const katibeh = Katibeh({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-katibeh",
@@ -59,6 +64,7 @@ const katibeh = Katibeh({
 });
 const lalezar = Lalezar({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-lalezar",
@@ -66,6 +72,7 @@ const lalezar = Lalezar({
 });
 const markazi = Markazi_Text({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-markazi",
@@ -73,6 +80,7 @@ const markazi = Markazi_Text({
 });
 const mirza = Mirza({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-mirza",
@@ -80,6 +88,7 @@ const mirza = Mirza({
 });
 const naskh = Noto_Naskh_Arabic({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-naskh",
@@ -87,6 +96,7 @@ const naskh = Noto_Naskh_Arabic({
 });
 const nastaliq = Noto_Nastaliq_Urdu({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-nastaliq",
@@ -94,6 +104,7 @@ const nastaliq = Noto_Nastaliq_Urdu({
 });
 const rakkas = Rakkas({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-rakkas",
@@ -101,6 +112,7 @@ const rakkas = Rakkas({
 });
 const reemKufi = Reem_Kufi({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-reem",
@@ -109,6 +121,7 @@ const reemKufi = Reem_Kufi({
 
 const elMessiri = El_Messiri({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-messiri",
@@ -116,6 +129,7 @@ const elMessiri = El_Messiri({
 });
 const harmattan = Harmattan({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-harmattan",
@@ -123,6 +137,7 @@ const harmattan = Harmattan({
 });
 const mada = Mada({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-mada",
@@ -130,6 +145,7 @@ const mada = Mada({
 });
 const marhey = Marhey({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-marhey",
@@ -137,6 +153,7 @@ const marhey = Marhey({
 });
 const notoKufi = Noto_Kufi_Arabic({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-kufi",
@@ -144,6 +161,7 @@ const notoKufi = Noto_Kufi_Arabic({
 });
 const playpen = Playpen_Sans_Arabic({
   display: "swap",
+  adjustFontFallback: false,
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-playpen",

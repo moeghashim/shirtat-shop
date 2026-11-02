@@ -113,7 +113,7 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
               {t("Or start from an example")}
             </p>
             <ul className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
-              {DESIGN_PRESETS.map((p) => (
+              {DESIGN_PRESETS.map((p, index) => (
                 <li key={p.id} className="shrink-0">
                   <button
                     type="button"
@@ -134,6 +134,8 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
                       alt=""
                       className="size-full object-cover"
                       height={96}
+                      fetchPriority={index < 4 ? "auto" : "low"}
+                      loading={index < 4 ? "eager" : "lazy"}
                       src={presetImage(p.id)}
                       unoptimized
                       width={96}
@@ -209,6 +211,7 @@ function StyleOptions({ onSelect, styleId }: { onSelect: (id: number) => void; s
           alt=""
           className="aspect-square w-full rounded-lg object-cover"
           height={96}
+          fetchPriority="low"
           loading="lazy"
           src={styleImage(s.id)}
           unoptimized
@@ -665,7 +668,8 @@ function FitText({
 
   const style: CSSProperties = {
     color: ink,
-    fontFamily: fontFamily(fontKey),
+    // The empty placeholder stays in the site font so the design fonts load only once there is text to draw.
+    fontFamily: text ? fontFamily(fontKey) : undefined,
     fontSize: size,
     lineHeight: 1.35,
     opacity: text ? 1 : 0.35,
