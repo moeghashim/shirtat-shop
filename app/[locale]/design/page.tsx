@@ -38,7 +38,7 @@ export default function DesignPage() {
     <Page>
       <Container className={`${DESIGN_FONT_VARIABLES} grid gap-10`}>
         <Intro />
-        <Suspense fallback={<div className="min-h-96" />}>
+        <Suspense fallback={<div className="min-h-[1700px] md:min-h-[860px]" />}>
           <Builder />
         </Suspense>
       </Container>
