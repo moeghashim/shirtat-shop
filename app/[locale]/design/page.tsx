@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
 
 import { DesignBuilder } from "@/components/custom/design-builder";
@@ -9,9 +10,8 @@ import { CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE } from "@/lib/custom/products";
 import { commerceLocale } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { toProductFormInput } from "@/lib/product";
-import { getProduct } from "@/lib/product/server";
 import { buildAlternates, buildOpenGraph } from "@/lib/seo";
-import { fetchProductVariant } from "@/lib/shopify/operations/products/server";
+import { fetchProductWithVariants } from "@/lib/shopify/operations/products/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -60,26 +60,40 @@ async function Intro() {
   );
 }
 
+async function loadCustomProduct(handle: string, locale: ReturnType<typeof commerceLocale>) {
+  "use cache: remote";
+  cacheLife("hours");
+  cacheTag("products", `product-${handle}`);
+  return fetchProductWithVariants({ handle, locale });
+}
+
+/** The form store resolves a selection from the variants it holds, so it gets every variant up front. */
+function toBuilderInput(
+  product: Awaited<ReturnType<typeof loadCustomProduct>>,
+  pick: { color?: string; size?: string },
+) {
+  if (!product) return null;
+  const all = product.variants ?? [];
+  const wanted = all.find((v) => {
+    const o = Object.fromEntries(v.selectedOptions.map((x) => [x.name, x.value]));
+    return (!pick.color || o.Color === pick.color) && (!pick.size || o.Size === pick.size);
+  });
+  return toProductFormInput(
+    { ...product, adjacentVariants: all.length ? all : product.adjacentVariants },
+    wanted ?? product.defaultVariant,
+  );
+}
+
 async function Builder() {
   const locale = commerceLocale(await getLocale());
   const [tee, mug] = await Promise.all([
-    getProduct({ handle: CUSTOM_TEE_HANDLE, locale }),
-    getProduct({ handle: CUSTOM_MUG_HANDLE, locale }),
+    loadCustomProduct(CUSTOM_TEE_HANDLE, locale),
+    loadCustomProduct(CUSTOM_MUG_HANDLE, locale),
   ]);
-  const teeVariant = tee
-    ? await fetchProductVariant({
-        handle: tee.handle,
-        locale,
-        selectedOptions: [
-          { name: "Color", value: "Black" },
-          { name: "Size", value: "M" },
-        ],
-      })
-    : undefined;
   return (
     <DesignBuilder
-      mug={mug ? toProductFormInput(mug, mug.defaultVariant) : null}
-      tee={tee ? toProductFormInput(tee, teeVariant ?? tee.defaultVariant) : null}
+      mug={toBuilderInput(mug, {})}
+      tee={toBuilderInput(tee, { color: "Black", size: "M" })}
     />
   );
 }
