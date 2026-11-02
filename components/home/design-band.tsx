@@ -23,7 +23,7 @@ export async function DesignBand() {
             {t("Your sentence in Arabic calligraphy.")}
           </h2>
           <p className="text-sm text-white/80 sm:text-base">
-            {t("Type it, pick a style, and get it on a tee or a mug.")}
+            {t("Type it, pick a style, and get it on a tee, a hoodie or a mug.")}
           </p>
         </div>
         <Link

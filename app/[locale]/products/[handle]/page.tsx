@@ -13,7 +13,7 @@ import { SourceClipsSection } from "@/components/product-detail/source-clips";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
-import { CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE } from "@/lib/custom/products";
+import { CUSTOM_HOODIE_HANDLE, CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE } from "@/lib/custom/products";
 import { commerceLocale, localizePath } from "@/lib/i18n";
 import { getLocale } from "@/lib/i18n/server";
 import { defaultSelectedOptions, parseSelectedOptions, toSelectedOptionList } from "@/lib/product";
@@ -107,9 +107,13 @@ async function ProductPageContent({
   const { handle } = await params;
   if (handle === PLACEHOLDER_HANDLE) notFound();
   const locale = await getLocale();
-  if (handle === CUSTOM_TEE_HANDLE || handle === CUSTOM_MUG_HANDLE)
+  if (
+    handle === CUSTOM_TEE_HANDLE ||
+    handle === CUSTOM_MUG_HANDLE ||
+    handle === CUSTOM_HOODIE_HANDLE
+  )
     redirect(
-      `${localizePath(locale, "/design")}${handle === CUSTOM_MUG_HANDLE ? "?product=mug" : ""}`,
+      `${localizePath(locale, "/design")}${handle === CUSTOM_MUG_HANDLE ? "?product=mug" : handle === CUSTOM_HOODIE_HANDLE ? "?product=hoodie" : ""}`,
     );
   const product = await getProduct({
     handle,

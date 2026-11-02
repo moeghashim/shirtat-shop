@@ -6,6 +6,7 @@
  *
  *   pnpm custom-order --order A-1008 --line 1:art.svg [--line 2:other.svg] [--dry-run]
  *
+ * Products for --preview --product: tee, tee-women, hoodie, mug-us-11, mug-us-15, mug-eu-11, mug-eu-15.
  * Options: --ink "#ffffff"   recolour every fill (light ink for dark garments)
  *          --drop-white      remove white fills (a white background exported with the art)
  *          --margin 0.06     empty border as a fraction of the print area (default 0.06)
@@ -109,21 +110,22 @@ async function loadOrder(ref) {
   return order;
 }
 
+const GARMENT_CATALOGS = {
+  HOODIE: [["hoodie", "Unisex"]],
+  TEE: [["t-shirt", "Men's"], ["t-shirt-women", "Women's"]],
+};
+
 function targetFor(sku, country) {
-  const tee = sku.match(/^CUS-TEE-(\d+)$/);
-  if (tee) {
-    const cat = catalog["t-shirt"];
-    for (const sizes of Object.values(cat.variants))
-      for (const v of Object.values(sizes))
-        if (v.id === Number(tee[1]))
-          return {
-            blueprintId: cat.blueprintId,
-            providerId: cat.providerId,
-            variantId: v.id,
-            cost: v.cost,
-            label: "tee",
-          };
-    throw new Error(`Unknown tee variant in ${sku}`);
+  const garment = sku.match(/^CUS-(TEE|HOODIE)-(\d+)$/);
+  if (garment) {
+    for (const [key, fit] of GARMENT_CATALOGS[garment[1]]) {
+      const cat = catalog[key];
+      for (const sizes of Object.values(cat.variants))
+        for (const v of Object.values(sizes))
+          if (v.id === Number(garment[2]))
+            return { blueprintId: cat.blueprintId, providerId: cat.providerId, variantId: v.id, cost: v.cost, fit, label: `${garment[1].toLowerCase()} ${fit}` };
+    }
+    throw new Error(`Unknown variant in ${sku}`);
   }
   const mug = sku.match(/^CUS-MUG-(US|EU)-(11|15)$/);
   if (!mug) throw new Error(`Not a custom SKU: ${sku}`);
@@ -241,14 +243,19 @@ async function upload(png, name) {
   return res.json();
 }
 
-/** Rasterise an SVG without an order, to check how it will fit: --preview art.svg --product tee|mug-us-11|mug-eu-15 */
+/** Rasterise an SVG without an order, to check how it will fit: --preview art.svg --product tee|tee-women|hoodie|mug-us-11|mug-eu-15 */
 async function preview(flags) {
   loadEnv(path.join(os.homedir(), ".secrets/custom-order.env"));
   const product = String(flags.product ?? "tee");
-  const sku =
-    product === "tee"
-      ? `CUS-TEE-${catalog["t-shirt"].variants.White.M.id}`
-      : `CUS-MUG-${product.split("-")[1].toUpperCase()}-${product.split("-")[2] ?? "11"}`;
+  const first = (key) => Object.values(Object.values(catalog[key].variants)[0])[0].id;
+  const PREVIEW_SKUS = {
+    tee: `CUS-TEE-${first("t-shirt")}`,
+    "tee-women": `CUS-TEE-${first("t-shirt-women")}`,
+    hoodie: `CUS-HOODIE-${first("hoodie")}`,
+  };
+  const mugKey = product.match(/^mug-(us|eu)-(11|15)$/);
+  const sku = PREVIEW_SKUS[product] ?? (mugKey ? `CUS-MUG-${mugKey[1].toUpperCase()}-${mugKey[2]}` : null);
+  if (!sku) throw new Error(`Unknown --product "${product}". Use tee, tee-women, hoodie, mug-us-11, mug-us-15, mug-eu-11 or mug-eu-15.`);
   const target = targetFor(sku, product.startsWith("mug-eu") ? "DE" : "US");
   const area = await printArea(target);
   const { png, box } = rasterise(
@@ -319,7 +326,8 @@ async function main() {
     const file = path.join(outDir, `${order.name.replace("#", "")}-L${n}.png`);
     fs.writeFileSync(file, png);
     const transparent = pngHasTransparency(png);
-    console.log(`line ${n}: ${line.title} · text "${attrs.Text ?? ""}" · ${attrs.Style ?? ""}`);
+    console.log(`line ${n}: ${line.title} · text "${attrs.Text ?? ""}" · ${attrs.Style ?? ""}${target.fit ? ` · fit ${attrs.Fit ?? target.fit}` : ""}`);
+    if (target.fit && attrs.Fit && !attrs.Fit.startsWith(target.fit.slice(0, 3))) console.warn(`! Fit property "${attrs.Fit}" does not match the SKU (${target.fit}); the SKU decides what is printed.`);
     console.log(
       `  ${target.label}: blueprint ${target.blueprintId} provider ${target.providerId} variant ${target.variantId} · Printify cost $${target.cost}`,
     );

@@ -17,6 +17,7 @@ export const CUSTOM_FLAGGED_TAG = "custom:flagged";
 
 export interface CustomLine {
   country: string | undefined;
+  fit: string | undefined;
   index: number;
   note: string[];
   preset: string | undefined;
@@ -65,6 +66,7 @@ export function extractCustomLines(order: ShopifyOrderPayload): CustomLine[] {
     }
     lines.push({
       country,
+      fit: props[CUSTOM_PROPERTY.fit] ?? printifyTargetForSku(line.sku)?.fit ?? undefined,
       index: lines.length + 1,
       note,
       preset: props[CUSTOM_PROPERTY.preset],
@@ -105,6 +107,7 @@ export async function handleCustomOrder(order: ShopifyOrderPayload): Promise<num
     ...lines.flatMap((l) => [
       `Line ${l.index}: ${l.quantity} × ${l.title}  (SKU ${l.sku})`,
       `  Text:   ${l.text || "(none)"}`,
+      ...(l.fit ? [`  Fit:    ${l.fit}`] : []),
       `  Style:  ${l.style ?? "(none)"}${l.preset ? `  · started from example #${l.preset}` : ""}`,
       ...l.note.map((n) => `  ! ${n}`),
       "",
@@ -122,7 +125,7 @@ ${lines
     (l) => `<div style="border:1px solid #ddd;border-radius:10px;padding:12px 14px;margin:10px 0">
 <b>Line ${l.index}:</b> ${l.quantity} × ${esc(l.title)} <span style="color:#888">(${esc(l.sku)})</span><br>
 <span style="color:#666">Text</span> <span dir="auto" style="font-size:22px">${esc(l.text || "(none)")}</span><br>
-<span style="color:#666">Style</span> ${esc(l.style ?? "(none)")}${l.preset ? ` · started from example #${esc(l.preset)}` : ""}
+${l.fit ? `<span style="color:#666">Fit</span> ${esc(l.fit)}<br>` : ""}<span style="color:#666">Style</span> ${esc(l.style ?? "(none)")}${l.preset ? ` · started from example #${esc(l.preset)}` : ""}
 ${l.note.map((n) => `<div style="color:#b00020">⚠ ${esc(n)}</div>`).join("")}</div>`,
   )
   .join("")}

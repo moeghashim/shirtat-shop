@@ -58,12 +58,12 @@ Names only. Never commit values.
 
 ## Custom-text orders (/design)
 
-Customers type a sentence, pick a calligraphy style, and order a tee or a mug. The text travels in line-item properties (`Text`, `Style`, `Preset`) on SKUs starting `CUS-`. A designer finishes the artwork on arabicdesign.ai, so these orders never go to Printify automatically.
+Customers type a sentence, pick a calligraphy style, and order a tee (men's or women's fit), a unisex hoodie or a mug. The text travels in line-item properties (`Text`, `Style`, `Preset`, and `Fit` for garments) on SKUs starting `CUS-`. A designer finishes the artwork on arabicdesign.ai, so these orders never go to Printify automatically.
 
 When a custom order is paid, `lib/custom/order.ts` tags it `custom:pending` (best effort) and emails the text, style and product to Moe. To fulfil one:
 
 1. Make the design on arabicdesign.ai with that text and style, then export the SVG.
-2. Check the fit: `pnpm custom-order --preview art.svg --product tee` (or `mug-us-11`, `mug-eu-15`), then open the PNG.
+2. Check the fit: `pnpm custom-order --preview art.svg --product tee`. Product keys: `tee`, `tee-women`, `hoodie`, `mug-us-11`, `mug-us-15`, `mug-eu-11`, `mug-eu-15`. Open the PNG it writes.
 3. Dry run: `pnpm custom-order --order A-1008 --line 1:art.svg --dry-run`.
 4. For real, without `--dry-run`. The script rasterises the SVG to the print area's size, uploads the PNG through `/api/custom/upload`, and creates the held Printify order.
 5. Check the order in Printify, then add the `approve-pod` tag to the Shopify order.

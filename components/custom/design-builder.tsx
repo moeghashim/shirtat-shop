@@ -30,32 +30,43 @@ import { fontFamily } from "./fonts";
 
 const GARMENT_COLORS: Record<string, { ar: string; dark: boolean; hex: string }> = {
   "Athletic Heather": { ar: "رمادي مُبرقش", dark: false, hex: "#b7b9bd" },
+  "Dark Chocolate": { ar: "بني داكن", dark: true, hex: "#3b2a22" },
   Black: { ar: "أسود", dark: true, hex: "#141414" },
   Maroon: { ar: "عنابي", dark: true, hex: "#6b1f2a" },
   Natural: { ar: "طبيعي", dark: false, hex: "#e8dfcf" },
   Navy: { ar: "كحلي", dark: true, hex: "#1d2a4a" },
   Olive: { ar: "زيتي", dark: true, hex: "#5b5e3a" },
+  Sand: { ar: "رملي", dark: false, hex: "#d6c3a0" },
   "Sand Dune": { ar: "رملي", dark: false, hex: "#cdb99a" },
   "Soft Cream": { ar: "كريمي", dark: false, hex: "#f1e6cf" },
+  "Sport Grey": { ar: "رمادي فاتح", dark: false, hex: "#c3c4c7" },
   White: { ar: "أبيض", dark: false, hex: "#f6f6f4" },
 };
 
 interface DesignBuilderProps {
+  hoodie: ProductFormInput | null;
   mug: ProductFormInput | null;
   tee: ProductFormInput | null;
 }
 
-export function DesignBuilder({ mug, tee }: DesignBuilderProps) {
+const KIND_LABEL: Record<CustomKind, string> = { hoodie: "Hoodie", mug: "Mug", tee: "T-shirt" };
+
+export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
   const t = useT();
-  const kinds = [tee && "tee", mug && "mug"].filter(Boolean) as CustomKind[];
+  const products: Record<CustomKind, ProductFormInput | null> = { hoodie, mug, tee };
+  const kinds = (["tee", "hoodie", "mug"] as const).filter((k) => products[k]);
   const [kind, setKind] = useState<CustomKind>(kinds[0] ?? "tee");
   useEffect(() => {
-    if (mug && new URLSearchParams(window.location.search).get("product") === "mug") setKind("mug");
-  }, [mug]);
+    const wanted = new URLSearchParams(window.location.search).get("product");
+    if ((wanted === "mug" || wanted === "hoodie" || wanted === "tee") && products[wanted])
+      setKind(wanted);
+    // Read the link's ?product= once, when the products arrive.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [hoodie, mug, tee]);
   const [text, setText] = useState("");
   const [styleId, setStyleId] = useState(2);
   const [presetId, setPresetId] = useState<number | null>(null);
-  const product = kind === "mug" ? mug : tee;
+  const product = products[kind];
 
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
@@ -75,7 +86,7 @@ export function DesignBuilder({ mug, tee }: DesignBuilderProps) {
                 )}
                 onClick={() => setKind(k)}
               >
-                {k === "tee" ? t("T-shirt") : t("Mug")}
+                {t(KIND_LABEL[k])}
               </button>
             ))}
           </div>
@@ -274,6 +285,7 @@ function ProductPanel({
   const valueLabel = (optionName: string, name: string) => {
     if (optionName === "Ships to") return regionLabel(name);
     if (optionName === "Color" && locale === "ar") return GARMENT_COLORS[name]?.ar ?? name;
+    if (optionName === "Fit") return t(name);
     return name;
   };
   const optionLabel = (name: string) => t(name === "Ships to" ? "Ships to" : name);
@@ -284,6 +296,12 @@ function ProductPanel({
     ? [
         [CUSTOM_PROPERTY.text, check.text],
         [CUSTOM_PROPERTY.style, `${style.nameEn} (${style.id})`],
+        ...(kind === "mug"
+          ? []
+          : ([[CUSTOM_PROPERTY.fit, kind === "hoodie" ? "Unisex" : (selected.Fit ?? "Men's")]] as [
+              string,
+              string,
+            ][])),
         ...(presetId ? ([[CUSTOM_PROPERTY.preset, String(presetId)]] as [string, string][]) : []),
       ]
     : [];
@@ -293,6 +311,7 @@ function ProductPanel({
       <section aria-label={t("Preview")} className="grid gap-3">
         <Preview
           dark={color?.dark ?? false}
+          fit={selected.Fit}
           fontKey={style.font}
           garment={color?.hex ?? "#f6f6f4"}
           kind={kind}
@@ -329,8 +348,21 @@ function ProductPanel({
                             ? "border-foreground font-medium ring-1 ring-foreground"
                             : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
                         )}
-                        disabled={!value.exists}
-                        onClick={() => selectOption(option.name, value.name)}
+                        // Switching fit is always allowed; the form then moves to the nearest colour that fit offers.
+                        disabled={!value.exists && option.name !== "Fit"}
+                        onClick={() => {
+                          if (option.name === "Fit" && !value.exists) {
+                            // The current colour isn't made in this fit, so move to the first colour that is.
+                            const colors = options.find((o) => o.name === "Color")?.values ?? [];
+                            for (const c of colors) {
+                              if (!c.exists) continue;
+                              selectOption("Color", c.name);
+                              if (selectOption("Fit", value.name).status !== "invalid") return;
+                            }
+                            return;
+                          }
+                          selectOption(option.name, value.name);
+                        }}
                       >
                         {swatch ? (
                           <span
@@ -349,6 +381,11 @@ function ProductPanel({
           {kind === "mug" ? (
             <p className="text-sm text-muted-foreground">
               {t("Mugs ship to the United States, Europe and the UK only.")}
+            </p>
+          ) : null}
+          {kind === "hoodie" ? (
+            <p className="text-sm text-muted-foreground">
+              {t("Unisex fit. Order your usual size.")}
             </p>
           ) : null}
         </div>
@@ -393,6 +430,7 @@ function ProductPanel({
 
 function Preview({
   dark,
+  fit,
   fontKey,
   garment,
   kind,
@@ -400,31 +438,47 @@ function Preview({
   vertical,
 }: {
   dark: boolean;
+  fit: string | undefined;
   fontKey: Parameters<typeof fontFamily>[0];
   garment: string;
   kind: CustomKind;
   text: string;
   vertical: boolean;
 }) {
-  const isTee = kind === "tee";
-  const ink = isTee && dark ? "#f4f4f4" : "#141414";
+  const isGarment = kind !== "mug";
+  const isHoodie = kind === "hoodie";
+  const ink = isGarment && dark ? "#f4f4f4" : "#141414";
+  const outline = "rgba(0,0,0,.18)";
   return (
     <div
       className={cn(
         "relative mx-auto w-full max-w-lg overflow-hidden rounded-2xl bg-muted",
-        isTee ? "aspect-[10/11]" : "aspect-[4/3]",
+        isGarment ? "aspect-[10/11]" : "aspect-[4/3]",
       )}
     >
       <svg
         aria-hidden
         className="absolute inset-0 size-full"
-        viewBox={isTee ? "0 0 400 440" : "0 0 400 300"}
+        viewBox={isGarment ? "0 0 400 440" : "0 0 400 300"}
       >
-        {isTee ? (
+        {isHoodie ? (
+          <g fill={garment} stroke={outline} strokeWidth="2">
+            <path d="M150 56 L82 84 L16 336 L74 350 L100 196 V404 H300 V196 L326 350 L384 336 L318 84 L250 56 Q200 98 150 56 Z" />
+            <path
+              d="M150 56 Q138 14 200 12 Q262 14 250 56 Q200 98 150 56 Z"
+              fill="rgba(0,0,0,.08)"
+            />
+            <path d="M138 304 H262 L276 366 H124 Z" fill="none" />
+          </g>
+        ) : isGarment ? (
           <path
-            d="M130 40 L60 70 L18 152 L76 178 L96 142 V402 H304 V142 L324 178 L382 152 L340 70 L270 40 Q200 84 130 40 Z"
+            d={
+              fit === "Women's"
+                ? "M140 42 L82 66 L40 140 L92 166 L108 134 V402 H292 V134 L308 166 L360 140 L318 66 L260 42 Q200 92 140 42 Z"
+                : "M130 40 L60 70 L18 152 L76 178 L96 142 V402 H304 V142 L324 178 L382 152 L340 70 L270 40 Q200 84 130 40 Z"
+            }
             fill={garment}
-            stroke="rgba(0,0,0,.18)"
+            stroke={outline}
             strokeWidth="2"
           />
         ) : (
@@ -448,7 +502,7 @@ function Preview({
               fill="#f8f8f6"
               height="190"
               rx="16"
-              stroke="rgba(0,0,0,.18)"
+              stroke={outline}
               strokeWidth="2"
               width="226"
               x="64"
@@ -460,9 +514,11 @@ function Preview({
       <div
         className="absolute grid place-items-center overflow-hidden"
         style={
-          isTee
-            ? { height: "34%", insetInlineStart: "31%", top: "24%", width: "38%" }
-            : { height: "58%", insetInlineStart: "19%", top: "24%", width: "50%" }
+          isHoodie
+            ? { height: "26%", insetInlineStart: "32%", top: "30%", width: "36%" }
+            : isGarment
+              ? { height: "34%", insetInlineStart: "31%", top: "24%", width: "38%" }
+              : { height: "58%", insetInlineStart: "19%", top: "24%", width: "50%" }
         }
       >
         <FitText ink={ink} fontKey={fontKey} text={text} vertical={vertical} />

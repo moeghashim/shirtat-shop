@@ -2,15 +2,17 @@ import { retailPrice, SUPPLIER_CATALOG } from "@/lib/catalog/pricing";
 
 import regions from "./regions.json";
 
-/** Shopify handles of the two products the design builder sells. */
+/** Shopify handles of the products the design builder sells. */
 export const CUSTOM_TEE_HANDLE = "custom-calligraphy-t-shirt";
+export const CUSTOM_HOODIE_HANDLE = "custom-calligraphy-hoodie";
 export const CUSTOM_MUG_HANDLE = "custom-calligraphy-mug";
 export const CUSTOM_TAG = "custom-design";
 export const CUSTOM_SKU_PREFIX = "CUS-";
 
-export type CustomKind = "mug" | "tee";
+export type CustomKind = "hoodie" | "mug" | "tee";
 
 export const CUSTOM_PROPERTY = {
+  fit: "Fit",
   preset: "Preset",
   style: "Style",
   text: "Text",
@@ -38,18 +40,25 @@ export function teeSku(printifyVariantId: number): string {
   return `${CUSTOM_SKU_PREFIX}TEE-${printifyVariantId}`;
 }
 
+export function hoodieSku(printifyVariantId: number): string {
+  return `${CUSTOM_SKU_PREFIX}HOODIE-${printifyVariantId}`;
+}
+
 export function mugSku(region: MugRegion, size: "11oz" | "15oz"): string {
   return `${CUSTOM_SKU_PREFIX}MUG-${region.toUpperCase()}-${size.replace("oz", "")}`;
 }
 
 export type ParsedCustomSku =
   | { kind: "mug"; region: MugRegion; size: "11oz" | "15oz" }
+  | { kind: "hoodie"; variantId: number }
   | { kind: "tee"; variantId: number };
 
 export function parseCustomSku(sku: string | null | undefined): ParsedCustomSku | null {
   if (!sku?.startsWith(CUSTOM_SKU_PREFIX)) return null;
   const tee = sku.match(/^CUS-TEE-(\d+)$/);
   if (tee) return { kind: "tee", variantId: Number(tee[1]) };
+  const hoodie = sku.match(/^CUS-HOODIE-(\d+)$/);
+  if (hoodie) return { kind: "hoodie", variantId: Number(hoodie[1]) };
   const mug = sku.match(/^CUS-MUG-(US|EU)-(11|15)$/);
   if (mug) {
     return {
@@ -61,27 +70,45 @@ export function parseCustomSku(sku: string | null | undefined): ParsedCustomSku 
   return null;
 }
 
+/** Supplier-catalog keys a garment SKU can point at, in order: the fit decides which one matches. */
+const GARMENT_CATALOG_KEYS = {
+  hoodie: [{ fit: "Unisex", key: "hoodie" }],
+  tee: [
+    { fit: "Men's", key: "t-shirt" },
+    { fit: "Women's", key: "t-shirt-women" },
+  ],
+} as const;
+
 /** Printify blueprint, provider and variant for a custom SKU, taken from the supplier catalog. */
 export function printifyTargetForSku(sku: string) {
   const parsed = parseCustomSku(sku);
   if (!parsed) return null;
-  if (parsed.kind === "tee") {
-    const cat = SUPPLIER_CATALOG["t-shirt"]!;
-    for (const sizes of Object.values(cat.variants))
-      for (const v of Object.values(sizes))
-        if (v.id === parsed.variantId)
-          return {
-            blueprintId: cat.blueprintId,
-            cost: v.cost,
-            providerId: cat.providerId,
-            variantId: v.id,
-          };
+  if (parsed.kind === "tee" || parsed.kind === "hoodie") {
+    for (const { fit, key } of GARMENT_CATALOG_KEYS[parsed.kind]) {
+      const cat = SUPPLIER_CATALOG[key]!;
+      for (const sizes of Object.values(cat.variants))
+        for (const v of Object.values(sizes))
+          if (v.id === parsed.variantId)
+            return {
+              blueprintId: cat.blueprintId,
+              cost: v.cost,
+              fit,
+              providerId: cat.providerId,
+              variantId: v.id,
+            };
+    }
     return null;
   }
   const cat = SUPPLIER_CATALOG[MUG_REGIONS[parsed.region].catalogId]!;
   const v = cat.variants.White?.[parsed.size];
   return v
-    ? { blueprintId: cat.blueprintId, cost: v.cost, providerId: cat.providerId, variantId: v.id }
+    ? {
+        blueprintId: cat.blueprintId,
+        cost: v.cost,
+        fit: null,
+        providerId: cat.providerId,
+        variantId: v.id,
+      }
     : null;
 }
 
