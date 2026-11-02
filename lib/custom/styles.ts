@@ -16,14 +16,18 @@ export type FontKey =
   | "arefRuqaa"
   | "cairo"
   | "changa"
+  | "elMessiri"
+  | "harmattan"
   | "katibeh"
-  | "kufam"
   | "lalezar"
-  | "lateef"
+  | "mada"
   | "markazi"
+  | "marhey"
   | "mirza"
   | "naskh"
   | "nastaliq"
+  | "notoKufi"
+  | "playpen"
   | "rakkas"
   | "reemKufi";
 
@@ -33,21 +37,21 @@ export const DESIGN_STYLES: DesignStyle[] = [
   { font: "katibeh", id: 3, nameAr: "خط الديواني", nameEn: "Diwani" },
   { font: "arefRuqaa", id: 4, nameAr: "خط الرقعة", nameEn: "Ruqa'a" },
   { font: "nastaliq", id: 5, nameAr: "النستعليق الفارسي", nameEn: "Farsi Nastaliq" },
-  { font: "kufam", id: 6, nameAr: "صغيرون", nameEn: "Kiddo" },
-  { font: "lalezar", id: 7, nameAr: "ريترو", nameEn: "Retro" },
-  { font: "reemKufi", id: 9, nameAr: "الكوفي الحديث", nameEn: "Modern Kufic" },
+  { font: "marhey", id: 6, nameAr: "صغيرون", nameEn: "Kiddo" },
+  { font: "elMessiri", id: 7, nameAr: "ريترو", nameEn: "Retro" },
+  { font: "notoKufi", id: 9, nameAr: "الكوفي الحديث", nameEn: "Modern Kufic" },
   { font: "cairo", id: 11, nameAr: "متوازن عمودي", nameEn: "Balanced Vertical", vertical: true },
   { font: "reemKufi", id: 13, nameAr: "الفاطمي المورق", nameEn: "Fatimid Foliated" },
-  { font: "lateef", id: 14, nameAr: "عتيق", nameEn: "Ateeq" },
+  { font: "harmattan", id: 14, nameAr: "عتيق", nameEn: "Ateeq" },
   { font: "rakkas", id: 15, nameAr: "كاليجرافيتي", nameEn: "Calligraffiti" },
   { font: "changa", id: 16, nameAr: "إنسيابي عمودي", nameEn: "Fluid Vertical", vertical: true },
-  { font: "reemKufi", id: 17, nameAr: "خط الخاتم", nameEn: "Khatam Seal" },
-  { font: "lateef", id: 19, nameAr: "خط اليد", nameEn: "Handwriting" },
+  { font: "lalezar", id: 17, nameAr: "خط الخاتم", nameEn: "Khatam Seal" },
+  { font: "playpen", id: 19, nameAr: "خط اليد", nameEn: "Handwriting" },
   { font: "markazi", id: 20, nameAr: "نسخ مطبعي", nameEn: "Press Naskh" },
   { font: "changa", id: 21, nameAr: "فرشاة عربية", nameEn: "Arabic Brush" },
   { font: "mirza", id: 22, nameAr: "الديواني الحر", nameEn: "Free Diwani" },
-  { font: "rakkas", id: 23, nameAr: "انسيابي مرح", nameEn: "Fun Fluid" },
-  { font: "cairo", id: 24, nameAr: "مدار", nameEn: "Madar" },
+  { font: "marhey", id: 23, nameAr: "انسيابي مرح", nameEn: "Fun Fluid" },
+  { font: "mada", id: 24, nameAr: "مدار", nameEn: "Madar" },
 ];
 
 export function getStyle(id: number | string | undefined): DesignStyle | undefined {

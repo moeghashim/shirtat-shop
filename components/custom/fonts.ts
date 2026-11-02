@@ -3,14 +3,18 @@ import {
   Aref_Ruqaa,
   Cairo,
   Changa,
+  El_Messiri,
+  Harmattan,
   Katibeh,
-  Kufam,
   Lalezar,
-  Lateef,
+  Mada,
   Markazi_Text,
+  Marhey,
   Mirza,
+  Noto_Kufi_Arabic,
   Noto_Naskh_Arabic,
   Noto_Nastaliq_Urdu,
+  Playpen_Sans_Arabic,
   Rakkas,
   Reem_Kufi,
 } from "next/font/google";
@@ -53,26 +57,12 @@ const katibeh = Katibeh({
   variable: "--font-d-katibeh",
   weight: "400",
 });
-const kufam = Kufam({
-  display: "swap",
-  preload: false,
-  subsets: ["arabic", "latin"],
-  variable: "--font-d-kufam",
-  weight: "700",
-});
 const lalezar = Lalezar({
   display: "swap",
   preload: false,
   subsets: ["arabic", "latin"],
   variable: "--font-d-lalezar",
   weight: "400",
-});
-const lateef = Lateef({
-  display: "swap",
-  preload: false,
-  subsets: ["arabic", "latin"],
-  variable: "--font-d-lateef",
-  weight: "600",
 });
 const markazi = Markazi_Text({
   display: "swap",
@@ -117,19 +107,66 @@ const reemKufi = Reem_Kufi({
   weight: "700",
 });
 
+const elMessiri = El_Messiri({
+  display: "swap",
+  preload: false,
+  subsets: ["arabic", "latin"],
+  variable: "--font-d-messiri",
+  weight: "700",
+});
+const harmattan = Harmattan({
+  display: "swap",
+  preload: false,
+  subsets: ["arabic", "latin"],
+  variable: "--font-d-harmattan",
+  weight: "700",
+});
+const mada = Mada({
+  display: "swap",
+  preload: false,
+  subsets: ["arabic", "latin"],
+  variable: "--font-d-mada",
+  weight: "900",
+});
+const marhey = Marhey({
+  display: "swap",
+  preload: false,
+  subsets: ["arabic", "latin"],
+  variable: "--font-d-marhey",
+  weight: "700",
+});
+const notoKufi = Noto_Kufi_Arabic({
+  display: "swap",
+  preload: false,
+  subsets: ["arabic", "latin"],
+  variable: "--font-d-kufi",
+  weight: "700",
+});
+const playpen = Playpen_Sans_Arabic({
+  display: "swap",
+  preload: false,
+  subsets: ["arabic", "latin"],
+  variable: "--font-d-playpen",
+  weight: "300",
+});
+
 export const DESIGN_FONT_VARIABLES = [
   amiri,
   arefRuqaa,
   cairo,
   changa,
+  elMessiri,
+  harmattan,
   katibeh,
-  kufam,
   lalezar,
-  lateef,
+  mada,
   markazi,
+  marhey,
   mirza,
   naskh,
   nastaliq,
+  notoKufi,
+  playpen,
   rakkas,
   reemKufi,
 ]
@@ -139,12 +176,16 @@ export const DESIGN_FONT_VARIABLES = [
 const FAMILY: Record<FontKey, string> = {
   amiri: amiri.style.fontFamily,
   arefRuqaa: arefRuqaa.style.fontFamily,
+  elMessiri: elMessiri.style.fontFamily,
+  harmattan: harmattan.style.fontFamily,
+  mada: mada.style.fontFamily,
+  marhey: marhey.style.fontFamily,
+  notoKufi: notoKufi.style.fontFamily,
+  playpen: playpen.style.fontFamily,
   cairo: cairo.style.fontFamily,
   changa: changa.style.fontFamily,
   katibeh: katibeh.style.fontFamily,
-  kufam: kufam.style.fontFamily,
   lalezar: lalezar.style.fontFamily,
-  lateef: lateef.style.fontFamily,
   markazi: markazi.style.fontFamily,
   mirza: mirza.style.fontFamily,
   naskh: naskh.style.fontFamily,

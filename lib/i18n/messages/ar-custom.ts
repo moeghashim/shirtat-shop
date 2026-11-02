@@ -42,4 +42,12 @@ export const arCustom = {
   Size: "المقاس",
   "Europe & UK": "أوروبا والمملكة المتحدة",
   "United States": "الولايات المتحدة",
+  "Example artwork shown on your product. A designer prepares your print to match it.":
+    "العمل الفني النموذجي معروض على منتجك. يُجهّز أحد المصممين طباعتك لتطابقه.",
+  "Rough layout preview. Our designer hand-finishes your text in the selected style.":
+    "معاينة تقريبية للتنسيق. يُنهي مصمّمنا نصّك يدويًا بالنمط المختار.",
+  "Sample of the finished look. Your words will be drawn in this hand.":
+    "نموذج للمظهر النهائي. ستُرسم كلماتك بهذا الخط.",
+  "Selected style": "النمط المختار",
+  "Your text in this style": "نصّك بهذا النمط",
 } as const;

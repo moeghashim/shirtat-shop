@@ -6,6 +6,7 @@ import { type CSSProperties, useEffect, useLayoutEffect, useMemo, useRef, useSta
 
 import { useCartDrawer } from "@/components/cart/context";
 import { Button } from "@/components/ui/button";
+import { expandForm, type CompactForm } from "@/lib/custom/compact";
 import { checkCustomText } from "@/lib/custom/moderation";
 import {
   CUSTOM_PROPERTY,
@@ -44,16 +45,23 @@ const GARMENT_COLORS: Record<string, { ar: string; dark: boolean; hex: string }>
 };
 
 interface DesignBuilderProps {
-  hoodie: ProductFormInput | null;
-  mug: ProductFormInput | null;
-  tee: ProductFormInput | null;
+  hoodie: CompactForm | null;
+  mug: CompactForm | null;
+  tee: CompactForm | null;
 }
 
 const KIND_LABEL: Record<CustomKind, string> = { hoodie: "Hoodie", mug: "Mug", tee: "T-shirt" };
 
 export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
   const t = useT();
-  const products: Record<CustomKind, ProductFormInput | null> = { hoodie, mug, tee };
+  const products = useMemo<Record<CustomKind, ProductFormInput | null>>(
+    () => ({
+      hoodie: hoodie && expandForm(hoodie),
+      mug: mug && expandForm(mug),
+      tee: tee && expandForm(tee),
+    }),
+    [hoodie, mug, tee],
+  );
   const kinds = (["tee", "hoodie", "mug"] as const).filter((k) => products[k]);
   const [kind, setKind] = useState<CustomKind>(kinds[0] ?? "tee");
   useEffect(() => {
@@ -138,8 +146,21 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
         </Step>
 
         <Step n={3} title={t("Calligraphy style")}>
+          <p className="-mt-2 text-sm text-muted-foreground" aria-live="polite">
+            {t("Selected style")}:{" "}
+            <span className="font-semibold text-foreground">
+              <SelectedStyleName styleId={styleId} />
+            </span>
+          </p>
           <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 xl:grid-cols-5" role="list">
-            <StyleOptions styleId={styleId} onSelect={setStyleId} />
+            <StyleOptions
+              styleId={styleId}
+              onSelect={(id) => {
+                // Picking a style means the customer wants their own text in it, so the example artwork steps aside.
+                setStyleId(id);
+                setPresetId(null);
+              }}
+            />
           </ul>
         </Step>
       </div>
@@ -155,6 +176,12 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
   );
 }
 
+function SelectedStyleName({ styleId }: { styleId: number }) {
+  const locale = useLocale();
+  const style = getStyle(styleId)!;
+  return locale === "ar" ? style.nameAr : style.nameEn;
+}
+
 function StyleOptions({ onSelect, styleId }: { onSelect: (id: number) => void; styleId: number }) {
   const locale = useLocale();
   return DESIGN_STYLES.map((s) => (
@@ -164,10 +191,20 @@ function StyleOptions({ onSelect, styleId }: { onSelect: (id: number) => void; s
         aria-pressed={styleId === s.id}
         className={cn(
           "group grid w-full cursor-pointer gap-1.5 rounded-xl border-2 p-1.5 text-center transition-colors",
-          styleId === s.id ? "border-foreground" : "border-transparent hover:border-border",
+          styleId === s.id
+            ? "relative border-foreground bg-foreground/5 shadow-sm ring-2 ring-foreground"
+            : "border-transparent hover:border-border",
         )}
         onClick={() => onSelect(s.id)}
       >
+        {styleId === s.id ? (
+          <span
+            aria-hidden
+            className="absolute -top-2 -inset-e-2 z-10 grid size-6 place-items-center rounded-full bg-foreground text-xs text-background shadow"
+          >
+            ✓
+          </span>
+        ) : null}
         <Image
           alt=""
           className="aspect-square w-full rounded-lg object-cover"
@@ -177,7 +214,9 @@ function StyleOptions({ onSelect, styleId }: { onSelect: (id: number) => void; s
           unoptimized
           width={96}
         />
-        <span className="text-xs leading-tight">{locale === "ar" ? s.nameAr : s.nameEn}</span>
+        <span className={cn("text-xs leading-tight", styleId === s.id && "font-semibold")}>
+          {locale === "ar" ? s.nameAr : s.nameEn}
+        </span>
       </button>
     </li>
   ));
@@ -315,12 +354,43 @@ function ProductPanel({
           fontKey={style.font}
           garment={color?.hex ?? "#f6f6f4"}
           kind={kind}
+          art={presetId ? presetImage(presetId) : undefined}
           text={check.ok ? check.text : text.trim()}
           vertical={Boolean(style.vertical)}
         />
         <p className="text-center text-xs text-muted-foreground">
-          {t("Approximate preview. A designer sets the final artwork in your style.")}
+          {presetId
+            ? t(
+                "Example artwork shown on your product. A designer prepares your print to match it.",
+              )
+            : t(
+                "Rough layout preview. Our designer hand-finishes your text in the selected style.",
+              )}
         </p>
+        {presetId ? null : (
+          <div
+            className="mx-auto flex w-full max-w-lg items-center gap-4 rounded-xl border border-border bg-background p-3"
+            data-testid="style-sample"
+          >
+            <Image
+              alt={locale === "ar" ? style.nameAr : style.nameEn}
+              className="size-24 shrink-0 rounded-lg bg-white object-cover"
+              height={96}
+              src={styleImage(style.id)}
+              unoptimized
+              width={96}
+            />
+            <div className="grid gap-0.5">
+              <p className="text-sm font-semibold">{t("Your text in this style")}</p>
+              <p className="text-sm text-foreground/80">
+                {locale === "ar" ? style.nameAr : style.nameEn}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t("Sample of the finished look. Your words will be drawn in this hand.")}
+              </p>
+            </div>
+          </div>
+        )}
       </section>
 
       <Step n={4} title={t("Options")}>
@@ -429,6 +499,7 @@ function ProductPanel({
 }
 
 function Preview({
+  art,
   dark,
   fit,
   fontKey,
@@ -437,6 +508,7 @@ function Preview({
   text,
   vertical,
 }: {
+  art?: string;
   dark: boolean;
   fit: string | undefined;
   fontKey: Parameters<typeof fontFamily>[0];
@@ -521,7 +593,18 @@ function Preview({
               : { height: "58%", insetInlineStart: "19%", top: "24%", width: "50%" }
         }
       >
-        <FitText ink={ink} fontKey={fontKey} text={text} vertical={vertical} />
+        {art ? (
+          <Image
+            alt=""
+            className="size-full rounded-md object-contain shadow-md ring-1 ring-black/10"
+            height={248}
+            src={art}
+            unoptimized
+            width={248}
+          />
+        ) : (
+          <FitText ink={ink} fontKey={fontKey} text={text} vertical={vertical} />
+        )}
       </div>
     </div>
   );
@@ -560,7 +643,11 @@ function FitText({
       for (let i = 0; i < 12; i++) {
         const mid = (lo + hi) / 2;
         span.style.fontSize = `${mid}px`;
-        if (span.scrollHeight <= maxH && span.scrollWidth <= maxW) lo = mid;
+        // The text range reports glyph extents on both sides; scrollWidth misses overflow on the start edge of RTL text.
+        const range = document.createRange();
+        range.selectNodeContents(span);
+        const extent = range.getBoundingClientRect();
+        if (extent.height <= maxH + 0.5 && extent.width <= maxW + 0.5) lo = mid;
         else hi = mid;
       }
       span.style.fontSize = `${lo}px`;
@@ -590,7 +677,7 @@ function FitText({
     width: "100%",
   };
   return (
-    <div ref={boxRef} className="grid size-full place-items-center">
+    <div ref={boxRef} className="grid size-full grid-cols-[minmax(0,1fr)] place-items-center">
       <span ref={spanRef} dir="auto" style={style}>
         {content}
       </span>

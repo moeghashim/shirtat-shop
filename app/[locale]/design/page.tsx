@@ -6,6 +6,7 @@ import { DesignBuilder } from "@/components/custom/design-builder";
 import { DESIGN_FONT_VARIABLES } from "@/components/custom/fonts";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
+import { compactForm } from "@/lib/custom/compact";
 import { CUSTOM_HOODIE_HANDLE, CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE } from "@/lib/custom/products";
 import { commerceLocale } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
@@ -82,9 +83,11 @@ function toBuilderInput(
       (!pick.size || o.Size === pick.size)
     );
   });
-  return toProductFormInput(
-    { ...product, adjacentVariants: all.length ? all : product.adjacentVariants },
-    wanted ?? product.defaultVariant,
+  return compactForm(
+    toProductFormInput(
+      { ...product, adjacentVariants: all.length ? all : product.adjacentVariants },
+      wanted ?? product.defaultVariant,
+    ),
   );
 }
 
