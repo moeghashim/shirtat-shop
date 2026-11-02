@@ -566,5 +566,41 @@
     }
    }
   }
+ },
+ "mug-us": {
+  "blueprint": "Ceramic Mug, (11oz, 15oz)",
+  "blueprintId": 478,
+  "providerId": 99,
+  "provider": "Printify Choice (US)",
+  "variants": {
+   "White": {
+    "11oz": {
+     "id": 65216,
+     "cost": 5.03
+    },
+    "15oz": {
+     "id": 104692,
+     "cost": 6.13
+    }
+   }
+  }
+ },
+ "mug-eu": {
+  "blueprint": "Ceramic Mug (EU)",
+  "blueprintId": 441,
+  "providerId": 30,
+  "provider": "OPT OnDemand (Germany)",
+  "variants": {
+   "White": {
+    "11oz": {
+     "id": 62327,
+     "cost": 5.88
+    },
+    "15oz": {
+     "id": 62328,
+     "cost": 9.87
+    }
+   }
+  }
  }
 }

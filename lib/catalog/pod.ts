@@ -1,4 +1,5 @@
 import { sendOpsEmail } from "@/lib/creators/email";
+import { adminGraphql } from "@/lib/creators/shopify-admin";
 /**
  * POD routing. Every product carries (namespace "shirtat"):
  *   pod               list of POD companies, first = primary (Printify, Tapstitch, Prodigi, Inkse, Teepig)
@@ -9,7 +10,7 @@ import { sendOpsEmail } from "@/lib/creators/email";
  * API (PRINTIFY_ENABLED gating); other PODs, or anything Printify can't take, are recorded as
  * "needs manual placement" and emailed to Moe rather than failing the webhook.
  */
-import { adminGraphql } from "@/lib/creators/shopify-admin";
+import { parseCustomSku } from "@/lib/custom/products";
 
 import {
   findPrintifyOrderIds,
@@ -141,6 +142,7 @@ export async function routeOrderToPods(order: ShopifyOrderPayload): Promise<PodO
     { info?: ProductPod; line: ShopifyOrderPayload["line_items"][number] }[]
   >();
   for (const line of order.line_items) {
+    if (parseCustomSku(line.sku)) continue; // custom-text lines are handled by lib/custom/order.ts
     const info = line.product_id ? pods.get(line.product_id) : undefined;
     const pod = info?.pod || (parseSku(line.sku) ? "Printify" : "");
     if (!pod) continue; // not a POD product

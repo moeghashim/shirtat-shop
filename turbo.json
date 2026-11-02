@@ -2,7 +2,9 @@
   "$schema": "https://turborepo.dev/schema.json",
   "globalDependencies": [".env*"],
   "globalEnv": [
+    "AGENTMAIL_API_KEY",
     "AI_GATEWAY_API_KEY",
+    "CUSTOM_ORDER_TOKEN",
     "CUSTOMER_ACCOUNT_SESSION_SECRET",
     "DEBUG_SHOPIFY",
     "EVE_DEV",

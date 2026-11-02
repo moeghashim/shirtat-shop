@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { DesignBand } from "@/components/home/design-band";
 import { HeroRail } from "@/components/home/hero-rail";
 import { Inspiration } from "@/components/home/inspiration";
 import {
@@ -24,7 +25,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: shopConfig.site.name },
     description,
     alternates: buildAlternates({ locale, pathname: "/" }),
-    openGraph: buildOpenGraph({ locale: await getLocale(),
+    openGraph: buildOpenGraph({
+      locale: await getLocale(),
       title: shopConfig.site.name,
       description,
       url: locale === "ar" ? "/ar" : "/",
@@ -44,6 +46,8 @@ export default async function HomePage() {
     <Page className="pt-0">
       <Sections>
         <HeroRail />
+
+        <DesignBand />
 
         <CategoryTiles />
 

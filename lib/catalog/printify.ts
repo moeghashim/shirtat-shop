@@ -129,6 +129,7 @@ export interface ShopifyOrderPayload {
   line_items: {
     id?: number;
     product_id?: number | null;
+    properties?: { name: string; value: string }[];
     quantity: number;
     sku: string | null;
     title?: string;
@@ -203,6 +204,7 @@ export async function sendPrintifyOrderToProduction(orderId: string): Promise<st
 export async function findPrintifyOrderIds(shopifyOrderId: number | string): Promise<string[]> {
   const shop = process.env.PRINTIFY_SHOP_ID;
   const want = `shopify-${shopifyOrderId}`;
+  const wantCustom = `${want}-custom`;
   const ids: string[] = [];
   for (let page = 1; page <= 5; page++) {
     const res = await pf<{
@@ -210,7 +212,8 @@ export async function findPrintifyOrderIds(shopifyOrderId: number | string): Pro
       last_page?: number;
     }>("GET", `/shops/${shop}/orders.json?limit=50&page=${page}`);
     for (const o of res.data ?? [])
-      if (o.external_id === want || o.metadata?.shop_order_id === want) ids.push(o.id);
+      if ([o.external_id, o.metadata?.shop_order_id].some((v) => v === want || v === wantCustom))
+        ids.push(o.id);
     if (!res.last_page || page >= res.last_page) break;
   }
   return ids;

@@ -25,6 +25,7 @@ const PRODUCT_TYPES = [
   { handle: "sweatshirts", search: "Sweatshirt", label: "Sweatshirts", type: "Sweatshirt" },
   { handle: "tote-bags", search: "Tote", label: "Tote bags", type: "Tote Bag" },
   { handle: "posters-prints", search: "Print", label: "Prints", type: "Poster" },
+  { handle: "mugs", search: "Mug", label: "Mugs", type: "Mug" },
 ];
 
 /** "English (العربية) Type" → the part for the current locale. */
@@ -97,7 +98,7 @@ export async function ProductTypeRow() {
   return (
     <Container>
       <SectionHeader eyebrow={t("Products")} title={t("Shop by product")} />
-      <ul className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-5 md:overflow-visible md:px-0">
+      <ul className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-6 md:overflow-visible md:px-0">
         {PRODUCT_TYPES.map((pt) => {
           const p = pickByType(products, pt.type);
           return (

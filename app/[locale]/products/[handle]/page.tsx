@@ -1,28 +1,29 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { ProductViewedTracker } from "@/components/analytics/trackers";
+import { AlsoLikeRow, MoreFromDesignRow } from "@/components/product-detail/pdp-extras";
 import {
   ProductDetailSection,
   ProductDetailSkeleton,
 } from "@/components/product-detail/product-detail-section";
 import { RecentlyViewedRecorder } from "@/components/product-detail/recently-viewed";
+import { SourceClipsSection } from "@/components/product-detail/source-clips";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
-import { commerceLocale } from "@/lib/i18n";
+import { CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE } from "@/lib/custom/products";
+import { commerceLocale, localizePath } from "@/lib/i18n";
 import { getLocale } from "@/lib/i18n/server";
 import { defaultSelectedOptions, parseSelectedOptions, toSelectedOptionList } from "@/lib/product";
 import { getProduct, getSearchIndexProducts } from "@/lib/product/server";
+import { getProductSource } from "@/lib/product/source-clips";
 import { type SelectedOptions } from "@/lib/product/types";
 import type { ProductVariant } from "@/lib/product/types";
 import { buildAlternates, buildOpenGraph, siteOgImages } from "@/lib/seo";
 import { fetchProductVariant } from "@/lib/shopify/operations/products/server";
 import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
-import { SourceClipsSection } from "@/components/product-detail/source-clips";
-import { getProductSource } from "@/lib/product/source-clips";
-import { AlsoLikeRow, MoreFromDesignRow } from "@/components/product-detail/pdp-extras";
 
 async function buildProductMetadata(handle: string, canonicalPath: string): Promise<Metadata> {
   const locale = await getLocale();
@@ -48,7 +49,8 @@ async function buildProductMetadata(handle: string, canonicalPath: string): Prom
       locale,
       pathname: canonicalPath,
     }),
-    openGraph: buildOpenGraph({ locale: await getLocale(),
+    openGraph: buildOpenGraph({
+      locale: await getLocale(),
       title: product.seo.title,
       description: product.seo.description,
       url: canonicalPath,
@@ -105,6 +107,10 @@ async function ProductPageContent({
   const { handle } = await params;
   if (handle === PLACEHOLDER_HANDLE) notFound();
   const locale = await getLocale();
+  if (handle === CUSTOM_TEE_HANDLE || handle === CUSTOM_MUG_HANDLE)
+    redirect(
+      `${localizePath(locale, "/design")}${handle === CUSTOM_MUG_HANDLE ? "?product=mug" : ""}`,
+    );
   const product = await getProduct({
     handle,
     locale: commerceLocale(locale),
@@ -162,7 +168,10 @@ async function ProductPageContent({
         selectedOptionsPromise={selectedOptionsPromise}
         variantPromise={variantPromise}
       />
-      <ProductSourceClips handle={handle} isArabic={String(locale).toLowerCase().startsWith("ar")} />
+      <ProductSourceClips
+        handle={handle}
+        isArabic={String(locale).toLowerCase().startsWith("ar")}
+      />
       <Suspense fallback={null}>
         <MoreFromDesignRow
           handle={handle}
