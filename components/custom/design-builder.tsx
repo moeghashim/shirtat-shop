@@ -527,7 +527,7 @@ function FitText({
     lineHeight: 1.35,
     opacity: text ? 1 : 0.35,
     display: "block",
-    overflowWrap: "anywhere",
+    overflowWrap: "normal",
     textAlign: "center",
     unicodeBidi: "plaintext",
     whiteSpace: "pre-line",

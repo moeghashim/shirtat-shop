@@ -81,6 +81,9 @@ function CartLineItem({ item }: CartLineItemProps) {
   const variantLabel = merchandise?.selectedOptions?.length
     ? merchandise.selectedOptions.map((option) => option.value).join(" / ")
     : "";
+  const customText = (
+    item as { attributes?: { key: string; value?: string | null }[] }
+  ).attributes?.find((a) => a.key === "Text")?.value;
   const lineName = variantLabel ? `${title}, ${variantLabel}` : title;
   const href = merchandise?.product.handle ? `/products/${merchandise.product.handle}` : undefined;
   const image = merchandise?.image;
@@ -120,6 +123,11 @@ function CartLineItem({ item }: CartLineItemProps) {
               <h3 className="line-clamp-1 text-sm font-medium text-foreground">{title}</h3>
             )}
             {variantLabel ? <p className="text-xs text-muted-foreground">{variantLabel}</p> : null}
+            {customText ? (
+              <p className="line-clamp-2 text-xs text-muted-foreground" dir="auto">
+                “{customText}”
+              </p>
+            ) : null}
             {item.sellingPlanAllocation ? (
               <p className="text-xs text-muted-foreground">
                 {item.sellingPlanAllocation.sellingPlan.name || "Subscription"}
