@@ -56,6 +56,20 @@ Names only. Never commit values.
 | Printify | `PRINTIFY_API_TOKEN`, `PRINTIFY_SHOP_ID`, `PRINTIFY_ENABLED` |
 | Email | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_EMAIL_API_TOKEN`, `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_QUEUE_TOKEN`, `OPS_EMAIL` |
 
+## Custom-text orders (/design)
+
+Customers type a sentence, pick a calligraphy style, and order a tee or a mug. The text travels in line-item properties (`Text`, `Style`, `Preset`) on SKUs starting `CUS-`. A designer finishes the artwork on arabicdesign.ai, so these orders never go to Printify automatically.
+
+When a custom order is paid, `lib/custom/order.ts` tags it `custom:pending` (best effort) and emails the text, style and product to Moe. To fulfil one:
+
+1. Make the design on arabicdesign.ai with that text and style, then export the SVG.
+2. Check the fit: `pnpm custom-order --preview art.svg --product tee` (or `mug-us-11`, `mug-eu-15`), then open the PNG.
+3. Dry run: `pnpm custom-order --order A-1008 --line 1:art.svg --dry-run`.
+4. For real, without `--dry-run`. The script rasterises the SVG to the print area's size, uploads the PNG through `/api/custom/upload`, and creates the held Printify order.
+5. Check the order in Printify, then add the `approve-pod` tag to the Shopify order.
+
+The script needs `PRINTIFY_API_TOKEN`, `CUSTOM_ORDER_TOKEN` and the Shopify Admin client id and secret (read from `~/.secrets/shirtat-shopify.env` and `~/.secrets/custom-order.env`). Run `node scripts/custom-order.mjs --help` for the options.
+
 ## Project structure
 
 ```
