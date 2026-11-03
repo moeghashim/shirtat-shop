@@ -49,5 +49,6 @@ export const arCustom = {
   "Sample of the finished look. Your words will be drawn in this hand.":
     "نموذج للمظهر النهائي. ستُرسم كلماتك بهذا الخط.",
   "Selected style": "النمط المختار",
+  Enlarge: "تكبير",
   "Your text in this style": "نصّك بهذا النمط",
 } as const;

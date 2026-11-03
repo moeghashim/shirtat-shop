@@ -78,104 +78,106 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
   const [presetId, setPresetId] = useState<number | null>(null);
   const product = products[kind];
 
-  return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
-      <div className="grid content-start gap-9">
-        <Step n={1} title={t("Choose a product")}>
-          <div className="flex gap-2" role="group" aria-label={t("Choose a product")}>
-            {kinds.map((k) => (
-              <button
-                key={k}
-                type="button"
-                aria-pressed={kind === k}
-                className={cn(
-                  "h-11 min-w-28 cursor-pointer rounded-lg border px-5 text-sm transition-colors",
-                  kind === k
-                    ? "border-foreground bg-foreground font-medium text-background"
-                    : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
-                )}
-                onClick={() => setKind(k)}
-              >
-                {t(KIND_LABEL[k])}
-              </button>
-            ))}
-          </div>
-        </Step>
+  const steps = (
+    <>
+      <Step n={1} title={t("Choose a product")}>
+        <div className="flex gap-2" role="group" aria-label={t("Choose a product")}>
+          {kinds.map((k) => (
+            <button
+              key={k}
+              type="button"
+              aria-pressed={kind === k}
+              className={cn(
+                "h-11 min-w-28 cursor-pointer rounded-lg border px-5 text-sm transition-colors",
+                kind === k
+                  ? "border-foreground bg-foreground font-medium text-background"
+                  : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
+              )}
+              onClick={() => setKind(k)}
+            >
+              {t(KIND_LABEL[k])}
+            </button>
+          ))}
+        </div>
+      </Step>
 
-        <Step n={2} title={t("Your sentence")}>
-          <TextField
-            text={text}
-            onChange={(v) => {
-              setText(v);
+      <Step n={2} title={t("Your sentence")}>
+        <TextField
+          text={text}
+          onChange={(v) => {
+            setText(v);
+            setPresetId(null);
+          }}
+        />
+        <div className="grid gap-2.5">
+          <p className="text-sm font-medium text-foreground/70">{t("Or start from an example")}</p>
+          <ul className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
+            {DESIGN_PRESETS.map((p, index) => (
+              <li key={p.id} className="shrink-0">
+                <button
+                  type="button"
+                  aria-label={p.text}
+                  aria-pressed={presetId === p.id}
+                  className={cn(
+                    "block size-24 cursor-pointer overflow-hidden rounded-xl border-2 bg-white transition-colors",
+                    presetId === p.id
+                      ? "border-foreground"
+                      : "border-transparent hover:border-border",
+                  )}
+                  onClick={() => {
+                    setText(p.text);
+                    setPresetId(p.id);
+                  }}
+                >
+                  <Image
+                    alt=""
+                    className="size-full object-cover"
+                    height={96}
+                    fetchPriority={index < 4 ? "auto" : "low"}
+                    loading={index < 4 ? "eager" : "lazy"}
+                    src={presetImage(p.id)}
+                    unoptimized
+                    width={96}
+                  />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Step>
+
+      <Step n={3} title={t("Calligraphy style")}>
+        <p className="-mt-2 text-sm text-muted-foreground" aria-live="polite">
+          {t("Selected style")}:{" "}
+          <span className="font-semibold text-foreground">
+            <SelectedStyleName styleId={styleId} />
+          </span>
+        </p>
+        <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 xl:grid-cols-5" role="list">
+          <StyleOptions
+            styleId={styleId}
+            onSelect={(id) => {
+              // Picking a style means the customer wants their own text in it, so the example artwork steps aside.
+              setStyleId(id);
               setPresetId(null);
             }}
           />
-          <div className="grid gap-2.5">
-            <p className="text-sm font-medium text-foreground/70">
-              {t("Or start from an example")}
-            </p>
-            <ul className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
-              {DESIGN_PRESETS.map((p, index) => (
-                <li key={p.id} className="shrink-0">
-                  <button
-                    type="button"
-                    aria-label={p.text}
-                    aria-pressed={presetId === p.id}
-                    className={cn(
-                      "block size-24 cursor-pointer overflow-hidden rounded-xl border-2 bg-white transition-colors",
-                      presetId === p.id
-                        ? "border-foreground"
-                        : "border-transparent hover:border-border",
-                    )}
-                    onClick={() => {
-                      setText(p.text);
-                      setPresetId(p.id);
-                    }}
-                  >
-                    <Image
-                      alt=""
-                      className="size-full object-cover"
-                      height={96}
-                      fetchPriority={index < 4 ? "auto" : "low"}
-                      loading={index < 4 ? "eager" : "lazy"}
-                      src={presetImage(p.id)}
-                      unoptimized
-                      width={96}
-                    />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Step>
+        </ul>
+      </Step>
+    </>
+  );
 
-        <Step n={3} title={t("Calligraphy style")}>
-          <p className="-mt-2 text-sm text-muted-foreground" aria-live="polite">
-            {t("Selected style")}:{" "}
-            <span className="font-semibold text-foreground">
-              <SelectedStyleName styleId={styleId} />
-            </span>
-          </p>
-          <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 xl:grid-cols-5" role="list">
-            <StyleOptions
-              styleId={styleId}
-              onSelect={(id) => {
-                // Picking a style means the customer wants their own text in it, so the example artwork steps aside.
-                setStyleId(id);
-                setPresetId(null);
-              }}
-            />
-          </ul>
-        </Step>
-      </div>
-
-      <div className="lg:sticky lg:top-24 lg:self-start">
-        {product ? (
-          <ProductProvider key={kind} product={product}>
-            <ProductPanel kind={kind} presetId={presetId} styleId={styleId} text={text} />
-          </ProductProvider>
-        ) : null}
-      </div>
+  return (
+    <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-14">
+      {product ? (
+        <ProductProvider key={kind} product={product}>
+          <ProductPanel kind={kind} presetId={presetId} styleId={styleId} text={text}>
+            {steps}
+          </ProductPanel>
+        </ProductProvider>
+      ) : (
+        <div className="grid content-start gap-9">{steps}</div>
+      )}
     </div>
   );
 }
@@ -289,11 +291,13 @@ function TextField({ onChange, text }: { onChange: (v: string) => void; text: st
 }
 
 function ProductPanel({
+  children,
   kind,
   presetId,
   styleId,
   text,
 }: {
+  children: React.ReactNode;
   kind: CustomKind;
   presetId: number | null;
   styleId: number;
@@ -351,159 +355,280 @@ function ProductPanel({
       ]
     : [];
 
+  const label = `${t(KIND_LABEL[kind])}${selected.Color ? `, ${valueLabel("Color", selected.Color)}` : ""}`;
+  const shownText = check.ok ? check.text : text.trim();
+  const photo = productPhoto(kind, {
+    color: selected.Color,
+    fit: selected.Fit,
+    size: selected.Size,
+  });
+  const art = presetId ? presetArt(presetId, onDark) : undefined;
+
   return (
-    <div className="grid gap-6">
-      <section aria-label={t("Preview")} className="grid gap-3">
+    <>
+      <PreviewDock
+        art={art}
+        garment={kind === "mug" ? "#ffffff" : (color?.hex ?? "#ffffff")}
+        label={label}
+        onDark={onDark}
+        photo={photo}
+        presetId={presetId}
+        style={style}
+        text={shownText}
+        kind={kind}
+      />
+
+      <div className="mt-8 grid content-start gap-9 lg:col-start-1 lg:row-start-1 lg:mt-0">
+        {children}
+
+        <Step n={4} title={t("Options")}>
+          <div className="grid gap-5">
+            {options
+              .filter((o) => o.values.length > 1)
+              .map((option) => (
+                <div key={option.name} className="grid gap-2.5">
+                  <p className="text-sm font-medium text-foreground/70">
+                    {optionLabel(option.name)}
+                  </p>
+                  <div
+                    className="flex flex-wrap gap-2"
+                    role="group"
+                    aria-label={optionLabel(option.name)}
+                  >
+                    {option.values.map((value) => {
+                      const swatch =
+                        option.name === "Color" ? GARMENT_COLORS[value.name] : undefined;
+                      return (
+                        <button
+                          key={value.name}
+                          type="button"
+                          aria-pressed={value.selected}
+                          className={cn(
+                            "inline-flex h-11 min-w-14 cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40",
+                            value.selected
+                              ? "border-foreground font-medium ring-1 ring-foreground"
+                              : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
+                          )}
+                          // Switching fit is always allowed; the form then moves to the nearest colour that fit offers.
+                          disabled={!value.exists && option.name !== "Fit"}
+                          onClick={() => {
+                            if (option.name === "Fit" && !value.exists) {
+                              // The current colour isn't made in this fit, so move to the first colour that is.
+                              const colors = options.find((o) => o.name === "Color")?.values ?? [];
+                              for (const c of colors) {
+                                if (!c.exists) continue;
+                                selectOption("Color", c.name);
+                                if (selectOption("Fit", value.name).status !== "invalid") return;
+                              }
+                              return;
+                            }
+                            selectOption(option.name, value.name);
+                          }}
+                        >
+                          {swatch ? (
+                            <span
+                              aria-hidden
+                              className="size-4 rounded-full border border-black/20"
+                              style={{ background: swatch.hex }}
+                            />
+                          ) : null}
+                          {valueLabel(option.name, value.name)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            {kind === "mug" ? (
+              <p className="text-sm text-muted-foreground">
+                {t("Mugs ship to the United States, Europe and the UK only.")}
+              </p>
+            ) : null}
+            {kind === "hoodie" ? (
+              <p className="text-sm text-muted-foreground">
+                {t("Unisex fit. Order your usual size.")}
+              </p>
+            ) : null}
+          </div>
+        </Step>
+
+        <form
+          {...formProps({
+            beforeSubmit: (event) => {
+              if (!canAdd || pending) {
+                event.preventDefault();
+                return;
+              }
+              openOverlay();
+            },
+          })}
+          className="grid gap-3"
+        >
+          <input type="hidden" {...register("merchandiseId", {})} />
+          <input type="hidden" {...register("quantity", { value: 1 })} />
+          {attrs.map(([key, value]) => (
+            <input key={key} type="hidden" {...register("attributeValue", { key, value })} />
+          ))}
+          <div className="flex items-center gap-4">
+            <p className="text-2xl font-semibold tabular-nums">
+              {selectedVariant ? formatPrice(selectedVariant.price) : null}
+            </p>
+            <Button
+              {...register("addToCart", {})}
+              className="h-12 flex-1 justify-center"
+              disabled={!canAdd || pending}
+            >
+              {pending ? t("Adding…") : t("Add to Cart")}
+            </Button>
+          </div>
+          {!check.ok && text.trim() === "" ? (
+            <p className="text-xs text-muted-foreground">{t("Add your sentence to continue.")}</p>
+          ) : null}
+        </form>
+      </div>
+    </>
+  );
+}
+
+function PreviewDock({
+  art,
+  garment,
+  kind,
+  label,
+  onDark,
+  photo,
+  presetId,
+  style,
+  text,
+}: {
+  art?: string;
+  garment: string;
+  kind: CustomKind;
+  label: string;
+  onDark: boolean;
+  photo: ProductPhoto;
+  presetId: number | null;
+  style: NonNullable<ReturnType<typeof getStyle>>;
+  text: string;
+}) {
+  const t = useT();
+  const [open, setOpen] = useState(false);
+  const stage = (width: string) => (
+    <div className="grid justify-items-center gap-3">
+      <div className="w-full" style={{ width }}>
         <Preview
-          art={presetId ? presetArt(presetId, onDark) : undefined}
+          art={art}
           fontKey={style.font}
           kind={kind}
-          label={`${t(KIND_LABEL[kind])}${selected.Color ? `, ${valueLabel("Color", selected.Color)}` : ""}`}
+          label={label}
           onDark={onDark}
-          photo={productPhoto(kind, {
-            color: selected.Color,
-            fit: selected.Fit,
-            size: selected.Size,
-          })}
-          text={check.ok ? check.text : text.trim()}
+          photo={photo}
+          text={text}
           vertical={Boolean(style.vertical)}
         />
-        <p className="text-center text-xs text-muted-foreground">
-          {presetId
-            ? t(
-                "Example artwork shown on your product. A designer prepares your print to match it.",
-              )
-            : t(
-                "Rough layout preview. Our designer hand-finishes your text in the selected style.",
-              )}
-        </p>
-        {presetId ? null : (
-          <div
-            className="mx-auto flex w-full max-w-lg items-center gap-4 rounded-xl border border-border bg-background p-3"
-            data-testid="style-sample"
-          >
-            <Image
-              alt={locale === "ar" ? style.nameAr : style.nameEn}
-              className="size-24 shrink-0 rounded-lg bg-white object-cover"
-              height={96}
-              src={styleImage(style.id)}
-              unoptimized
-              width={96}
+      </div>
+      <p className="text-center text-xs text-muted-foreground">
+        {presetId
+          ? t("Example artwork shown on your product. A designer prepares your print to match it.")
+          : t("Rough layout preview. Our designer hand-finishes your text in the selected style.")}
+      </p>
+      {presetId ? null : <StyleSample style={style} />}
+    </div>
+  );
+
+  return (
+    <aside
+      aria-label={t("Preview")}
+      className="sticky top-[4.5rem] z-20 md:top-24 lg:col-start-2 lg:row-start-1 lg:top-28 lg:self-start"
+    >
+      {/* Large preview that stays in view next to the form on desktop. */}
+      <div className="hidden lg:block">{stage("max(280px, min(100%, calc(100dvh - 17rem)))")}</div>
+
+      {/* Compact preview pinned above the form on small screens; tap to enlarge. */}
+      <div className="lg:hidden">
+        <button
+          type="button"
+          aria-controls="design-preview-panel"
+          aria-expanded={open}
+          className="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-border bg-background p-2 text-start shadow-sm"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span className="block size-21 shrink-0">
+            <Preview
+              art={art}
+              fontKey={style.font}
+              kind={kind}
+              label={label}
+              onDark={onDark}
+              photo={photo}
+              text={text}
+              vertical={Boolean(style.vertical)}
             />
-            <div className="grid gap-0.5">
-              <p className="text-sm font-semibold">{t("Your text in this style")}</p>
-              <p className="text-sm text-foreground/80">
-                {locale === "ar" ? style.nameAr : style.nameEn}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {t("Sample of the finished look. Your words will be drawn in this hand.")}
-              </p>
-            </div>
-          </div>
-        )}
-      </section>
-
-      <Step n={4} title={t("Options")}>
-        <div className="grid gap-5">
-          {options
-            .filter((o) => o.values.length > 1)
-            .map((option) => (
-              <div key={option.name} className="grid gap-2.5">
-                <p className="text-sm font-medium text-foreground/70">{optionLabel(option.name)}</p>
-                <div
-                  className="flex flex-wrap gap-2"
-                  role="group"
-                  aria-label={optionLabel(option.name)}
-                >
-                  {option.values.map((value) => {
-                    const swatch = option.name === "Color" ? GARMENT_COLORS[value.name] : undefined;
-                    return (
-                      <button
-                        key={value.name}
-                        type="button"
-                        aria-pressed={value.selected}
-                        className={cn(
-                          "inline-flex h-11 min-w-14 cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40",
-                          value.selected
-                            ? "border-foreground font-medium ring-1 ring-foreground"
-                            : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
-                        )}
-                        // Switching fit is always allowed; the form then moves to the nearest colour that fit offers.
-                        disabled={!value.exists && option.name !== "Fit"}
-                        onClick={() => {
-                          if (option.name === "Fit" && !value.exists) {
-                            // The current colour isn't made in this fit, so move to the first colour that is.
-                            const colors = options.find((o) => o.name === "Color")?.values ?? [];
-                            for (const c of colors) {
-                              if (!c.exists) continue;
-                              selectOption("Color", c.name);
-                              if (selectOption("Fit", value.name).status !== "invalid") return;
-                            }
-                            return;
-                          }
-                          selectOption(option.name, value.name);
-                        }}
-                      >
-                        {swatch ? (
-                          <span
-                            aria-hidden
-                            className="size-4 rounded-full border border-black/20"
-                            style={{ background: swatch.hex }}
-                          />
-                        ) : null}
-                        {valueLabel(option.name, value.name)}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          {kind === "mug" ? (
-            <p className="text-sm text-muted-foreground">
-              {t("Mugs ship to the United States, Europe and the UK only.")}
-            </p>
-          ) : null}
-          {kind === "hoodie" ? (
-            <p className="text-sm text-muted-foreground">
-              {t("Unisex fit. Order your usual size.")}
-            </p>
-          ) : null}
-        </div>
-      </Step>
-
-      <form
-        {...formProps({
-          beforeSubmit: (event) => {
-            if (!canAdd || pending) {
-              event.preventDefault();
-              return;
-            }
-            openOverlay();
-          },
-        })}
-        className="grid gap-3"
-      >
-        <input type="hidden" {...register("merchandiseId", {})} />
-        <input type="hidden" {...register("quantity", { value: 1 })} />
-        {attrs.map(([key, value]) => (
-          <input key={key} type="hidden" {...register("attributeValue", { key, value })} />
-        ))}
-        <div className="flex items-center gap-4">
-          <p className="text-2xl font-semibold tabular-nums">
-            {selectedVariant ? formatPrice(selectedVariant.price) : null}
-          </p>
-          <Button
-            {...register("addToCart", {})}
-            className="h-12 flex-1 justify-center"
-            disabled={!canAdd || pending}
+          </span>
+          <span
+            className="relative grid h-21 min-w-0 flex-1 place-items-center overflow-hidden rounded-xl px-2"
+            style={{ background: garment }}
           >
-            {pending ? t("Adding…") : t("Add to Cart")}
-          </Button>
-        </div>
-        {!check.ok && text.trim() === "" ? (
-          <p className="text-xs text-muted-foreground">{t("Add your sentence to continue.")}</p>
+            {art ? (
+              <Image
+                alt=""
+                className="size-full object-contain"
+                height={84}
+                src={art}
+                unoptimized
+                width={84}
+              />
+            ) : (
+              <FitText
+                fontKey={style.font}
+                ink={onDark ? "#f4f4f4" : "#141414"}
+                text={text}
+                vertical={false}
+              />
+            )}
+          </span>
+          <span className="shrink-0 px-1 text-xs text-muted-foreground" aria-hidden>
+            {open ? t("Close") : t("Enlarge")}
+          </span>
+        </button>
+        {open ? (
+          <div
+            id="design-preview-panel"
+            className="absolute inset-x-0 top-full mt-2 max-h-[calc(100dvh-8rem)] overflow-y-auto rounded-2xl border border-border bg-background p-3 shadow-lg"
+          >
+            {stage("min(100%, 50dvh)")}
+          </div>
         ) : null}
-      </form>
+      </div>
+    </aside>
+  );
+}
+
+function StyleSample({ style }: { style: NonNullable<ReturnType<typeof getStyle>> }) {
+  const t = useT();
+  const locale = useLocale();
+  const name = locale === "ar" ? style.nameAr : style.nameEn;
+  return (
+    <div
+      className="flex w-full max-w-lg items-center gap-3 rounded-xl border border-border bg-background p-2.5"
+      data-testid="style-sample"
+    >
+      <Image
+        alt={name}
+        className="size-16 shrink-0 rounded-lg bg-white object-cover"
+        height={64}
+        src={styleImage(style.id)}
+        unoptimized
+        width={64}
+      />
+      <div className="grid gap-0.5">
+        <p className="text-sm font-semibold">
+          {t("Your text in this style")}: <span className="font-normal">{name}</span>
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {t("Sample of the finished look. Your words will be drawn in this hand.")}
+        </p>
+      </div>
     </div>
   );
 }
@@ -531,14 +656,14 @@ function Preview({
   // Ink is printed, so on light fabric it multiplies into the shading; on dark fabric it stays light.
   const blend = onDark ? "" : "mix-blend-multiply";
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-lg overflow-hidden rounded-2xl bg-white">
+    <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white">
       <Image
         alt={label}
         className="absolute inset-0 size-full object-cover"
         data-testid="product-photo"
         height={800}
         loading="lazy"
-        sizes="(min-width: 512px) 512px, 100vw"
+        sizes="(min-width: 1024px) 640px, 100vw"
         src={photo.src}
         unoptimized
         width={800}
