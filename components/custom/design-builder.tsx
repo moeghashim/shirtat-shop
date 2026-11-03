@@ -567,7 +567,7 @@ function PreviewDock({
             />
           </span>
           <span
-            className="relative grid h-21 min-w-0 flex-1 place-items-center overflow-hidden rounded-xl px-2"
+            className="relative block h-21 min-w-0 flex-1 overflow-hidden rounded-xl px-2"
             style={{ background: garment }}
           >
             {art ? (
@@ -737,15 +737,17 @@ function FitText({
     if (!box || !span) return;
     const range = document.createRange();
     range.selectNodeContents(span);
-    let seen = "";
+    let seenW = -1;
+    let seenH = -1;
     const fit = (force: boolean) => {
       const maxH = box.clientHeight;
       const maxW = box.clientWidth;
       // A preview hidden at this screen size has nothing to fit.
       if (!maxH || !maxW) return;
-      const key = `${maxW}x${maxH}`;
-      if (!force && key === seen) return;
-      seen = key;
+      // A box that moves by a pixel or less is the same box, so sub-pixel rounding can never retrigger a fit.
+      if (!force && Math.abs(maxW - seenW) <= 1 && Math.abs(maxH - seenH) <= 1) return;
+      seenW = maxW;
+      seenH = maxH;
       let lo = 8;
       let hi = Math.max(8, maxH * 0.8);
       for (let i = 0; i < 7; i++) {
