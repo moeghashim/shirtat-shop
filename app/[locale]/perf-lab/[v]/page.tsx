@@ -50,6 +50,15 @@ async function Lab({ v }: { v: string }) {
     load(CUSTOM_HOODIE_HANDLE, locale),
     load(CUSTOM_MUG_HANDLE, locale),
   ]);
+  if (v === "old") {
+    return (
+      <OldBuilder
+        hoodie={toInput(hoodie, { color: "Black", size: "M" })}
+        mug={toInput(mug, {})}
+        tee={toInput(tee, { color: "Black", fit: "Men's", size: "M" })}
+      />
+    );
+  }
   return (
     <DesignBuilder
       lab={v}
