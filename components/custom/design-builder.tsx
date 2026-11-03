@@ -378,7 +378,7 @@ function ProductPanel({
         kind={kind}
       />
 
-      <div className="mt-8 grid content-start gap-9 lg:col-start-1 lg:row-start-1 lg:mt-0">
+      <div className="mt-8 grid content-start gap-9 lg:col-start-2 lg:row-start-1 lg:mt-0">
         {children}
 
         <Step n={4} title={t("Options")}>
@@ -539,7 +539,7 @@ function PreviewDock({
   return (
     <aside
       aria-label={t("Preview")}
-      className="sticky top-[4.5rem] z-20 md:top-24 lg:col-start-2 lg:row-start-1 lg:top-28 lg:self-start"
+      className="sticky top-[4.5rem] z-20 md:top-24 lg:col-start-1 lg:row-start-1 lg:top-28 lg:self-start"
     >
       {/* Large preview that stays in view next to the form on desktop. */}
       <div className="hidden lg:block">{stage("max(280px, min(100%, calc(100dvh - 17rem)))")}</div>
