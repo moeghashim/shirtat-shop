@@ -618,6 +618,7 @@ function StyleSample({ style }: { style: NonNullable<ReturnType<typeof getStyle>
         alt={name}
         className="size-16 shrink-0 rounded-lg bg-white object-cover"
         height={64}
+        loading="lazy"
         src={styleImage(style.id)}
         unoptimized
         width={64}
