@@ -46,15 +46,15 @@ pnpm build
 
 Names only. Never commit values.
 
-| Area | Variables |
-|---|---|
-| Site | `NEXT_PUBLIC_SITE_URL` |
+| Area               | Variables                                                                                                                                                                                                       |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Site               | `NEXT_PUBLIC_SITE_URL`                                                                                                                                                                                          |
 | Shopify Storefront | `NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN`, `NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `NEXT_PUBLIC_SHOPIFY_STOREFRONT_ID`, `NEXT_PUBLIC_SHOPIFY_SHOP_ID`, `SHOPIFY_API_VERSION`, `SHOPIFY_HEADLESS_PUBLICATION_ID` |
-| Shopify Admin | `SHOPIFY_ADMIN_CLIENT_ID`, `SHOPIFY_ADMIN_CLIENT_SECRET`, `SHOPIFY_WEBHOOK_SECRET` |
-| Customer accounts | `SHOPIFY_CUSTOMER_ACCOUNT_API_CLIENT_ID`, `SHOPIFY_CUSTOMER_ACCOUNT_API_CLIENT_SECRET`, `CUSTOMER_ACCOUNT_SESSION_SECRET` |
-| Admin / auth | `ADMIN_PASSWORD_HASH`, `AUTH_SECRET` |
-| Printify | `PRINTIFY_API_TOKEN`, `PRINTIFY_SHOP_ID`, `PRINTIFY_ENABLED` |
-| Email | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_EMAIL_API_TOKEN`, `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_QUEUE_TOKEN`, `OPS_EMAIL` |
+| Shopify Admin      | `SHOPIFY_ADMIN_CLIENT_ID`, `SHOPIFY_ADMIN_CLIENT_SECRET`, `SHOPIFY_WEBHOOK_SECRET`                                                                                                                              |
+| Customer accounts  | `SHOPIFY_CUSTOMER_ACCOUNT_API_CLIENT_ID`, `SHOPIFY_CUSTOMER_ACCOUNT_API_CLIENT_SECRET`, `CUSTOMER_ACCOUNT_SESSION_SECRET`                                                                                       |
+| Admin / auth       | `ADMIN_PASSWORD_HASH`, `AUTH_SECRET`                                                                                                                                                                            |
+| Printify           | `PRINTIFY_API_TOKEN`, `PRINTIFY_SHOP_ID`, `PRINTIFY_ENABLED`                                                                                                                                                    |
+| Email              | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_EMAIL_API_TOKEN`, `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_QUEUE_TOKEN`, `OPS_EMAIL`                                                                                         |
 
 ## Custom-text orders (/design)
 
@@ -69,6 +69,30 @@ When a custom order is paid, `lib/custom/order.ts` tags it `custom:pending` (bes
 5. Check the order in Printify, then add the `approve-pod` tag to the Shopify order.
 
 The script needs `PRINTIFY_API_TOKEN`, `CUSTOM_ORDER_TOKEN` and the Shopify Admin client id and secret (read from `~/.secrets/shirtat-shopify.env` and `~/.secrets/custom-order.env`). Run `node scripts/custom-order.mjs --help` for the options.
+
+## Making-of log and roadmap (English and Arabic)
+
+`/making-of` and `/roadmap` render from two data files. Every string is a `{ en, ar }` pair, so each page shows the full text in both languages (`/ar/making-of`, `/ar/roadmap`). Arabic is Modern Standard Arabic; brand and product names (Printify, Shopify, Grok Bot, 10claws) stay in Latin script.
+
+**Daily log: `lib/log/index.ts`.** Newest day first. To add a day, put a new object at the top of `logDays` and give every entry both languages:
+
+```ts
+{
+  date: "2026-11-03",
+  entries: [
+    {
+      en: "Added Arabic versions of the making-of log and the roadmap.",
+      ar: "أضفنا النسخة العربية من سجل كواليس الصنع وخارطة الطريق.",
+    },
+  ],
+},
+```
+
+To add an entry to today's day, append another `{ en, ar }` object to that day's `entries`.
+
+**Roadmap: `lib/roadmap/index.ts`.** Each phase has `title: { en, ar }`, `status` (`"done"`, `"in-progress"` or `"next"`) and `summary: { en, ar }`. To move a phase, change `status`; to add one, append an object with both languages.
+
+Keep the English and Arabic saying the same thing, and don't leave `ar` empty. `pnpm typecheck` fails if either language is missing. Other pages translate through `lib/i18n/messages/*` (English text is the key) and the legal pages through `lib/legal/content.ts`.
 
 ## Project structure
 

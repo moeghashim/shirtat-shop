@@ -1,9 +1,9 @@
-import { getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { RichTextPage, RichTextPageSkeleton } from "@/components/content/rich-text-page";
+import { getLocale, getT } from "@/lib/i18n/server";
 import { getPage } from "@/lib/pages/server";
 import { buildAlternates, buildOpenGraph } from "@/lib/seo";
 import { getShopifySitemapPage } from "@/lib/seo/server";
@@ -29,16 +29,19 @@ export async function generateMetadata({
   });
   if (!page) notFound();
   const pathname = `/pages/${page.handle}`;
+  const t = await getT();
+  const title = t(page.seo.title);
   return {
     alternates: buildAlternates({ locale: await getLocale(), pathname }),
     description: page.seo.description,
-    openGraph: buildOpenGraph({ locale: await getLocale(),
+    openGraph: buildOpenGraph({
+      locale: await getLocale(),
       description: page.seo.description,
-      title: page.seo.title,
+      title,
       type: "website",
       url: pathname,
     }),
-    title: page.seo.title,
+    title,
   };
 }
 
@@ -59,5 +62,6 @@ async function ShopifyPageContent({
     handle,
   });
   if (!page) notFound();
-  return <RichTextPage body={page.body} title={page.title} />;
+  const t = await getT();
+  return <RichTextPage body={page.body} title={t(page.title)} />;
 }

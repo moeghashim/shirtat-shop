@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { CATEGORIES } from "@/lib/collections/categories";
 import { shopConfig } from "@/lib/config";
-import { getT } from "@/lib/i18n/server";
+import { getLocale, getT } from "@/lib/i18n/server";
 import type { MenuItem } from "@/lib/menu/types";
 
 import { NavAccount, NavAccountFallback } from "./account";
@@ -18,11 +18,12 @@ import { SearchModal } from "./search-modal";
 
 export async function Nav() {
   const t = await getT();
+  const locale = await getLocale();
   const items: MenuItem[] = [
     ...CATEGORIES.map((c) => ({
       id: `nav-category-${c.id}`,
       items: [],
-      title: t(c.labelEn),
+      title: locale === "ar" ? c.labelAr : c.labelEn,
       url: `/collections/${c.id}`,
     })),
     { id: "nav-designers", items: [], title: t("Designers"), url: "/designers" },

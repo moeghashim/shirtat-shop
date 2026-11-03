@@ -65,7 +65,9 @@ async function DesignerContent({ params }: { params: Promise<{ handle: string }>
           url={designer.avatarUrl}
         />
         <div className="flex max-w-2xl flex-col gap-2">
-          <h1 className="text-4xl font-semibold">{locale === "ar" && designer.nameAr ? designer.nameAr : designer.name}</h1>
+          <h1 className="text-4xl font-semibold">
+            {locale === "ar" && designer.nameAr ? designer.nameAr : designer.name}
+          </h1>
           <p className="text-sm text-muted-foreground" dir="ltr">
             @{designer.handle}
           </p>

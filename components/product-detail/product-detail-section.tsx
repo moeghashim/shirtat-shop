@@ -36,6 +36,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { shopConfig } from "@/lib/config";
+import type { Locale } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
 import {
   defaultSelectedOptions,
@@ -219,6 +220,7 @@ async function ProductInfoArea({
               <ProductInfoFallback
                 allInStock={allInStock}
                 hasOptions={hasOptions}
+                locale={isArabic ? "ar" : "en"}
                 product={product}
                 showLabel={showBuyLabel}
               />
@@ -321,6 +323,7 @@ function ProductInfoContent({
 }
 
 function ProductInfoFallback({
+  locale,
   showLabel,
   allInStock,
   hasOptions,
@@ -328,6 +331,7 @@ function ProductInfoFallback({
 }: {
   allInStock: boolean;
   hasOptions: boolean;
+  locale: Locale;
   product: ProductDetails;
   showLabel: boolean;
 }) {
@@ -335,7 +339,7 @@ function ProductInfoFallback({
     <div className="grid gap-6">
       {!product.hasUniformPricing ? <div className="h-7" aria-hidden /> : null}
       {hasOptions ? (
-        <ProductInfoOptions options={toStaticOptionGroups(product)} hideImages />
+        <ProductInfoOptions options={toStaticOptionGroups(product)} hideImages locale={locale} />
       ) : null}
       {product.isGiftCard ? (
         <GiftCardPurchaseFormFallback />
@@ -397,7 +401,7 @@ async function GiftCardPurchaseFormFallback() {
         </div>
       </div>
       <div className="flex h-12 w-full cursor-not-allowed items-center justify-center rounded-lg bg-primary text-sm font-medium text-primary-foreground opacity-50">
-        Add to Cart
+        <T k="Add to Cart" />
       </div>
     </div>
   );

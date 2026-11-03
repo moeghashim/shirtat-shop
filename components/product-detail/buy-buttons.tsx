@@ -73,11 +73,11 @@ export function BuyButtons({
     variants: [{ id: selectedVariant.id, quantity }],
   });
   const getButtonText = () => {
-    if (pending) return "Adding to Cart...";
+    if (pending) return t("Adding to Cart...");
     if (isSelectionUnresolved) return t("Add to Cart");
     if (requiresBundleConfiguration) return t("Choose bundle items");
-    if (missingRequiredPlan) return "Subscription unavailable";
-    if (isOutOfStock) return "Out of Stock";
+    if (missingRequiredPlan) return t("Subscription unavailable");
+    if (isOutOfStock) return t("Out of Stock");
     return t("Add to Cart");
   };
   return (
@@ -212,7 +212,11 @@ export function BuyButtons({
               rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
               return;
             }
-            rowRef.current?.querySelector<HTMLButtonElement>('button[type="submit"], button:not([type="button"])')?.click();
+            rowRef.current
+              ?.querySelector<HTMLButtonElement>(
+                'button[type="submit"], button:not([type="button"])',
+              )
+              ?.click();
           }}
         >
           {getButtonText()}
@@ -239,6 +243,7 @@ export function PurchaseOptions({
   requiresSellingPlan,
   selectedPlan,
 }: PurchaseOptionsProps) {
+  const t = useT();
   const purchaseOptionId = useId();
   if (plans.length === 0) return null;
 
@@ -276,8 +281,8 @@ export function PurchaseOptions({
       ))}
       {selectedPlan ? (
         <p className="text-sm text-muted-foreground">
-          Recurring purchase.{" "}
-          {selectedPlan.sellingPlan.description || "Subscription details are shown at checkout."}
+          {t("Recurring purchase.")}{" "}
+          {selectedPlan.sellingPlan.description || t("Subscription details are shown at checkout.")}
         </p>
       ) : null}
     </fieldset>

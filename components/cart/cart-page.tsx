@@ -27,7 +27,7 @@ export function CartPageContent() {
           href="/"
           className="inline-flex cursor-pointer items-center justify-center h-12 px-8 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
         >
-          Continue Shopping
+          <T k="Continue Shopping" />
         </Link>
       </div>
     );

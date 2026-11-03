@@ -4,6 +4,7 @@ import { AlertCircleIcon } from "lucide-react";
 
 import "./globals.css";
 
+/** Last-resort boundary outside the locale layout, so it speaks both languages. */
 export default function GlobalError({
   retry,
 }: {
@@ -20,15 +21,21 @@ export default function GlobalError({
             </div>
           </div>
           <h1 className="mb-2 text-2xl lg:text-3xl">Something went wrong</h1>
-          <p className="mb-8 max-w-md text-muted-foreground">
+          <p className="mb-2 max-w-md text-muted-foreground">
             An unexpected error occurred. Please try again.
+          </p>
+          <h2 className="mb-2 text-2xl lg:text-3xl" dir="rtl" lang="ar">
+            حدث خطأ ما
+          </h2>
+          <p className="mb-8 max-w-md text-muted-foreground" dir="rtl" lang="ar">
+            حدث خطأ غير متوقع. يُرجى المحاولة مرة أخرى.
           </p>
           <button
             type="button"
             onClick={() => retry()}
             className="inline-flex items-center justify-center h-12 rounded-lg bg-primary px-8 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            Try again · حاول مجددًا
           </button>
         </div>
       </body>

@@ -76,8 +76,8 @@ export const ar = {
   "Recipient name": "اسم المستلم",
   "Remove discount": "إزالة الخصم",
   "Remove item": "إزالة المنتج",
-  Roadmap: "خارطة الطريق (بالإنجليزية)",
-  Sales: "المبيعات (بالإنجليزية)",
+  Roadmap: "خارطة الطريق",
+  Sales: "المبيعات",
   "Schedule for later": "جدولة لوقت لاحق",
   Search: "بحث",
   "Search for products in our store": "ابحث عن المنتجات في متجرنا",
@@ -97,7 +97,6 @@ export const ar = {
   "Tall, sweeping letters once reserved for mosque walls, now made for everyday wear.":
     "حروف شامخة منسابة زيّنت جدران المساجد، وأصبحت اليوم تُرتدى كل يوم.",
   "Taxes and shipping calculated at checkout.": "تُحتسب الضرائب والشحن عند إتمام الشراء.",
-  "The daily log is kept in English.": "السجل اليومي متاح باللغة الإنجليزية فقط.",
   "The flowing script of royal decrees, full of curves, rhythm and movement.":
     "خط المراسيم السلطانية الانسيابي، المليء بالانحناءات والإيقاع والحركة.",
   "Making of": "كواليس الصنع",

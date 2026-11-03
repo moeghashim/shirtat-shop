@@ -3,8 +3,9 @@ import type { CommerceLocale } from "@/lib/config/types";
 import { ar as arBase } from "./messages/ar";
 import { arCreators } from "./messages/ar-creators";
 import { arCustom } from "./messages/ar-custom";
+import { arPages } from "./messages/ar-pages";
 
-const ar = { ...arBase, ...arCreators, ...arCustom };
+const ar = { ...arBase, ...arCreators, ...arCustom, ...arPages };
 
 export const locales = ["en", "ar"] as const;
 export type Locale = (typeof locales)[number];
@@ -28,8 +29,8 @@ export function commerceLocale(locale: Locale): CommerceLocale {
   return { country: "US", language: locale === "ar" ? "AR" : "EN" };
 }
 
-/** Pages that stay English-only (roadmap, sales, accounts); Arabic links point at the English version. */
-const UNLOCALIZED_PREFIXES = ["/roadmap", "/sales", "/account", "/admin", "/api", "/md", "/agent"];
+/** Internal and machine routes that have no /ar twin (the admin page is English-only for the owner). */
+const UNLOCALIZED_PREFIXES = ["/admin", "/api", "/md", "/agent"];
 
 export function isUnlocalizedPath(pathname: string): boolean {
   return UNLOCALIZED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));

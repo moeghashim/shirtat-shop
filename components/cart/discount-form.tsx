@@ -39,7 +39,7 @@ export function DiscountForm({ cart }: DiscountFormProps) {
             const normalized = code.trim().toUpperCase();
             if (!normalized) {
               event.preventDefault();
-              setLocalError("Enter a valid discount code");
+              setLocalError(t("Enter a valid discount code"));
               return;
             }
             if (cart.discountCodes.some((discount) => discount.code.toUpperCase() === normalized)) {

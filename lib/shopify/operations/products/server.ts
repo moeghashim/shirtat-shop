@@ -8,6 +8,7 @@ import type {
 
 import { shopConfig } from "@/lib/config";
 import type { CommerceLocale } from "@/lib/config/types";
+import { localizeCard, localizeDetails } from "@/lib/i18n/product";
 import type {
   ProductCard,
   ProductDetails,
@@ -120,10 +121,13 @@ export async function fetchProduct({
   const { data } = response;
 
   if (!data.product) return undefined;
-  return {
-    ...transformShopifyProductDetails(data.product),
-    descriptionHtml: sanitizeShopifyHtml(data.product.descriptionHtml),
-  };
+  return localizeDetails(
+    {
+      ...transformShopifyProductDetails(data.product),
+      descriptionHtml: sanitizeShopifyHtml(data.product.descriptionHtml),
+    },
+    locale,
+  );
 }
 
 const GET_PRODUCT_VARIANT_QUERY = gql(
@@ -252,10 +256,13 @@ export async function fetchProductWithVariants({
   const { data } = response;
 
   if (!data.product) return undefined;
-  return {
-    ...transformShopifyProductDetails(data.product),
-    descriptionHtml: sanitizeShopifyHtml(data.product.descriptionHtml),
-  };
+  return localizeDetails(
+    {
+      ...transformShopifyProductDetails(data.product),
+      descriptionHtml: sanitizeShopifyHtml(data.product.descriptionHtml),
+    },
+    locale,
+  );
 }
 
 const GET_PRODUCTS_BY_IDS_QUERY = gql(
@@ -290,7 +297,7 @@ export async function fetchProductsByIds({
 
   return data.nodes
     .flatMap((node) => (node?.__typename === "Product" ? [node] : []))
-    .map(transformShopifyProductCard);
+    .map((product) => localizeCard(transformShopifyProductCard(product), locale));
 }
 
 // Storefront search sorts by RELEVANCE or PRICE only.
@@ -378,7 +385,7 @@ export async function fetchSearchIndexProducts(
   return {
     pageInfo: data.search.pageInfo,
     products: shopifyProducts.map((product) =>
-      transformFilteredShopifyProductCard(product, selectedColor),
+      localizeCard(transformFilteredShopifyProductCard(product, selectedColor), locale),
     ),
   };
 }
@@ -508,7 +515,7 @@ export async function fetchCollectionProducts(
   const shopifyProducts = flattenConnection(data.collection.products);
   const selectedColor = getSelectedColorFilterLabel(filters, data.collection.products.filters);
   const products = shopifyProducts.map((product) =>
-    transformFilteredShopifyProductCard(product, selectedColor),
+    localizeCard(transformFilteredShopifyProductCard(product, selectedColor), locale),
   );
   return {
     facets: transformShopifyFilters(data.collection.products.filters, {
@@ -546,7 +553,9 @@ export async function fetchProductRecommendations({
   });
   assertStorefrontOk(response, "productRecommendations");
 
-  return (response.data.productRecommendations ?? []).map(transformShopifyProductCard);
+  return (response.data.productRecommendations ?? []).map((product) =>
+    localizeCard(transformShopifyProductCard(product), locale),
+  );
 }
 
 const PRODUCT_OPTION_VALUES_QUERY = gql(`#graphql

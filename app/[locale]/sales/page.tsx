@@ -4,25 +4,42 @@ import { Suspense } from "react";
 import { SalesFigures } from "@/components/sales-figures";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
+import { getLocale, getT } from "@/lib/i18n/server";
+import { buildAlternates, buildOpenGraph } from "@/lib/seo";
 
-const title = "Shirtat sales";
-const description = "Shirtat's sales in the open: total orders, revenue, and units sold.";
+const TITLE = "Shirtat sales";
+const DESCRIPTION = "Shirtat's sales in the open: total orders, revenue, and units sold.";
 
-export const metadata: Metadata = { title, description };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  const locale = await getLocale();
+  const title = t(TITLE);
+  const description = t(DESCRIPTION);
+  return {
+    title,
+    description,
+    alternates: buildAlternates({ locale, pathname: "/sales" }),
+    openGraph: buildOpenGraph({ locale, title, description, url: "/sales", type: "website" }),
+  };
+}
 
-export default function SalesPage() {
+export default async function SalesPage() {
+  const t = await getT();
   return (
     <Page>
       <Container className="max-w-2xl">
         <div className="flex flex-col gap-4">
-          <h1 className="text-3xl md:text-5xl font-semibold">Sales in the open</h1>
+          <h1 className="text-3xl md:text-5xl font-semibold">{t("Sales in the open")}</h1>
           <p className="text-muted-foreground">
-            Totals only, updated about once an hour. Figures cover the last 60 days, the furthest
-            back Shopify lets this site read. No customer details are ever shown.
+            {t(
+              "Totals only, updated about once an hour. Figures cover the last 60 days, the furthest back Shopify lets this site read. No customer details are ever shown.",
+            )}
           </p>
         </div>
         <div className="mt-10">
-          <Suspense fallback={<p className="text-muted-foreground">Loading sales figures...</p>}>
+          <Suspense
+            fallback={<p className="text-muted-foreground">{t("Loading sales figures...")}</p>}
+          >
             <SalesFigures />
           </Suspense>
         </div>

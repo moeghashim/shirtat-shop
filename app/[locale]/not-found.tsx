@@ -25,13 +25,13 @@ export default function NotFoundError() {
             <T k="Page Not Found" />
           </h1>
           <p className="text-sm md:text-base text-muted-foreground max-w-xl">
-            The link may be incorrect, or the page has been removed.
+            <T k="The link may be incorrect, or the page has been removed." />
           </p>
           <Link
             href="/search"
             className="inline-flex items-center justify-center h-12 px-8 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
           >
-            Continue Shopping
+            <T k="Continue Shopping" />
           </Link>
         </div>
       </Container>

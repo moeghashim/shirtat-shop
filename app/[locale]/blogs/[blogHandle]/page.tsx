@@ -1,10 +1,10 @@
-import { getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { BlogIndex, BlogIndexSkeleton } from "@/components/blog/blog-index";
 import { getBlog } from "@/lib/blog/server";
+import { getLocale, getT } from "@/lib/i18n/server";
 import { buildAlternates, buildOpenGraph } from "@/lib/seo";
 import { getShopifySitemapPage } from "@/lib/seo/server";
 import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
@@ -29,16 +29,19 @@ export async function generateMetadata({
   });
   if (!blog) notFound();
   const pathname = `/blogs/${blog.handle}`;
+  const t = await getT();
+  const title = t(blog.seo.title);
   return {
     alternates: buildAlternates({ locale: await getLocale(), pathname }),
     description: blog.seo.description,
-    openGraph: buildOpenGraph({ locale: await getLocale(),
+    openGraph: buildOpenGraph({
+      locale: await getLocale(),
       description: blog.seo.description,
-      title: blog.seo.title,
+      title,
       type: "website",
       url: pathname,
     }),
-    title: blog.seo.title,
+    title,
   };
 }
 
@@ -59,5 +62,6 @@ async function BlogPageContent({
     handle: blogHandle,
   });
   if (!blog) notFound();
-  return <BlogIndex blog={blog} />;
+  const t = await getT();
+  return <BlogIndex blog={{ ...blog, title: t(blog.title) }} />;
 }

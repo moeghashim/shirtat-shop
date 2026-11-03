@@ -7,6 +7,7 @@ import { preload } from "react-dom";
 
 import { AutoPlayVideo } from "@/components/ui/auto-play-video";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
+import { useT } from "@/lib/i18n/client";
 import type { Image as ImageType, Video } from "@/lib/media/types";
 
 import { Lightbox, LightboxTrigger } from "./lightbox";
@@ -113,6 +114,7 @@ function Carousel({
   hasColorSlot: boolean;
   children?: ReactNode;
 }) {
+  const t = useT();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [itemCount, setItemCount] = useState(mediaItems.length);
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
@@ -155,7 +157,12 @@ function Carousel({
     const resizeObserver = new ResizeObserver(sync);
     resizeObserver.observe(container);
     const mutationObserver = new MutationObserver(onMutate);
-    mutationObserver.observe(container, { childList: true, subtree: true, attributes: true, attributeFilter: ["src"] });
+    mutationObserver.observe(container, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["src"],
+    });
 
     return () => {
       container.removeEventListener("scroll", sync);
@@ -199,7 +206,7 @@ function Carousel({
             key={idx}
             onClick={() => scrollToImage(idx)}
             className="group flex h-6 min-w-6 items-center justify-center px-1"
-            aria-label={`Go to image ${idx + 1}`}
+            aria-label={t("Go to image {n}", { n: idx + 1 })}
           >
             <span
               className={cn(

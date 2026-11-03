@@ -79,30 +79,32 @@ async function BrowseResultsGrid({ results }: BrowseResultsGridProps) {
           <T k="No products found" />
         </h2>
         <p className="text-muted-foreground">
-          {query ? `We couldn't find any products matching "${query}"` : "No products available"}
+          {query
+            ? t('We couldn\'t find any products matching "{query}"', { query })
+            : t("No products available")}
         </p>
       </div>
     );
   }
   return (
     <>
-    <h2 className="sr-only">{t("Products")}</h2>
-    <InfiniteProductGrid
-      key={`${JSON.stringify(source)}?${dataSearch}`}
-      initialPageInfo={pageInfo}
-      initialProductIds={products.map((product) => product.id)}
-      source={source}
-    >
-      {products.map((product, index) => (
-        <ProductCard
-          key={product.id}
-          loading={index < 5 ? "eager" : "lazy"}
-          product={product}
-          outOfStockText="Out of Stock"
-          quickShopText={t("Choose")}
-        />
-      ))}
-    </InfiniteProductGrid>
+      <h2 className="sr-only">{t("Products")}</h2>
+      <InfiniteProductGrid
+        key={`${JSON.stringify(source)}?${dataSearch}`}
+        initialPageInfo={pageInfo}
+        initialProductIds={products.map((product) => product.id)}
+        source={source}
+      >
+        {products.map((product, index) => (
+          <ProductCard
+            key={product.id}
+            loading={index < 5 ? "eager" : "lazy"}
+            product={product}
+            outOfStockText="Out of Stock"
+            quickShopText={t("Choose")}
+          />
+        ))}
+      </InfiniteProductGrid>
     </>
   );
 }

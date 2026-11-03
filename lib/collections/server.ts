@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 
-import { localizeCategory } from "@/lib/collections/categories";
 import { describeCollection, PRODUCTS_PER_PAGE, resolveBrowseParams } from "@/lib/collections";
+import { localizeCategory } from "@/lib/collections/categories";
 import type {
   BrowseResults,
   BrowseState,
@@ -51,7 +51,11 @@ export async function getCollections(
 async function getCollectionsCached({
   v: _v,
   ...params
-}: { limit?: number; locale?: CommerceLocale; v: number }): Promise<Collection[]> {
+}: {
+  limit?: number;
+  locale?: CommerceLocale;
+  v: number;
+}): Promise<Collection[]> {
   "use cache: remote";
   cacheLife("max");
   cacheTag("collections", "collections-index");

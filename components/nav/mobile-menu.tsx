@@ -25,7 +25,11 @@ export function MobileMenu({ items }: { items: MenuItem[] }) {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         render={
-          <button type="button" className="xl:hidden -ms-3 flex size-11 items-center justify-center" aria-label={t("Menu")}>
+          <button
+            type="button"
+            className="xl:hidden -ms-3 flex size-11 items-center justify-center"
+            aria-label={t("Menu")}
+          >
             <Menu className="size-5" />
           </button>
         }
@@ -45,6 +49,7 @@ export function MobileMenu({ items }: { items: MenuItem[] }) {
 }
 
 function MobileMenuList({ items, onLinkClick }: { items: MenuItem[]; onLinkClick: () => void }) {
+  const t = useT();
   const hasAnyChildren = items.some((item) => item.items.length > 0);
 
   if (!hasAnyChildren) {
@@ -79,7 +84,7 @@ function MobileMenuList({ items, onLinkClick }: { items: MenuItem[]; onLinkClick
                   onClick={onLinkClick}
                   className="mt-3 block text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  {`Show all ${item.title}`}
+                  {t("Show all {title}", { title: item.title })}
                 </MenuLink>
               ) : null}
             </AccordionContent>

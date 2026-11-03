@@ -20,6 +20,7 @@ import { Price } from "@/components/product/price";
 import { Dialog, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { localizeHref } from "@/lib/i18n";
 import { useLocale, useT } from "@/lib/i18n/client";
+import { localizeProductTitle } from "@/lib/i18n/product";
 import { useRecentlyViewedProducts } from "@/lib/product/client";
 import { SEARCH_TERM_MAX_LENGTH } from "@/lib/search";
 import { usePredictiveSearch } from "@/lib/search/client";
@@ -174,7 +175,7 @@ function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boo
                   }}
                   className="shrink-0 text-sm text-foreground/60 hover:text-foreground transition-colors"
                 >
-                  Clear
+                  <T k="Clear" />
                 </button>
               )}
               <DialogPrimitive.Close className="shrink-0 flex items-center justify-center rounded-full text-foreground/40 hover:text-foreground transition-colors">
@@ -214,7 +215,7 @@ function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boo
                     {products.length > 0 && (
                       <div>
                         <div className="px-4 pt-3 pb-1.5 text-xs font-medium text-foreground/50 uppercase tracking-wider">
-                          {hasQuery ? "Products" : "Recently viewed"}
+                          {hasQuery ? t("Products") : t("Recently viewed")}
                         </div>
                         {products.map((product, i) => (
                           <ProductResult
@@ -242,7 +243,7 @@ function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boo
                           }
                           className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-medium h-9 px-5 hover:bg-primary/90 transition-colors"
                         >
-                          View All
+                          <T k="View All" />
                         </button>
                       </div>
                     )}
@@ -294,6 +295,7 @@ function ProductResult({
   active: boolean;
   onNavigate: (href: string) => void;
 }) {
+  const locale = useLocale();
   return (
     <button
       type="button"
@@ -316,7 +318,9 @@ function ProductResult({
         <div className="size-14 bg-muted shrink-0" />
       )}
       <div className="flex-1 min-w-0">
-        <div className="text-sm text-foreground truncate">{product.title}</div>
+        <div className="text-sm text-foreground truncate">
+          {localizeProductTitle(product.title, locale)}
+        </div>
         <Price
           amount={product.price.amount}
           currencyCode={product.price.currencyCode}

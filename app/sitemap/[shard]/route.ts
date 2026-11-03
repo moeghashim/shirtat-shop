@@ -46,7 +46,16 @@ function localizedEntries(pathname: string, lastmod?: string): string {
     .join("\n");
 }
 
-const STATIC_PATHS = ["/", "/collections", "/creators", "/design", "/designers", "/making-of"];
+const STATIC_PATHS = [
+  "/",
+  "/collections",
+  "/creators",
+  "/design",
+  "/designers",
+  "/making-of",
+  "/roadmap",
+  "/sales",
+];
 
 async function renderStatic(): Promise<Response> {
   const policies = await getShopPolicies().catch(() => []);

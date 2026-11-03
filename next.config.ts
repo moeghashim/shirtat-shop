@@ -8,6 +8,7 @@ import { withShopConfig } from "./lib/config/server";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   experimental: {
+    globalNotFound: true,
     serverActions: { bodySizeLimit: "4.5mb" },
   },
   async redirects() {

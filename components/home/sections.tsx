@@ -1,7 +1,6 @@
 import Image from "next/image";
 
 import { CardGallery } from "@/components/product-card/card-gallery";
-
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { CATEGORIES } from "@/lib/collections/categories";
@@ -35,17 +34,32 @@ export function localTitle(title: string, locale: string): string {
   return locale === "ar" ? m[2]! : `${m[1]}${m[3] ? ` ${m[3]}` : ""}`;
 }
 
-function SectionHeader({ eyebrow, title, href, linkText }: { eyebrow?: string; href?: string; linkText?: string; title: string }) {
+function SectionHeader({
+  eyebrow,
+  title,
+  href,
+  linkText,
+}: {
+  eyebrow?: string;
+  href?: string;
+  linkText?: string;
+  title: string;
+}) {
   return (
     <div className="mb-6 flex items-end justify-between gap-4">
       <div>
         {eyebrow && (
-          <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">{eyebrow}</p>
+          <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            {eyebrow}
+          </p>
         )}
         <h2 className="text-2xl font-semibold sm:text-3xl">{title}</h2>
       </div>
       {href && linkText && (
-        <Link className="shrink-0 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" href={href}>
+        <Link
+          className="shrink-0 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          href={href}
+        >
           {linkText}
         </Link>
       )}
@@ -75,7 +89,9 @@ export async function CategoryTiles() {
                 >
                   {style.glyph}
                 </span>
-                <span className="text-lg font-semibold sm:text-2xl">{locale === "ar" ? c.labelAr : c.labelEn}</span>
+                <span className="text-lg font-semibold sm:text-2xl">
+                  {locale === "ar" ? c.labelAr : c.labelEn}
+                </span>
                 <span className="mt-1 line-clamp-2 hidden text-xs text-white/80 sm:block sm:text-sm">
                   {locale === "ar" ? c.descriptionAr : c.descriptionEn}
                 </span>
@@ -128,22 +144,29 @@ export async function ProductTypeRow() {
 const SPOTLIGHT = {
   handle: "tafakkar",
   quoteAr: "تفكّر",
-  textAr: "كلمة واحدة تدعوك إلى التأمّل: تفكّر في نفسك، وفي العالم من حولك. خطٌّ عربي جريء على قطعٍ تُرتدى كل يوم.",
-  textEn: "One word, an invitation to reflect: on yourself and the world around you. Bold Arabic calligraphy on pieces made for every day.",
+  textAr:
+    "كلمة واحدة تدعوك إلى التأمّل: تفكّر في نفسك، وفي العالم من حولك. خطٌّ عربي جريء على قطعٍ تُرتدى كل يوم.",
+  textEn:
+    "One word, an invitation to reflect: on yourself and the world around you. Bold Arabic calligraphy on pieces made for every day.",
   titleEn: "Tafakkar: Reflect",
 };
 
 export async function DesignSpotlight() {
   const t = await getT();
   const locale = await getLocale();
-  const products = (await getHomeProducts()).filter((p) => p.handle.startsWith(`${SPOTLIGHT.handle}-`));
+  const products = (await getHomeProducts()).filter((p) =>
+    p.handle.startsWith(`${SPOTLIGHT.handle}-`),
+  );
   if (products.length === 0) return null;
   const hero = products.find((p) => p.productType === "T-Shirt") ?? products[0]!;
   const rest = products.filter((p) => p !== hero).slice(0, 4);
   return (
     <Container>
       <section className="grid items-center gap-8 overflow-hidden rounded-3xl bg-muted/60 p-6 md:grid-cols-2 md:p-12">
-        <Link className="group relative block aspect-square overflow-hidden rounded-2xl bg-background" href={`/products/${hero.handle}`}>
+        <Link
+          className="group relative block aspect-square overflow-hidden rounded-2xl bg-background"
+          href={`/products/${hero.handle}`}
+        >
           {hero.image && (
             <Image
               alt={localTitle(hero.title, locale)}
@@ -155,15 +178,34 @@ export async function DesignSpotlight() {
           )}
         </Link>
         <div className="flex flex-col gap-4">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">{t("Design spotlight")}</p>
-          <p className="font-serif text-5xl md:text-7xl" dir="rtl" lang="ar">{SPOTLIGHT.quoteAr}</p>
-          <h2 className="text-2xl font-semibold md:text-3xl">{locale === "ar" ? "تفكّر" : SPOTLIGHT.titleEn}</h2>
-          <p className="text-muted-foreground md:text-lg">{locale === "ar" ? SPOTLIGHT.textAr : SPOTLIGHT.textEn}</p>
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            {t("Design spotlight")}
+          </p>
+          <p className="font-serif text-5xl md:text-7xl" dir="rtl" lang="ar">
+            {SPOTLIGHT.quoteAr}
+          </p>
+          <h2 className="text-2xl font-semibold md:text-3xl">
+            {locale === "ar" ? "تفكّر" : SPOTLIGHT.titleEn}
+          </h2>
+          <p className="text-muted-foreground md:text-lg">
+            {locale === "ar" ? SPOTLIGHT.textAr : SPOTLIGHT.textEn}
+          </p>
           <ul className="mt-2 grid grid-cols-4 gap-3">
             {rest.map((p) => (
               <li key={p.handle}>
-                <Link className="relative block aspect-square overflow-hidden rounded-xl bg-background" href={`/products/${p.handle}`}>
-                  {p.image && <Image alt={localTitle(p.title, locale)} className="object-cover" fill sizes="96px" src={p.image.url} />}
+                <Link
+                  className="relative block aspect-square overflow-hidden rounded-xl bg-background"
+                  href={`/products/${p.handle}`}
+                >
+                  {p.image && (
+                    <Image
+                      alt={localTitle(p.title, locale)}
+                      className="object-cover"
+                      fill
+                      sizes="96px"
+                      src={p.image.url}
+                    />
+                  )}
                 </Link>
               </li>
             ))}
@@ -180,19 +222,43 @@ export async function DesignSpotlight() {
   );
 }
 
-function CtaCard({ body, cta, href, title, dark, eyebrow }: { body: string; cta: string; dark?: boolean; eyebrow: string; href: string; title: string }) {
+function CtaCard({
+  body,
+  cta,
+  href,
+  title,
+  dark,
+  eyebrow,
+}: {
+  body: string;
+  cta: string;
+  dark?: boolean;
+  eyebrow: string;
+  href: string;
+  title: string;
+}) {
   return (
     <Link
       className={`group flex flex-col justify-between gap-6 rounded-3xl p-6 sm:p-8 md:p-10 ${dark ? "bg-foreground text-background" : "border border-border bg-background"}`}
       href={href}
     >
       <div className="flex flex-col gap-3">
-        <p className={`text-xs font-medium uppercase tracking-[0.2em] ${dark ? "text-background/70" : "text-muted-foreground"}`}>{eyebrow}</p>
+        <p
+          className={`text-xs font-medium uppercase tracking-[0.2em] ${dark ? "text-background/70" : "text-muted-foreground"}`}
+        >
+          {eyebrow}
+        </p>
         <h2 className="text-2xl font-semibold md:text-3xl">{title}</h2>
         <p className={dark ? "text-background/80" : "text-muted-foreground"}>{body}</p>
       </div>
       <span className="text-sm font-semibold">
-        {cta} <span aria-hidden className="inline-block transition-transform group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1">→</span>
+        {cta}{" "}
+        <span
+          aria-hidden
+          className="inline-block transition-transform group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1"
+        >
+          →
+        </span>
       </span>
     </Link>
   );
@@ -204,14 +270,18 @@ export async function DesignersAndSell() {
     <Container>
       <div className="grid gap-5 md:grid-cols-2">
         <CtaCard
-          body={t("Every piece is made by a designer. Browse by the people behind the calligraphy, starting with the Shirtat studio.")}
+          body={t(
+            "Every piece is made by a designer. Browse by the people behind the calligraphy, starting with the Shirtat studio.",
+          )}
           cta={t("Meet the designers")}
           eyebrow={t("Designers")}
           href="/designers"
           title={t("Shop by designer")}
         />
         <CtaCard
-          body={t("Have Arabic designs people would love to wear? Upload them, we print and ship, and you earn on every sale.")}
+          body={t(
+            "Have Arabic designs people would love to wear? Upload them, we print and ship, and you earn on every sale.",
+          )}
           cta={t("Start selling")}
           dark
           eyebrow={t("For designers")}
@@ -240,7 +310,10 @@ export async function NewArrivals() {
     for (const g of groups) if (g[i] && picks.length < 10) picks.push(g[i]!);
   }
   if (picks.length === 0) return null;
-  const fmt = new Intl.NumberFormat(locale === "ar" ? "ar-u-nu-latn" : "en-US", { currency: "USD", style: "currency" });
+  const fmt = new Intl.NumberFormat(locale === "ar" ? "ar-u-nu-latn" : "en-US", {
+    currency: "USD",
+    style: "currency",
+  });
   return (
     <Container>
       <SectionHeader href="/collections/all" linkText={t("View All")} title={t("New arrivals")} />
@@ -250,7 +323,15 @@ export async function NewArrivals() {
             {/* Stretched link (not wrapping) so the gallery arrows aren't buttons inside an anchor. */}
             <article className="group/card relative">
               <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#ececea]">
-                <CardGallery alt={localTitle(p.title, locale)} images={p.gallery.length ? p.gallery : [{ altText: "", height: 1, url: p.image!.url, width: 1 }]} loading="lazy" />
+                <CardGallery
+                  alt={localTitle(p.title, locale)}
+                  images={
+                    p.gallery.length
+                      ? p.gallery
+                      : [{ altText: "", height: 1, url: p.image!.url, width: 1 }]
+                  }
+                  loading="lazy"
+                />
               </div>
               <p className="mt-3 line-clamp-1 font-medium">
                 <Link className="after:absolute after:inset-0" href={`/products/${p.handle}`}>

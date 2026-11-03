@@ -1,10 +1,10 @@
-import { getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { ArticlePage, ArticlePageSkeleton } from "@/components/blog/article-page";
 import { getBlog, getBlogArticle } from "@/lib/blog/server";
+import { getLocale } from "@/lib/i18n/server";
 import { buildAlternates, buildOpenGraph, siteOgImages } from "@/lib/seo";
 import { getShopifySitemapPage } from "@/lib/seo/server";
 import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
@@ -53,7 +53,8 @@ export async function generateMetadata({
   return {
     alternates: buildAlternates({ locale: await getLocale(), pathname }),
     description: article.seo.description,
-    openGraph: buildOpenGraph({ locale: await getLocale(),
+    openGraph: buildOpenGraph({
+      locale: await getLocale(),
       description: article.seo.description,
       images,
       title: article.seo.title,

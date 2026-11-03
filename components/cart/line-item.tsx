@@ -9,7 +9,8 @@ import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { Link } from "@/components/ui/link";
 import { useCart } from "@/lib/cart/client";
 import type { CartLine } from "@/lib/cart/types";
-import { useT } from "@/lib/i18n/client";
+import { useLocale, useT } from "@/lib/i18n/client";
+import { localizeAnyOptionValue, localizeProductTitle } from "@/lib/i18n/product";
 import { formatPrice } from "@/lib/money";
 
 import { CartLineForm } from "./line-form";
@@ -51,6 +52,7 @@ interface CartLineItemProps {
 
 function CartLineItem({ item }: CartLineItemProps) {
   const t = useT();
+  const locale = useLocale();
   const isPending = useCart((state) => state.pending.lines.has(item.id));
   const isCostPending = useCart((state) =>
     Boolean(state.pending.cost || state.revalidating || state.pending.lines.has(item.id)),
@@ -77,9 +79,13 @@ function CartLineItem({ item }: CartLineItemProps) {
   const compareAtUnitPrice = Number(cost.compareAtAmountPerQuantity?.amount ?? 0);
   const originalUnitPrice =
     finalUnitPrice < sellingUnitPrice ? sellingUnitPrice : compareAtUnitPrice;
-  const title = merchandise?.product.title || "Cart item";
+  const title = merchandise?.product.title
+    ? localizeProductTitle(merchandise.product.title, locale)
+    : t("Cart item");
   const variantLabel = merchandise?.selectedOptions?.length
-    ? merchandise.selectedOptions.map((option) => option.value).join(" / ")
+    ? merchandise.selectedOptions
+        .map((option) => localizeAnyOptionValue(option.value, locale))
+        .join(" / ")
     : "";
   const customText = (
     item as { attributes?: { key: string; value?: string | null }[] }
@@ -130,7 +136,7 @@ function CartLineItem({ item }: CartLineItemProps) {
             ) : null}
             {item.sellingPlanAllocation ? (
               <p className="text-xs text-muted-foreground">
-                {item.sellingPlanAllocation.sellingPlan.name || "Subscription"}
+                {item.sellingPlanAllocation.sellingPlan.name || t("Subscription")}
               </p>
             ) : null}
           </div>
@@ -146,7 +152,9 @@ function CartLineItem({ item }: CartLineItemProps) {
                     className="flex items-center gap-1.5 text-xs text-muted-foreground"
                   >
                     <span className="truncate">
-                      {component.merchandise?.product.title || "Bundle item"}
+                      {component.merchandise?.product.title
+                        ? localizeProductTitle(component.merchandise.product.title, locale)
+                        : t("Bundle item")}
                     </span>
                     {component.quantity > 1 ? <span>×{component.quantity}</span> : null}
                   </li>

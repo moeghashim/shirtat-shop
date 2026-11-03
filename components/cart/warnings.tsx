@@ -45,7 +45,9 @@ function CartWarningMessages({ group }: { group: CartErrorGroup }) {
         <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />
         <div className="grid flex-1 gap-1">
           <p className="font-medium">
-            {group.userErrors.length ? "We couldn't update your cart" : "Your cart was updated"}
+            {group.userErrors.length
+              ? t("We couldn't update your cart")
+              : t("Your cart was updated")}
           </p>
           <ul className="grid gap-0.5 text-amber-800 dark:text-amber-200/90">
             {messages.map((message, index) => (

@@ -21,43 +21,47 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: buildAlternates({ locale, pathname: "/making-of" }),
-    openGraph: buildOpenGraph({ locale: await getLocale(), title, description, url: "/making-of", type: "website" }),
+    openGraph: buildOpenGraph({
+      locale: await getLocale(),
+      title,
+      description,
+      url: "/making-of",
+      type: "website",
+    }),
   };
 }
 
-const dateFormat = new Intl.DateTimeFormat("en-GB", {
+const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
   day: "numeric",
   month: "long",
   year: "numeric",
   timeZone: "UTC",
-});
+};
 
 export default async function MakingOfPage() {
   const t = await getT();
   const locale = await getLocale();
+  const dateFormat = new Intl.DateTimeFormat(
+    locale === "ar" ? "ar-u-nu-latn" : "en-GB",
+    DATE_OPTIONS,
+  );
   return (
     <Page>
       <Container className="max-w-2xl">
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl md:text-5xl font-semibold">{t(TITLE)}</h1>
           <p className="text-muted-foreground">{t(INTRO)}</p>
-          {locale === "ar" && (
-            <p className="text-sm text-muted-foreground">
-              {t("The daily log is kept in English.")}
-            </p>
-          )}
         </div>
-        {/* The daily log stays English-only. */}
-        <section className="mt-12 flex flex-col gap-8" lang="en" dir="ltr">
-          <h2 className="text-2xl font-semibold font-sans">Daily log</h2>
+        <section className="mt-12 flex flex-col gap-8">
+          <h2 className="text-2xl font-semibold">{t("Daily log")}</h2>
           {logDays.map((day) => (
-            <div key={day.date} className="flex flex-col gap-3 font-sans">
+            <div key={day.date} className="flex flex-col gap-3">
               <h3 className="font-semibold">
                 <time dateTime={day.date}>{dateFormat.format(new Date(day.date))}</time>
               </h3>
               <ul className="flex flex-col gap-1 list-disc ps-5">
                 {day.entries.map((entry) => (
-                  <li key={entry}>{entry}</li>
+                  <li key={entry.en}>{entry[locale]}</li>
                 ))}
               </ul>
             </div>

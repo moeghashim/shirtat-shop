@@ -7,12 +7,11 @@ import { Link } from "@/components/ui/link";
 import { Sections } from "@/components/ui/sections";
 import { CATEGORIES } from "@/lib/collections/categories";
 import { shopConfig } from "@/lib/config";
+import { socialLinks } from "@/lib/config/social";
 import { commerceLocale } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
 import type { MenuItem } from "@/lib/menu/types";
 import { getShopPolicies } from "@/lib/policies/server";
-
-import { socialLinks } from "@/lib/config/social";
 
 import { SocialLinks } from "./social-links";
 
@@ -21,7 +20,6 @@ export async function Footer() {
   const locale = await getLocale();
   const t = await getT();
   const policies = await getShopPolicies({ locale: commerceLocale(locale) }).catch(() => []);
-  const englishOnly = locale === "ar" ? { hrefLang: "en" } : {};
   return (
     <footer>
       {/* pb-22 clears the fixed agent ActionBar pill when it renders */}
@@ -87,14 +85,12 @@ export async function Footer() {
               </Link>
               <Link
                 href="/roadmap"
-                {...englishOnly}
                 className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {t("Roadmap")}
               </Link>
               <Link
                 href="/sales"
-                {...englishOnly}
                 className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {t("Sales")}

@@ -27,6 +27,35 @@ const C: Copy = {
 };
 const t = (k: string, ar: boolean) => (ar ? C[k]!.ar : C[k]!.en);
 
+/** Arabic for vendor data that Shopify stores in English only; brand and model codes stay in Latin script. */
+const BLANK_AR: Record<string, string> = {
+  "AS Colour 1001 Cotton Tote Bag": "حقيبة قطنية AS Colour 1001",
+  "Bella+Canvas 3001 Unisex Jersey Short Sleeve Tee":
+    "تيشيرت جيرسي بكم قصير للجنسين Bella+Canvas 3001",
+  "Gildan 18000 Unisex Heavy Blend Crewneck Sweatshirt":
+    "سويتشيرت بياقة دائرية للجنسين من خليط ثقيل Gildan 18000",
+  "Gildan 18500 Unisex Heavy Blend Hooded Sweatshirt": "هودي للجنسين من خليط ثقيل Gildan 18500",
+  "Matte Vertical Poster": "ملصق عمودي مطفي",
+  "Yupoong 1501KC Classic Cuffed Beanie": "قبعة صوفية كلاسيكية بحافة Yupoong 1501KC",
+  "Yupoong 6245CM Classic Dad Cap": "قبعة كاب كلاسيكية Yupoong 6245CM",
+};
+const PROVIDER_AR: Record<string, string> = {
+  "Not recorded": "غير مسجّل",
+  "Printify Choice (US)": "Printify Choice (الولايات المتحدة)",
+};
+const SIZE_AR: Record<string, string> = { "One size": "مقاس واحد" };
+const PRINT_OPTION_AR: Record<string, string> = {
+  "Digital printing": "طباعة رقمية",
+  Embroidery: "تطريز",
+};
+function arPrintArea(value: string): string {
+  return value
+    .replace(/ in\b/g, " بوصة")
+    .replace(/ cm\b/g, " سم")
+    .replace(/ or /g, " أو ")
+    .replace("(full sheet)", "(الورقة كاملة)");
+}
+
 function productKind(
   handle: string,
 ): "tee" | "hoodie" | "sweatshirt" | "cap" | "beanie" | "tote" | "print" | "other" {
@@ -198,7 +227,7 @@ export function PdpTrustAndDetails({
           href="/designers/shirtat"
           className="inline-flex min-h-11 items-center font-medium underline underline-offset-4"
         >
-          Shirtat
+          {isArabic ? "شيرتات" : "Shirtat"}
         </Link>
       </p>
       {storySlot}
@@ -391,20 +420,31 @@ export async function ProductSpecsBlock({
           <dl className="grid">
             <SpecRow
               label={L.blank}
-              value={isArabic && specs.blankAr ? specs.blankAr : specs.blank}
+              value={
+                isArabic ? (specs.blankAr ?? BLANK_AR[specs.blank] ?? specs.blank) : specs.blank
+              }
             />
             <SpecRow
               label={L.vendor}
               value={
                 specs.provider === specs.vendor
                   ? specs.vendor
-                  : `${specs.vendor} · ${specs.provider}`
+                  : `${specs.vendor} · ${isArabic ? (PROVIDER_AR[specs.provider] ?? specs.provider) : specs.provider}`
               }
             />
             <SpecRow label={L.fabric} value={b(specs.fabric)} />
             <SpecRow label={L.weight} value={<span dir="ltr">{specs.weight ?? unknown}</span>} />
             <SpecRow label={L.fit} value={b(specs.fit)} />
-            <SpecRow label={L.sizes} value={<span dir="ltr">{specs.sizes.join(" · ")}</span>} />
+            <SpecRow
+              label={L.sizes}
+              value={
+                <span dir="ltr">
+                  {specs.sizes
+                    .map((size) => (isArabic ? (SIZE_AR[size] ?? size) : size))
+                    .join(" · ")}
+                </span>
+              }
+            />
             <SpecRow label={L.care} value={b(specs.care)} />
             <SpecRow label={L.origin} value={b(specs.origin)} />
           </dl>
@@ -456,14 +496,27 @@ export async function ProductSpecsBlock({
           <dl className="grid">
             <SpecRow label={L.method} value={b(print.method)} />
             <SpecRow label={L.placement} value={b(print.placement)} />
-            <SpecRow label={L.area} value={<span dir="ltr">{print.printArea ?? unknown}</span>} />
+            <SpecRow
+              label={L.area}
+              value={
+                <span dir="ltr">
+                  {print.printArea
+                    ? isArabic
+                      ? arPrintArea(print.printArea)
+                      : print.printArea
+                    : unknown}
+                </span>
+              }
+            />
             <SpecRow
               label={L.options}
               value={
                 <ul className="grid gap-0.5">
                   {print.available.map((o) => (
                     <li key={o.method}>
-                      <span className="font-medium text-foreground">{o.method}</span>
+                      <span className="font-medium text-foreground">
+                        {isArabic ? (PRINT_OPTION_AR[o.method] ?? o.method) : o.method}
+                      </span>
                       {o.areas.length
                         ? `: ${o.areas.map((a) => (isArabic ? a.ar : a.en)).join(isArabic ? "، " : ", ")}`
                         : ""}

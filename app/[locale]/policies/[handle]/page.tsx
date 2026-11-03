@@ -1,9 +1,9 @@
-import { getLocale } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { RichTextPage, RichTextPageSkeleton } from "@/components/content/rich-text-page";
+import { getLocale } from "@/lib/i18n/server";
 import { getShopPolicies, getShopPolicy } from "@/lib/policies/server";
 import { buildAlternates, buildOpenGraph } from "@/lib/seo";
 import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
@@ -31,7 +31,12 @@ export async function generateMetadata({
   const pathname = `/policies/${policy.handle}`;
   return {
     alternates: buildAlternates({ locale: await getLocale(), pathname }),
-    openGraph: buildOpenGraph({ locale: await getLocale(), title: policy.title, type: "website", url: pathname }),
+    openGraph: buildOpenGraph({
+      locale: await getLocale(),
+      title: policy.title,
+      type: "website",
+      url: pathname,
+    }),
     title: policy.title,
   };
 }

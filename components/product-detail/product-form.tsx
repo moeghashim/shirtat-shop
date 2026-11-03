@@ -49,6 +49,7 @@ interface ProductFormOptionsProps {
 }
 
 export function ProductFormOptions({ handle }: ProductFormOptionsProps) {
+  const locale = useLocale();
   const { options, selectOption } = useProduct();
   const optionGroups: OptionGroupState[] = options.map((option) => ({
     name: option.name,
@@ -66,7 +67,7 @@ export function ProductFormOptions({ handle }: ProductFormOptionsProps) {
       };
     }),
   }));
-  return <ProductInfoOptions options={optionGroups} onSelectValue={selectOption} />;
+  return <ProductInfoOptions locale={locale} options={optionGroups} onSelectValue={selectOption} />;
 }
 
 export function ProductFormPrice({

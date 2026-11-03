@@ -1,4 +1,5 @@
 import { ArticleCard } from "@/components/blog/article-card";
+import { T } from "@/components/i18n/t";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
@@ -22,7 +23,9 @@ export function BlogIndex({ blog }: BlogIndexProps) {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">No articles found.</p>
+            <p className="text-muted-foreground">
+              <T k="No articles found." />
+            </p>
           )}
         </Sections>
       </Container>

@@ -1,6 +1,8 @@
 import { cn } from "cn";
 import type { ComponentProps } from "react";
 
+import { type Locale, defaultLocale } from "@/lib/i18n";
+import { localizeOptionName, localizeOptionValue } from "@/lib/i18n/product";
 import { isColorOption } from "@/lib/product";
 import type { OptionGroupState } from "@/lib/product/types";
 
@@ -10,6 +12,7 @@ import { OptionPicker } from "./option-picker";
 interface ProductInfoOptionsProps extends ComponentProps<"div"> {
   compact?: boolean;
   hideImages?: boolean;
+  locale?: Locale;
   onSelectValue?: (optionName: string, value: string) => void;
   options: OptionGroupState[];
 }
@@ -17,6 +20,7 @@ interface ProductInfoOptionsProps extends ComponentProps<"div"> {
 function ProductInfoOptions({
   compact = false,
   hideImages,
+  locale = defaultLocale,
   onSelectValue,
   options,
   className,
@@ -37,7 +41,10 @@ function ProductInfoOptions({
       <div className={cn("grid", compact ? "gap-2.5" : "gap-5")}>
         {singleValueOptions.map((option) => (
           <p key={option.name} className="text-sm font-medium text-foreground/70">
-            {option.name}: <span className="text-foreground">{option.values[0]?.name}</span>
+            {localizeOptionName(option.name, locale)}:{" "}
+            <span className="text-foreground">
+              {localizeOptionValue(option.name, option.values[0]?.name ?? "", locale)}
+            </span>
           </p>
         ))}
 
@@ -45,6 +52,7 @@ function ProductInfoOptions({
           <ColorPicker
             key={option.name}
             hideImages={hideImages}
+            locale={locale}
             onSelectValue={onSelectValue}
             option={option}
           />
@@ -54,6 +62,7 @@ function ProductInfoOptions({
           <OptionPicker
             compact={compact}
             key={option.name}
+            locale={locale}
             onSelectValue={onSelectValue}
             option={option}
           />

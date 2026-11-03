@@ -18,7 +18,7 @@ export function ErrorBoundaryContent({ retry }: { retry: () => void }) {
         <T k="Something went wrong" />
       </h1>
       <p className="mb-8 max-w-md text-muted-foreground">
-        An unexpected error occurred. Please try again.
+        <T k="An unexpected error occurred. Please try again." />
       </p>
       <div className="flex flex-col gap-2.5 sm:flex-row">
         <Button onClick={() => retry()}>

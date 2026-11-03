@@ -8,7 +8,10 @@ export async function CartUI() {
   return (
     <>
       <CartNotifications />
-      <CartOverlay description="Review your cart items and proceed to checkout" title={t("Cart")} />
+      <CartOverlay
+        description={t("Review your cart items and proceed to checkout")}
+        title={t("Cart")}
+      />
     </>
   );
 }

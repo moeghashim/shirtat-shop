@@ -78,7 +78,7 @@ function OverlayContent() {
     return (
       <div className="flex h-full items-center justify-center gap-2.5" role="status">
         <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-        Loading cart…
+        <T k="Loading cart…" />
       </div>
     );
   }
@@ -97,7 +97,7 @@ function OverlayContent() {
             }}
             className="h-12 px-8"
           >
-            Continue Shopping
+            <T k="Continue Shopping" />
           </Button>
         </div>
       </div>

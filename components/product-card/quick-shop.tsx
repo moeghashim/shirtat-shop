@@ -198,8 +198,10 @@ export function QuickShop({ handle, href, image, label, title }: QuickShopProps)
                   <div className="grid gap-4">
                     <p className="text-sm text-muted-foreground" role="status">
                       {status === "failed"
-                        ? "We couldn’t load the purchase options. Try again or open the product page."
-                        : "Quick shop is unavailable for this product."}
+                        ? t(
+                            "We couldn’t load the purchase options. Try again or open the product page.",
+                          )
+                        : t("Quick shop is unavailable for this product.")}
                     </p>
                     {status === "failed" ? (
                       <Button
@@ -208,7 +210,7 @@ export function QuickShop({ handle, href, image, label, title }: QuickShopProps)
                         type="button"
                         variant="outline"
                       >
-                        Try again
+                        {t("Try again")}
                       </Button>
                     ) : null}
                   </div>
@@ -251,6 +253,7 @@ function QuickShopDetails({
   product,
   selectionStatus,
 }: QuickShopDetailsProps) {
+  const t = useT();
   const { options, selectedVariant } = useProduct();
   const isUnconfirmed =
     !selectedVariant || selectedVariant.id !== confirmedVariant?.id || selectionStatus !== "idle";
@@ -279,14 +282,16 @@ function QuickShopDetails({
         <div className="grid gap-2.5">
           <p className="text-sm text-muted-foreground" role="status">
             {selectionStatus === "loading"
-              ? "Loading selected options…"
+              ? t("Loading selected options…")
               : selectionStatus === "failed"
-                ? "We couldn’t load these options. Try again or choose another option."
-                : "These options are unavailable. Choose another option or open the product page."}
+                ? t("We couldn’t load these options. Try again or choose another option.")
+                : t(
+                    "These options are unavailable. Choose another option or open the product page.",
+                  )}
           </p>
           {selectionStatus === "failed" ? (
             <Button onClick={onRetrySelection} type="button" variant="outline">
-              Try again
+              {t("Try again")}
             </Button>
           ) : null}
         </div>
@@ -318,7 +323,13 @@ function QuickShopLayout({ children, image, title }: QuickShopLayoutProps) {
     <div className="grid min-h-0 sm:aspect-[2/1] sm:grid-cols-2 sm:grid-rows-[auto_minmax(0,1fr)]">
       <div className="relative aspect-square overflow-hidden sm:row-span-2">
         {image ? (
-          <Image alt={title} className="object-cover" fill sizes="(min-width: 768px) 400px, 90vw" src={image} />
+          <Image
+            alt={title}
+            className="object-cover"
+            fill
+            sizes="(min-width: 768px) 400px, 90vw"
+            src={image}
+          />
         ) : (
           <ImagePlaceholder className="size-full" />
         )}
@@ -364,7 +375,7 @@ function QuickShopDetailsLink({ href, onNavigate }: QuickShopDetailsLinkProps) {
       href={href}
       onNavigate={onNavigate}
     >
-      View full details
+      <T k="View full details" />
     </Link>
   );
 }

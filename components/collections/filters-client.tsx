@@ -140,7 +140,7 @@ export function CollectionFilterSidebar({ filters, priceRange }: CollectionFilte
           <div className="flex items-center gap-2">
             <PriceInput
               currencyCode={priceRange.currencyCode}
-              label="Minimum price"
+              label={t("Minimum price")}
               onChange={(min) => setPriceInputs((prev) => ({ ...prev, min }))}
               placeholder={t("From")}
               value={minInput}
@@ -148,7 +148,7 @@ export function CollectionFilterSidebar({ filters, priceRange }: CollectionFilte
             <span className="text-muted-foreground">–</span>
             <PriceInput
               currencyCode={priceRange.currencyCode}
-              label="Maximum price"
+              label={t("Maximum price")}
               onChange={(max) => setPriceInputs((prev) => ({ ...prev, max }))}
               placeholder={t("To")}
               value={maxInput}
