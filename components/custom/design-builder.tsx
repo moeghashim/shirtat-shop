@@ -555,6 +555,7 @@ function PreviewDock({
         >
           <span className="block size-21 shrink-0">
             <Preview
+              plain
               art={art}
               fontKey={style.font}
               kind={kind}
@@ -634,6 +635,7 @@ function StyleSample({ style }: { style: NonNullable<ReturnType<typeof getStyle>
 }
 
 function Preview({
+  plain,
   art,
   fontKey,
   kind,
@@ -643,6 +645,7 @@ function Preview({
   text,
   vertical,
 }: {
+  plain?: boolean;
   art?: string;
   fontKey: Parameters<typeof fontFamily>[0];
   kind: CustomKind;
@@ -686,6 +689,12 @@ function Preview({
             src={art}
             unoptimized
             width={248}
+          />
+        ) : plain ? (
+          <span
+            aria-hidden
+            className="h-[28%] w-[70%] rounded-sm opacity-60"
+            style={{ background: onDark ? "#f4f4f4" : "#141414" }}
           />
         ) : (
           <FitText
@@ -738,7 +747,7 @@ function FitText({
       seen = key;
       let lo = 8;
       let hi = Math.max(8, maxH * 0.8);
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 7; i++) {
         const mid = (lo + hi) / 2;
         span.style.fontSize = `${mid}px`;
         // The text range reports glyph extents on both sides; scrollWidth misses overflow on the start edge of RTL text.
