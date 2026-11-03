@@ -112,7 +112,7 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
         <div className="grid gap-2.5">
           <p className="text-sm font-medium text-foreground/70">{t("Or start from an example")}</p>
           <ul className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
-            {DESIGN_PRESETS.map((p, index) => (
+            {DESIGN_PRESETS.map((p) => (
               <li key={p.id} className="shrink-0">
                 <button
                   type="button"
@@ -129,16 +129,7 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
                     setPresetId(p.id);
                   }}
                 >
-                  <Image
-                    alt=""
-                    className="size-full object-cover"
-                    height={96}
-                    fetchPriority={index < 4 ? "auto" : "low"}
-                    loading={index < 4 ? "eager" : "lazy"}
-                    src={presetImage(p.id)}
-                    unoptimized
-                    width={96}
-                  />
+                  <Thumb className="size-full object-cover" size={96} src={presetImage(p.id)} />
                 </button>
               </li>
             ))}
@@ -182,6 +173,38 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
   );
 }
 
+/** A decorative thumbnail that is requested only once it is about to scroll into view. */
+function Thumb({ className, size, src }: { className: string; size: number; src: string }) {
+  const ref = useRef<HTMLImageElement>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        setNear(true);
+        io.disconnect();
+      },
+      { rootMargin: "200px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return (
+    // oxlint-disable-next-line nextjs/no-img-element
+    <img
+      ref={ref}
+      alt=""
+      className={className}
+      decoding="async"
+      height={size}
+      src={near ? src : undefined}
+      width={size}
+    />
+  );
+}
+
 function SelectedStyleName({ styleId }: { styleId: number }) {
   const locale = useLocale();
   const style = getStyle(styleId)!;
@@ -211,15 +234,10 @@ function StyleOptions({ onSelect, styleId }: { onSelect: (id: number) => void; s
             ✓
           </span>
         ) : null}
-        <Image
-          alt=""
+        <Thumb
           className="aspect-square w-full rounded-lg object-cover"
-          height={96}
-          fetchPriority="low"
-          loading="lazy"
+          size={96}
           src={styleImage(s.id)}
-          unoptimized
-          width={96}
         />
         <span className={cn("text-xs leading-tight", styleId === s.id && "font-semibold")}>
           {locale === "ar" ? s.nameAr : s.nameEn}
