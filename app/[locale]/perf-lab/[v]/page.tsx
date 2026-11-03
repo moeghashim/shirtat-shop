@@ -2,6 +2,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
 
 import { DesignBuilder } from "@/components/custom/design-builder";
+import { DesignBuilder as OldBuilder } from "@/components/custom/design-builder-old";
 import { DESIGN_FONT_VARIABLES } from "@/components/custom/fonts";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
