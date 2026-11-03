@@ -47,6 +47,7 @@ const GARMENT_COLORS: Record<string, { ar: string; dark: boolean; hex: string }>
 };
 
 interface DesignBuilderProps {
+  lab?: string;
   hoodie: CompactForm | null;
   mug: CompactForm | null;
   tee: CompactForm | null;
@@ -54,7 +55,7 @@ interface DesignBuilderProps {
 
 const KIND_LABEL: Record<CustomKind, string> = { hoodie: "Hoodie", mug: "Mug", tee: "T-shirt" };
 
-export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
+export function DesignBuilder({ hoodie, lab, mug, tee }: DesignBuilderProps) {
   const t = useT();
   const products = useMemo<Record<CustomKind, ProductFormInput | null>>(
     () => ({
@@ -162,7 +163,7 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
     <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-14">
       {product ? (
         <ProductProvider key={kind} product={product}>
-          <ProductPanel kind={kind} presetId={presetId} styleId={styleId} text={text}>
+          <ProductPanel lab={lab} kind={kind} presetId={presetId} styleId={styleId} text={text}>
             {steps}
           </ProductPanel>
         </ProductProvider>
@@ -309,12 +310,14 @@ function TextField({ onChange, text }: { onChange: (v: string) => void; text: st
 }
 
 function ProductPanel({
+  lab,
   children,
   kind,
   presetId,
   styleId,
   text,
 }: {
+  lab?: string;
   children: React.ReactNode;
   kind: CustomKind;
   presetId: number | null;
@@ -384,17 +387,19 @@ function ProductPanel({
 
   return (
     <>
-      <PreviewDock
-        art={art}
-        garment={kind === "mug" ? "#ffffff" : (color?.hex ?? "#ffffff")}
-        label={label}
-        onDark={onDark}
-        photo={photo}
-        presetId={presetId}
-        style={style}
-        text={shownText}
-        kind={kind}
-      />
+      {lab === "nodock" ? null : (
+        <PreviewDock
+          art={art}
+          garment={kind === "mug" ? "#ffffff" : (color?.hex ?? "#ffffff")}
+          label={label}
+          onDark={onDark}
+          photo={photo}
+          presetId={presetId}
+          style={style}
+          text={shownText}
+          kind={kind}
+        />
+      )}
 
       <div className="mt-8 grid content-start gap-9 lg:col-start-2 lg:row-start-1 lg:mt-0">
         {children}
