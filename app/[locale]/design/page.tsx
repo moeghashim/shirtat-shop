@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
-import { Suspense } from "react";
 
 import { DesignBuilder } from "@/components/custom/design-builder";
 import { DESIGN_FONT_VARIABLES } from "@/components/custom/fonts";
@@ -39,9 +38,7 @@ export default function DesignPage() {
     <Page>
       <Container className={`${DESIGN_FONT_VARIABLES} grid gap-10`}>
         <Intro />
-        <Suspense fallback={<div className="min-h-[1700px] md:min-h-[860px]" />}>
-          <Builder />
-        </Suspense>
+        <Builder />
       </Container>
     </Page>
   );
