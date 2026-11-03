@@ -13,6 +13,23 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-03",
+    entries: [
+      {
+        en: "Shirtat now has a full Arabic version at shirtat.co/ar, laid out right to left, with a language switch in the header. Every page is covered, including product titles, options and descriptions, the cart, search, menu, error pages, the making-of log, the roadmap and the sales page.",
+        ar: "أصبح لشيرتات نسخة عربية كاملة على shirtat.co/ar، بتخطيط من اليمين إلى اليسار، مع زر لتبديل اللغة في أعلى الصفحة. وتشمل كل الصفحات، بما فيها عناوين المنتجات وخياراتها وأوصافها، والسلة، والبحث، والقائمة، وصفحات الأخطاء، وسجل صناعة شيرتات، وخريطة الطريق، وصفحة المبيعات.",
+      },
+      {
+        en: "Redesigned the Design your own page to match the product pages: a large preview on one side that stays in view while you scroll on desktop, with the options on the other. On mobile, a compact preview stays pinned at the top and opens full size with a tap.",
+        ar: "أعدنا تصميم صفحة «صمّم بنفسك» لتشبه صفحات المنتجات: معاينة كبيرة في جانب تبقى ظاهرة أثناء التمرير على سطح المكتب، والخيارات في الجانب الآخر. وعلى الجوال تبقى معاينة مصغّرة مثبّتة في الأعلى وتُفتح بحجمها الكامل بلمسة.",
+      },
+      {
+        en: "Made the Design your own page faster and smoother: example and style images load only when they are about to appear and are much smaller, the text fits the preview without jumping, and the page now appears in one step.",
+        ar: "جعلنا صفحة «صمّم بنفسك» أسرع وأكثر سلاسة: صور الأمثلة والأنماط لا تُحمَّل إلا حين توشك أن تظهر وصارت أصغر بكثير، ويتناسب النص مع المعاينة دون أن يقفز، وتظهر الصفحة الآن دفعة واحدة.",
+      },
+    ],
+  },
+  {
     date: "2026-11-02",
     entries: [
       {

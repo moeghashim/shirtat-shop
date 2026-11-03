@@ -230,8 +230,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Design your own", ar: "صمّم بنفسك" },
     status: "done",
     summary: {
-      en: "Customers order a T-shirt, hoodie or mug with their own text in Arabic calligraphy, picking a style and a ready-made sentence or typing their own, linked from the homepage.",
-      ar: "يطلب العملاء تيشيرتًا أو هوديًا أو كوبًا بنصّهم الخاص بالخط العربي، باختيار نمط وجملة جاهزة أو كتابة جملتهم، مع رابط من الصفحة الرئيسية.",
+      en: "Customers order a T-shirt, hoodie or mug with their own text in Arabic calligraphy, picking a style and a ready-made sentence or typing their own, linked from the homepage. The page follows the product-page layout, with a large preview that stays in view on desktop and mobile.",
+      ar: "يطلب العملاء تيشيرتًا أو هوديًا أو كوبًا بنصّهم الخاص بالخط العربي، باختيار نمط وجملة جاهزة أو كتابة جملتهم، مع رابط من الصفحة الرئيسية. وتتبع الصفحة تخطيط صفحات المنتجات، بمعاينة كبيرة تبقى ظاهرة على سطح المكتب والجوال.",
     },
   },
   {
@@ -288,6 +288,30 @@ export const roadmapPhases: RoadmapPhase[] = [
     summary: {
       en: "Working with affiliates and influencers to bring new customers to Shirtat.",
       ar: "العمل مع الشركاء والمؤثرين لجلب عملاء جدد إلى شيرتات.",
+    },
+  },
+  {
+    title: { en: "Arabic website", ar: "الموقع بالعربية" },
+    status: "done",
+    summary: {
+      en: "A full right-to-left Arabic version of every page at shirtat.co/ar, with a language switch in the header.",
+      ar: "نسخة عربية كاملة من اليمين إلى اليسار لكل صفحة على shirtat.co/ar، مع زر لتبديل اللغة في أعلى الصفحة.",
+    },
+  },
+  {
+    title: { en: "New designs every day", ar: "تصاميم جديدة كل يوم" },
+    status: "next",
+    summary: {
+      en: "Many new designs added daily across every category, such as humour from different cultures, with more product styles like stylish tees and jackets, so there is always something new.",
+      ar: "إضافة تصاميم جديدة كثيرة يوميًا في كل الأقسام، مثل الفكاهة من ثقافات مختلفة، مع أنواع منتجات أكثر كالتيشيرتات الأنيقة والجاكيتات، ليكون هناك دائمًا ما هو جديد.",
+    },
+  },
+  {
+    title: { en: "Launch posts and videos", ar: "منشورات وفيديوهات الإطلاق" },
+    status: "next",
+    summary: {
+      en: "Every new product announced on each Shirtat social channel with a post and a creative product video.",
+      ar: "الإعلان عن كل منتج جديد على كل حسابات شيرتات في وسائل التواصل بمنشور وفيديو إبداعي للمنتج.",
     },
   },
 ];
