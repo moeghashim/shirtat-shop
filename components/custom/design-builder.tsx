@@ -725,17 +725,23 @@ function FitText({
     const box = boxRef.current;
     const span = spanRef.current;
     if (!box || !span) return;
-    const fit = () => {
+    const range = document.createRange();
+    range.selectNodeContents(span);
+    let seen = "";
+    const fit = (force: boolean) => {
       const maxH = box.clientHeight;
       const maxW = box.clientWidth;
+      // A preview hidden at this screen size has nothing to fit.
+      if (!maxH || !maxW) return;
+      const key = `${maxW}x${maxH}`;
+      if (!force && key === seen) return;
+      seen = key;
       let lo = 8;
       let hi = Math.max(8, maxH * 0.8);
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 8; i++) {
         const mid = (lo + hi) / 2;
         span.style.fontSize = `${mid}px`;
         // The text range reports glyph extents on both sides; scrollWidth misses overflow on the start edge of RTL text.
-        const range = document.createRange();
-        range.selectNodeContents(span);
         const extent = range.getBoundingClientRect();
         if (extent.height <= maxH + 0.5 && extent.width <= maxW + 0.5) lo = mid;
         else hi = mid;
@@ -743,13 +749,14 @@ function FitText({
       span.style.fontSize = `${lo}px`;
       setSize(Math.floor(lo));
     };
-    fit();
-    const ro = new ResizeObserver(fit);
+    fit(true);
+    const ro = new ResizeObserver(() => fit(false));
     ro.observe(box);
-    document.fonts?.addEventListener("loadingdone", fit);
+    const onFonts = () => fit(true);
+    document.fonts?.addEventListener("loadingdone", onFonts);
     return () => {
       ro.disconnect();
-      document.fonts?.removeEventListener("loadingdone", fit);
+      document.fonts?.removeEventListener("loadingdone", onFonts);
     };
   }, [content, fontKey]);
 
