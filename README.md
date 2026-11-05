@@ -19,7 +19,7 @@ Contact: **shirtat@10claws.com**
 - **Print on demand**: each product carries POD metafields (POD company, POD product ID, design file link, production instructions).
   On Shopify `orders/paid` (`/api/webhooks/shopify`), line items are grouped by POD company. Printify items are placed automatically when `PRINTIFY_ENABLED=1`; anything else emails ops with the design file and instructions, and the outcome is noted on the order.
   Prices are POD cost × 3, rounded up to .99, in USD.
-- **Shopping assistant**: an AI chat panel that searches the catalogue, shows product cards, adds to cart and answers shipping/returns/policy questions in the shopper's language.
+- **Shopping assistant**: an AI chat panel that searches the catalogue, shows product cards, adds to cart and answers shipping/returns/policy questions in the shopper's language. See [Shopping assistant](#shopping-assistant).
 - **SEO and sharing**: per-locale Open Graph/Twitter images (`public/og/en.png`, `public/og/ar.png`), product pages share the product image.
 - Shipping to every country our print-on-demand partners cover.
 
@@ -69,6 +69,22 @@ When a custom order is paid, `lib/custom/order.ts` tags it `custom:pending` (bes
 5. Check the order in Printify, then add the `approve-pod` tag to the Shopify order.
 
 The script needs `PRINTIFY_API_TOKEN`, `CUSTOM_ORDER_TOKEN` and the Shopify Admin client id and secret (read from `~/.secrets/shirtat-shopify.env` and `~/.secrets/custom-order.env`). Run `node scripts/custom-order.mjs --help` for the options.
+
+## Shopping assistant
+
+The panel is the existing Eve session at `/eve/v1/session`. A reply is an OpenUI program rendered with the storefront's product cards, the size and color picker, and the live cart. Prices and stock come from the tool result, not from the model's text. Checkout is the cart's own button and opens Shopify. The chat does not collect payment, card, or account details.
+
+Custom calligraphy lines keep their `Text`, `Style`, `Preset`, and `Fit` properties. The assistant does not invent those values and sends the shopper to the product page to design one. Prices stay POD cost × 3, rounded up to .99, with no personalization fee.
+
+Native Shopify WebMCP loads only in a browser that exposes the model-context API, and it uses Hydrogen's cart handlers. Ordinary browsers do not load that script, Shopify's privacy banner, or the analytics bus. The storefront cart and `standard-actions.js` stay in place.
+
+External agents keep using the Shopify-generated profile at `/.well-known/ucp`. The on-page assistant does not open a second cart through that profile.
+
+Cost controls live in the deployment, not as a per-session token cap:
+
+- Leave `shopConfig.botid.isEnabled` off until BotID is configured in the Vercel project. Turning it on checks `/eve/v1/session`.
+- Add a Vercel Firewall rate limit on `POST /eve/v1/session`.
+- Set an AI Gateway spending cap for the Eve model. Compaction already bounds context.
 
 ## Making-of log and roadmap (English and Arabic)
 

@@ -2,6 +2,7 @@ import { defineTool } from "eve/tools";
 import { z } from "zod";
 
 import { toAgentProductDetails } from "../../lib/agent/products";
+import { isCustomDesignHandle } from "../../lib/custom/products";
 import { fetchProductWithVariants } from "../../lib/shopify/operations/products/server";
 import { productHandleSchema, toModelProductDetails } from "../lib/catalog";
 
@@ -11,7 +12,14 @@ export default defineTool({
   inputSchema: z.strictObject({ handle: productHandleSchema }),
   execute: async ({ handle }) => {
     const product = await fetchProductWithVariants({ handle });
-    return product ? { product: toAgentProductDetails(product) } : { error: "Product not found." };
+    return product
+      ? {
+          product: {
+            ...toAgentProductDetails(product),
+            customDesign: isCustomDesignHandle(product.handle),
+          },
+        }
+      : { error: "Product not found." };
   },
   toModelOutput: toModelProductDetails,
 });

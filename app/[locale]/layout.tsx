@@ -9,16 +9,20 @@ import { ActionBar } from "@/components/action-bar";
 import { AgentButton } from "@/components/agent/agent-button";
 import { AnalyticsComponents } from "@/components/analytics";
 import { GoogleTag } from "@/components/analytics/google-tag";
-import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/google-tag-manager";
+import {
+  GoogleTagManager,
+  GoogleTagManagerNoScript,
+} from "@/components/analytics/google-tag-manager";
 import { CartUI } from "@/components/cart/cart-ui";
 import { CartProviderWrapper } from "@/components/cart/context";
 import { CartStandardActionsScript } from "@/components/cart/standard-actions";
 import { Footer } from "@/components/footer";
 import { Nav } from "@/components/nav";
 import { SiteSchema } from "@/components/schema/site-schema";
+import { WebMcp } from "@/components/shopify/webmcp";
 import { botIdProtectedRoutes } from "@/lib/botid";
 import { seedCartData } from "@/lib/cart/server";
-import { shopConfig } from "@/lib/config";
+import { isShopifyScriptsEnabled, shopConfig } from "@/lib/config";
 import { locales, localeDir, translate } from "@/lib/i18n";
 import { LocaleProvider } from "@/lib/i18n/client";
 import { getLocale } from "@/lib/i18n/server";
@@ -87,6 +91,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
             <Suspense>
               <AnalyticsComponents />
             </Suspense>
+            {shopConfig.shopify.webmcp.isEnabled && !isShopifyScriptsEnabled ? <WebMcp /> : null}
           </CartProviderWrapper>
         </LocaleProvider>
         <GoogleTag />

@@ -201,6 +201,50 @@ const GET_PRODUCT_VARIANT_BY_SELECTED_OPTIONS_QUERY = gql(
   [PURCHASABLE_PRODUCT_VARIANT_FRAGMENT],
 );
 
+const GET_VARIANT_FOR_CART_QUERY = gql(
+  `#graphql
+  query getVariantForCart($id: ID!, $country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
+    node(id: $id) {
+      __typename
+      ... on ProductVariant {
+        sku
+        product {
+          tags
+        }
+        ...PurchasableProductVariantFields
+      }
+    }
+  }
+`,
+  [PURCHASABLE_PRODUCT_VARIANT_FRAGMENT],
+);
+
+export async function fetchVariantForCart({
+  id,
+  locale = shopConfig.localization,
+}: {
+  id: string;
+  locale?: CommerceLocale;
+}) {
+  const response = await storefront.request(GET_VARIANT_FOR_CART_QUERY, {
+    locale,
+    variables: { id },
+  });
+  assertStorefrontOk(response, "getVariantForCart");
+  const { node } = response.data;
+  if (!node || node.__typename !== "ProductVariant") return undefined;
+  const variant = transformVariant(node);
+  return {
+    availableForSale: variant.availableForSale,
+    handle: variant.productHandle,
+    id: variant.id,
+    requiresComponents: variant.requiresComponents,
+    requiresSellingPlan: variant.requiresSellingPlan,
+    sku: node.sku,
+    tags: node.product.tags,
+  };
+}
+
 // Exact match: unlike fetchProductVariant, a combination the product does not have returns no variant.
 export async function fetchProductVariantBySelectedOptions({
   handle,

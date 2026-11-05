@@ -34,13 +34,21 @@ Catalog search, live availability, carts, and checkout come from Shopify through
 - [UCP profile](${url}/.well-known/ucp): Supported UCP versions, capabilities, and payment handlers.
 - UCP MCP endpoint: \`POST ${url}/api/ucp/mcp\` with JSON-RPC; call \`tools/list\` for tools and schemas.
 
-1. Find products with \`search_catalog\`, then get exact pricing, variants, and real-time availability with \`get_product\` or \`lookup_catalog\`.
-2. Build a cart with \`create_cart\` and \`update_cart\`.
-3. Create a checkout with \`create_checkout\`, then set the shipping address and method with \`update_checkout\`.
-4. Call \`complete_checkout\` only after the shopper explicitly approves the payment.
-5. Track the order with \`get_order\`.
+\`tools/list\` on that endpoint currently returns:
 
-Every call requires \`meta.ucp-agent.profile\`, your agent's UCP profile URL. Pass the shopper's \`address_country\` and \`currency\` in \`context\` for accurate prices and availability. Back off when the endpoint returns \`429\`.
+- Catalog: \`search_catalog\`, \`lookup_catalog\`, \`get_product\`
+- Cart: \`create_cart\`, \`get_cart\`, \`update_cart\`, \`cancel_cart\`
+- Checkout: \`create_checkout\`, \`get_checkout\`, \`update_checkout\`, \`complete_checkout\`, \`cancel_checkout\`
+- Orders: \`get_order\`
+- Questions: \`ask_business\` for what the store sells, its policies, or its services
+
+1. Find products with \`search_catalog\`. Prices in tool results are integers in ISO 4217 minor units. Get exact variants and real-time availability with \`get_product\`, or resolve several ids with \`lookup_catalog\`.
+2. Build a cart with \`create_cart\`. Read it with \`get_cart\`, replace it with \`update_cart\`, or discard it with \`cancel_cart\`. \`update_cart\` replaces the cart you send; read the cart first and send the full next state.
+3. Start checkout with \`create_checkout\`. Read it with \`get_checkout\`. \`update_checkout\` replaces the checkout payload, including line items, buyer, and fulfillment; omitted fields are removed. Pass the checkout id at the top level, beside \`checkout\`.
+4. Call \`complete_checkout\` only after the shopper explicitly approves the purchase. If the result requires the shopper to continue on Shopify, send them to that continue URL. Never collect card numbers, wallets, or account credentials in your own form.
+5. Track an order with \`get_order\`. Cancel an unwanted checkout with \`cancel_checkout\`.
+
+Every call requires \`meta.ucp-agent.profile\`, your agent's UCP profile URL. Pass the shopper's \`address_country\`, BCP 47 \`language\`, and \`currency\` in \`context\` for accurate prices and availability. The profile served at \`/.well-known/ucp\` is Shopify's, including its endpoint and payment handlers. Back off when the endpoint returns \`429\`.
 
 ## Policies
 

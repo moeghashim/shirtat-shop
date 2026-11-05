@@ -29,6 +29,7 @@ export interface AgentVariant {
 }
 
 export interface AgentProductDetails extends AgentProduct {
+  customDesign?: boolean;
   description: string;
   images: string[];
   options: { name: string; values: AgentOptionValue[] }[];
