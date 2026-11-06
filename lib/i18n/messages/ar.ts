@@ -109,6 +109,7 @@ export const ar = {
   "Try again": "حاول مجددًا",
   "Updating…": "جارٍ التحديث…",
   "View All": "عرض الكل",
+  "View product": "عرض المنتج",
   "View this collection": "عرض هذه المجموعة",
   "Words worth wearing": "كلمات تستحق أن تُرتدى",
   "Write a personal note (optional)": "اكتب رسالة شخصية (اختياري)",
