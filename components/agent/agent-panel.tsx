@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { setAgentCartStatus, useAgentCartPending } from "@/lib/agent/cart/client";
 import { readStoredChat, writeStoredChat } from "@/lib/agent/chat/client";
+import { useT } from "@/lib/i18n/client";
 
 import { AgentCartBridge } from "./cart-bridge";
 import { ChatMessage } from "./chat-message";
@@ -38,6 +39,7 @@ export interface AgentPanelProps {
 }
 
 export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) {
+  const t = useT();
   const panelRef = useRef<HTMLDivElement>(null);
   const [stored] = useState(readStoredChat);
   // Idle stored sessions replay on first open; an interrupted turn resumes at once so its cart writes reconcile.
@@ -82,7 +84,11 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
       await prepareSession();
       return {
         ...turn,
-        clientContext: { pathname: location.pathname, search: location.search },
+        clientContext: {
+          locale: location.pathname === "/ar" || location.pathname.startsWith("/ar/") ? "ar" : "en",
+          pathname: location.pathname,
+          search: location.search,
+        },
         turnPolicy: "queue",
       };
     },
@@ -256,10 +262,10 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
         side="right"
       >
         <div className="flex h-16 shrink-0 items-center justify-between gap-2 px-2.5">
-          <SheetTitle className="font-normal text-xl leading-4">Shop Agent</SheetTitle>
+          <SheetTitle className="font-normal text-xl leading-4">{t("Shop Agent")}</SheetTitle>
           <div className="flex items-center gap-2.5">
             <button
-              aria-label="Clear chat"
+              aria-label={t("Clear chat")}
               className="flex cursor-pointer items-center justify-center text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
               disabled={clearing || (!messages.length && !input.trim() && !agent.session && !busy)}
               onClick={handleClear}
@@ -268,7 +274,7 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
               <Trash2Icon className="size-5" />
             </button>
             <SheetClose
-              aria-label="Close Shop Agent"
+              aria-label={t("Close Shop Agent")}
               className="flex cursor-pointer items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
             >
               <XIcon className="size-5" />
@@ -276,7 +282,7 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
           </div>
         </div>
         <SheetDescription className="sr-only">
-          Find products, ask store questions, and manage your cart.
+          {t("Find products, ask store questions, and manage your cart.")}
         </SheetDescription>
         <div
           ref={scrollRef}
@@ -303,9 +309,13 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
             {messages.length === 0
               ? restoring
                 ? showRestoring && (
-                    <p className="text-muted-foreground text-sm">Restoring your conversation…</p>
+                    <p className="text-muted-foreground text-sm">
+                      {t("Restoring your conversation…")}
+                    </p>
                   )
-                : !awaitingReply && <p className="text-foreground text-sm">Hi, how can I help?</p>
+                : !awaitingReply && (
+                    <p className="text-foreground text-sm">{t("Hi, how can I help?")}</p>
+                  )
               : messages.map((message, index) => (
                   <ChatMessage
                     key={message.id}
@@ -314,6 +324,7 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
                       status === "streaming" && !hasReachedLimit && index === messages.length - 1
                     }
                     message={message}
+                    onFollowUp={handleSend}
                   />
                 ))}
             {awaitingReply && <AgentThinking active />}
@@ -321,14 +332,12 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
         </div>
         {(clearing || (showRestoring && messages.length > 0)) && (
           <p role="status" className="px-2.5 py-2 text-muted-foreground text-xs">
-            {clearing
-              ? "Waiting for the response to stop…"
-              : "Restoring your conversation… Clear chat to start fresh."}
+            {clearing ? t("Waiting for the response to stop…") : t("Restoring your conversation…")}
           </p>
         )}
         {hasReachedLimit && (
           <p role="alert" className="px-2.5 py-2 text-muted-foreground text-xs">
-            This conversation has reached its limit. Clear chat to start a new conversation.
+            {t("This conversation has reached its limit. Clear chat to start a new conversation.")}
           </p>
         )}
         <AgentCartBridge messages={messages} status={status} />
@@ -340,7 +349,7 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
           }}
           onStop={handleStop}
           onSubmit={handleSend}
-          placeholder="Ask anything…"
+          placeholder={t("Ask anything…")}
           status={
             dispatching
               ? "submitted"
@@ -355,7 +364,7 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
         {(error || controlError) && (
           <p role="alert" className="px-2.5 pb-2 text-red-500 text-xs">
             {controlError ??
-              "The assistant is unavailable. Try again, or clear an expired conversation."}
+              t("The assistant is unavailable. Try again, or clear an expired conversation.")}
           </p>
         )}
       </SheetContent>

@@ -6,7 +6,9 @@ import { defaultUrlTransform, Streamdown, type UrlTransform } from "streamdown";
 
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { getCartMutationResult } from "@/lib/agent/cart";
+import { useT } from "@/lib/i18n/client";
 
+import { OpenUiMessage, openUiSource } from "./openui";
 import { ShoppingResults } from "./shopping-results";
 import { AgentThinking } from "./thinking";
 
@@ -32,12 +34,16 @@ export function ChatMessage({
   isLatest,
   isStreaming,
   message,
+  onFollowUp,
 }: {
   isLatest: boolean;
   isStreaming: boolean;
   message: EveMessage;
+  onFollowUp: (text: string) => void;
 }) {
+  const t = useT();
   const text = message.parts.flatMap((part) => (part.type === "text" ? [part.text] : [])).join("");
+  const program = message.role === "assistant" ? openUiSource(text) : null;
   if (message.role === "user")
     return text ? (
       <div className="flex justify-end">
@@ -69,18 +75,29 @@ export function ChatMessage({
         active={isStreaming && !text}
         tool={active?.type === "dynamic-tool" ? active.toolName : undefined}
       />
-      {text && <Markdown>{text}</Markdown>}
-      <ShoppingResults
-        confirmation={showsLiveCart ? { warnings } : undefined}
-        fallback={
-          isLatest && !isStreaming && !text && !waitsForInput ? (
-            <p className="text-muted-foreground">No response. Try asking again.</p>
-          ) : null
-        }
-        isLatest={isLatest}
-        isStreaming={isStreaming}
-        message={message}
-      />
+      {program ? (
+        <OpenUiMessage
+          isStreaming={isStreaming}
+          message={message}
+          onFollowUp={onFollowUp}
+          program={program}
+        />
+      ) : (
+        text && <Markdown>{text}</Markdown>
+      )}
+      {program ? null : (
+        <ShoppingResults
+          confirmation={showsLiveCart ? { warnings } : undefined}
+          fallback={
+            isLatest && !isStreaming && !text && !waitsForInput ? (
+              <p className="text-muted-foreground">{t("No response. Try asking again.")}</p>
+            ) : null
+          }
+          isLatest={isLatest}
+          isStreaming={isStreaming}
+          message={message}
+        />
+      )}
     </div>
   );
 }

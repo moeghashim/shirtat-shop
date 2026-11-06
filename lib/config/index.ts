@@ -6,7 +6,7 @@ const defaultUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 export const shopConfig = {
   agent: {
-    isEnabled: false,
+    isEnabled: true,
   },
   analytics: {
     shopify: {
@@ -62,17 +62,18 @@ export const shopConfig = {
   },
   shopify: {
     webmcp: {
-      isEnabled: false,
+      isEnabled: true,
     },
   },
   site: {
-    description: "Arabic calligraphy apparel: T-shirts, hoodies, sweatshirts, totes and prints with Arabic poetry, humor and culture.",
+    description:
+      "Arabic calligraphy apparel: T-shirts, hoodies, sweatshirts, totes and prints with Arabic poetry, humor and culture.",
     name: "Shirtat",
     url: defaultUrl,
   },
 } satisfies ShopConfig;
 
+// WebMCP loads on its own, and only in browsers that expose the model-context API.
+// Folding it into this flag would also load Shopify's privacy banner and analytics bus.
 export const isShopifyScriptsEnabled =
-  shopConfig.analytics.shopify.isEnabled ||
-  shopConfig.analytics.shopify.consent.isEnabled ||
-  shopConfig.shopify.webmcp.isEnabled;
+  shopConfig.analytics.shopify.isEnabled || shopConfig.analytics.shopify.consent.isEnabled;

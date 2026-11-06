@@ -6,6 +6,12 @@ import regions from "./regions.json";
 export const CUSTOM_TEE_HANDLE = "custom-calligraphy-t-shirt";
 export const CUSTOM_HOODIE_HANDLE = "custom-calligraphy-hoodie";
 export const CUSTOM_MUG_HANDLE = "custom-calligraphy-mug";
+
+export function isCustomDesignHandle(handle: string) {
+  return (
+    handle === CUSTOM_TEE_HANDLE || handle === CUSTOM_HOODIE_HANDLE || handle === CUSTOM_MUG_HANDLE
+  );
+}
 export const CUSTOM_TAG = "custom-design";
 export const CUSTOM_SKU_PREFIX = "CUS-";
 

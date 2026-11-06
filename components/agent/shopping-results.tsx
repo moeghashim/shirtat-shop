@@ -29,6 +29,7 @@ import {
 } from "@/lib/agent/products";
 import type { AgentProduct, AgentProductDetails } from "@/lib/agent/products/types";
 import { useCart, useCartForm } from "@/lib/cart/client";
+import { useT } from "@/lib/i18n/client";
 import { buildProductUrl } from "@/lib/product";
 
 interface CartConfirmation {
@@ -156,7 +157,8 @@ interface AgentCartSummaryProps {
   warnings?: string[];
 }
 
-function AgentCartSummary({ warnings = [] }: AgentCartSummaryProps) {
+export function AgentCartSummary({ warnings = [] }: AgentCartSummaryProps) {
+  const t = useT();
   const cart = useCart((state) => state.data);
   const isLoading = useCart((state) => state.loading);
   const ref = useRef<HTMLDivElement>(null);
@@ -167,10 +169,10 @@ function AgentCartSummary({ warnings = [] }: AgentCartSummaryProps) {
     return (
       <div className="my-2 flex items-center gap-2.5 text-muted-foreground text-xs" role="status">
         <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-        Loading cart…
+        {t("Loading cart…")}
       </div>
     );
-  if (cart.lines.nodes.length === 0) return <MissingData>Your cart is empty</MissingData>;
+  if (cart.lines.nodes.length === 0) return <MissingData>{t("Your cart is empty")}</MissingData>;
   return (
     <div ref={ref} className="my-2 grid gap-5 rounded-lg border p-2.5">
       {warnings.length > 0 && (
@@ -185,7 +187,7 @@ function AgentCartSummary({ warnings = [] }: AgentCartSummaryProps) {
       <CartLineItems lines={cart.lines.nodes} />
       <CartTotal cart={cart} />
       <CartCheckout />
-      <span className="sr-only">This cart updates as you change it.</span>
+      <span className="sr-only">{t("This cart updates as you change it.")}</span>
     </div>
   );
 }
@@ -195,10 +197,11 @@ interface AgentProductCardProps {
 }
 
 function AgentProductCard({ product }: AgentProductCardProps) {
+  const t = useT();
   if (!product)
     return (
       <SliderItem>
-        <MissingData>This product is no longer available.</MissingData>
+        <MissingData>{t("This product is no longer available.")}</MissingData>
       </SliderItem>
     );
   return (
@@ -209,7 +212,7 @@ function AgentProductCard({ product }: AgentProductCardProps) {
             <ProductCardImage
               alt={product.title}
               outOfStock={!product.available}
-              outOfStockText="Out of Stock"
+              outOfStockText={t("Out of Stock")}
               src={product.image}
             />
             <ProductCardContent>
@@ -234,6 +237,7 @@ interface AgentVariantPickerProps {
 }
 
 function AgentVariantPicker({ isLatest, product }: AgentVariantPickerProps) {
+  const t = useT();
   const { formProps, register } = useCartForm();
   const cartBusy = useCart((state) =>
     Boolean(state.pending.lines.size || state.pending.cost || state.revalidating),
@@ -258,21 +262,22 @@ function AgentVariantPicker({ isLatest, product }: AgentVariantPickerProps) {
       cartErrors.networkUpdatedAt > errorsAtSubmit.network;
     setResult(failed ? "failed" : "added");
   }, [cartBusy, cartErrors, errorsAtSubmit, submitted]);
-  if (!product) return <MissingData>This product is no longer available.</MissingData>;
+  if (!product) return <MissingData>{t("This product is no longer available.")}</MissingData>;
   const variant = findAgentVariant(product, selected);
   const price = variant?.price ?? product.price;
   const compareAtPrice = variant ? variant.compareAtPrice : product.compareAtPrice;
   const choosePlan = variant?.available && variant.requiresSellingPlan;
   const canAdd = variant?.available && !variant.requiresBundleConfiguration && !submitted;
+  const customDesign = product.customDesign === true;
   const buttonText = submitted
-    ? "Adding to Cart..."
-    : !variant
-      ? "Add to Cart"
-      : !variant.available
-        ? "Out of Stock"
-        : variant.requiresBundleConfiguration
-          ? "Choose bundle items"
-          : "Add to Cart";
+    ? t("Adding…")
+    : !variant || variant.available
+      ? customDesign
+        ? t("Design this on the product page")
+        : variant?.requiresBundleConfiguration
+          ? t("Choose bundle items")
+          : t("Add to Cart")
+      : t("Out of Stock");
   return (
     <>
       <div className="my-2 overflow-hidden rounded-lg border">
@@ -313,12 +318,16 @@ function AgentVariantPicker({ isLatest, product }: AgentVariantPickerProps) {
             }
             options={toAgentOptionGroups(product, selected)}
           />
-          {choosePlan ? (
+          {customDesign ? (
+            <Button className="w-full" render={<Link href={`/products/${product.handle}`} />}>
+              {t("Design this on the product page")}
+            </Button>
+          ) : choosePlan ? (
             <Button
               className="w-full"
               render={<Link href={buildProductUrl(product.handle, variant.options)} />}
             >
-              Choose a subscription
+              {t("Choose a subscription")}
             </Button>
           ) : (
             <form
@@ -345,7 +354,7 @@ function AgentVariantPicker({ isLatest, product }: AgentVariantPickerProps) {
       {result === "added" && isLatest && <AgentCartSummary />}
       {result === "failed" && (
         <p role="alert" className="text-red-500 text-xs">
-          We couldn't add this to your cart. Check the cart before trying again.
+          {t("We couldn't add this to your cart. Check the cart before trying again.")}
         </p>
       )}
     </>

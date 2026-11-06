@@ -27,6 +27,7 @@ export function toModelProductDetails(
     value: {
       product: {
         ...toModelProduct(output.product),
+        ...(output.product.customDesign ? { customDesign: true } : {}),
         description,
         options: options.map((option) => ({
           name: option.name,

@@ -1,22 +1,17 @@
 "use client";
 
 import { MessageCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+
+import { useT } from "@/lib/i18n/client";
 
 import { AgentPanel } from "./client";
 
 export function AgentButton() {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  // Mount the drawer closed once the page is idle so the first open is a plain slide-in.
-  useEffect(() => {
-    const idle =
-      window.requestIdleCallback ?? ((callback: () => void) => setTimeout(callback, 200));
-    const cancel = window.cancelIdleCallback ?? clearTimeout;
-    const handle = idle(() => setMounted(true));
-    return () => cancel(handle as number);
-  }, []);
   return (
     <>
       <button
@@ -30,7 +25,7 @@ export function AgentButton() {
         type="button"
       >
         <MessageCircle className="size-4 text-primary" />
-        <span className="sr-only">Open Shop Agent</span>
+        <span className="sr-only">{t("Open Shop Agent")}</span>
       </button>
       {mounted && <AgentPanel onOpenChange={setOpen} open={open} triggerRef={triggerRef} />}
     </>
