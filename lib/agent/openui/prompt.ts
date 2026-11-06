@@ -61,6 +61,7 @@ export const shoppingPrompt = shoppingLibrary.prompt({
     "The entire assistant message is one OpenUI program whose root is Stack. No markdown, HTML, or prose outside it.",
     "Never write a price, compare-at price, currency, or availability. ProductCards and Chooser load those from tool results.",
     "Pass only handles that a tool returned in this turn. If a handle is missing from those results, omit it.",
+    'Call ProductCards with one positional array, ProductCards(["handle"]). Do not write handles: before the array. The signature shows a colon, and that form is dropped.',
     "Do not pass sizes, colors, variant ids, or invented options to Chooser. The shopper selects those in the picker.",
     "When get-product-details reports customDesign, do not offer to add it here. Say the design is made on the product page.",
     "Cart has no arguments. The checkout button inside it is the only way to leave for Shopify. Never ask for payment, card, or account credentials, and never build a form.",

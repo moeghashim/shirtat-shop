@@ -131,6 +131,7 @@ export const ar = {
   "Ask anything…": "اسأل أي شيء…",
   "Arabic designs": "تصاميم عربية",
   "Browsing the collection…": "جارٍ تصفح المجموعة…",
+  "Captured stream fixture. Not a live model reply.": "بث محفوظ للتجربة. ليس ردًا حيًا من النموذج.",
   "Checking store policies…": "جارٍ مراجعة سياسات المتجر…",
   "Checking your cart…": "جارٍ مراجعة سلتك…",
   "Choose a subscription": "اختر اشتراكًا",

@@ -7,6 +7,7 @@ import { z } from "zod/v4";
 
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
+import { extraOpenUiCardHandles, showUnavailableCopy } from "@/lib/agent/openui/cards";
 import {
   cartProps,
   chooserProps,
@@ -25,6 +26,7 @@ import { AgentChooserBody, AgentProductCards } from "./product-view";
 import { AgentCartSummary } from "./shopping-results";
 
 const ShoppingFacts = createContext<Map<string, AgentProduct | AgentProductDetails>>(new Map());
+const ToolCardHandles = createContext<readonly string[]>([]);
 
 function isAgentProduct(value: unknown): value is AgentProduct | AgentProductDetails {
   return (
@@ -74,12 +76,16 @@ function NoteView({ text }: { text: string }) {
 function ProductCardsView({ handles }: { handles: string[] }) {
   const t = useT();
   const facts = useContext(ShoppingFacts);
-  const products = handles.flatMap((handle) => {
+  const toolHandles = useContext(ToolCardHandles);
+  const known = [...facts.keys()];
+  const products = extraOpenUiCardHandles(handles, toolHandles, known).flatMap((handle) => {
     const product = facts.get(handle);
     return product ? [product] : [];
   });
-  if (!products.length) return <Missing>{t("This product is no longer available.")}</Missing>;
-  return <AgentProductCards products={products} />;
+  if (products.length) return <AgentProductCards products={products} />;
+  if (showUnavailableCopy(handles, toolHandles, known))
+    return <Missing>{t("This product is no longer available.")}</Missing>;
+  return null;
 }
 
 function ChooserView({ handle }: { handle: string }) {
@@ -273,28 +279,32 @@ export function OpenUiMessage({
   message,
   onFollowUp,
   program,
+  toolHandles,
 }: {
   isStreaming: boolean;
   message: EveMessage;
   onFollowUp: (text: string) => void;
   program: string;
+  toolHandles: readonly string[];
 }) {
   const facts = factsFromMessage(message);
   return (
     <ShoppingFacts.Provider value={facts}>
-      <StreamingContext.Provider value={isStreaming}>
-        <Renderer
-          isStreaming={isStreaming}
-          library={shoppingLibrary}
-          onAction={(event) => {
-            if (isStreaming || event.type !== "continue_conversation") return;
-            const text = event.humanFriendlyMessage.trim();
-            if (text) onFollowUp(text);
-          }}
-          publishObservability={false}
-          response={program}
-        />
-      </StreamingContext.Provider>
+      <ToolCardHandles.Provider value={toolHandles}>
+        <StreamingContext.Provider value={isStreaming}>
+          <Renderer
+            isStreaming={isStreaming}
+            library={shoppingLibrary}
+            onAction={(event) => {
+              if (isStreaming || event.type !== "continue_conversation") return;
+              const text = event.humanFriendlyMessage.trim();
+              if (text) onFollowUp(text);
+            }}
+            publishObservability={false}
+            response={program}
+          />
+        </StreamingContext.Provider>
+      </ToolCardHandles.Provider>
     </ShoppingFacts.Provider>
   );
 }

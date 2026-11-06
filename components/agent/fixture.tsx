@@ -9,7 +9,7 @@ import { useLocale, useT } from "@/lib/i18n/client";
 
 import { AgentChooserBody, AgentProductCards } from "./product-view";
 
-const FIXTURES = ["welcome", "reply", "cards", "loading", "error", "cart"] as const;
+const FIXTURES = ["welcome", "reply", "cards", "cards-stay", "loading", "error", "cart"] as const;
 
 export type AgentFixtureName = (typeof FIXTURES)[number];
 

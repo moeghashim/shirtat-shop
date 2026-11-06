@@ -16,6 +16,10 @@ export const logDays: LogDay[] = [
     date: "2026-11-06",
     entries: [
       {
+        en: "A fix that keeps a product card on screen after the assistant finishes is in review and is not on the live site. A card the shop has already confirmed stays visible when the reply is incomplete or does not name the card in the form the renderer accepts. The assistant still cannot run its own code.",
+        ar: "إصلاح يُبقي بطاقة المنتج ظاهرة بعد أن ينتهي المساعد من الكتابة قيد المراجعة وليس على الموقع الحي. تبقى البطاقة التي أكدها المتجر ظاهرة إذا كان الرد ناقصًا أو لم يسمِّ البطاقة بالصيغة التي يقبلها العارض. ولا يستطيع المساعد تشغيل شفرة من عنده.",
+      },
+      {
         en: "The shopping assistant is on the site in English and Arabic. It shows product cards, a size and colour picker, and the cart, and checkout continues on Shopify. Browsers that expose Shopify's model-context tools load them; every other browser keeps the normal cart.",
         ar: "مساعد التسوق موجود على الموقع بالإنجليزية والعربية. يعرض بطاقات المنتجات واختيار المقاس واللون والسلة، ويُكمل الشراء على Shopify. المتصفحات التي تتيح أدوات سياق النموذج من Shopify تحمّلها، ويبقي غيرها السلة العادية.",
       },

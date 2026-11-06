@@ -27,6 +27,7 @@ interface ShoppingResultsProps {
   isLatest: boolean;
   isStreaming: boolean;
   message: EveMessage;
+  productCardsOnly?: boolean;
 }
 
 function isAgentProduct(value: unknown): value is AgentProduct | AgentProductDetails {
@@ -46,6 +47,7 @@ export function ShoppingResults({
   isLatest,
   isStreaming,
   message,
+  productCardsOnly = false,
 }: ShoppingResultsProps) {
   const products = new Map<string, AgentProduct | AgentProductDetails>();
   const results = message.parts.flatMap((part) => {
@@ -91,7 +93,7 @@ export function ShoppingResults({
         children.push(<AgentProductCards key={part.toolCallId} products={cards} />);
       }
     }
-    if (isStreaming || changesCart) continue;
+    if (productCardsOnly || isStreaming || changesCart) continue;
     if (
       part.toolName === "get-product-details" &&
       "product" in output &&
@@ -115,7 +117,7 @@ export function ShoppingResults({
     }
   }
   // Only the latest turn renders the editable cart; older turns rely on the assistant's text.
-  if (confirmation && !hasCart)
+  if (!productCardsOnly && confirmation && !hasCart)
     children.push(<AgentCartSummary key="cart" warnings={confirmation.warnings} />);
 
   return children.length ? <div className="grid gap-4">{children}</div> : fallback;
