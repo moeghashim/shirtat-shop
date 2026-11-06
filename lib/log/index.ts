@@ -13,6 +13,19 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-06",
+    entries: [
+      {
+        en: "The shopping assistant is on the site in English and Arabic. It shows product cards, a size and colour picker, and the cart, and checkout continues on Shopify. Browsers that expose Shopify's model-context tools load them; every other browser keeps the normal cart.",
+        ar: "مساعد التسوق موجود على الموقع بالإنجليزية والعربية. يعرض بطاقات المنتجات واختيار المقاس واللون والسلة، ويُكمل الشراء على Shopify. المتصفحات التي تتيح أدوات سياق النموذج من Shopify تحمّلها، ويبقي غيرها السلة العادية.",
+      },
+      {
+        en: "The assistant's model calls are switching from Vercel AI Gateway to OpenAI directly, still using gpt-6-luna-fast. That switch is not answering shoppers yet: replies stay off until a server-only OpenAI key is set, and the key never goes to the browser.",
+        ar: "نداءات نموذج المساعد تنتقل من Vercel AI Gateway إلى OpenAI مباشرة، مع الإبقاء على النموذج gpt-6-luna-fast. هذا الانتقال لا يجيب المتسوقين بعد: تبقى الردود متوقفة إلى أن يُضبط مفتاح OpenAI على الخادم فقط، والمفتاح لا يصل إلى المتصفح أبدًا.",
+      },
+    ],
+  },
+  {
     date: "2026-11-03",
     entries: [
       {

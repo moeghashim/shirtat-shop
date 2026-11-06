@@ -195,6 +195,14 @@ export const roadmapPhases: RoadmapPhase[] = [
     },
   },
   {
+    title: { en: "Shopping assistant", ar: "مساعد التسوق" },
+    status: "in-progress",
+    summary: {
+      en: "A shopping chat in English and Arabic is on the site, with product cards, the cart, and Shopify checkout. Model replies are moving from Vercel AI Gateway to OpenAI directly and stay off until the server key is set.",
+      ar: "دردشة تسوّق بالإنجليزية والعربية موجودة على الموقع، مع بطاقات المنتجات والسلة وإتمام الشراء على Shopify. تنتقل ردود النموذج من Vercel AI Gateway إلى OpenAI مباشرة وتبقى متوقفة إلى أن يُضبط مفتاح الخادم.",
+    },
+  },
+  {
     title: { en: "Customer support", ar: "دعم العملاء" },
     status: "in-progress",
     summary: {
