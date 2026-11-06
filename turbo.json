@@ -3,6 +3,7 @@
   "globalDependencies": [".env*"],
   "globalEnv": [
     "AGENTMAIL_API_KEY",
+    "CHAT_REVIEW_CAPTURE",
     "CUSTOM_ORDER_TOKEN",
     "CUSTOMER_ACCOUNT_SESSION_SECRET",
     "DEBUG_SHOPIFY",

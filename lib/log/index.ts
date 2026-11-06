@@ -20,12 +20,16 @@ export const logDays: LogDay[] = [
         ar: "مساعد التسوق موجود على الموقع بالإنجليزية والعربية. يعرض بطاقات المنتجات واختيار المقاس واللون والسلة، ويُكمل الشراء على Shopify. المتصفحات التي تتيح أدوات سياق النموذج من Shopify تحمّلها، ويبقي غيرها السلة العادية.",
       },
       {
-        en: "The assistant calls OpenAI directly. The live site asked for gpt-6-luna-fast, and OpenAI answered that this model was not found, so no shopper reply has succeeded. A review build asks for gpt-6-luna with medium reasoning instead. The key stays on the server and never goes to the browser.",
-        ar: "ينادي المساعد OpenAI مباشرة. طلب الموقع الحي النموذج gpt-6-luna-fast، فأجاب OpenAI بأن هذا النموذج غير موجود، فلم ينجح أي رد للمتسوق. تطلب نسخة المراجعة gpt-6-luna بجهد تفكير متوسط بدلًا من ذلك. يبقى المفتاح على الخادم ولا يصل إلى المتصفح.",
+        en: "The assistant calls OpenAI directly as gpt-6-luna with medium reasoning. Replies in English and Arabic are live. The key stays on the server and never goes to the browser.",
+        ar: "ينادي المساعد OpenAI مباشرة بالنموذج gpt-6-luna وبجهد تفكير متوسط. الردود بالإنجليزية والعربية تعمل على الموقع الحي. يبقى المفتاح على الخادم ولا يصل إلى المتصفح.",
       },
       {
-        en: "A calmer layout for the shopping assistant is in review and is not on the live site yet: a warm paper panel, shopper notes in small bubbles, and larger product photos.",
-        ar: "تخطيط أهدأ لمساعد التسوق قيد المراجعة وليس على الموقع الحي بعد: لوحة بلون الورق الدافئ، وملاحظات المتسوق في فقاعات صغيرة، وصور منتجات أكبر.",
+        en: "The shopping assistant uses a warm paper panel, with shopper notes in small bubbles and larger product photos.",
+        ar: "يستخدم مساعد التسوق لوحة بلون الورق الدافئ، وملاحظات المتسوق في فقاعات صغيرة، وصور منتجات أكبر.",
+      },
+      {
+        en: "An owner-only review of shopping chats is in review and is not on the live site. It can freeze one turn, record what should have happened, and export pass/fail checks. It does not train the model. Automatic copies of every chat stay off until the owner turns them on.",
+        ar: "مراجعة محادثات التسوق لصاحب المتجر فقط قيد المراجعة وليست على الموقع الحي. يمكنها تثبيت دورة واحدة، وتسجيل ما كان ينبغي أن يحدث، وتصدير فحوص النجاح والفشل. وهي لا تدرّب النموذج. تبقى النسخ التلقائية لكل محادثة متوقفة إلى أن يفعّلها صاحب المتجر.",
       },
     ],
   },

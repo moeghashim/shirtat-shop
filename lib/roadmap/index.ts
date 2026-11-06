@@ -198,8 +198,16 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Shopping assistant", ar: "مساعد التسوق" },
     status: "in-progress",
     summary: {
-      en: "A shopping chat in English and Arabic is on the site, with product cards, the cart, and Shopify checkout, calling OpenAI directly. The live build still asks for gpt-6-luna-fast, which OpenAI does not serve, so replies have not succeeded. A review build uses gpt-6-luna with medium reasoning and a calmer layout; neither is live yet.",
-      ar: "دردشة تسوّق بالإنجليزية والعربية موجودة على الموقع، مع بطاقات المنتجات والسلة وإتمام الشراء على Shopify، وتنادي OpenAI مباشرة. ما زال البناء الحي يطلب gpt-6-luna-fast، وهو نموذج لا يقدّمه OpenAI، فلم تنجح الردود. تستخدم نسخة المراجعة gpt-6-luna بجهد تفكير متوسط وتخطيطًا أهدأ، وكلاهما ليس حيًا بعد.",
+      en: "A shopping chat in English and Arabic is on the site, with product cards, the cart, and Shopify checkout. It calls OpenAI directly as gpt-6-luna with medium reasoning, and replies are live.",
+      ar: "دردشة تسوّق بالإنجليزية والعربية موجودة على الموقع، مع بطاقات المنتجات والسلة وإتمام الشراء على Shopify. تنادي OpenAI مباشرة بالنموذج gpt-6-luna وبجهد تفكير متوسط، والردود تعمل على الموقع الحي.",
+    },
+  },
+  {
+    title: { en: "Chat review", ar: "مراجعة المحادثات" },
+    status: "in-progress",
+    summary: {
+      en: "An owner-only page for reading a shopping chat, freezing a turn, and exporting pass/fail checks is in review and is not live. Automatic copies of every chat stay off until the owner turns them on. The export does not train the model.",
+      ar: "صفحة لصاحب المتجر فقط لقراءة محادثة تسوّق وتثبيت دورة وتصدير فحوص النجاح والفشل قيد المراجعة وليست حيّة. تبقى النسخ التلقائية لكل محادثة متوقفة إلى أن يفعّلها صاحب المتجر. التصدير لا يدرّب النموذج.",
     },
   },
   {
