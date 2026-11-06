@@ -2,35 +2,20 @@
 
 import type { EveMessage } from "eve/react";
 import { Loader2 } from "lucide-react";
-import Image from "next/image";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { CartLineItems } from "@/components/cart/line-item";
 import { CartCheckout, CartTotal } from "@/components/cart/summary";
-import {
-  ProductCard,
-  ProductCardContent,
-  ProductCardImage,
-  ProductCardImageContainer,
-  ProductCardPrice,
-  ProductCardTitle,
-} from "@/components/product-card/components";
-import { ProductInfoOptions } from "@/components/product-detail/product-info";
 import { Button } from "@/components/ui/button";
-import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { Link } from "@/components/ui/link";
-import { Slider, SliderContent, SliderHeader, SliderItem, SliderNav } from "@/components/ui/slider";
 import { isCartMutation } from "@/lib/agent/cart";
-import {
-  defaultAgentSelection,
-  findAgentVariant,
-  selectAgentOption,
-  toAgentOptionGroups,
-} from "@/lib/agent/products";
+import { defaultAgentSelection, findAgentVariant, selectAgentOption } from "@/lib/agent/products";
 import type { AgentProduct, AgentProductDetails } from "@/lib/agent/products/types";
 import { useCart, useCartForm } from "@/lib/cart/client";
 import { useT } from "@/lib/i18n/client";
 import { buildProductUrl } from "@/lib/product";
+
+import { AgentChooserBody, AgentProductCards } from "./product-view";
 
 interface CartConfirmation {
   warnings: string[];
@@ -90,7 +75,7 @@ export function ShoppingResults({
       "products" in output &&
       Array.isArray(output.products)
     ) {
-      const cards = output.products.flatMap((product, index) => {
+      const cards = output.products.flatMap((product) => {
         if (
           !product ||
           typeof product !== "object" ||
@@ -99,24 +84,11 @@ export function ShoppingResults({
         )
           return [];
         seen.add(product.handle);
-        return [
-          <AgentProductCard
-            key={`${part.toolCallId}-${index}`}
-            product={products.get(product.handle)}
-          />,
-        ];
+        const known = products.get(product.handle);
+        return known ? [known] : [];
       });
       if (cards.length) {
-        children.push(
-          <Slider className="-mx-2.5 gap-2.5" key={part.toolCallId}>
-            <SliderHeader className="justify-end px-2.5">
-              <SliderNav />
-            </SliderHeader>
-            <SliderContent className="auto-cols-[calc((100%-0.625rem)/2)] gap-2.5 px-2.5 scroll-px-2.5">
-              {cards}
-            </SliderContent>
-          </Slider>,
-        );
+        children.push(<AgentProductCards key={part.toolCallId} products={cards} />);
       }
     }
     if (isStreaming || changesCart) continue;
@@ -174,7 +146,7 @@ export function AgentCartSummary({ warnings = [] }: AgentCartSummaryProps) {
     );
   if (cart.lines.nodes.length === 0) return <MissingData>{t("Your cart is empty")}</MissingData>;
   return (
-    <div ref={ref} className="my-2 grid gap-5 rounded-lg border p-2.5">
+    <div ref={ref} className="grid gap-5 rounded-[1.25rem] bg-[#efe6d2] p-4">
       {warnings.length > 0 && (
         <div className="grid gap-1">
           {warnings.map((warning) => (
@@ -189,45 +161,6 @@ export function AgentCartSummary({ warnings = [] }: AgentCartSummaryProps) {
       <CartCheckout />
       <span className="sr-only">{t("This cart updates as you change it.")}</span>
     </div>
-  );
-}
-
-interface AgentProductCardProps {
-  product: AgentProduct | undefined;
-}
-
-function AgentProductCard({ product }: AgentProductCardProps) {
-  const t = useT();
-  if (!product)
-    return (
-      <SliderItem>
-        <MissingData>{t("This product is no longer available.")}</MissingData>
-      </SliderItem>
-    );
-  return (
-    <SliderItem>
-      <Link href={`/products/${product.handle}`} className="block">
-        <ProductCard>
-          <ProductCardImageContainer>
-            <ProductCardImage
-              alt={product.title}
-              outOfStock={!product.available}
-              outOfStockText={t("Out of Stock")}
-              src={product.image}
-            />
-            <ProductCardContent>
-              <ProductCardTitle>{product.title}</ProductCardTitle>
-              <ProductCardPrice
-                amount={product.price.amount}
-                compareAtAmount={product.compareAtPrice?.amount}
-                compareAtCurrencyCode={product.compareAtPrice?.currencyCode}
-                currencyCode={product.price.currencyCode}
-              />
-            </ProductCardContent>
-          </ProductCardImageContainer>
-        </ProductCard>
-      </Link>
-    </SliderItem>
   );
 }
 
@@ -278,85 +211,56 @@ function AgentVariantPicker({ isLatest, product }: AgentVariantPickerProps) {
           ? t("Choose bundle items")
           : t("Add to Cart")
       : t("Out of Stock");
+  const action = customDesign ? (
+    <Button className="min-h-11 w-full" render={<Link href={`/products/${product.handle}`} />}>
+      {t("Design this on the product page")}
+    </Button>
+  ) : choosePlan && variant ? (
+    <Button
+      className="min-h-11 w-full"
+      render={<Link href={buildProductUrl(product.handle, variant.options)} />}
+    >
+      {t("Choose a subscription")}
+    </Button>
+  ) : (
+    <form
+      {...formProps({
+        beforeSubmit: () => {
+          setErrorsAtSubmit({
+            lines: cartErrors.linesUpdatedAt,
+            network: cartErrors.networkUpdatedAt,
+          });
+          setResult(null);
+          setSubmitted(true);
+        },
+      })}
+    >
+      <input type="hidden" {...register("merchandiseId", { value: variant?.id ?? "" })} />
+      <input type="hidden" {...register("quantity", { value: 1 })} />
+      <Button {...register("add")} className="min-h-11 w-full" disabled={!canAdd} type="submit">
+        {buttonText}
+      </Button>
+    </form>
+  );
   return (
-    <>
-      <div className="my-2 overflow-hidden rounded-lg border">
-        <div className="flex gap-2.5 border-b p-2.5">
-          <Link
-            href={`/products/${product.handle}`}
-            className="relative size-11 shrink-0 overflow-hidden rounded-md"
-          >
-            {product.image ? (
-              <Image
-                alt={product.title}
-                className="object-cover"
-                fill
-                sizes="100vw"
-                src={product.image}
-              />
-            ) : (
-              <ImagePlaceholder className="size-full" />
-            )}
-          </Link>
-          <div className="grid min-w-0 content-start gap-1">
-            <Link href={`/products/${product.handle}`} className="hover:underline">
-              <ProductCardTitle>{product.title}</ProductCardTitle>
-            </Link>
-            <ProductCardPrice
-              amount={price.amount}
-              compareAtAmount={compareAtPrice?.amount}
-              compareAtCurrencyCode={compareAtPrice?.currencyCode}
-              currencyCode={price.currencyCode}
-            />
-          </div>
-        </div>
-        <div className="grid gap-5 p-2.5">
-          <ProductInfoOptions
-            compact
-            onSelectValue={(name, value) =>
-              setSelected((current) => selectAgentOption(product, current, name, value))
-            }
-            options={toAgentOptionGroups(product, selected)}
-          />
-          {customDesign ? (
-            <Button className="w-full" render={<Link href={`/products/${product.handle}`} />}>
-              {t("Design this on the product page")}
-            </Button>
-          ) : choosePlan ? (
-            <Button
-              className="w-full"
-              render={<Link href={buildProductUrl(product.handle, variant.options)} />}
-            >
-              {t("Choose a subscription")}
-            </Button>
-          ) : (
-            <form
-              {...formProps({
-                beforeSubmit: () => {
-                  setErrorsAtSubmit({
-                    lines: cartErrors.linesUpdatedAt,
-                    network: cartErrors.networkUpdatedAt,
-                  });
-                  setResult(null);
-                  setSubmitted(true);
-                },
-              })}
-            >
-              <input type="hidden" {...register("merchandiseId", { value: variant?.id ?? "" })} />
-              <input type="hidden" {...register("quantity", { value: 1 })} />
-              <Button {...register("add")} className="w-full" disabled={!canAdd} type="submit">
-                {buttonText}
-              </Button>
-            </form>
-          )}
-        </div>
-      </div>
+    <div className="grid gap-5">
+      <AgentChooserBody
+        compareAt={compareAtPrice}
+        onSelect={(name, value) =>
+          setSelected((current) => selectAgentOption(product, current, name, value))
+        }
+        price={price}
+        product={product}
+        selected={selected}
+      >
+        {action}
+      </AgentChooserBody>
       {result === "added" && isLatest && <AgentCartSummary />}
       {result === "failed" && (
-        <p role="alert" className="text-red-500 text-xs">
+        <p role="alert" className="text-destructive text-sm">
           {t("We couldn't add this to your cart. Check the cart before trying again.")}
         </p>
       )}
-    </>
+    </div>
   );
 }

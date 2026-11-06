@@ -42,12 +42,14 @@ function SheetContent({
   closeButton = true,
   keepMounted = false,
   overlay = true,
+  presentation = "drawer",
   side = "right",
   ...props
 }: SheetPrimitive.Popup.Props & {
   closeButton?: boolean;
   keepMounted?: boolean;
   overlay?: boolean;
+  presentation?: "drawer" | "floating";
   side?: "top" | "right" | "bottom" | "left";
 }) {
   return (
@@ -58,15 +60,22 @@ function SheetContent({
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "bg-card fixed z-60 flex flex-col gap-5 shadow-lg transition ease-in-out data-open:duration-500 data-closed:duration-300",
-          side === "right" &&
+          "fixed z-60 flex flex-col transition ease-in-out motion-reduce:transition-none data-open:duration-300 data-closed:duration-200",
+          presentation === "drawer" && "bg-card gap-5 shadow-lg",
+          presentation === "drawer" &&
+            side === "right" &&
             "inset-y-0 right-0 h-full w-[calc(100%-2.5rem)] max-w-md border-l data-starting-style:translate-x-full data-ending-style:translate-x-full",
-          side === "left" &&
+          presentation === "drawer" &&
+            side === "left" &&
             "inset-y-0 left-0 h-full w-[calc(100%-2.5rem)] max-w-md border-r data-starting-style:-translate-x-full data-ending-style:-translate-x-full",
-          side === "top" &&
+          presentation === "drawer" &&
+            side === "top" &&
             "inset-x-0 top-0 h-auto border-b data-starting-style:-translate-y-full data-ending-style:-translate-y-full",
-          side === "bottom" &&
+          presentation === "drawer" &&
+            side === "bottom" &&
             "inset-x-0 bottom-0 h-auto rounded-t-3xl border-t data-starting-style:translate-y-full data-ending-style:translate-y-full",
+          presentation === "floating" &&
+            "bg-[#f6f1e8] text-foreground shadow-[0_18px_50px_rgba(23,23,23,0.16)] data-starting-style:translate-y-2 data-starting-style:opacity-0 data-ending-style:opacity-0 max-md:inset-x-0 max-md:top-[max(0.75rem,env(safe-area-inset-top))] max-md:bottom-[calc(env(safe-area-inset-bottom)+var(--agent-keyboard,0px))] max-md:h-auto max-md:w-full max-md:rounded-t-[1.75rem] md:end-5 md:bottom-[calc(1.25rem+var(--agent-keyboard,0px))] md:h-[min(42rem,calc(100dvh-2.5rem-var(--agent-keyboard,0px)))] md:w-[30rem] md:max-w-[calc(100vw-2.5rem)] md:rounded-[1.75rem]",
           className,
         )}
         {...props}

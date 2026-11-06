@@ -1,7 +1,7 @@
 "use client";
 
 import { openConversationInputs, useEveAgent } from "eve/react";
-import { Trash2Icon, XIcon } from "lucide-react";
+import { MessageCircleIcon, Trash2Icon, XIcon } from "lucide-react";
 import { type RefObject, useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -18,7 +18,15 @@ import { useT } from "@/lib/i18n/client";
 import { AgentCartBridge } from "./cart-bridge";
 import { ChatMessage } from "./chat-message";
 import { AgentComposer } from "./composer";
+import { AgentFixtureScene, readAgentFixture } from "./fixture";
+import { AgentCartSummary } from "./shopping-results";
 import { AgentThinking } from "./thinking";
+
+const WELCOME_SUGGESTIONS = [
+  ["Gifts", "Help me choose a gift"],
+  ["Arabic designs", "Show me Arabic designs"],
+  ["Styles", "Which calligraphy styles do you have?"],
+] as const;
 
 const CANCEL_TIMEOUT_MS = 10_000;
 
@@ -41,6 +49,9 @@ export interface AgentPanelProps {
 export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) {
   const t = useT();
   const panelRef = useRef<HTMLDivElement>(null);
+  const [fixture] = useState(() => readAgentFixture(window.location.search));
+  const [fixtureNote, setFixtureNote] = useState<string | null>(null);
+  const [fixtureBusy, setFixtureBusy] = useState(false);
   const [stored] = useState(readStoredChat);
   // Idle stored sessions replay on first open; an interrupted turn resumes at once so its cart writes reconcile.
   const [resumePending, setResumePending] = useState(Boolean(stored.session && !stored.turnActive));
@@ -66,7 +77,7 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
     return promise;
   }, []);
   const agent = useEveAgent({
-    initialSession: stored.session,
+    initialSession: fixture ? undefined : stored.session,
     onError(cause) {
       setPendingSend(false);
       clearAttempt.current?.reject(cause);
@@ -92,7 +103,7 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
         turnPolicy: "queue",
       };
     },
-    resume: Boolean(stored.session && stored.turnActive),
+    resume: !fixture && Boolean(stored.session && stored.turnActive),
   });
   const { data, error, status } = agent;
   const { messages } = data;
@@ -111,12 +122,30 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
       status === "submitted" ||
       (status === "streaming" && messages.at(-1)?.role === "user"));
   useEffect(() => {
-    if (open) void prepareSession().catch(() => {});
-  }, [open, prepareSession]);
+    if (fixture || !open) return;
+    void prepareSession().catch(() => {});
+  }, [fixture, open, prepareSession]);
   useEffect(() => {
+    if (fixture) return;
     snapshot.current.turnActive = busy;
     writeStoredChat(snapshot.current);
-  }, [busy]);
+  }, [busy, fixture]);
+  useEffect(() => {
+    const node = panelRef.current;
+    const viewport = window.visualViewport;
+    if (!open || !node || !viewport) return;
+    const sync = () => {
+      const covered = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+      node.style.setProperty("--agent-keyboard", `${Math.round(covered)}px`);
+    };
+    sync();
+    viewport.addEventListener("resize", sync);
+    viewport.addEventListener("scroll", sync);
+    return () => {
+      viewport.removeEventListener("resize", sync);
+      viewport.removeEventListener("scroll", sync);
+    };
+  }, [open]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const pinnedRef = useRef(true);
@@ -160,10 +189,11 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
   }, [status]);
   const showRestoring = status === "resuming" && restoreDelayElapsed;
   useEffect(() => {
+    if (fixture) return;
     snapshot.current.input = input;
     const timer = setTimeout(() => writeStoredChat(snapshot.current), 400);
     return () => clearTimeout(timer);
-  }, [input]);
+  }, [fixture, input]);
   useEffect(() => {
     const flush = () => writeStoredChat(snapshot.current);
     window.addEventListener("pagehide", flush);
@@ -192,6 +222,15 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
     });
   };
   const handleSend = (text: string) => {
+    if (fixture) {
+      pinnedRef.current = true;
+      setFixtureNote(text);
+      setFixtureBusy(true);
+      setInput("");
+      setControlError(null);
+      window.setTimeout(() => setFixtureBusy(false), 700);
+      return;
+    }
     if (busy || restoring || clearing || cartPending || hasReachedLimit) return;
     pinnedRef.current = true;
     snapshot.current.turnActive = true;
@@ -206,6 +245,13 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
     setInput("");
   };
   const handleClear = async () => {
+    if (fixture) {
+      setFixtureNote(null);
+      setFixtureBusy(false);
+      setInput("");
+      setControlError(null);
+      return;
+    }
     if (clearAttempt.current) return;
     setClearing(true);
     setControlError(null);
@@ -245,7 +291,7 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
       onOpenChangeComplete={(opened) => {
         if (!opened) return;
         scrollToBottom();
-        if (!resumePending) return;
+        if (fixture || !resumePending) return;
         setResumePending(false);
         void agent.resume().catch(() => {});
       }}
@@ -259,28 +305,48 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
         initialFocus={() => panelRef.current?.querySelector("textarea") ?? true}
         keepMounted
         overlay={false}
+        presentation="floating"
         side="right"
       >
-        <div className="flex h-16 shrink-0 items-center justify-between gap-2 px-2.5">
-          <SheetTitle className="font-normal text-xl leading-4">{t("Shop Agent")}</SheetTitle>
-          <div className="flex items-center gap-2.5">
+        <div className="flex h-16 shrink-0 items-center justify-between gap-2 px-3">
+          <div className="flex min-w-0 items-center gap-2.5 ps-2">
+            <span
+              aria-hidden="true"
+              className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#efe6d2] text-foreground"
+            >
+              <MessageCircleIcon className="size-4" />
+            </span>
+            <SheetTitle className="truncate font-medium text-base">
+              {t("Shirtat Assistant")}
+            </SheetTitle>
+          </div>
+          <div className="flex items-center">
             <button
               aria-label={t("Clear chat")}
-              className="flex cursor-pointer items-center justify-center text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-              disabled={clearing || (!messages.length && !input.trim() && !agent.session && !busy)}
+              className="flex size-11 cursor-pointer items-center justify-center rounded-full text-foreground/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={
+                clearing ||
+                (fixture === null &&
+                  !messages.length &&
+                  !input.trim() &&
+                  !agent.session &&
+                  !busy) ||
+                (fixture !== null && !fixtureNote && !input.trim())
+              }
               onClick={handleClear}
               type="button"
             >
               <Trash2Icon className="size-5" />
             </button>
             <SheetClose
-              aria-label={t("Close Shop Agent")}
-              className="flex cursor-pointer items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+              aria-label={t("Close Shirtat Assistant")}
+              className="flex size-11 cursor-pointer items-center justify-center rounded-full text-foreground hover:bg-[#efe6d2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
             >
               <XIcon className="size-5" />
             </SheetClose>
           </div>
         </div>
+        {fixture ? <p className="px-5 text-xs text-foreground/70">{t("Test fixture")}</p> : null}
         <SheetDescription className="sr-only">
           {t("Find products, ask store questions, and manage your cart.")}
         </SheetDescription>
@@ -303,71 +369,151 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
             ref={contentRef}
             aria-busy={busy}
             aria-label="Conversation"
-            className="flex min-h-full flex-col justify-end gap-6 px-2.5 py-5 [&>*]:shrink-0"
+            className="flex min-h-full flex-col justify-end gap-8 px-5 py-6 [&>*]:shrink-0 data-[welcome=true]:justify-start"
+            data-welcome={fixture === "welcome" || (!fixture && messages.length === 0)}
             role="log"
           >
-            {messages.length === 0
-              ? restoring
-                ? showRestoring && (
-                    <p className="text-muted-foreground text-sm">
-                      {t("Restoring your conversation…")}
-                    </p>
-                  )
-                : !awaitingReply && (
-                    <p className="text-foreground text-sm">{t("Hi, how can I help?")}</p>
-                  )
-              : messages.map((message, index) => (
-                  <ChatMessage
-                    key={message.id}
-                    isLatest={index === messages.length - 1}
-                    isStreaming={
-                      status === "streaming" && !hasReachedLimit && index === messages.length - 1
-                    }
-                    message={message}
-                    onFollowUp={handleSend}
-                  />
-                ))}
-            {awaitingReply && <AgentThinking active />}
+            {fixture ? (
+              <FixtureTranscript
+                busy={fixtureBusy || fixture === "loading"}
+                kind={fixture}
+                note={fixtureNote}
+                onSuggest={handleSend}
+              />
+            ) : messages.length === 0 ? (
+              restoring ? (
+                showRestoring && (
+                  <p className="text-muted-foreground text-sm">
+                    {t("Restoring your conversation…")}
+                  </p>
+                )
+              ) : (
+                !awaitingReply && <Welcome onSuggest={handleSend} />
+              )
+            ) : (
+              messages.map((message, index) => (
+                <ChatMessage
+                  key={message.id}
+                  isLatest={index === messages.length - 1}
+                  isStreaming={
+                    status === "streaming" && !hasReachedLimit && index === messages.length - 1
+                  }
+                  message={message}
+                  onFollowUp={handleSend}
+                />
+              ))
+            )}
+            {!fixture && awaitingReply && <AgentThinking active />}
           </div>
         </div>
         {(clearing || (showRestoring && messages.length > 0)) && (
-          <p role="status" className="px-2.5 py-2 text-muted-foreground text-xs">
+          <p role="status" className="px-5 py-2 text-muted-foreground text-sm">
             {clearing ? t("Waiting for the response to stop…") : t("Restoring your conversation…")}
           </p>
         )}
         {hasReachedLimit && (
-          <p role="alert" className="px-2.5 py-2 text-muted-foreground text-xs">
+          <p role="alert" className="px-5 py-2 text-sm">
             {t("This conversation has reached its limit. Clear chat to start a new conversation.")}
           </p>
         )}
-        <AgentCartBridge messages={messages} status={status} />
+        <AgentCartBridge messages={fixture ? [] : messages} status={fixture ? "ready" : status} />
         <AgentComposer
-          disabled={!busy && (clearing || cartPending || hasReachedLimit)}
+          disabled={fixture ? false : !busy && (clearing || cartPending || hasReachedLimit)}
           onChange={(value) => {
             setInput(value);
-            void prepareSession().catch(() => {});
+            if (!fixture) void prepareSession().catch(() => {});
           }}
-          onStop={handleStop}
+          onStop={fixture ? () => setFixtureBusy(false) : handleStop}
           onSubmit={handleSend}
-          placeholder={t("Ask anything…")}
+          placeholder={t("Ask about a shirt, a gift, or a style…")}
           status={
-            dispatching
+            fixtureBusy || fixture === "loading"
               ? "submitted"
-              : hasReachedLimit
+              : fixture
                 ? "ready"
-                : resumePending
-                  ? "resuming"
-                  : status
+                : dispatching
+                  ? "submitted"
+                  : hasReachedLimit
+                    ? "ready"
+                    : resumePending
+                      ? "resuming"
+                      : status
           }
           value={input}
         />
-        {(error || controlError) && (
-          <p role="alert" className="px-2.5 pb-2 text-red-500 text-xs">
+        {!fixture && (error || controlError) && (
+          <p role="alert" className="px-5 pb-3 text-destructive text-sm">
             {controlError ??
               t("The assistant is unavailable. Try again, or clear an expired conversation.")}
           </p>
         )}
       </SheetContent>
     </Sheet>
+  );
+}
+
+function Welcome({ onSuggest }: { onSuggest: (text: string) => void }) {
+  const t = useT();
+  return (
+    <div className="grid gap-6">
+      <p className="max-w-xs text-base leading-7">
+        {t("Looking for a shirt, a gift, or a line of calligraphy?")}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {WELCOME_SUGGESTIONS.map(([label, prompt]) => (
+          <button
+            className="min-h-11 cursor-pointer rounded-full bg-[#efe6d2] px-4 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-[#f6f1e8]"
+            key={label}
+            onClick={() => onSuggest(t(prompt))}
+            type="button"
+          >
+            {t(label)}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FixtureTranscript({
+  busy,
+  kind,
+  note,
+  onSuggest,
+}: {
+  busy: boolean;
+  kind: NonNullable<ReturnType<typeof readAgentFixture>>;
+  note: string | null;
+  onSuggest: (text: string) => void;
+}) {
+  const t = useT();
+  return (
+    <>
+      {kind === "welcome" && !note ? <Welcome onSuggest={onSuggest} /> : null}
+      <AgentFixtureScene followUp={onSuggest} kind={kind} />
+      {kind === "cart" ? <AgentCartSummary /> : null}
+      {kind === "error" ? (
+        <div className="flex justify-end">
+          <div className="max-w-[85%] rounded-[1.25rem] bg-[#e7dcc8] px-4 py-3 text-sm leading-6">
+            {t("Help me choose a gift")}
+          </div>
+        </div>
+      ) : null}
+      {note ? (
+        <div className="flex justify-end">
+          <div className="max-w-[85%] rounded-[1.25rem] bg-[#e7dcc8] px-4 py-3 text-sm leading-6">
+            {note}
+          </div>
+        </div>
+      ) : null}
+      {busy ? <AgentThinking active /> : null}
+      {kind === "error" || (note && !busy) ? (
+        <p className="text-destructive text-sm" role="alert">
+          {kind === "error"
+            ? t("The assistant is unavailable. Try again, or clear an expired conversation.")
+            : t("Test fixture. This preview does not call the model.")}
+        </p>
+      ) : null}
+    </>
   );
 }

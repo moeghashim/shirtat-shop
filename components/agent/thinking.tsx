@@ -27,7 +27,7 @@ export function AgentThinking({ active, tool }: { active: boolean; tool?: string
       ? toolLabels[tool as keyof typeof toolLabels]
       : "Thinking…";
   return (
-    <p className="shimmer w-fit text-muted-foreground text-sm" role="status">
+    <p className="w-fit text-muted-foreground text-sm" role="status">
       {t(label)}
     </p>
   );

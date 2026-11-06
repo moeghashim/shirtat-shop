@@ -198,8 +198,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Shopping assistant", ar: "مساعد التسوق" },
     status: "in-progress",
     summary: {
-      en: "A shopping chat in English and Arabic is on the site, with product cards, the cart, and Shopify checkout. Model replies are moving from Vercel AI Gateway to OpenAI directly and stay off until the server key is set.",
-      ar: "دردشة تسوّق بالإنجليزية والعربية موجودة على الموقع، مع بطاقات المنتجات والسلة وإتمام الشراء على Shopify. تنتقل ردود النموذج من Vercel AI Gateway إلى OpenAI مباشرة وتبقى متوقفة إلى أن يُضبط مفتاح الخادم.",
+      en: "A shopping chat in English and Arabic is on the site, with product cards, the cart, and Shopify checkout, calling OpenAI directly. The live build still asks for gpt-6-luna-fast, which OpenAI does not serve, so replies have not succeeded. A review build uses gpt-6-luna with medium reasoning and a calmer layout; neither is live yet.",
+      ar: "دردشة تسوّق بالإنجليزية والعربية موجودة على الموقع، مع بطاقات المنتجات والسلة وإتمام الشراء على Shopify، وتنادي OpenAI مباشرة. ما زال البناء الحي يطلب gpt-6-luna-fast، وهو نموذج لا يقدّمه OpenAI، فلم تنجح الردود. تستخدم نسخة المراجعة gpt-6-luna بجهد تفكير متوسط وتخطيطًا أهدأ، وكلاهما ليس حيًا بعد.",
     },
   },
   {

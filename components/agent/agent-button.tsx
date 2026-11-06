@@ -25,7 +25,7 @@ export function AgentButton() {
         type="button"
       >
         <MessageCircle className="size-4 text-primary" />
-        <span className="sr-only">{t("Open Shop Agent")}</span>
+        <span className="sr-only">{t("Open Shirtat Assistant")}</span>
       </button>
       {mounted && <AgentPanel onOpenChange={setOpen} open={open} triggerRef={triggerRef} />}
     </>
