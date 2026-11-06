@@ -16,14 +16,6 @@ export const logDays: LogDay[] = [
     date: "2026-11-06",
     entries: [
       {
-        en: "A smaller product card for the shopping chat is in review and is not on the live site. The picture stays whole, the price is the shop price, and View product opens the product page. One reply can show several cards without filling the panel.",
-        ar: "بطاقة منتج أصغر لدردشة التسوق قيد المراجعة وليست على الموقع الحي. تبقى الصورة كاملة، والسعر هو سعر المتجر، و«عرض المنتج» يفتح صفحة المنتج. يمكن لرد واحد أن يعرض عدة بطاقات دون أن تملأ اللوحة.",
-      },
-      {
-        en: "A fix that keeps a product card on screen after the assistant finishes is in review and is not on the live site. A card the shop has already confirmed stays visible when the reply is incomplete or does not name the card in the form the renderer accepts. The assistant still cannot run its own code.",
-        ar: "إصلاح يُبقي بطاقة المنتج ظاهرة بعد أن ينتهي المساعد من الكتابة قيد المراجعة وليس على الموقع الحي. تبقى البطاقة التي أكدها المتجر ظاهرة إذا كان الرد ناقصًا أو لم يسمِّ البطاقة بالصيغة التي يقبلها العارض. ولا يستطيع المساعد تشغيل شفرة من عنده.",
-      },
-      {
         en: "The shopping assistant is on the site in English and Arabic. It shows product cards, a size and colour picker, and the cart, and checkout continues on Shopify. Browsers that expose Shopify's model-context tools load them; every other browser keeps the normal cart.",
         ar: "مساعد التسوق موجود على الموقع بالإنجليزية والعربية. يعرض بطاقات المنتجات واختيار المقاس واللون والسلة، ويُكمل الشراء على Shopify. المتصفحات التي تتيح أدوات سياق النموذج من Shopify تحمّلها، ويبقي غيرها السلة العادية.",
       },
@@ -36,8 +28,12 @@ export const logDays: LogDay[] = [
         ar: "يستخدم مساعد التسوق لوحة بلون الورق الدافئ، وملاحظات المتسوق في فقاعات صغيرة، وصور منتجات أكبر.",
       },
       {
-        en: "An owner-only review of shopping chats is in review and is not on the live site. It can freeze one turn, record what should have happened, and export pass/fail checks. It does not train the model. Automatic copies of every chat stay off until the owner turns them on.",
-        ar: "مراجعة محادثات التسوق لصاحب المتجر فقط قيد المراجعة وليست على الموقع الحي. يمكنها تثبيت دورة واحدة، وتسجيل ما كان ينبغي أن يحدث، وتصدير فحوص النجاح والفشل. وهي لا تدرّب النموذج. تبقى النسخ التلقائية لكل محادثة متوقفة إلى أن يفعّلها صاحب المتجر.",
+        en: "Product recommendations in the shopping chat now use a compact card: the picture stays whole, the price is the shop price, and View product opens the product page. One reply can show several cards without filling the panel. Cards the shop has already confirmed stay visible after the assistant finishes, even if the reply is incomplete.",
+        ar: "صارت توصيات المنتجات في دردشة التسوق تستخدم بطاقة مدمجة: تبقى الصورة كاملة، والسعر هو سعر المتجر، و«عرض المنتج» يفتح صفحة المنتج. يمكن لرد واحد أن يعرض عدة بطاقات دون أن تملأ اللوحة. وتبقى البطاقات التي أكدها المتجر ظاهرة بعد أن ينتهي المساعد، حتى لو كان الرد ناقصًا.",
+      },
+      {
+        en: "An owner-only review of shopping chats is live. It can freeze one turn, record what should have happened, and export pass/fail checks. Frozen and saved turns are kept for 30 days. It does not train the model. Automatic copies of every chat stay off until the owner turns them on.",
+        ar: "مراجعة محادثات التسوق لصاحب المتجر فقط أصبحت حيّة. يمكنها تثبيت دورة واحدة، وتسجيل ما كان ينبغي أن يحدث، وتصدير فحوص النجاح والفشل. تُحفظ الدورات المثبّتة والمحفوظة لمدة 30 يومًا. وهي لا تدرّب النموذج. تبقى النسخ التلقائية لكل محادثة متوقفة إلى أن يفعّلها صاحب المتجر.",
       },
     ],
   },

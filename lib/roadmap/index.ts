@@ -198,16 +198,16 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Shopping assistant", ar: "مساعد التسوق" },
     status: "in-progress",
     summary: {
-      en: "A shopping chat in English and Arabic is on the site, with product cards, the cart, and Shopify checkout. It calls OpenAI directly as gpt-6-luna with medium reasoning, and replies are live. Keeping those cards on screen after the reply finishes, and showing them in a smaller card, is in review and is not live yet.",
-      ar: "دردشة تسوّق بالإنجليزية والعربية موجودة على الموقع، مع بطاقات المنتجات والسلة وإتمام الشراء على Shopify. تنادي OpenAI مباشرة بالنموذج gpt-6-luna وبجهد تفكير متوسط، والردود تعمل على الموقع الحي. إبقاء هذه البطاقات ظاهرة بعد انتهاء الرد، وعرضها في بطاقة أصغر، قيد المراجعة وليس حيًا بعد.",
+      en: "A shopping chat in English and Arabic is live, with product cards (including compact cards that stay on screen after the reply), the cart, and Shopify checkout. It calls OpenAI directly as gpt-6-luna with medium reasoning.",
+      ar: "دردشة تسوّق بالإنجليزية والعربية حيّة، مع بطاقات المنتجات (بما فيها البطاقات المدمجة التي تبقى ظاهرة بعد الرد)، والسلة، وإتمام الشراء على Shopify. تنادي OpenAI مباشرة بالنموذج gpt-6-luna وبجهد تفكير متوسط.",
     },
   },
   {
     title: { en: "Chat review", ar: "مراجعة المحادثات" },
     status: "in-progress",
     summary: {
-      en: "An owner-only page for reading a shopping chat, freezing a turn, and exporting pass/fail checks is in review and is not live. Automatic copies of every chat stay off until the owner turns them on. The export does not train the model.",
-      ar: "صفحة لصاحب المتجر فقط لقراءة محادثة تسوّق وتثبيت دورة وتصدير فحوص النجاح والفشل قيد المراجعة وليست حيّة. تبقى النسخ التلقائية لكل محادثة متوقفة إلى أن يفعّلها صاحب المتجر. التصدير لا يدرّب النموذج.",
+      en: "An owner-only page is live for reading a shopping chat, freezing a turn, and exporting pass/fail checks. Automatic copies of every chat stay off until the owner turns them on. The export does not train the model.",
+      ar: "صفحة لصاحب المتجر فقط حيّة لقراءة محادثة تسوّق وتثبيت دورة وتصدير فحوص النجاح والفشل. تبقى النسخ التلقائية لكل محادثة متوقفة إلى أن يفعّلها صاحب المتجر. التصدير لا يدرّب النموذج.",
     },
   },
   {
