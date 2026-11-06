@@ -16,6 +16,7 @@ const CATEGORY_STYLE: Record<string, { bg: string; glyph: string }> = {
   kids: { bg: "from-violet-800 to-indigo-600", glyph: "أطفال" },
   occasions: { bg: "from-rose-800 to-fuchsia-700", glyph: "مناسبات" },
   poetry: { bg: "from-stone-900 to-stone-700", glyph: "شعر" },
+  politics: { bg: "from-slate-900 to-blue-900", glyph: "سياسة" },
 };
 
 const PRODUCT_TYPES = [

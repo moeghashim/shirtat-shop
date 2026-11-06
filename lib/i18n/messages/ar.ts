@@ -19,6 +19,7 @@ export const ar = {
   "Bundle Includes": "تتضمن المجموعة",
   "Buy with": "اشترِ عبر",
   "Buy with Shop Pay": "اشترِ عبر Shop Pay",
+  Cap: "قبعة",
   Cart: "السلة",
   "Cart items": "منتجات السلة",
   Checkout: "إتمام الشراء",
@@ -51,6 +52,9 @@ export const ar = {
   "Go back to the home page": "العودة إلى الصفحة الرئيسية",
   "Go to Checkout": "الانتقال إلى إتمام الشراء",
   Home: "الرئيسية",
+  Hoodie: "هودي",
+  "Illustrative concept. Not a product photo and not for sale.":
+    "مفهوم توضيحي. ليست صورة منتج وليست للبيع.",
   "Increase quantity": "زيادة الكمية",
   Inspiration: "الإلهام",
   "Inspired by the art of the pen": "مستوحاة من فن القلم",
@@ -59,10 +63,13 @@ export const ar = {
   "Loading purchase options": "جارٍ تحميل خيارات الشراء",
   Menu: "القائمة",
   Message: "الرسالة",
+  Mug: "كوب",
   "Name: A-Z": "الاسم: أ–ي",
   "Name: Z-A": "الاسم: ي–أ",
   "No collections found.": "لا توجد مجموعات.",
+  "No products available": "لا توجد منتجات متاحة.",
   "No products found": "لا توجد منتجات",
+  "Not in the shop yet": "ليست في المتجر بعد",
   "Not applicable": "غير قابل للتطبيق",
   "Out of Stock": "نفدت الكمية",
   "Page Not Found": "الصفحة غير موجودة",
@@ -167,6 +174,7 @@ export const ar = {
   "Shop Agent": "مساعد التسوق",
   Styles: "أنماط الخط",
   Stop: "إيقاف",
+  "T-shirt": "تيشيرت",
   "Test fixture": "نموذج تجريبي",
   "Test fixture. This preview does not call the model.":
     "نموذج تجريبي. هذه المعاينة لا تنادي النموذج.",
@@ -174,6 +182,7 @@ export const ar = {
     "نموذج تجريبي. هذه المعاينة لا تغيّر سلتك.",
   "The assistant is unavailable. Try again, or clear an expired conversation.":
     "المساعد غير متاح. حاول مجددًا، أو امسح محادثة منتهية.",
+  "These four pieces are not in the shop yet.": "هذه القطع الأربع ليست في المتجر بعد.",
   "Thinking…": "جارٍ التفكير…",
   "This cart updates as you change it.": "تتحدّث هذه السلة مع تغييراتك.",
   "This conversation has reached its limit. Clear chat to start a new conversation.":

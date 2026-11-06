@@ -16,6 +16,10 @@ export const logDays: LogDay[] = [
     date: "2026-11-06",
     entries: [
       {
+        en: "A Politics item in the menu, in English and Arabic, is in review and is not on the live site. The homepage has a section titled Habibi, Call Me Senator. The cap, hoodie, mug and T-shirt are not in the shop yet. An illustrative concept is in review and is not a product photo, so the section does not show a price, inventory, or a buy button. The cap still needs digitizing, and the pieces still need a print proof. The English phrase stays as written.",
+        ar: "عنصر «سياسة» في القائمة، بالإنجليزية والعربية، قيد المراجعة وليس على الموقع الحي. في الصفحة الرئيسية قسم عنوانه Habibi, Call Me Senator. القبعة والهودي والكوب والتيشيرت ليست في المتجر بعد. المفهوم التوضيحي قيد المراجعة وليس صورة منتج، لذلك لا يعرض القسم سعرًا ولا مخزونًا ولا زر شراء. ما زالت القبعة تحتاج إلى تجهيز رقمي، وما زالت القطع تحتاج إلى تجربة طباعة. وتبقى العبارة الإنجليزية كما كُتبت.",
+      },
+      {
         en: "A smaller product card for the shopping chat is in review and is not on the live site. The picture stays whole, the price is the shop price, and View product opens the product page. One reply can show several cards without filling the panel.",
         ar: "بطاقة منتج أصغر لدردشة التسوق قيد المراجعة وليست على الموقع الحي. تبقى الصورة كاملة، والسعر هو سعر المتجر، و«عرض المنتج» يفتح صفحة المنتج. يمكن لرد واحد أن يعرض عدة بطاقات دون أن تملأ اللوحة.",
       },

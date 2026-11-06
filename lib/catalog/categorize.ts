@@ -1,6 +1,6 @@
 import { CATEGORIES } from "@/lib/collections/categories";
 
-/** Keyword hints (EN, AR, transliterated Arabic) for the four storefront categories. */
+/** Keyword hints (EN, AR, transliterated Arabic) for storefront categories. */
 const KEYWORDS: Record<string, string[]> = {
   occasions: [
     "eid",
@@ -69,6 +69,8 @@ const KEYWORDS: Record<string, string[]> = {
   ],
   // Poetry is never auto-assigned: only when an admin explicitly tags a design `category:poetry`.
   poetry: [],
+  // Politics is the same. Do not add habibi: that word already scores humor.
+  politics: [],
   cultures: [
     "culture",
     "heritage",
@@ -175,7 +177,9 @@ export function suggestCategories(text: string): CategoriesGuess {
   for (const id of ids) {
     scores[id] = new Set((KEYWORDS[id] ?? []).filter((k) => hay.includes(k.toLowerCase()))).size;
   }
-  const explicit = [...hay.matchAll(/category:(\w+)/g)].map((m) => m[1]!).filter((id) => ids.includes(id));
+  const explicit = [...hay.matchAll(/category:(\w+)/g)]
+    .map((m) => m[1]!)
+    .filter((id) => ids.includes(id));
   const hits = ids.filter((id) => scores[id]! > 0).sort((a, b) => scores[b]! - scores[a]!);
   const categoryIds = [...new Set([...explicit, ...hits])];
   return { categoryIds: categoryIds.length ? categoryIds : ["cultures"], scores };

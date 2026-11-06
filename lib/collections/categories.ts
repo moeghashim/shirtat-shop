@@ -42,6 +42,13 @@ export const CATEGORIES: CategoryConfig[] = [
     labelEn: "Occasions",
   },
   {
+    descriptionAr: "تصاميم عن الحياة العامة والكلمات التي يرتديها الناس حين يعبّرون.",
+    descriptionEn: "Designs about public life and the words people wear when they speak up.",
+    id: "politics",
+    labelAr: "سياسة",
+    labelEn: "Politics",
+  },
+  {
     descriptionAr: "تصاميم شيرتات بالخط العربي بمقاسات الأطفال.",
     descriptionEn: "Shirtat calligraphy designs in kids' sizes.",
     id: "kids",
@@ -61,6 +68,23 @@ export function getCategory(id: string): CategoryConfig | undefined {
   return CATEGORIES.find((c) => c.id === id);
 }
 
+/** A known category before Shopify has a collection for it. No product id is invented. */
+export function categoryCollection(handle: string, language?: string) {
+  const cat = getCategory(handle);
+  if (!cat) return undefined;
+  const arabic = language === "ar" || language === "AR";
+  const description = arabic ? cat.descriptionAr : cat.descriptionEn;
+  const title = arabic ? cat.labelAr : cat.labelEn;
+  return {
+    description,
+    handle,
+    image: null,
+    path: `/collections/${handle}`,
+    seo: { description, title },
+    title,
+  };
+}
+
 /** Swap in Arabic title/description for category collections when the locale is Arabic. */
 export function localizeCategory<T extends { description: string; handle: string; title: string }>(
   collection: T,
@@ -72,6 +96,7 @@ export function localizeCategory<T extends { description: string; handle: string
   const out = { ...collection, description: cat.descriptionAr, title: cat.labelAr };
   if ("seo" in out && out.seo && typeof out.seo === "object")
     (out as Record<string, unknown>).seo = { description: cat.descriptionAr, title: cat.labelAr };
-  if ("descriptionHtml" in out) (out as Record<string, unknown>).descriptionHtml = `<p>${cat.descriptionAr}</p>`;
+  if ("descriptionHtml" in out)
+    (out as Record<string, unknown>).descriptionHtml = `<p>${cat.descriptionAr}</p>`;
   return out;
 }
