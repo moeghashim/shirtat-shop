@@ -3,14 +3,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 
-import {
-  ProductCard,
-  ProductCardContent,
-  ProductCardImage,
-  ProductCardImageContainer,
-  ProductCardPrice,
-  ProductCardTitle,
-} from "@/components/product-card/components";
+import { ProductCardPrice, ProductCardTitle } from "@/components/product-card/components";
 import { ProductInfoOptions } from "@/components/product-detail/product-info";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { Link } from "@/components/ui/link";
@@ -23,33 +16,61 @@ import type { SelectedOptions } from "@/lib/product/types";
 export function AgentProductCards({ products }: { products: AgentProduct[] }) {
   const t = useT();
   return (
-    <div className="grid gap-8">
-      {products.map((product) => (
-        <Link className="grid gap-3" href={`/products/${product.handle}`} key={product.handle}>
-          <ProductCard>
-            <ProductCardImageContainer>
-              <ProductCardImage
-                alt={product.title}
-                className="aspect-[4/3] rounded-[1.25rem]"
-                outOfStock={!product.available}
-                outOfStockText={t("Out of Stock")}
-                src={product.image}
-              />
-              <ProductCardContent className="gap-1 px-1 py-0">
-                <ProductCardTitle className="line-clamp-2 text-base font-normal">
+    <div className="grid gap-3">
+      {products.map((product) => {
+        const href = `/products/${product.handle}`;
+        return (
+          <article
+            className="@container overflow-hidden rounded-2xl border border-foreground/10 bg-[#fffdf8]"
+            data-slot="agent-product-card"
+            key={product.handle}
+          >
+            <div className="flex flex-col gap-3 p-3 @min-[20rem]:flex-row @min-[20rem]:items-start">
+              <Link
+                className="relative block h-40 w-full shrink-0 overflow-hidden rounded-xl bg-[#ececea] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffdf8] @min-[20rem]:size-32"
+                href={href}
+              >
+                {product.image ? (
+                  <Image
+                    alt={product.title}
+                    className="object-contain"
+                    fill
+                    sizes="100vw"
+                    src={product.image}
+                  />
+                ) : (
+                  <ImagePlaceholder className="size-full" />
+                )}
+              </Link>
+              <div className="grid min-w-0 flex-1 content-start gap-2">
+                <ProductCardTitle
+                  className="line-clamp-2 text-start font-medium text-sm leading-5"
+                  dir="auto"
+                >
                   {product.title}
                 </ProductCardTitle>
                 <ProductCardPrice
                   amount={product.price.amount}
+                  className="font-medium"
                   compareAtAmount={product.compareAtPrice?.amount}
                   compareAtCurrencyCode={product.compareAtPrice?.currencyCode}
                   currencyCode={product.price.currencyCode}
                 />
-              </ProductCardContent>
-            </ProductCardImageContainer>
-          </ProductCard>
-        </Link>
-      ))}
+                {product.available ? null : (
+                  <p className="text-muted-foreground text-xs">{t("Out of Stock")}</p>
+                )}
+                <Link
+                  aria-label={`${t("View product")}: ${product.title}`}
+                  className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center rounded-full border border-foreground/15 bg-[#efe6d2] px-4 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffdf8] @min-[20rem]:w-fit"
+                  href={href}
+                >
+                  {t("View product")}
+                </Link>
+              </div>
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
 }
@@ -72,22 +93,20 @@ export function AgentChooserBody({
   return (
     <div className="grid gap-5 [&_[data-slot=swatch]]:size-11">
       <Link
-        className="block overflow-hidden rounded-[1.25rem] bg-[#ececea]"
+        className="relative block h-40 overflow-hidden rounded-xl bg-[#ececea] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-[#f6f1e8]"
         href={`/products/${product.handle}`}
       >
-        <span className="relative block aspect-[4/3]">
-          {product.image ? (
-            <Image
-              alt={product.title}
-              className="object-contain mix-blend-multiply"
-              fill
-              sizes="100vw"
-              src={product.image}
-            />
-          ) : (
-            <ImagePlaceholder className="size-full" />
-          )}
-        </span>
+        {product.image ? (
+          <Image
+            alt={product.title}
+            className="object-contain"
+            fill
+            sizes="100vw"
+            src={product.image}
+          />
+        ) : (
+          <ImagePlaceholder className="size-full" />
+        )}
       </Link>
       <div className="grid gap-1 px-1">
         <Link className="hover:underline" href={`/products/${product.handle}`}>

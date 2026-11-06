@@ -5,6 +5,7 @@ import { memo } from "react";
 import { defaultUrlTransform, Streamdown, type UrlTransform } from "streamdown";
 
 import { getCartMutationResult } from "@/lib/agent/cart";
+import { keepSettledProductCards, settledRecommendationHandles } from "@/lib/agent/openui/cards";
 import { useT } from "@/lib/i18n/client";
 
 import { OpenUiMessage, openUiSource } from "./openui";
@@ -43,6 +44,8 @@ export function ChatMessage({
   const t = useT();
   const text = message.parts.flatMap((part) => (part.type === "text" ? [part.text] : [])).join("");
   const program = message.role === "assistant" ? openUiSource(text) : null;
+  const toolHandles = settledRecommendationHandles(message.parts);
+  const showToolCards = keepSettledProductCards(toolHandles);
   if (message.role === "user")
     return text ? (
       <div className="flex justify-end">
@@ -78,23 +81,25 @@ export function ChatMessage({
           message={message}
           onFollowUp={onFollowUp}
           program={program}
+          toolHandles={toolHandles}
         />
       ) : (
         text && <Markdown>{text}</Markdown>
       )}
-      {program ? null : (
+      {!program || showToolCards ? (
         <ShoppingResults
-          confirmation={showsLiveCart ? { warnings } : undefined}
+          confirmation={program || !showsLiveCart ? undefined : { warnings }}
           fallback={
-            isLatest && !isStreaming && !text && !waitsForInput ? (
+            program || !(isLatest && !isStreaming && !text && !waitsForInput) ? null : (
               <p className="text-muted-foreground">{t("No response. Try asking again.")}</p>
-            ) : null
+            )
           }
           isLatest={isLatest}
           isStreaming={isStreaming}
           message={message}
+          productCardsOnly={Boolean(program)}
         />
-      )}
+      ) : null}
     </div>
   );
 }

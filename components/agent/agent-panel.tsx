@@ -15,6 +15,7 @@ import { setAgentCartStatus, useAgentCartPending } from "@/lib/agent/cart/client
 import { readStoredChat, writeStoredChat } from "@/lib/agent/chat/client";
 import { useT } from "@/lib/i18n/client";
 
+import { CapturedStream } from "./captured-stream";
 import { AgentCartBridge } from "./cart-bridge";
 import { ChatMessage } from "./chat-message";
 import { AgentComposer } from "./composer";
@@ -489,6 +490,7 @@ function FixtureTranscript({
   const t = useT();
   return (
     <>
+      {kind === "cards-stay" ? <CapturedStream /> : null}
       {kind === "welcome" && !note ? <Welcome onSuggest={onSuggest} /> : null}
       <AgentFixtureScene followUp={onSuggest} kind={kind} />
       {kind === "cart" ? <AgentCartSummary /> : null}

@@ -198,8 +198,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Shopping assistant", ar: "مساعد التسوق" },
     status: "in-progress",
     summary: {
-      en: "A shopping chat in English and Arabic is on the site, with product cards, the cart, and Shopify checkout. It calls OpenAI directly as gpt-6-luna with medium reasoning, and replies are live.",
-      ar: "دردشة تسوّق بالإنجليزية والعربية موجودة على الموقع، مع بطاقات المنتجات والسلة وإتمام الشراء على Shopify. تنادي OpenAI مباشرة بالنموذج gpt-6-luna وبجهد تفكير متوسط، والردود تعمل على الموقع الحي.",
+      en: "A shopping chat in English and Arabic is on the site, with product cards, the cart, and Shopify checkout. It calls OpenAI directly as gpt-6-luna with medium reasoning, and replies are live. Keeping those cards on screen after the reply finishes, and showing them in a smaller card, is in review and is not live yet.",
+      ar: "دردشة تسوّق بالإنجليزية والعربية موجودة على الموقع، مع بطاقات المنتجات والسلة وإتمام الشراء على Shopify. تنادي OpenAI مباشرة بالنموذج gpt-6-luna وبجهد تفكير متوسط، والردود تعمل على الموقع الحي. إبقاء هذه البطاقات ظاهرة بعد انتهاء الرد، وعرضها في بطاقة أصغر، قيد المراجعة وليس حيًا بعد.",
     },
   },
   {
