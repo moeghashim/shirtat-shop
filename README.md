@@ -55,6 +55,7 @@ Names only. Never commit values.
 | Admin / auth       | `ADMIN_PASSWORD_HASH`, `AUTH_SECRET`                                                                                                                                                                            |
 | Printify           | `PRINTIFY_API_TOKEN`, `PRINTIFY_SHOP_ID`, `PRINTIFY_ENABLED`                                                                                                                                                    |
 | Email              | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_EMAIL_API_TOKEN`, `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_QUEUE_TOKEN`, `OPS_EMAIL`                                                                                         |
+| Shopping assistant | `OPENAI_API_KEY` (server only; never `NEXT_PUBLIC_`)                                                                                                                                                            |
 
 ## Custom-text orders (/design)
 
@@ -74,17 +75,27 @@ The script needs `PRINTIFY_API_TOKEN`, `CUSTOM_ORDER_TOKEN` and the Shopify Admi
 
 The panel is the existing Eve session at `/eve/v1/session`. A reply is an OpenUI program rendered with the storefront's product cards, the size and color picker, and the live cart. Prices and stock come from the tool result, not from the model's text. Checkout is the cart's own button and opens Shopify. The chat does not collect payment, card, or account details.
 
+Model calls go to OpenAI directly through `openai("gpt-6-luna-fast")` from `eve/models/openai`. That is the same model the assistant used through Vercel AI Gateway (`openai/gpt-6-luna-fast`); a Gateway model string would still route through the gateway, so the agent does not use one. Eve reads `OPENAI_API_KEY` on the server and sends it as the OpenAI request's bearer token. The key is not a `NEXT_PUBLIC_` variable and is not included in the browser bundle. Shoppers do not pick a model.
+
 Custom calligraphy lines keep their `Text`, `Style`, `Preset`, and `Fit` properties. The assistant does not invent those values and sends the shopper to the product page to design one. Prices stay POD cost × 3, rounded up to .99, with no personalization fee.
 
 Native Shopify WebMCP loads only in a browser that exposes the model-context API, and it uses Hydrogen's cart handlers. Ordinary browsers do not load that script, Shopify's privacy banner, or the analytics bus. The storefront cart and `standard-actions.js` stay in place.
 
 External agents keep using the Shopify-generated profile at `/.well-known/ucp`. The on-page assistant does not open a second cart through that profile.
 
-Cost controls live in the deployment, not as a per-session token cap:
+Abuse and cost controls:
 
-- Leave `shopConfig.botid.isEnabled` off until BotID is configured in the Vercel project. Turning it on checks `/eve/v1/session`.
+Implemented in the app:
+
+- Eve's default session budget stops a conversation after 40 million new input tokens in a window, and the panel shows that session limit. There is no tighter per-session cap. Compaction already bounds context.
+- When `shopConfig.botid.isEnabled` is true, the Eve channel rejects bot traffic on `/eve/v1/session`. The flag is false, so this check is not active.
+
+Set outside this repository before replies should run:
+
+- Add `OPENAI_API_KEY` to the Vercel project for Preview and Production, and to `.env.local` for local development. Restart or redeploy after setting it. Until the key is present, the panel opens and the assistant reports that it is unavailable.
+- Set an OpenAI usage limit or project budget for that key. Direct calls do not use a Vercel AI Gateway spending cap.
 - Add a Vercel Firewall rate limit on `POST /eve/v1/session`.
-- Set an AI Gateway spending cap for the Eve model. Compaction already bounds context.
+- Turn on `shopConfig.botid.isEnabled` only after BotID is configured in the Vercel project.
 
 ## Making-of log and roadmap (English and Arabic)
 
