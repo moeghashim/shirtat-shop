@@ -1,9 +1,8 @@
 "use client";
 
-import { CornerDownLeftIcon, Loader2Icon, SquareIcon, XIcon } from "lucide-react";
+import { ArrowUpIcon, Loader2Icon, SquareIcon } from "lucide-react";
 import type { KeyboardEvent } from "react";
 
-import { InputGroup, InputGroupButton, InputGroupTextarea } from "@/components/ui/input-group";
 import { useT } from "@/lib/i18n/client";
 
 type AgentStatus = "error" | "ready" | "resuming" | "streaming" | "submitted";
@@ -39,43 +38,41 @@ export function AgentComposer({
     if (!text) return;
     onSubmit(text);
   };
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
-    e.preventDefault();
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+    event.preventDefault();
     submit();
   };
-  let icon = <CornerDownLeftIcon className="size-4" />;
+  let icon = <ArrowUpIcon className="size-4" />;
   if (status === "submitted") icon = <Loader2Icon className="size-4 animate-spin" />;
   else if (status === "streaming") icon = <SquareIcon className="size-4" />;
-  else if (status === "error") icon = <XIcon className="size-4" />;
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
+      onSubmit={(event) => {
+        event.preventDefault();
         submit();
       }}
-      className="px-2.5 py-2.5"
+      className="px-4 pt-2 pb-4"
     >
-      <InputGroup className="h-auto flex-row items-end rounded-lg border-border bg-transparent shadow-none has-[[data-slot=input-group-control]:focus-visible]:border-foreground has-[[data-slot=input-group-control]:focus-visible]:ring-0">
-        <InputGroupTextarea
-          aria-label={t("Message Shop Agent")}
-          value={value}
-          placeholder={placeholder}
-          onChange={(e) => onChange(e.target.value)}
+      <div className="flex items-end gap-2 rounded-[1.4rem] bg-white px-2 py-2 shadow-[0_1px_0_rgba(23,23,23,0.04)]">
+        <textarea
+          aria-label={t("Message Shirtat Assistant")}
+          className="field-sizing-content max-h-40 min-h-12 flex-1 resize-none bg-transparent px-3 py-2.5 text-base leading-6 text-foreground outline-none placeholder:text-muted-foreground"
+          onChange={(event) => onChange(event.target.value)}
           onKeyDown={handleKeyDown}
-          className="field-sizing-content max-h-48 min-h-11 py-2.5"
+          placeholder={placeholder}
+          rows={1}
+          value={value}
         />
-        <InputGroupButton
-          type="submit"
-          size="icon-sm"
-          variant="default"
+        <button
           aria-label={isBusy ? t("Stop") : t("Send")}
+          className="mb-0.5 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-foreground text-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40"
           disabled={disabled || status === "resuming" || (!value.trim() && !isBusy)}
-          className="me-1.5 mb-1.5"
+          type="submit"
         >
           {icon}
-        </InputGroupButton>
-      </InputGroup>
+        </button>
+      </div>
     </form>
   );
 }

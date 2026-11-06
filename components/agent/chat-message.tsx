@@ -4,7 +4,6 @@ import type { EveMessage } from "eve/react";
 import { memo } from "react";
 import { defaultUrlTransform, Streamdown, type UrlTransform } from "streamdown";
 
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { getCartMutationResult } from "@/lib/agent/cart";
 import { useT } from "@/lib/i18n/client";
 
@@ -47,11 +46,9 @@ export function ChatMessage({
   if (message.role === "user")
     return text ? (
       <div className="flex justify-end">
-        <Bubble className="max-w-[85%]" variant="default">
-          <BubbleContent className="rounded-lg px-3.5">
-            <Markdown>{text}</Markdown>
-          </BubbleContent>
-        </Bubble>
+        <div className="max-w-[85%] rounded-[1.25rem] bg-[#e7dcc8] px-4 py-3 text-base leading-6 text-foreground">
+          <Markdown>{text}</Markdown>
+        </div>
       </div>
     ) : null;
   const mutations = message.parts.flatMap((part) => {
@@ -70,7 +67,7 @@ export function ChatMessage({
     (part) => part.type === "dynamic-tool" && part.state === "approval-requested",
   );
   return (
-    <div className="grid gap-2.5 text-foreground text-sm">
+    <div className="grid gap-5 text-foreground text-base leading-7">
       <AgentThinking
         active={isStreaming && !text}
         tool={active?.type === "dynamic-tool" ? active.toolName : undefined}

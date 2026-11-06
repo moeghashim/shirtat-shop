@@ -2,23 +2,11 @@
 
 import { createLibrary, defineComponent, Renderer, useTriggerAction } from "@openuidev/react-lang";
 import type { EveMessage } from "eve/react";
-import Image from "next/image";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { z } from "zod/v4";
 
-import {
-  ProductCard,
-  ProductCardContent,
-  ProductCardImage,
-  ProductCardImageContainer,
-  ProductCardPrice,
-  ProductCardTitle,
-} from "@/components/product-card/components";
-import { ProductInfoOptions } from "@/components/product-detail/product-info";
 import { Button } from "@/components/ui/button";
-import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { Link } from "@/components/ui/link";
-import { Slider, SliderContent, SliderHeader, SliderItem, SliderNav } from "@/components/ui/slider";
 import {
   cartProps,
   chooserProps,
@@ -27,17 +15,13 @@ import {
   productCardsProps,
   shoppingCopy,
 } from "@/lib/agent/openui/catalog";
-import {
-  defaultAgentSelection,
-  findAgentVariant,
-  selectAgentOption,
-  toAgentOptionGroups,
-} from "@/lib/agent/products";
+import { defaultAgentSelection, findAgentVariant, selectAgentOption } from "@/lib/agent/products";
 import type { AgentProduct, AgentProductDetails } from "@/lib/agent/products/types";
 import { useCart, useCartForm } from "@/lib/cart/client";
 import { useT } from "@/lib/i18n/client";
 import { buildProductUrl } from "@/lib/product";
 
+import { AgentChooserBody, AgentProductCards } from "./product-view";
 import { AgentCartSummary } from "./shopping-results";
 
 const ShoppingFacts = createContext<Map<string, AgentProduct | AgentProductDetails>>(new Map());
@@ -90,46 +74,12 @@ function NoteView({ text }: { text: string }) {
 function ProductCardsView({ handles }: { handles: string[] }) {
   const t = useT();
   const facts = useContext(ShoppingFacts);
-  const cards = handles.flatMap((handle) => {
+  const products = handles.flatMap((handle) => {
     const product = facts.get(handle);
-    if (!product) return [];
-    return [
-      <SliderItem key={handle}>
-        <Link className="block" href={`/products/${product.handle}`}>
-          <ProductCard>
-            <ProductCardImageContainer>
-              <ProductCardImage
-                alt={product.title}
-                outOfStock={!product.available}
-                outOfStockText={t("Out of Stock")}
-                src={product.image}
-              />
-              <ProductCardContent>
-                <ProductCardTitle>{product.title}</ProductCardTitle>
-                <ProductCardPrice
-                  amount={product.price.amount}
-                  compareAtAmount={product.compareAtPrice?.amount}
-                  compareAtCurrencyCode={product.compareAtPrice?.currencyCode}
-                  currencyCode={product.price.currencyCode}
-                />
-              </ProductCardContent>
-            </ProductCardImageContainer>
-          </ProductCard>
-        </Link>
-      </SliderItem>,
-    ];
+    return product ? [product] : [];
   });
-  if (!cards.length) return <Missing>{t("This product is no longer available.")}</Missing>;
-  return (
-    <Slider className="-mx-2.5 gap-2.5">
-      <SliderHeader className="justify-end px-2.5">
-        <SliderNav />
-      </SliderHeader>
-      <SliderContent className="auto-cols-[calc((100%-0.625rem)/2)] gap-2.5 px-2.5 scroll-px-2.5">
-        {cards}
-      </SliderContent>
-    </Slider>
-  );
+  if (!products.length) return <Missing>{t("This product is no longer available.")}</Missing>;
+  return <AgentProductCards products={products} />;
 }
 
 function ChooserView({ handle }: { handle: string }) {
@@ -174,95 +124,65 @@ function ChooserView({ handle }: { handle: string }) {
     !variant.requiresBundleConfiguration &&
     !submitted &&
     !cartBusy;
+  if (!details) return <Missing>{t("This product is no longer available.")}</Missing>;
+  const action = customDesign ? (
+    <Button className="min-h-11 w-full" render={<Link href={`/products/${product.handle}`} />}>
+      {t("Design this on the product page")}
+    </Button>
+  ) : !variant ? (
+    <Button className="min-h-11 w-full" render={<Link href={`/products/${product.handle}`} />}>
+      {t("Choose")}
+    </Button>
+  ) : variant.requiresSellingPlan || variant.requiresBundleConfiguration ? (
+    <Button
+      className="min-h-11 w-full"
+      render={<Link href={buildProductUrl(product.handle, variant.options)} />}
+    >
+      {variant.requiresSellingPlan ? t("Choose a subscription") : t("Choose bundle items")}
+    </Button>
+  ) : (
+    <form
+      {...formProps({
+        beforeSubmit: () => {
+          setErrorsAtSubmit({
+            lines: cartErrors.linesUpdatedAt,
+            network: cartErrors.networkUpdatedAt,
+          });
+          setAdded(false);
+          setFailed(false);
+          setSubmitted(true);
+        },
+      })}
+    >
+      <input type="hidden" {...register("merchandiseId", { value: variant.id })} />
+      <input type="hidden" {...register("quantity", { value: 1 })} />
+      <Button {...register("add")} className="min-h-11 w-full" disabled={!canAdd} type="submit">
+        {submitted || cartBusy
+          ? t("Adding…")
+          : variant.available
+            ? t("Add to Cart")
+            : t("Out of Stock")}
+      </Button>
+    </form>
+  );
   return (
-    <div className="overflow-hidden rounded-lg border">
-      <div className="flex gap-2.5 border-b p-2.5">
-        <Link
-          className="relative size-11 shrink-0 overflow-hidden rounded-md"
-          href={`/products/${product.handle}`}
-        >
-          {product.image ? (
-            <Image
-              alt={product.title}
-              className="object-cover"
-              fill
-              sizes="100vw"
-              src={product.image}
-            />
-          ) : (
-            <ImagePlaceholder className="size-full" />
-          )}
-        </Link>
-        <div className="grid min-w-0 content-start gap-1">
-          <Link className="hover:underline" href={`/products/${product.handle}`}>
-            <ProductCardTitle>{product.title}</ProductCardTitle>
-          </Link>
-          <ProductCardPrice
-            amount={price.amount}
-            compareAtAmount={compareAtPrice?.amount}
-            compareAtCurrencyCode={compareAtPrice?.currencyCode}
-            currencyCode={price.currencyCode}
-          />
-        </div>
-      </div>
-      <div className="grid gap-5 p-2.5">
-        {details ? (
-          <ProductInfoOptions
-            compact
-            onSelectValue={(name, value) =>
-              setSelected((current) => selectAgentOption(details, current, name, value))
-            }
-            options={toAgentOptionGroups(details, selected)}
-          />
-        ) : (
-          <Missing>{t("This product is no longer available.")}</Missing>
-        )}
-        {customDesign ? (
-          <Button className="w-full" render={<Link href={`/products/${product.handle}`} />}>
-            {t("Design this on the product page")}
-          </Button>
-        ) : !variant ? (
-          <Button className="w-full" render={<Link href={`/products/${product.handle}`} />}>
-            {t("Choose")}
-          </Button>
-        ) : variant.requiresSellingPlan || variant.requiresBundleConfiguration ? (
-          <Button
-            className="w-full"
-            render={<Link href={buildProductUrl(product.handle, variant.options)} />}
-          >
-            {variant.requiresSellingPlan ? t("Choose a subscription") : t("Choose bundle items")}
-          </Button>
-        ) : (
-          <form
-            {...formProps({
-              beforeSubmit: () => {
-                setErrorsAtSubmit({
-                  lines: cartErrors.linesUpdatedAt,
-                  network: cartErrors.networkUpdatedAt,
-                });
-                setAdded(false);
-                setFailed(false);
-                setSubmitted(true);
-              },
-            })}
-          >
-            <input type="hidden" {...register("merchandiseId", { value: variant.id })} />
-            <input type="hidden" {...register("quantity", { value: 1 })} />
-            <Button {...register("add")} className="w-full" disabled={!canAdd} type="submit">
-              {submitted || cartBusy
-                ? t("Adding…")
-                : variant.available
-                  ? t("Add to Cart")
-                  : t("Out of Stock")}
-            </Button>
-          </form>
-        )}
+    <div className="grid gap-5">
+      <AgentChooserBody
+        compareAt={compareAtPrice}
+        onSelect={(name, value) =>
+          setSelected((current) => selectAgentOption(details, current, name, value))
+        }
+        price={price}
+        product={details}
+        selected={selected}
+      >
+        {action}
         {failed ? (
-          <p className="text-red-500 text-xs" role="alert">
+          <p className="text-destructive text-sm" role="alert">
             {t("We couldn't add this to your cart. Check the cart before trying again.")}
           </p>
         ) : null}
-      </div>
+      </AgentChooserBody>
       {added ? <AgentCartSummary /> : null}
     </div>
   );
@@ -274,16 +194,15 @@ function FollowUpsView({ options }: z.infer<typeof followUpsProps>) {
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((option) => (
-        <Button
-          className="min-h-11"
+        <button
+          className="min-h-11 cursor-pointer rounded-full bg-[#efe6d2] px-4 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-[#f6f1e8] disabled:cursor-not-allowed disabled:opacity-50"
           disabled={streaming}
           key={option.label}
           onClick={() => trigger(option.label, undefined, option.action)}
           type="button"
-          variant="outline"
         >
           {option.label}
-        </Button>
+        </button>
       ))}
     </div>
   );
@@ -323,7 +242,7 @@ const FollowUps = defineComponent({
 });
 const Stack = defineComponent({
   component: ({ props, renderNode }) => (
-    <div className="grid gap-4">
+    <div className="grid gap-8">
       {props.children.map((child, index) => (
         <div key={index}>{renderNode(child)}</div>
       ))}

@@ -20,8 +20,12 @@ export const logDays: LogDay[] = [
         ar: "مساعد التسوق موجود على الموقع بالإنجليزية والعربية. يعرض بطاقات المنتجات واختيار المقاس واللون والسلة، ويُكمل الشراء على Shopify. المتصفحات التي تتيح أدوات سياق النموذج من Shopify تحمّلها، ويبقي غيرها السلة العادية.",
       },
       {
-        en: "The assistant's model calls are switching from Vercel AI Gateway to OpenAI directly, still using gpt-6-luna-fast. That switch is not answering shoppers yet: replies stay off until a server-only OpenAI key is set, and the key never goes to the browser.",
-        ar: "نداءات نموذج المساعد تنتقل من Vercel AI Gateway إلى OpenAI مباشرة، مع الإبقاء على النموذج gpt-6-luna-fast. هذا الانتقال لا يجيب المتسوقين بعد: تبقى الردود متوقفة إلى أن يُضبط مفتاح OpenAI على الخادم فقط، والمفتاح لا يصل إلى المتصفح أبدًا.",
+        en: "The assistant calls OpenAI directly. The live site asked for gpt-6-luna-fast, and OpenAI answered that this model was not found, so no shopper reply has succeeded. A review build asks for gpt-6-luna with medium reasoning instead. The key stays on the server and never goes to the browser.",
+        ar: "ينادي المساعد OpenAI مباشرة. طلب الموقع الحي النموذج gpt-6-luna-fast، فأجاب OpenAI بأن هذا النموذج غير موجود، فلم ينجح أي رد للمتسوق. تطلب نسخة المراجعة gpt-6-luna بجهد تفكير متوسط بدلًا من ذلك. يبقى المفتاح على الخادم ولا يصل إلى المتصفح.",
+      },
+      {
+        en: "A calmer layout for the shopping assistant is in review and is not on the live site yet: a warm paper panel, shopper notes in small bubbles, and larger product photos.",
+        ar: "تخطيط أهدأ لمساعد التسوق قيد المراجعة وليس على الموقع الحي بعد: لوحة بلون الورق الدافئ، وملاحظات المتسوق في فقاعات صغيرة، وصور منتجات أكبر.",
       },
     ],
   },

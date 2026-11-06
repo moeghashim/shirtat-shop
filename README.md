@@ -75,7 +75,7 @@ The script needs `PRINTIFY_API_TOKEN`, `CUSTOM_ORDER_TOKEN` and the Shopify Admi
 
 The panel is the existing Eve session at `/eve/v1/session`. A reply is an OpenUI program rendered with the storefront's product cards, the size and color picker, and the live cart. Prices and stock come from the tool result, not from the model's text. Checkout is the cart's own button and opens Shopify. The chat does not collect payment, card, or account details.
 
-Model calls go to OpenAI directly through `openai("gpt-6-luna-fast")` from `eve/models/openai`. That is the same model the assistant used through Vercel AI Gateway (`openai/gpt-6-luna-fast`); a Gateway model string would still route through the gateway, so the agent does not use one. Eve reads `OPENAI_API_KEY` on the server and sends it as the OpenAI request's bearer token. The key is not a `NEXT_PUBLIC_` variable and is not included in the browser bundle. Shoppers do not pick a model.
+Model calls go to OpenAI directly through `openai("gpt-6-luna")` from `eve/models/openai`, with `reasoning: "medium"`. Eve sends that effort on the OpenAI Responses request as `reasoning.effort`. A gateway model string would still route through Vercel AI Gateway, so the agent does not use one. `gpt-6-luna-fast` is not a model OpenAI serves. Eve reads `OPENAI_API_KEY` on the server and sends it as the bearer token. The key is not a `NEXT_PUBLIC_` variable and is not included in the browser bundle. Shoppers do not pick a model.
 
 Custom calligraphy lines keep their `Text`, `Style`, `Preset`, and `Fit` properties. The assistant does not invent those values and sends the shopper to the product page to design one. Prices stay POD cost × 3, rounded up to .99, with no personalization fee.
 
