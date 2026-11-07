@@ -4,15 +4,16 @@ import { Price } from "@/components/product/price";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { getCategory } from "@/lib/collections/categories";
-import { SENATOR_HEADING, SENATOR_PHRASE, senatorSlots } from "@/lib/home/senator";
-import { getSenatorCampaignProducts } from "@/lib/home/server";
+import { SENATOR_HEADING, SENATOR_PHRASE } from "@/lib/home/senator";
+import { getSenatorCampaignSlots } from "@/lib/home/server";
+import { commerceLocale } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
 
 export async function SenatorLaunch() {
   const t = await getT();
   const locale = await getLocale();
   const politics = getCategory("politics");
-  const slots = senatorSlots(await getSenatorCampaignProducts());
+  const slots = await getSenatorCampaignSlots(commerceLocale(locale));
   const noneReady = slots.every((slot) => slot.product === null);
   const label = locale === "ar" ? politics?.labelAr : politics?.labelEn;
 
@@ -56,13 +57,13 @@ export async function SenatorLaunch() {
               </span>
             </p>
           </div>
-          <p className="max-w-xl text-sm leading-6">
-            {t("Illustrative concept. Not a product photo and not for sale.")}
-          </p>
           {noneReady ? (
-            <p className="max-w-xl text-sm leading-6">
-              {t("These four pieces are not in the shop yet.")}
-            </p>
+            <div className="grid max-w-xl gap-2">
+              <p className="text-sm leading-6">
+                {t("Illustrative concept. Not a product photo and not for sale.")}
+              </p>
+              <p className="text-sm leading-6">{t("These four pieces are not in the shop yet.")}</p>
+            </div>
           ) : null}
         </div>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -76,7 +77,7 @@ export async function SenatorLaunch() {
                   {slot.product.image ? (
                     <span className="relative block aspect-square overflow-hidden rounded-xl bg-background">
                       <Image
-                        alt=""
+                        alt={slot.product.image.altText ?? ""}
                         className="object-contain"
                         fill
                         sizes="100vw"
