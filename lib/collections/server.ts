@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { describeCollection, PRODUCTS_PER_PAGE, resolveBrowseParams } from "@/lib/collections";
-import { localizeCategory } from "@/lib/collections/categories";
+import { categoryCollection, localizeCategory } from "@/lib/collections/categories";
 import type {
   BrowseResults,
   BrowseState,
@@ -244,7 +244,9 @@ function browseMetadata(
 
 export async function getCollectionMetadata(handle: string): Promise<Metadata> {
   const locale = await getLocale();
-  const collection = await getCollection({ handle, locale: commerceLocale(locale) });
+  const collection =
+    (await getCollection({ handle, locale: commerceLocale(locale) })) ??
+    categoryCollection(handle, locale);
   if (!collection) {
     return browseMetadata(
       handle,

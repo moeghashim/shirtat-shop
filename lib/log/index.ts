@@ -16,6 +16,10 @@ export const logDays: LogDay[] = [
     date: "2026-11-06",
     entries: [
       {
+        en: "A Politics item in the menu, in English and Arabic, is in review and is not on the live site. The homepage has a section titled Habibi, Call Me Senator. The cap, hoodie, mug and T-shirt are not in the shop yet. An illustrative concept is in review and is not a product photo, so the section does not show a price, inventory, or a buy button. The cap still needs digitizing, and the pieces still need a print proof. The English phrase stays as written.",
+        ar: "عنصر «سياسة» في القائمة، بالإنجليزية والعربية، قيد المراجعة وليس على الموقع الحي. في الصفحة الرئيسية قسم عنوانه Habibi, Call Me Senator. القبعة والهودي والكوب والتيشيرت ليست في المتجر بعد. المفهوم التوضيحي قيد المراجعة وليس صورة منتج، لذلك لا يعرض القسم سعرًا ولا مخزونًا ولا زر شراء. ما زالت القبعة تحتاج إلى تجهيز رقمي، وما زالت القطع تحتاج إلى تجربة طباعة. وتبقى العبارة الإنجليزية كما كُتبت.",
+      },
+      {
         en: "The shopping assistant is on the site in English and Arabic. It shows product cards, a size and colour picker, and the cart, and checkout continues on Shopify. Browsers that expose Shopify's model-context tools load them; every other browser keeps the normal cart.",
         ar: "مساعد التسوق موجود على الموقع بالإنجليزية والعربية. يعرض بطاقات المنتجات واختيار المقاس واللون والسلة، ويُكمل الشراء على Shopify. المتصفحات التي تتيح أدوات سياق النموذج من Shopify تحمّلها، ويبقي غيرها السلة العادية.",
       },

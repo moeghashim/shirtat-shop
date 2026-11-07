@@ -10,6 +10,7 @@ import {
   NewArrivals,
   ProductTypeRow,
 } from "@/components/home/sections";
+import { SenatorLaunch } from "@/components/home/senator";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
 import { shopConfig } from "@/lib/config";
@@ -48,6 +49,8 @@ export default async function HomePage() {
         <HeroRail />
 
         <DesignBand />
+
+        <SenatorLaunch />
 
         <CategoryTiles />
 

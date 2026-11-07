@@ -5,6 +5,7 @@ import {
   CollectionDetailSkeleton,
   CollectionLayout,
 } from "@/components/collections/collection-page";
+import { categoryCollection } from "@/lib/collections/categories";
 import { getCollection, getCollections } from "@/lib/collections/server";
 import { commerceLocale } from "@/lib/i18n";
 import { getLocale } from "@/lib/i18n/server";
@@ -38,10 +39,12 @@ async function CollectionHandleLayoutContent({
 }: Pick<LayoutProps<"/[locale]/collections/[handle]">, "children" | "params">) {
   const { handle } = await params;
   if (handle === PLACEHOLDER_HANDLE) notFound();
-  const collection = await getCollection({
-    handle,
-    locale: commerceLocale(await getLocale()),
-  });
+  const locale = await getLocale();
+  const collection =
+    (await getCollection({
+      handle,
+      locale: commerceLocale(locale),
+    })) ?? categoryCollection(handle, locale);
   if (!collection) notFound();
 
   return (

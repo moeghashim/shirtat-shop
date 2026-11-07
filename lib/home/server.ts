@@ -1,5 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 
+import { isSenatorCampaignProduct, type SenatorProduct } from "@/lib/home/senator";
+
 const API_VERSION = "2025-01";
 
 export interface HomeProduct {
@@ -37,7 +39,16 @@ export async function getHomeProducts(): Promise<HomeProduct[]> {
           nodes: {
             featuredImage: { altText: string | null; url: string } | null;
             handle: string;
-            media: { nodes: { image?: { altText: string | null; height: number | null; url: string; width: number | null } }[] };
+            media: {
+              nodes: {
+                image?: {
+                  altText: string | null;
+                  height: number | null;
+                  url: string;
+                  width: number | null;
+                };
+              }[];
+            };
             priceRange: { minVariantPrice: { amount: string; currencyCode: string } };
             productType: string;
             tags: string[];
@@ -65,13 +76,84 @@ export async function getHomeProducts(): Promise<HomeProduct[]> {
 const DESIGN_ALT = /\b(design|artwork|calligraphy)\b/i;
 const LIFESTYLE_ALT = /\bmodel wearing\b/i;
 
+export async function getSenatorCampaignProducts(): Promise<SenatorProduct[]> {
+  const [home, searched] = await Promise.all([getHomeProducts(), searchSenatorProducts()]);
+  const seen = new Set<string>();
+  const products: SenatorProduct[] = [];
+  for (const product of [...searched, ...home]) {
+    if (!isSenatorCampaignProduct(product) || seen.has(product.handle)) continue;
+    seen.add(product.handle);
+    products.push({
+      handle: product.handle,
+      image: product.image,
+      price: product.price,
+      productType: product.productType,
+      title: product.title,
+    });
+  }
+  return products;
+}
+
+async function searchSenatorProducts(): Promise<SenatorProduct[]> {
+  "use cache: remote";
+  cacheLife("hours");
+  cacheTag("products", "products-index");
+
+  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  const token = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+  if (!domain || !token) return [];
+  try {
+    const res = await fetch(`https://${domain}/api/${API_VERSION}/graphql.json`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Shopify-Storefront-Access-Token": token },
+      body: JSON.stringify({
+        query: `{ search(first: 20, query: "habibi senator", types: PRODUCT) { nodes { ... on Product { handle title productType featuredImage { url altText } priceRange { minVariantPrice { amount currencyCode } } } } } }`,
+      }),
+    });
+    if (!res.ok) return [];
+    const json = (await res.json()) as {
+      data?: {
+        search: {
+          nodes: {
+            featuredImage: { altText: string | null; url: string } | null;
+            handle: string;
+            priceRange: { minVariantPrice: { amount: string; currencyCode: string } };
+            productType: string;
+            title: string;
+          }[];
+        };
+      };
+    };
+    return (json.data?.search.nodes ?? []).map((product) => ({
+      handle: product.handle,
+      image: product.featuredImage,
+      price: product.priceRange.minVariantPrice,
+      productType: product.productType,
+      title: product.title,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 function homeGallery(
   featured: { altText: string | null; url: string } | null,
-  nodes: { image?: { altText: string | null; height: number | null; url: string; width: number | null } }[],
+  nodes: {
+    image?: { altText: string | null; height: number | null; url: string; width: number | null };
+  }[],
 ): HomeProduct["gallery"] {
   const base = (u: string) => u.split("?")[0];
   const imgs = nodes.flatMap((n) =>
-    n.image ? [{ altText: n.image.altText ?? "", height: n.image.height ?? 1, url: n.image.url, width: n.image.width ?? 1 }] : [],
+    n.image
+      ? [
+          {
+            altText: n.image.altText ?? "",
+            height: n.image.height ?? 1,
+            url: n.image.url,
+            width: n.image.width ?? 1,
+          },
+        ]
+      : [],
   );
   const first = featured ? imgs.find((i) => base(i.url) === base(featured.url)) : undefined;
   const rest = imgs.filter((i) => i !== first);
