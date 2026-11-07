@@ -16,8 +16,16 @@ export const logDays: LogDay[] = [
     date: "2026-11-07",
     entries: [
       {
-        en: "The Habibi, Call Me Senator section is in review and is not on the live site. When the cap, hoodie, mug, or T-shirt is in the shop, the section shows that product's photo, price, and link. A piece that is not in the shop stays marked that way, with no stand-in picture. The English phrase stays as written.",
-        ar: "قسم Habibi, Call Me Senator قيد المراجعة وليس على الموقع الحي. عندما تكون القبعة أو الهودي أو الكوب أو التيشيرت في المتجر، يعرض القسم صورة ذلك المنتج وسعره ورابطه. وتبقى القطعة غير الموجودة في المتجر معلَّمة بذلك، من دون صورة بديلة. وتبقى العبارة الإنجليزية كما كُتبت.",
+        en: "A Politics item is live in the menu, in English and Arabic, and opens the Politics collection.",
+        ar: "عنصر «سياسة» حيّ في القائمة، بالإنجليزية والعربية، ويفتح مجموعة السياسة.",
+      },
+      {
+        en: "Habibi, Call Me Senator is live: the T-shirt, hoodie, cap and mug are in the shop with real supplier product photos, and the homepage section shows each piece's shop photo, price and link. The English phrase stays as written.",
+        ar: "قسم Habibi, Call Me Senator حيّ: التيشيرت والهودي والقبعة والكوب في المتجر بصور منتجات حقيقية من المورّد، ويعرض قسم الصفحة الرئيسية صورة المتجر والسعر والرابط لكل قطعة. وتبقى العبارة الإنجليزية كما كُتبت.",
+      },
+      {
+        en: "A physical print sample has not been proofed yet.",
+        ar: "لم تُجرَ بعد تجربة طباعة فعلية على عيّنة.",
       },
     ],
   },

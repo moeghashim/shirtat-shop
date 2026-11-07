@@ -324,10 +324,10 @@ export const roadmapPhases: RoadmapPhase[] = [
   },
   {
     title: { en: "Politics", ar: "سياسة" },
-    status: "in-progress",
+    status: "done",
     summary: {
-      en: "A Politics menu item and a homepage section titled Habibi, Call Me Senator are in review and are not live. The section shows the shop photo, price, and link for the cap, hoodie, mug, or T-shirt once that product is in the catalog. A missing piece stays marked not in the shop, with no stand-in picture and no invented price.",
-      ar: "عنصر قائمة «سياسة» وقسم في الصفحة الرئيسية بعنوان Habibi, Call Me Senator قيد المراجعة وليسا حيّين. يعرض القسم صورة المتجر والسعر والرابط للقبعة أو الهودي أو الكوب أو التيشيرت عندما يصبح ذلك المنتج في الكتالوج. وتبقى القطعة الناقصة معلَّمة بأنها ليست في المتجر، من دون صورة بديلة ومن دون سعر مختلَق.",
+      en: "The Politics menu, Politics collection, and Habibi, Call Me Senator homepage section are live, with the T-shirt, hoodie, cap and mug in the shop and real shop photos, prices and links.",
+      ar: "قائمة «سياسة» ومجموعة السياسة وقسم Habibi, Call Me Senator في الصفحة الرئيسية حيّة، والتيشيرت والهودي والقبعة والكوب في المتجر مع صور المتجر الحقيقية والأسعار والروابط.",
     },
   },
   {
