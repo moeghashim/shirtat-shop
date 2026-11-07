@@ -640,3 +640,103 @@ export async function fetchProductOptionValues(ids: string[]): Promise<ProductOp
   }
   return byHandle;
 }
+
+const SENATOR_CAMPAIGN_QUERY = gql(
+  `#graphql
+  query senatorCampaignProducts($search: String!, $country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
+    collection(handle: "politics") {
+      products(first: 20) {
+        nodes {
+          id
+          handle
+          title
+          productType
+          tags
+          featuredImage {
+            url
+            altText
+            width
+            height
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+    search(first: 20, query: $search, types: PRODUCT) {
+      nodes {
+        __typename
+        ... on Product {
+          id
+          handle
+          title
+          productType
+          tags
+          featuredImage {
+            url
+            altText
+            width
+            height
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+  }
+`,
+);
+
+export interface SenatorCampaignNode {
+  handle: string;
+  id: string;
+  image: {
+    altText: string | null;
+    height: number | null;
+    url: string;
+    width: number | null;
+  } | null;
+  price: { amount: string; currencyCode: string };
+  productType: string;
+  tags: string[];
+  title: string;
+}
+
+// Storefront search is fuzzy, so callers keep only products that carry the politics tag and both name tokens.
+export async function fetchSenatorCampaignProducts(params: {
+  locale?: CommerceLocale;
+}): Promise<SenatorCampaignNode[]> {
+  const response = await storefront.request(SENATOR_CAMPAIGN_QUERY, {
+    locale: params.locale ?? shopConfig.localization,
+    variables: { search: "tag:category:politics" },
+  });
+  assertStorefrontOk(response, "senatorCampaignProducts");
+  const collectionNodes = response.data.collection?.products.nodes ?? [];
+  const searchNodes = response.data.search.nodes.flatMap((node) =>
+    node.__typename === "Product" ? [node] : [],
+  );
+  const seen = new Set<string>();
+  const products: SenatorCampaignNode[] = [];
+  for (const product of [...collectionNodes, ...searchNodes]) {
+    if (seen.has(product.handle)) continue;
+    seen.add(product.handle);
+    products.push({
+      handle: product.handle,
+      id: product.id,
+      image: product.featuredImage,
+      price: product.priceRange.minVariantPrice,
+      productType: product.productType,
+      tags: product.tags,
+      title: product.title,
+    });
+  }
+  return products;
+}
