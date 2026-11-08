@@ -16,8 +16,8 @@ export const logDays: LogDay[] = [
     date: "2026-11-08",
     entries: [
       {
-        en: "A homepage section for three print methods is in review and is not on the live site. It describes direct-to-garment printing for tees, hoodies and sweatshirts, and embroidery for the beanies. All-over print is explained as a method, and the section says no all-over-print piece is in the shop yet.",
-        ar: "قسم في الصفحة الرئيسية لثلاث طرق طباعة قيد المراجعة وليس على الموقع الحي. يصف الطباعة المباشرة على القماش للتيشيرتات والهوديز والسويتشيرتات، والتطريز لقبعات البيني. وتُشرح الطباعة على كامل القطعة كطريقة، ويقول القسم إنه لا توجد في المتجر قطعة بطباعة شاملة بعد.",
+        en: "A homepage section on three print methods is live in English and Arabic. It describes direct-to-garment printing for tees, hoodies and sweatshirts, and embroidery for the beanies. All-over print is explained as a method, and the section says no all-over-print piece is in the shop yet.",
+        ar: "قسم في الصفحة الرئيسية عن ثلاث طرق طباعة حيّ بالإنجليزية والعربية. يصف الطباعة المباشرة على القماش للتيشيرتات والهوديز والسويتشيرتات، والتطريز لقبعات البيني. وتُشرح الطباعة على كامل القطعة كطريقة، ويقول القسم إنه لا توجد في المتجر قطعة بطباعة شاملة بعد.",
       },
     ],
   },
