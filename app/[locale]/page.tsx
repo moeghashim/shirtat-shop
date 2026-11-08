@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { DesignBand } from "@/components/home/design-band";
 import { HeroRail } from "@/components/home/hero-rail";
 import { Inspiration } from "@/components/home/inspiration";
+import { PrintMethods } from "@/components/home/print-methods";
 import {
   CategoryTiles,
   DesignersAndSell,
@@ -59,6 +60,8 @@ export default async function HomePage() {
         <DesignSpotlight />
 
         <ProductTypeRow />
+
+        <PrintMethods />
 
         <Inspiration />
 

@@ -331,6 +331,14 @@ export const roadmapPhases: RoadmapPhase[] = [
     },
   },
   {
+    title: { en: "Print methods", ar: "طرق الطباعة" },
+    status: "in-progress",
+    summary: {
+      en: "A homepage section for direct-to-garment, embroidery, and all-over print is in review and is not live. Tees, hoodies and sweatshirts are direct-to-garment, and the beanies are embroidered. No all-over-print piece is in the shop yet, so that card does not offer one to buy.",
+      ar: "قسم في الصفحة الرئيسية للطباعة المباشرة على القماش والتطريز والطباعة على كامل القطعة قيد المراجعة وليس حيًا. التيشيرتات والهوديز والسويتشيرتات تُطبع مباشرة على القماش، وقبعات البيني مطرّزة. لا توجد في المتجر قطعة بطباعة شاملة بعد، لذلك لا تعرض تلك البطاقة قطعة للشراء.",
+    },
+  },
+  {
     title: { en: "Launch posts and videos", ar: "منشورات وفيديوهات الإطلاق" },
     status: "next",
     summary: {

@@ -10,6 +10,7 @@ export const ar = {
   "Adding…": "جارٍ الإضافة…",
   Apply: "تطبيق",
   "Apply price": "تطبيق السعر",
+  "All-over print": "طباعة على كامل القطعة",
   "Arabic calligraphy, made to wear": "الخط العربي، فنٌّ يُرتدى",
   "Available in Bundles": "متوفر ضمن مجموعات",
   "Best Matches": "الأكثر تطابقًا",
@@ -33,11 +34,13 @@ export const ar = {
   "Date: New to Old": "التاريخ: من الأحدث إلى الأقدم",
   "Date: Old to New": "التاريخ: من الأقدم إلى الأحدث",
   "Decrease quantity": "إنقاص الكمية",
+  "Direct to garment": "طباعة مباشرة على القماش",
   "Delivery date": "تاريخ التوصيل",
   Discount: "الخصم",
   "Discount code": "رمز الخصم",
   Dismiss: "تجاهل",
   Diwani: "الديواني",
+  Embroidery: "تطريز",
   "Estimated total": "الإجمالي التقديري",
   "Every design carries a word or phrase chosen for its meaning, not just its shape.":
     "يحمل كل تصميم كلمةً أو عبارةً اختيرت لمعناها، لا لشكلها فحسب.",
@@ -55,7 +58,10 @@ export const ar = {
   Hoodie: "هودي",
   "Illustrative concept. Not a product photo and not for sale.":
     "مفهوم توضيحي. ليست صورة منتج وليست للبيع.",
+  "In the shop": "في المتجر",
   "Increase quantity": "زيادة الكمية",
+  "Ink goes straight onto the fabric. Tees, hoodies and sweatshirts in the shop are printed this way.":
+    "يصل الحبر إلى القماش مباشرة. التيشيرتات والهوديز والسويتشيرتات في المتجر تُطبع بهذه الطريقة.",
   Inspiration: "الإلهام",
   "Inspired by the art of the pen": "مستوحاة من فن القلم",
   "Item quantity": "الكمية",
@@ -75,6 +81,7 @@ export const ar = {
   "Page Not Found": "الصفحة غير موجودة",
   "Pairs Well With": "يُنسَّق جيدًا مع",
   Price: "السعر",
+  Printing: "الطباعة",
   "Price: High to Low": "السعر: من الأعلى إلى الأقل",
   "Price: Low to High": "السعر: من الأقل إلى الأعلى",
   Products: "المنتجات",
@@ -182,7 +189,12 @@ export const ar = {
     "نموذج تجريبي. هذه المعاينة لا تغيّر سلتك.",
   "The assistant is unavailable. Try again, or clear an expired conversation.":
     "المساعد غير متاح. حاول مجددًا، أو امسح محادثة منتهية.",
+  "The design is stitched into the knit. The beanies in the shop are embroidered.":
+    "يُخاط التصميم في النسيج. قبعات البيني في المتجر مطرّزة.",
+  "The print covers the garment, rather than sitting in one spot. No all-over-print piece is in the shop yet.":
+    "تغطي الطباعة القطعة، ولا تجلس في موضع واحد. لا توجد في المتجر قطعة بطباعة شاملة بعد.",
   "These four pieces are not in the shop yet.": "هذه القطع الأربع ليست في المتجر بعد.",
+  "Three print methods": "ثلاث طرق للطباعة",
   "Thinking…": "جارٍ التفكير…",
   "This cart updates as you change it.": "تتحدّث هذه السلة مع تغييراتك.",
   "This conversation has reached its limit. Clear chat to start a new conversation.":
