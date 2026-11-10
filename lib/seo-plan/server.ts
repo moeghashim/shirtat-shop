@@ -3,7 +3,11 @@ import { LEGAL } from "@/lib/legal/content";
 import { getShopPolicies } from "@/lib/policies/server";
 import { fetchSearchConsole } from "@/lib/search-console/server";
 import { SITEMAP_STATIC_PATHS } from "@/lib/seo";
-import { getShopifySitemapPage, getShopifySitemapPagesCount } from "@/lib/seo/server";
+import {
+  getShopifySitemapPage,
+  getShopifySitemapPagesCount,
+  isIndexableSitemapResource,
+} from "@/lib/seo/server";
 import type { ShopifySitemapType } from "@/lib/shopify/operations/sitemap/types";
 
 import {
@@ -125,7 +129,9 @@ async function readSitemapUrlCount(): Promise<CountReading> {
       const pages = await getShopifySitemapPagesCount(type);
       for (let page = 1; page <= pages; page += 1) {
         const { items } = await getShopifySitemapPage(type, page);
-        urls += items.length * locales.length;
+        for (const item of items) {
+          if (await isIndexableSitemapResource(type, item.handle)) urls += locales.length;
+        }
       }
     }
     return { count: urls, state: "ok" };

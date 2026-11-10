@@ -46,12 +46,17 @@ test("the plan file matches the schema and the seeded statuses", () => {
   for (let number = 1; number <= 24; number += 1) assert.ok(ids.includes(String(number)));
   assert.deepEqual(
     seoPlan.tasks.filter((task) => task.status === "done").map((task) => task.id),
-    ["hreflang", "canonicals", "sitemap"],
+    ["hreflang", "canonicals", "sitemap", "5", "8", "11"],
   );
   assert.deepEqual(
     seoPlan.tasks.filter((task) => task.status === "in-progress").map((task) => task.id),
-    ["5", "8", "11"],
+    [],
   );
+  for (const id of ["5", "8", "11"]) {
+    const task = seoPlan.tasks.find((item) => item.id === id);
+    assert.equal(task?.link, "https://github.com/moeghashim/shirtat-shop/pull/19");
+    assert.equal(task?.status, "done");
+  }
   const granted = seoPlan.approvals.filter((item) => item.state === "granted");
   assert.deepEqual(
     granted.map((item) => item.id),
@@ -82,16 +87,17 @@ test("an unknown status is rejected", () => {
 
 test("progress counts done tasks only and filters do not change that total", () => {
   const progress = progressOf(seoPlan.tasks, "en");
-  assert.equal(progress.done, 3);
-  assert.equal(progress.inProgress, 3);
+  assert.equal(progress.done, 6);
+  assert.equal(progress.inProgress, 0);
   assert.equal(progress.total, seoPlan.tasks.length);
-  assert.equal(progress.percent, Math.round((3 / seoPlan.tasks.length) * 100));
+  assert.equal(progress.percent, Math.round((6 / seoPlan.tasks.length) * 100));
   assert.equal(progress.phases.find((phase) => phase.id === "foundation")?.percent, 100);
-  assert.equal(progress.phases.find((phase) => phase.id === "now")?.done, 0);
+  assert.equal(progress.phases.find((phase) => phase.id === "now")?.done, 2);
+  assert.equal(progress.phases.find((phase) => phase.id === "dec")?.done, 1);
   const now = filterTasks(seoPlan.tasks, parseTaskFilter({ phase: "now" }));
   assert.equal(now.length, 9);
   assert.equal(
-    now.some((task) => task.id === "5" && task.status === "in-progress"),
+    now.some((task) => task.id === "5" && task.status === "done"),
     true,
   );
   assert.equal(filterTasks(seoPlan.tasks, parseTaskFilter({ phase: "nope" })).length, 0);
