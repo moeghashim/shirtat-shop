@@ -8,8 +8,18 @@ import type { AgentProduct, AgentProductDetails } from "@/lib/agent/products/typ
 import { useLocale, useT } from "@/lib/i18n/client";
 
 import { AgentChooserBody, AgentProductCards } from "./product-view";
+import type { VoiceExchange } from "./voice";
 
-const FIXTURES = ["welcome", "reply", "cards", "cards-stay", "loading", "error", "cart"] as const;
+const FIXTURES = [
+  "welcome",
+  "reply",
+  "cards",
+  "cards-stay",
+  "loading",
+  "error",
+  "cart",
+  "voice",
+] as const;
 
 export type AgentFixtureName = (typeof FIXTURES)[number];
 
@@ -120,6 +130,28 @@ function FixtureReply({ followUp }: { followUp: (text: string) => void }) {
       </div>
     </div>
   );
+}
+
+export function voiceFixtureExchange(locale: "ar" | "en"): VoiceExchange {
+  const tee = fixtureTee();
+  return {
+    assistant: locale === "ar" ? "هذه هوديز بالخط العربي." : "Here are calligraphy hoodies.",
+    cart: false,
+    choices:
+      locale === "ar"
+        ? [
+            { label: "هدايا", message: "أبحث عن هدية" },
+            { label: "تيشيرت", message: "أرني تيشيرتات" },
+          ]
+        : [
+            { label: "A gift", message: "Help me choose a gift" },
+            { label: "T-shirts", message: "Show me t-shirts" },
+          ],
+    chooser: tee.handle,
+    id: "voice-fixture",
+    products: [...FIXTURE_CARDS, tee],
+    shopper: locale === "ar" ? "أرني هودي بالخط" : "Show me a calligraphy hoodie",
+  };
 }
 
 function FixtureCards() {

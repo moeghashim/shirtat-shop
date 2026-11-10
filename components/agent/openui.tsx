@@ -275,21 +275,23 @@ export function openUiSource(text: string) {
 }
 
 export function OpenUiMessage({
+  facts,
   isStreaming,
   message,
   onFollowUp,
   program,
   toolHandles,
 }: {
+  facts?: Map<string, AgentProduct | AgentProductDetails>;
   isStreaming: boolean;
-  message: EveMessage;
+  message?: EveMessage;
   onFollowUp: (text: string) => void;
   program: string;
   toolHandles: readonly string[];
 }) {
-  const facts = factsFromMessage(message);
+  const resolved = facts ?? (message ? factsFromMessage(message) : new Map());
   return (
-    <ShoppingFacts.Provider value={facts}>
+    <ShoppingFacts.Provider value={resolved}>
       <ToolCardHandles.Provider value={toolHandles}>
         <StreamingContext.Provider value={isStreaming}>
           <Renderer
