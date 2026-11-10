@@ -4,6 +4,7 @@ import { shopConfig } from "@/lib/config";
 import { locales, localizePath, type Locale } from "@/lib/i18n";
 import { LEGAL } from "@/lib/legal/content";
 import { getShopPolicies } from "@/lib/policies/server";
+import { SITEMAP_STATIC_PATHS } from "@/lib/seo";
 import {
   getShopifySitemapPage,
   getShopifySitemapPagesCount,
@@ -50,16 +51,7 @@ function localizedEntries(pathname: string, lastmod?: string): string {
     .join("\n");
 }
 
-const STATIC_PATHS = [
-  "/",
-  "/collections",
-  "/creators",
-  "/design",
-  "/designers",
-  "/making-of",
-  "/roadmap",
-  "/sales",
-];
+const STATIC_PATHS = SITEMAP_STATIC_PATHS;
 
 // Google ignores lastmod that is not a real content date. Legal copy is dated in lib/legal.
 const LEGAL_LASTMOD = "2026-10-21";

@@ -62,6 +62,8 @@ async function ChatReviewList({
             </p>
             <p className="text-sm">
               <Link href="/admin/creators">Designers admin</Link>
+              {" · "}
+              <Link href="/admin/seo">SEO plan</Link>
             </p>
           </div>
           {params.deleted ? <p role="status">The stored copy was deleted.</p> : null}

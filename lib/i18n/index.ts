@@ -1,11 +1,12 @@
 import type { CommerceLocale } from "@/lib/config/types";
 
 import { ar as arBase } from "./messages/ar";
+import { arAdmin } from "./messages/ar-admin";
 import { arCreators } from "./messages/ar-creators";
 import { arCustom } from "./messages/ar-custom";
 import { arPages } from "./messages/ar-pages";
 
-const ar = { ...arBase, ...arCreators, ...arCustom, ...arPages };
+const ar = { ...arBase, ...arAdmin, ...arCreators, ...arCustom, ...arPages };
 
 export const locales = ["en", "ar"] as const;
 export type Locale = (typeof locales)[number];
@@ -29,11 +30,14 @@ export function commerceLocale(locale: Locale): CommerceLocale {
   return { country: "US", language: locale === "ar" ? "AR" : "EN" };
 }
 
-/** Internal and machine routes that have no /ar twin (the admin page is English-only for the owner). */
+/** Machine routes stay unprefixed. The owner SEO tracker is localized so /ar/admin/seo can mirror RTL. */
 const UNLOCALIZED_PREFIXES = ["/admin", "/api", "/md", "/agent"];
 
 export function isUnlocalizedPath(pathname: string): boolean {
-  return UNLOCALIZED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  if (pathname === "/admin/seo" || pathname.startsWith("/admin/seo/")) return false;
+  return UNLOCALIZED_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
 }
 
 /** Strip a leading /ar or /en prefix. */

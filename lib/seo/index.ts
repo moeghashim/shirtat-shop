@@ -5,6 +5,17 @@ import { defaultLocale, type Locale, locales, localizePath } from "@/lib/i18n";
 
 import type { SearchParamsInput } from "./types";
 
+export const SITEMAP_STATIC_PATHS = [
+  "/",
+  "/collections",
+  "/creators",
+  "/design",
+  "/designers",
+  "/making-of",
+  "/roadmap",
+  "/sales",
+] as const;
+
 function normalizePath(pathname: string): string {
   if (!pathname) return "/";
   const withLeadingSlash = pathname.startsWith("/") ? pathname : `/${pathname}`;

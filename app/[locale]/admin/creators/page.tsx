@@ -50,8 +50,9 @@ export default function AdminCreatorsPage({ searchParams }: PageProps<"/[locale]
     <Page>
       <Container className="max-w-5xl">
         <h1 className="text-3xl md:text-4xl font-semibold">Designers admin</h1>
-        <p className="mt-3 text-sm">
+        <p className="mt-3 flex flex-wrap gap-x-4 text-sm">
           <Link href="/admin/chats">Review shopping chats</Link>
+          <Link href="/admin/seo">SEO plan</Link>
         </p>
         <Suspense fallback={<p className="mt-6 text-muted-foreground">Loading…</p>}>
           <AdminContent searchParams={searchParams} />
