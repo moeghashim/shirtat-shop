@@ -238,8 +238,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Search visibility", ar: "الظهور في البحث" },
     status: "in-progress",
     summary: {
-      en: "Google Search Console is connected and the sitemap lists every page in English and Arabic; next is watching search results and improving how products show up.",
-      ar: "ربطنا Google Search Console وتُدرج خريطة الموقع كل صفحة بالإنجليزية والعربية؛ والخطوة التالية متابعة نتائج البحث وتحسين ظهور المنتجات.",
+      en: "Google Search Console is connected, the sitemap lists every real page in English and Arabic with one clean address per product, and product photos have bilingual descriptions; next is watching search results and growing search traffic.",
+      ar: "ربطنا Google Search Console، وتُدرج خريطة الموقع كل صفحة حقيقية بالإنجليزية والعربية بعنوان واحد واضح لكل منتج، وصارت لصور المنتجات أوصاف بلغتين؛ والخطوة التالية متابعة نتائج البحث وزيادة الزيارات منه.",
     },
   },
   {
@@ -344,6 +344,22 @@ export const roadmapPhases: RoadmapPhase[] = [
     summary: {
       en: "Every new product announced on each Shirtat social channel with a post and a creative product video.",
       ar: "الإعلان عن كل منتج جديد على كل حسابات شيرتات في وسائل التواصل بمنشور وفيديو إبداعي للمنتج.",
+    },
+  },
+  {
+    title: { en: "Etsy shop", ar: "متجر Etsy" },
+    status: "in-progress",
+    summary: {
+      en: "A Shirtat shop on Etsy, with its page designed and products printed in the US so they reach US buyers faster.",
+      ar: "متجر لـ Shirtat على Etsy، بصفحة مصمَّمة ومنتجات تُطبع في الولايات المتحدة لتصل إلى المشترين هناك أسرع.",
+    },
+  },
+  {
+    title: { en: "Stickers", ar: "الملصقات" },
+    status: "next",
+    summary: {
+      en: "Playful Arabic-phrase stickers, printed in the US, starting on Etsy.",
+      ar: "ملصقات مرحة بعبارات عربية، تُطبع في الولايات المتحدة، تبدأ على Etsy.",
     },
   },
 ];
