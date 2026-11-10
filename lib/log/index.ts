@@ -13,6 +13,15 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-10",
+    entries: [
+      {
+        en: "Changed the public contact email to shirtat@agentmail.to on the site, the legal pages, and designer emails, which now reply to that address.",
+        ar: "غيّرنا بريد التواصل العام إلى shirtat@agentmail.to في الموقع وصفحات السياسات ورسائل المصممين، التي صارت تردّ إلى هذا العنوان.",
+      },
+    ],
+  },
+  {
     date: "2026-11-08",
     entries: [
       {
@@ -265,8 +274,8 @@ export const logDays: LogDay[] = [
         ar: "يمكن أن ينتمي المنتج إلى أكثر من قسم، ولا يُمنح قسم «شعر» إلا للتصاميم الموسومة بأنها شعر.",
       },
       {
-        en: "Changed the contact email to shirtat@10claws.com across the site and emails.",
-        ar: "غيّرنا بريد التواصل إلى shirtat@10claws.com في الموقع والرسائل.",
+        en: "Changed the contact email across the site and emails.",
+        ar: "غيّرنا بريد التواصل في الموقع والرسائل.",
       },
       {
         en: "Made an internal map comparing the products we use with equivalents at other print-on-demand providers, including baby and occasion items.",
