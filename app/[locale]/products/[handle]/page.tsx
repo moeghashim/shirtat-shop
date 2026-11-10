@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { ProductViewedTracker } from "@/components/analytics/trackers";
@@ -15,8 +15,14 @@ import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
 import { CUSTOM_HOODIE_HANDLE, CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE } from "@/lib/custom/products";
 import { commerceLocale, localizePath } from "@/lib/i18n";
+import { describeProductImage } from "@/lib/i18n/product";
 import { getLocale } from "@/lib/i18n/server";
-import { defaultSelectedOptions, parseSelectedOptions, toSelectedOptionList } from "@/lib/product";
+import {
+  defaultSelectedOptions,
+  imageColorNames,
+  parseSelectedOptions,
+  toSelectedOptionList,
+} from "@/lib/product";
 import { getProduct, getSearchIndexProducts } from "@/lib/product/server";
 import { getProductSource } from "@/lib/product/source-clips";
 import { type SelectedOptions } from "@/lib/product/types";
@@ -38,10 +44,15 @@ async function buildProductMetadata(handle: string, canonicalPath: string): Prom
           url: product.featuredImage.url,
           width: product.featuredImage.width,
           height: product.featuredImage.height,
-          alt: product.featuredImage.altText,
+          alt: describeProductImage({
+            altText: product.featuredImage.altText,
+            color: imageColorNames(product.options)[product.featuredImage.url],
+            locale,
+            title: product.title,
+          }),
         },
       ]
-    : siteOgImages(await getLocale());
+    : siteOgImages(locale);
   return {
     title: product.seo.title,
     description: product.seo.description,
@@ -112,7 +123,7 @@ async function ProductPageContent({
     handle === CUSTOM_MUG_HANDLE ||
     handle === CUSTOM_HOODIE_HANDLE
   )
-    redirect(
+    permanentRedirect(
       `${localizePath(locale, "/design")}${handle === CUSTOM_MUG_HANDLE ? "?product=mug" : handle === CUSTOM_HOODIE_HANDLE ? "?product=hoodie" : ""}`,
     );
   const product = await getProduct({

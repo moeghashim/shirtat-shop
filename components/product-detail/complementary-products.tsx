@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Price } from "@/components/product/price";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { Link } from "@/components/ui/link";
+import { describeProductImage } from "@/lib/i18n/product";
+import { getLocale } from "@/lib/i18n/server";
 import { getProductRecommendations } from "@/lib/product/server";
 import type { ProductCard } from "@/lib/product/types";
 
@@ -17,6 +19,7 @@ export async function ComplementaryProducts({
 }) {
   const complementary = await getProductRecommendations({ handle, intent: "COMPLEMENTARY" });
   if (complementary.length === 0) return null;
+  const locale = await getLocale();
   return (
     <div className="grid gap-2.5" data-slot="complementary-products">
       <h2 className="font-medium text-foreground/70 text-sm">{title}</h2>
@@ -30,7 +33,14 @@ export async function ComplementaryProducts({
               {product.featuredImage ? (
                 <Image
                   src={product.featuredImage.url}
-                  alt={product.featuredImage.altText || product.title}
+                  alt={describeProductImage({
+                    altText: product.featuredImage.altText,
+                    color: product.defaultVariantSelectedOptions?.find(
+                      (option) => option.name.toLowerCase() === "color",
+                    )?.value,
+                    locale,
+                    title: product.title,
+                  })}
                   width={48}
                   height={48}
                   sizes="100vw"

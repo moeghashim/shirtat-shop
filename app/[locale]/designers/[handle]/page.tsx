@@ -9,6 +9,7 @@ import { Link } from "@/components/ui/link";
 import { Page } from "@/components/ui/page";
 import { getPublicDesigner } from "@/lib/designers/server";
 import { formatLocale } from "@/lib/i18n";
+import { describeProductImage } from "@/lib/i18n/product";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { buildAlternates } from "@/lib/seo";
 import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
@@ -91,7 +92,11 @@ async function DesignerContent({ params }: { params: Promise<{ handle: string }>
                   {p.image && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      alt={p.image.altText ?? p.title}
+                      alt={describeProductImage({
+                        altText: p.image.altText ?? "",
+                        locale,
+                        title: p.title,
+                      })}
                       className="h-full w-full object-cover"
                       src={p.image.url}
                     />

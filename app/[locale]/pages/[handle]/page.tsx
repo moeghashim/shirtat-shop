@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { RichTextPage, RichTextPageSkeleton } from "@/components/content/rich-text-page";
+import { localizePath } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { getPage } from "@/lib/pages/server";
 import { buildAlternates, buildOpenGraph } from "@/lib/seo";
@@ -24,6 +25,7 @@ export async function generateMetadata({
 }: PageProps<"/[locale]/pages/[handle]">): Promise<Metadata> {
   const { handle } = await params;
   if (handle === PLACEHOLDER_HANDLE) return {};
+  if (handle === "contact") return { robots: { follow: false, index: false } };
   const page = await getPage({
     handle,
   });
@@ -58,6 +60,7 @@ async function ShopifyPageContent({
 }: Pick<PageProps<"/[locale]/pages/[handle]">, "params">) {
   const { handle } = await params;
   if (handle === PLACEHOLDER_HANDLE) notFound();
+  if (handle === "contact") permanentRedirect(localizePath(await getLocale(), "/contact"));
   const page = await getPage({
     handle,
   });

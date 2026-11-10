@@ -490,7 +490,11 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
                     >
                       <Image
                         src={item.sideImage}
-                        alt=""
+                        alt={
+                          ar
+                            ? `${label} من الجانب، خط عربي`
+                            : `${label}, side view, Arabic calligraphy`
+                        }
                         width={800}
                         height={960}
                         fetchPriority="low"
@@ -516,7 +520,7 @@ export function HeroRack({ ar, items, locked, onOpen }: HeroRackProps) {
                     >
                       <Image
                         src={item.image}
-                        alt=""
+                        alt={ar ? `${label}، خط عربي` : `${label}, Arabic calligraphy`}
                         width={800}
                         height={960}
                         fetchPriority={isDefault ? "high" : "low"}

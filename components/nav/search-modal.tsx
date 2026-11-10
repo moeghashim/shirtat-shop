@@ -20,6 +20,7 @@ import { Price } from "@/components/product/price";
 import { Dialog, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { localizeHref } from "@/lib/i18n";
 import { useLocale, useT } from "@/lib/i18n/client";
+import { describeProductImage } from "@/lib/i18n/product";
 import { localizeProductTitle } from "@/lib/i18n/product";
 import { useRecentlyViewedProducts } from "@/lib/product/client";
 import { SEARCH_TERM_MAX_LENGTH } from "@/lib/search";
@@ -86,7 +87,7 @@ function SearchDialogContent({ onClose, open }: { onClose: () => void; open: boo
       router.push(localizeHref(locale, href));
       requestAnimationFrame(() => onClose());
     },
-    [router, onClose],
+    [locale, onClose, router],
   );
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -308,7 +309,11 @@ function ProductResult({
       {product.featuredImage ? (
         <Image
           src={product.featuredImage.url}
-          alt={product.featuredImage.altText}
+          alt={describeProductImage({
+            altText: product.featuredImage.altText ?? "",
+            locale,
+            title: product.title,
+          })}
           width={56}
           height={56}
           sizes="100vw"

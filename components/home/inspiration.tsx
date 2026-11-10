@@ -1,7 +1,9 @@
 import Image from "next/image";
 
 import { Container } from "@/components/ui/container";
-import { getT } from "@/lib/i18n/server";
+import { Link } from "@/components/ui/link";
+import { type Locale } from "@/lib/i18n";
+import { getLocale, getT } from "@/lib/i18n/server";
 
 interface InspirationCard {
   title: string;
@@ -29,8 +31,19 @@ const cards: InspirationCard[] = [
   },
 ];
 
+function scriptHref(title: string, locale: Locale): string | undefined {
+  if (title === "Thuluth") return "/design#thuluth";
+  if (title === "Diwani") return "/design#diwani";
+  if (title === "Kufic") {
+    const query = locale === "ar" ? "كوفي" : "Kufic";
+    return `/search?q=${encodeURIComponent(query)}`;
+  }
+  return undefined;
+}
+
 export async function Inspiration() {
   const t = await getT();
+  const locale = await getLocale();
   return (
     <Container>
       <section className="relative overflow-hidden rounded-3xl bg-muted/60 px-6 py-14 md:px-14 md:py-20">
@@ -57,15 +70,28 @@ export async function Inspiration() {
           </p>
         </div>
         <ul className="relative mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {cards.map((card) => (
-            <li
-              key={card.title}
-              className="flex flex-col gap-2 rounded-2xl border border-border bg-background/80 p-6 backdrop-blur-sm"
-            >
-              <h3 className="text-lg font-semibold">{t(card.title)}</h3>
-              <p className="text-sm text-muted-foreground">{t(card.description)}</p>
-            </li>
-          ))}
+          {cards.map((card) => {
+            const href = scriptHref(card.title, locale);
+            const className =
+              "flex h-full flex-col gap-2 rounded-2xl border border-border bg-background/80 p-6 backdrop-blur-sm";
+            const body = (
+              <>
+                <h3 className="text-lg font-semibold">{t(card.title)}</h3>
+                <p className="text-sm text-muted-foreground">{t(card.description)}</p>
+              </>
+            );
+            return (
+              <li key={card.title}>
+                {href ? (
+                  <Link className={`${className} cursor-pointer`} href={href}>
+                    {body}
+                  </Link>
+                ) : (
+                  <div className={className}>{body}</div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </section>
     </Container>

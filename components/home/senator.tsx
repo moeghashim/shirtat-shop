@@ -7,6 +7,7 @@ import { getCategory } from "@/lib/collections/categories";
 import { SENATOR_HEADING, SENATOR_PHRASE } from "@/lib/home/senator";
 import { getSenatorCampaignSlots } from "@/lib/home/server";
 import { commerceLocale } from "@/lib/i18n";
+import { describeProductImage } from "@/lib/i18n/product";
 import { getLocale, getT } from "@/lib/i18n/server";
 
 export async function SenatorLaunch() {
@@ -77,7 +78,11 @@ export async function SenatorLaunch() {
                   {slot.product.image ? (
                     <span className="relative block aspect-square overflow-hidden rounded-xl bg-background">
                       <Image
-                        alt={slot.product.image.altText ?? ""}
+                        alt={describeProductImage({
+                          altText: slot.product.image.altText ?? "",
+                          locale,
+                          title: slot.product.title,
+                        })}
                         className="object-contain"
                         fill
                         sizes="100vw"

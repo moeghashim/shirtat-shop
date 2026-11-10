@@ -4,7 +4,11 @@ import { shopConfig } from "@/lib/config";
 import { locales, localizePath, type Locale } from "@/lib/i18n";
 import { LEGAL } from "@/lib/legal/content";
 import { getShopPolicies } from "@/lib/policies/server";
-import { getShopifySitemapPage, getShopifySitemapPagesCount } from "@/lib/seo/server";
+import {
+  getShopifySitemapPage,
+  getShopifySitemapPagesCount,
+  isIndexableSitemapResource,
+} from "@/lib/seo/server";
 import { type ShopifySitemapType } from "@/lib/shopify/operations/sitemap/types";
 
 function escapeXml(value: string): string {
@@ -57,6 +61,20 @@ const STATIC_PATHS = [
   "/sales",
 ];
 
+// Google ignores lastmod that is not a real content date. Legal copy is dated in lib/legal.
+const LEGAL_LASTMOD = "2026-10-21";
+const STATIC_LASTMOD = "2026-11-10";
+
+function staticLastmod(pathname: string): string {
+  if (
+    pathname.startsWith("/policies/") ||
+    Object.values(LEGAL).some((page) => page.path === pathname)
+  ) {
+    return LEGAL_LASTMOD;
+  }
+  return STATIC_LASTMOD;
+}
+
 async function renderStatic(): Promise<Response> {
   const policies = await getShopPolicies().catch(() => []);
   const paths = new Set([
@@ -64,7 +82,9 @@ async function renderStatic(): Promise<Response> {
     ...Object.values(LEGAL).map(({ path }) => path),
     ...policies.map(({ handle }) => `/policies/${handle}`),
   ]);
-  const entries = [...paths].map((pathname) => localizedEntries(pathname)).join("\n");
+  const entries = [...paths]
+    .map((pathname) => localizedEntries(pathname, staticLastmod(pathname)))
+    .join("\n");
   return xmlResponse(urlsetWrap(entries));
 }
 
@@ -76,7 +96,11 @@ async function renderShard(
   if (page < 1 || page > (await getShopifySitemapPagesCount(type))) notFound();
   const { items } = await getShopifySitemapPage(type, page);
 
-  const entries = items
+  const indexable = [];
+  for (const item of items) {
+    if (await isIndexableSitemapResource(type, item.handle)) indexable.push(item);
+  }
+  const entries = indexable
     .map((item) => localizedEntries(item.pathname ?? `/${segment}/${item.handle}`, item.updatedAt))
     .join("\n");
 

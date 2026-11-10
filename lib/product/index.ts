@@ -186,6 +186,17 @@ function findColorOption(options: ProductOption[]): ProductOption | undefined {
   return options.find(isColorOption);
 }
 
+/** Colour option value keyed by the mockup URL Shopify attaches to that value. */
+export function imageColorNames(options: ProductOption[]): Record<string, string> {
+  const color = findColorOption(options);
+  if (!color) return {};
+  const names: Record<string, string> = {};
+  for (const value of color.values) {
+    if (value.image && !names[value.image]) names[value.image] = value.name;
+  }
+  return names;
+}
+
 // Only color partitions the gallery; other option axes share imagery.
 export function hasColorImagePartitioning(options: ProductOption[]): boolean {
   const color = findColorOption(options);

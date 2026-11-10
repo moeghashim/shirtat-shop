@@ -110,6 +110,39 @@ export function localizeAnyOptionValue(value: string, locale: Locale): string {
   return COLOR_AR[value] ?? SIZE_AR[value] ?? REGION_AR[value] ?? FIT_AR[value] ?? value;
 }
 
+function productImageKind(altText: string): "detail" | "model" | "product" {
+  if (/^AI-generated model/i.test(altText)) return "model";
+  if (/\b(artwork|calligraphy|design)\b/i.test(altText)) return "detail";
+  return "product";
+}
+
+/** Alt text in the page language, from the product title, garment type and colour. */
+export function describeProductImage({
+  altText = "",
+  color,
+  locale,
+  title,
+}: {
+  altText?: string;
+  color?: string;
+  locale: Locale;
+  title: string;
+}): string {
+  const kind = productImageKind(altText);
+  const name = localizeProductTitle(title, locale).trim();
+  const colorName = color ? localizeAnyOptionValue(color, locale) : "";
+  if (locale === "ar") {
+    const base = colorName ? `${name} باللون ${colorName}` : name;
+    if (kind === "model") return `${base}، على عارض، خط عربي`;
+    if (kind === "detail") return `${base}، تفاصيل التصميم، خط عربي`;
+    return `${base}، خط عربي`;
+  }
+  const base = colorName ? `${name} in ${colorName}` : name;
+  if (kind === "model") return `${base}, worn by a model, Arabic calligraphy`;
+  if (kind === "detail") return `${base}, design detail, Arabic calligraphy`;
+  return `${base}, Arabic calligraphy`;
+}
+
 /** English sentences that appear in product descriptions next to the Arabic paragraph. */
 const SENTENCE_AR: Record<string, string> = {
   "Design by Shirtat.": "تصميم شيرتات.",

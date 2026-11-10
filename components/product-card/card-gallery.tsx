@@ -6,21 +6,32 @@ import Image from "next/image";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { useLocale } from "@/lib/i18n/client";
+import { describeProductImage } from "@/lib/i18n/product";
 import type { Image as ImageType } from "@/lib/media/types";
 
 interface CardGalleryProps {
   alt: string;
   children?: ReactNode;
+  color?: string;
   images: ImageType[];
   loading?: "eager" | "lazy";
+  title?: string;
 }
 
 const DESIGN_ALT = /\b(design|artwork|calligraphy)\b/i;
 const SIZES = "(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw";
 
 // The first image is the only one in the initial HTML; the rest mount on hover/focus intent.
-export function CardGallery({ alt, children, images, loading = "lazy" }: CardGalleryProps) {
-  const isAr = useLocale().startsWith("ar");
+export function CardGallery({
+  alt,
+  children,
+  color,
+  images,
+  loading = "lazy",
+  title,
+}: CardGalleryProps) {
+  const locale = useLocale();
+  const isAr = locale.startsWith("ar");
   const [armed, setArmed] = useState(false);
   const [index, setIndex] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -82,17 +93,24 @@ export function CardGallery({ alt, children, images, loading = "lazy" }: CardGal
   };
 
   return (
-    <div
-      ref={ref}
-      className="group/gallery absolute inset-0"
-      onFocus={() => setArmed(true)}
-    >
+    <div ref={ref} className="group/gallery absolute inset-0" onFocus={() => setArmed(true)}>
       {images.map((img, i) =>
         i === 0 || (armed && (i === shown || i === 1)) ? (
           <Image
             key={img.url}
             src={img.url}
-            alt={i === 0 ? alt : img.altText || alt}
+            alt={
+              title
+                ? describeProductImage({
+                    altText: img.altText,
+                    color: i === 0 ? color : undefined,
+                    locale,
+                    title,
+                  })
+                : i === 0
+                  ? alt
+                  : img.altText || alt
+            }
             fill
             sizes={SIZES}
             loading={i === 0 ? loading : "eager"}
