@@ -1,5 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 
+import { getBlog } from "@/lib/blog/server";
+import { isCustomDesignHandle } from "@/lib/custom/products";
 import {
   fetchArticleSitemapPage,
   fetchSitemapPage,
@@ -10,6 +12,31 @@ import type {
   ShopifySitemapType,
   SitemapResource,
 } from "@/lib/shopify/operations/sitemap/types";
+
+/** Custom products 308 to /design, /pages/contact duplicates /contact, and a blog with no posts is not a final URL. */
+export async function isIndexableSitemapResource(
+  type: ShopifySitemapType,
+  handle: string,
+): Promise<boolean> {
+  if (type === "PRODUCT") return !isCustomDesignHandle(handle);
+  if (type === "PAGE") return handle !== "contact";
+  if (type === "BLOG") {
+    const blog = await getBlog({ handle });
+    return (blog?.articles.length ?? 0) > 0;
+  }
+  return true;
+}
+
+export async function sitemapShardIsListed(
+  type: ShopifySitemapType,
+  page: number,
+): Promise<boolean> {
+  const { items } = await getShopifySitemapPage(type, page);
+  for (const item of items) {
+    if (await isIndexableSitemapResource(type, item.handle)) return true;
+  }
+  return false;
+}
 
 function sitemapCacheTags(type: ShopifySitemapType): string[] {
   if (type === "ARTICLE") return ["articles", "articles-index"];

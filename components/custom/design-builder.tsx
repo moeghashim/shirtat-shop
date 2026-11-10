@@ -55,6 +55,7 @@ interface DesignBuilderProps {
 const KIND_LABEL: Record<CustomKind, string> = { hoodie: "Hoodie", mug: "Mug", tee: "T-shirt" };
 
 export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
+  const locale = useLocale();
   const t = useT();
   const products = useMemo<Record<CustomKind, ProductFormInput | null>>(
     () => ({
@@ -76,6 +77,25 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
   const [text, setText] = useState("");
   const [styleId, setStyleId] = useState(2);
   const [presetId, setPresetId] = useState<number | null>(null);
+  useEffect(() => {
+    const apply = () => {
+      const raw = (
+        window.location.hash.replace(/^#/, "") ||
+        new URLSearchParams(window.location.search).get("style") ||
+        ""
+      ).toLowerCase();
+      if (!raw) return;
+      const name =
+        raw === "kufic" || raw === "modern-kufic" ? "modern kufic" : raw.replace(/-/g, " ");
+      const style = DESIGN_STYLES.find(
+        (item) => item.nameEn.toLowerCase() === name || String(item.id) === raw,
+      );
+      if (style) setStyleId(style.id);
+    };
+    apply();
+    window.addEventListener("hashchange", apply);
+    return () => window.removeEventListener("hashchange", apply);
+  }, []);
   const product = products[kind];
 
   const steps = (
@@ -129,7 +149,16 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
                     setPresetId(p.id);
                   }}
                 >
-                  <Thumb className="size-full object-cover" size={96} src={presetImage(p.id)} />
+                  <Thumb
+                    alt={
+                      locale === "ar"
+                        ? `مثال خط عربي: ${p.text}`
+                        : `Arabic calligraphy example: ${p.text}`
+                    }
+                    className="size-full object-cover"
+                    size={96}
+                    src={presetImage(p.id)}
+                  />
                 </button>
               </li>
             ))}
@@ -174,7 +203,17 @@ export function DesignBuilder({ hoodie, mug, tee }: DesignBuilderProps) {
 }
 
 /** A decorative thumbnail that is requested only once it is about to scroll into view. */
-function Thumb({ className, size, src }: { className: string; size: number; src: string }) {
+function Thumb({
+  alt,
+  className,
+  size,
+  src,
+}: {
+  alt: string;
+  className: string;
+  size: number;
+  src: string;
+}) {
   const ref = useRef<HTMLImageElement>(null);
   const [near, setNear] = useState(false);
   useEffect(() => {
@@ -195,7 +234,7 @@ function Thumb({ className, size, src }: { className: string; size: number; src:
     // oxlint-disable-next-line nextjs/no-img-element
     <img
       ref={ref}
-      alt=""
+      alt={alt}
       className={className}
       decoding="async"
       height={size}
@@ -235,6 +274,7 @@ function StyleOptions({ onSelect, styleId }: { onSelect: (id: number) => void; s
           </span>
         ) : null}
         <Thumb
+          alt={locale === "ar" ? `عينة ${s.nameAr}` : `${s.nameEn} Arabic calligraphy sample`}
           className="aspect-square w-full rounded-lg object-cover"
           size={96}
           src={styleImage(s.id)}
@@ -529,6 +569,7 @@ function PreviewDock({
   style: NonNullable<ReturnType<typeof getStyle>>;
   text: string;
 }) {
+  const locale = useLocale();
   const t = useT();
   const [open, setOpen] = useState(false);
   const stage = (width: string) => (
@@ -590,7 +631,7 @@ function PreviewDock({
           >
             {art ? (
               <Image
-                alt=""
+                alt={artAlt(locale, text)}
                 className="size-full object-contain"
                 height={84}
                 src={art}
@@ -653,6 +694,11 @@ function StyleSample({ style }: { style: NonNullable<ReturnType<typeof getStyle>
   );
 }
 
+function artAlt(locale: string, text: string): string {
+  if (!text) return "";
+  return locale === "ar" ? `خط عربي: ${text}` : `Arabic calligraphy: ${text}`;
+}
+
 function Preview({
   plain,
   art,
@@ -674,13 +720,15 @@ function Preview({
   text: string;
   vertical: boolean;
 }) {
+  const locale = useLocale();
   const [left, top, width, height] = photo.art;
+  const photoAlt = locale === "ar" ? `${label}، خط عربي` : `${label}, Arabic calligraphy`;
   // Ink is printed, so on light fabric it multiplies into the shading; on dark fabric it stays light.
   const blend = onDark ? "" : "mix-blend-multiply";
   return (
     <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white">
       <Image
-        alt={label}
+        alt={photoAlt}
         className="absolute inset-0 size-full object-cover"
         data-testid="product-photo"
         height={800}
@@ -702,7 +750,7 @@ function Preview({
       >
         {art ? (
           <Image
-            alt=""
+            alt={artAlt(locale, text)}
             className={cn("size-full object-contain object-top", onDark ? "opacity-95" : "")}
             height={248}
             src={art}

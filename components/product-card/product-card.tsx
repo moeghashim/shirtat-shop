@@ -1,5 +1,8 @@
+"use client";
+
 import { Link } from "@/components/ui/link";
-import { buildProductUrl } from "@/lib/product";
+import { useLocale } from "@/lib/i18n/client";
+import { describeProductImage } from "@/lib/i18n/product";
 import type { ProductCard as ProductCardType } from "@/lib/product/types";
 
 import {
@@ -21,15 +24,27 @@ export interface ProductCardProps {
 }
 
 export function ProductCard({ loading, outOfStockText, product, quickShopText }: ProductCardProps) {
-  const href = buildProductUrl(product.handle, product.defaultVariantSelectedOptions ?? []);
+  const locale = useLocale();
+  const color = product.defaultVariantSelectedOptions?.find(
+    (option) => option.name.toLowerCase() === "color",
+  )?.value;
+  const href = `/products/${product.handle}`;
+  const alt = describeProductImage({
+    altText: product.featuredImage?.altText,
+    color,
+    locale,
+    title: product.title,
+  });
   // The link is stretched rather than wrapping the card so Quick Shop isn't a button inside an anchor.
   return (
     <ProductCardRoot>
       <ProductCardImageContainer>
         <ProductCardImage
           src={product.featuredImage?.url}
-          alt={product.featuredImage?.altText || product.title}
+          alt={alt}
+          color={color}
           gallery={product.galleryImages}
+          title={product.title}
           height={product.featuredImage?.height}
           loading={loading}
           outOfStock={!product.availableForSale}

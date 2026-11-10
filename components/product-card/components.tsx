@@ -6,9 +6,9 @@ import { DiscountBadge } from "@/components/product/discount-badge";
 import { Price } from "@/components/product/price";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import type { Image as ImageType } from "@/lib/media/types";
+import { getDiscountPercent } from "@/lib/product";
 
 import { CardGallery } from "./card-gallery";
-import { getDiscountPercent } from "@/lib/product";
 
 function ProductCard({ className, children, ...props }: ComponentProps<"article">) {
   return (
@@ -38,12 +38,14 @@ interface ProductCardImageProps {
   alt: string;
   children?: ReactNode;
   className?: string;
+  color?: string;
   height?: number;
   loading?: "eager" | "lazy";
   outOfStock?: boolean;
   outOfStockText?: string;
   gallery?: ImageType[];
   src?: string | null;
+  title?: string;
   width?: number;
 }
 
@@ -51,12 +53,14 @@ function ProductCardImage({
   alt,
   children,
   className,
+  color,
   gallery,
   height,
   loading = "lazy",
   outOfStock = false,
   outOfStockText,
   src,
+  title,
   width,
 }: ProductCardImageProps) {
   return (
@@ -65,7 +69,7 @@ function ProductCardImage({
       className={cn("relative aspect-square overflow-hidden bg-[#ececea]", className)}
     >
       {gallery && gallery.length > 0 ? (
-        <CardGallery alt={alt} images={gallery} loading={loading} />
+        <CardGallery alt={alt} color={color} images={gallery} loading={loading} title={title} />
       ) : src ? (
         <Image
           src={src}

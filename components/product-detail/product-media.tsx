@@ -2,15 +2,32 @@
 
 import { cn } from "cn";
 import Image, { getImageProps } from "next/image";
-import { type ReactNode, useEffect, useState } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
 import { preload } from "react-dom";
 
 import { AutoPlayVideo } from "@/components/ui/auto-play-video";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
-import { useT } from "@/lib/i18n/client";
+import { useLocale, useT } from "@/lib/i18n/client";
+import { describeProductImage } from "@/lib/i18n/product";
 import type { Image as ImageType, Video } from "@/lib/media/types";
 
 import { Lightbox, LightboxTrigger } from "./lightbox";
+
+const ProductImageContext = createContext<{ colors: Record<string, string>; title: string }>({
+  colors: {},
+  title: "",
+});
+
+function useImageCaption(image: ImageType): string {
+  const locale = useLocale();
+  const { colors, title } = useContext(ProductImageContext);
+  return describeProductImage({
+    altText: image.altText,
+    color: colors[image.url],
+    locale,
+    title,
+  });
+}
 
 type MediaItem =
   | { type: "image"; image: ImageType }
@@ -62,10 +79,11 @@ function MediaImage({
   priority: boolean;
   className?: string;
 }) {
+  const caption = useImageCaption(item.image);
   return (
     <Image
       src={item.image.url}
-      alt={item.image.altText || `${title} image ${idx + 1}`}
+      alt={caption || `${title} ${idx + 1}`}
       height={item.image.height}
       width={item.image.width}
       className={cn("absolute inset-0 size-full object-cover", className)}
@@ -85,14 +103,18 @@ function MediaVideo({
   priority: boolean;
   className?: string;
 }) {
+  const preview = item.video.previewImage;
+  const caption = useImageCaption(
+    preview ?? { altText: "", height: 0, url: item.video.url, width: 0 },
+  );
   return (
     <AutoPlayVideo
       src={item.video.url}
       previewImage={
-        item.video.previewImage
+        preview
           ? {
-              src: item.video.previewImage.url,
-              alt: item.video.previewImage.altText || "",
+              src: preview.url,
+              alt: caption,
             }
           : null
       }
@@ -241,9 +263,7 @@ function GridItem({
       ) : item.type === "placeholder" ? (
         <ImagePlaceholder className="size-full" />
       ) : (
-        <LightboxTrigger image={item.image}>
-          <MediaImage item={item} title={title} idx={idx} priority={priority} />
-        </LightboxTrigger>
+        <CaptionedLightbox item={item} title={title} idx={idx} priority={priority} />
       )}
     </div>
   );
@@ -290,6 +310,25 @@ function Grid({
   return interactive ? <Lightbox label={title}>{grid}</Lightbox> : grid;
 }
 
+function CaptionedLightbox({
+  idx,
+  item,
+  priority,
+  title,
+}: {
+  idx: number;
+  item: Extract<MediaItem, { type: "image" }>;
+  priority: boolean;
+  title: string;
+}) {
+  const caption = useImageCaption(item.image);
+  return (
+    <LightboxTrigger image={{ ...item.image, altText: caption }}>
+      <MediaImage item={item} title={title} idx={idx} priority={priority} />
+    </LightboxTrigger>
+  );
+}
+
 export function ColorImageGrid({ images, title }: { images: ImageType[]; title: string }) {
   return images.map((image, idx) => (
     <GridItem
@@ -302,27 +341,35 @@ export function ColorImageGrid({ images, title }: { images: ImageType[]; title: 
   ));
 }
 
-export function ColorImageCarouselItems({ images, title }: { images: ImageType[]; title: string }) {
+function CaptionedCarouselImage({ idx, image }: { idx: number; image: ImageType }) {
+  const caption = useImageCaption(image);
+  return (
+    <Image
+      src={image.url}
+      alt={caption}
+      height={image.height}
+      width={image.width}
+      className="absolute inset-0 size-full object-cover"
+      sizes="(min-width: 1024px) 50vw, 100vw"
+      {...(idx === 0 ? LCP_IMAGE_PROPS : LAZY_IMAGE_PROPS)}
+      draggable={false}
+    />
+  );
+}
+
+export function ColorImageCarouselItems({ images }: { images: ImageType[]; title: string }) {
   return images.map((image, idx) => (
     <div
       key={image.url}
       className="relative shrink-0 w-full snap-start snap-always overflow-hidden aspect-square"
     >
-      <Image
-        src={image.url}
-        alt={image.altText || `${title} image ${idx + 1}`}
-        height={image.height}
-        width={image.width}
-        className="absolute inset-0 size-full object-cover"
-        sizes="(min-width: 1024px) 50vw, 100vw"
-        {...(idx === 0 ? LCP_IMAGE_PROPS : LAZY_IMAGE_PROPS)}
-        draggable={false}
-      />
+      <CaptionedCarouselImage image={image} idx={idx} />
     </div>
   ));
 }
 
 export function ProductMedia({
+  colors = {},
   otherImages,
   videos,
   title,
@@ -330,6 +377,7 @@ export function ProductMedia({
   desktopSlot,
   mobileSlot,
 }: {
+  colors?: Record<string, string>;
   otherImages: ImageType[];
   videos: Video[];
   title: string;
@@ -347,27 +395,29 @@ export function ProductMedia({
   const mediaItems: MediaItem[] = isEmpty ? [{ type: "placeholder" }] : sharedMediaItems;
 
   return (
-    <div className={className}>
-      <div className="lg:hidden">
-        <Carousel
-          key={mediaItems.map(mediaKey).join(",")}
-          mediaItems={mediaItems}
-          title={title}
-          hasColorSlot={hasColorSlot}
-        >
-          {mobileSlot}
-        </Carousel>
+    <ProductImageContext.Provider value={{ colors, title }}>
+      <div className={className}>
+        <div className="lg:hidden">
+          <Carousel
+            key={mediaItems.map(mediaKey).join(",")}
+            mediaItems={mediaItems}
+            title={title}
+            hasColorSlot={hasColorSlot}
+          >
+            {mobileSlot}
+          </Carousel>
+        </div>
+        <div className="hidden lg:block">
+          <Grid
+            mediaItems={mediaItems}
+            title={title}
+            hasColorSlot={hasColorSlot}
+            interactive={!isEmpty}
+          >
+            {desktopSlot}
+          </Grid>
+        </div>
       </div>
-      <div className="hidden lg:block">
-        <Grid
-          mediaItems={mediaItems}
-          title={title}
-          hasColorSlot={hasColorSlot}
-          interactive={!isEmpty}
-        >
-          {desktopSlot}
-        </Grid>
-      </div>
-    </div>
+    </ProductImageContext.Provider>
   );
 }

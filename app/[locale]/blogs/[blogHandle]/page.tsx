@@ -41,6 +41,7 @@ export async function generateMetadata({
       type: "website",
       url: pathname,
     }),
+    robots: blog.articles.length === 0 ? { follow: true, index: false } : undefined,
     title,
   };
 }

@@ -2,6 +2,7 @@ import { ChevronDownIcon, GlobeIcon, PrinterIcon, RotateCcwIcon } from "lucide-r
 
 import { ProductCard } from "@/components/product-card/product-card";
 import { Link } from "@/components/ui/link";
+import { getCategory } from "@/lib/collections/categories";
 import type { CommerceLocale } from "@/lib/config/types";
 import { getAlsoLike, getMoreFromDesign, getPdpExtras } from "@/lib/product/pdp-extras";
 import { type Bilingual, getProductSpecs } from "@/lib/product/specs";
@@ -252,25 +253,41 @@ export function PdpTrustAndDetails({
 }
 
 function Row({
-  title,
-  products,
+  href,
   isArabic,
+  linkLabel,
+  products,
+  title,
 }: {
-  title: string;
-  products: Awaited<ReturnType<typeof getMoreFromDesign>>;
+  href?: string;
   isArabic: boolean;
+  linkLabel?: string;
+  products: Awaited<ReturnType<typeof getMoreFromDesign>>;
+  title: string;
 }) {
-  if (products.length === 0) return null;
+  if (products.length === 0 && !href) return null;
   return (
     <section className="grid min-w-0 gap-4" dir={isArabic ? "rtl" : "ltr"}>
-      <h2 className="text-2xl sm:text-3xl">{title}</h2>
-      <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0">
-        {products.map((product) => (
-          <div key={product.id} className="w-[44%] shrink-0 snap-start sm:w-[30%] lg:w-auto">
-            <ProductCard product={product} outOfStockText={t("outOfStock", isArabic)} />
-          </div>
-        ))}
+      <div className="flex items-end justify-between gap-4">
+        <h2 className="text-2xl sm:text-3xl">{title}</h2>
+        {href && linkLabel ? (
+          <Link
+            className="shrink-0 cursor-pointer text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            href={href}
+          >
+            {linkLabel}
+          </Link>
+        ) : null}
       </div>
+      {products.length > 0 ? (
+        <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0">
+          {products.map((product) => (
+            <div key={product.id} className="w-[44%] shrink-0 snap-start sm:w-[30%] lg:w-auto">
+              <ProductCard product={product} outOfStockText={t("outOfStock", isArabic)} />
+            </div>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -298,11 +315,31 @@ export async function AlsoLikeRow({
   locale: CommerceLocale;
 }) {
   const { category } = await getPdpExtras(handle, isArabic);
+  let shown = category;
   let products = category ? await getAlsoLike(handle, category, locale) : [];
   if (products.length < 2 && category !== "cultures") {
-    products = await getAlsoLike(handle, "cultures", locale);
+    const fallback = await getAlsoLike(handle, "cultures", locale);
+    if (fallback.length >= 2) {
+      products = fallback;
+      shown = "cultures";
+    }
   }
-  return <Row title={t("alsoLike", isArabic)} products={products} isArabic={isArabic} />;
+  const collection = shown ? getCategory(shown) : undefined;
+  return (
+    <Row
+      href={collection ? `/collections/${collection.id}` : undefined}
+      isArabic={isArabic}
+      linkLabel={
+        collection
+          ? isArabic
+            ? `تسوّق ${collection.labelAr}`
+            : `Shop ${collection.labelEn}`
+          : undefined
+      }
+      products={products}
+      title={t("alsoLike", isArabic)}
+    />
+  );
 }
 
 function LegacySizeAndFabric({

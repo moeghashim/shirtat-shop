@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { CATEGORIES } from "@/lib/collections/categories";
 import { type HomeProduct, getHomeProducts } from "@/lib/home/server";
+import { describeProductImage } from "@/lib/i18n/product";
 import { getLocale, getT } from "@/lib/i18n/server";
 
 type Translate = Awaited<ReturnType<typeof getT>>;
@@ -111,6 +112,7 @@ function pickByType(products: HomeProduct[], type: string) {
 
 export async function ProductTypeRow() {
   const t = await getT();
+  const locale = await getLocale();
   const products = await getHomeProducts();
   return (
     <Container>
@@ -124,7 +126,15 @@ export async function ProductTypeRow() {
                 <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
                   {p?.image && (
                     <Image
-                      alt=""
+                      alt={
+                        p
+                          ? describeProductImage({
+                              altText: p.image?.altText ?? "",
+                              locale,
+                              title: p.title,
+                            })
+                          : t(pt.label)
+                      }
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       fill
                       sizes="(min-width: 768px) 20vw, 160px"
@@ -170,7 +180,11 @@ export async function DesignSpotlight() {
         >
           {hero.image && (
             <Image
-              alt={localTitle(hero.title, locale)}
+              alt={describeProductImage({
+                altText: hero.image.altText ?? "",
+                locale,
+                title: hero.title,
+              })}
               className="object-cover transition-transform duration-500 group-hover:scale-105"
               fill
               sizes="(min-width: 768px) 45vw, 90vw"
@@ -200,7 +214,11 @@ export async function DesignSpotlight() {
                 >
                   {p.image && (
                     <Image
-                      alt={localTitle(p.title, locale)}
+                      alt={describeProductImage({
+                        altText: p.image.altText ?? "",
+                        locale,
+                        title: p.title,
+                      })}
                       className="object-cover"
                       fill
                       sizes="96px"
@@ -326,6 +344,7 @@ export async function NewArrivals() {
               <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#ececea]">
                 <CardGallery
                   alt={localTitle(p.title, locale)}
+                  title={p.title}
                   images={
                     p.gallery.length
                       ? p.gallery

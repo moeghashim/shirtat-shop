@@ -44,6 +44,7 @@ import {
   getColorImagesOrdered,
   getNonColorImages,
   hasColorImagePartitioning,
+  imageColorNames,
   toProductFormInput,
   toStaticOptionGroups,
 } from "@/lib/product";
@@ -59,9 +60,11 @@ export function ProductDetailSection({
   selectedOptionsPromise: Promise<SelectedOptions>;
   variantPromise: Promise<ProductVariant | undefined>;
 }) {
+  const colors = imageColorNames(product.options);
   return (
     <>
       <ProductSchema
+        colors={colors}
         product={{
           handle: product.handle,
           title: product.title,
@@ -100,9 +103,11 @@ function ProductMediaArea({
   product: ProductDetails;
   selectedOptionsPromise: Promise<SelectedOptions>;
 }) {
+  const colors = imageColorNames(product.options);
   if (!hasColorImagePartitioning(product.options)) {
     return (
       <ProductMedia
+        colors={colors}
         otherImages={product.images}
         videos={product.videos}
         title={product.title}
@@ -114,6 +119,7 @@ function ProductMediaArea({
   const defaultImages = getColorImagesOrdered(product, defaultSelectedOptions(product));
   return (
     <ProductMedia
+      colors={colors}
       otherImages={getNonColorImages(product.images, product.options)}
       videos={product.videos}
       title={product.title}
