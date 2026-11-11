@@ -1,4 +1,5 @@
 import { shopConfig } from "@/lib/config";
+import { GUIDE_PATHS } from "@/lib/guides/copy";
 
 import type { AcceptEntry, Representation } from "./types";
 
@@ -92,6 +93,9 @@ export function getMarkdownPath(pathname: string): string | null {
   if (pathname === "/search") return "/md/search";
   if (pathname.startsWith("/collections/")) return `/md${pathname}`;
   if (pathname.startsWith("/products/")) return `/md${pathname}`;
+  const localePrefix = pathname === "/ar" || pathname.startsWith("/ar/") ? "/ar" : "";
+  const bare = pathname.replace(/^\/ar(?=\/|$)/, "") || "/";
+  if ((GUIDE_PATHS as readonly string[]).includes(bare)) return `/md/guides${localePrefix}${bare}`;
   return null;
 }
 

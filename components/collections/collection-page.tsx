@@ -13,7 +13,9 @@ import { Link } from "@/components/ui/link";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
 import { Skeleton } from "@/components/ui/skeleton";
+import { collectionLeads } from "@/lib/collections/categories";
 import type { Collection, SortValue } from "@/lib/collections/types";
+import { getLocale, getT } from "@/lib/i18n/server";
 
 interface CollectionLayoutProps {
   children: ReactNode;
@@ -37,7 +39,7 @@ export function CollectionLayout({
       <Page className="pt-2.5 md:pt-10">
         <Container>
           <Sections className="gap-5">
-            <CollectionHeader collection={collection} handle={handle} homeLabel="Home" />
+            <CollectionHeader collection={collection} handle={handle} />
             <CollectionBrowseFrame handle={handle} path={`/collections/${handle}`}>
               <BrowseToolbar
                 filters={<PublishedCollectionFilters fallback={<CollectionFiltersSkeleton />} />}
@@ -91,19 +93,20 @@ export function CollectionDetailSkeleton() {
   );
 }
 
-function CollectionHeader({
+async function CollectionHeader({
   collection,
   handle,
-  homeLabel,
 }: {
   collection: Collection;
   handle: string;
-  homeLabel: string;
 }) {
+  const locale = await getLocale();
+  const t = await getT();
   const { title, description, updatedAt } = collection;
+  const leads = collectionLeads(handle, locale) ?? (description ? [description] : []);
 
   const breadcrumbItems = [
-    { name: homeLabel, path: "/" },
+    { name: t("Home"), path: "/" },
     { name: title, path: `/collections/${handle}` },
   ];
 
@@ -111,11 +114,15 @@ function CollectionHeader({
     <>
       <BreadcrumbSchema items={breadcrumbItems} />
       <CollectionSchema collection={{ handle, title, description, updatedAt }} />
-      <div>
+      <div className="grid gap-3">
         <h1 className="text-3xl sm:text-4xl md:text-5xl">
           <Link href={`/collections/${handle}`}>{title}</Link>
         </h1>
-        {description && <p className="mt-1 leading-6 text-muted-foreground">{description}</p>}
+        {leads.map((sentence) => (
+          <p key={sentence} className="max-w-3xl leading-6 text-muted-foreground">
+            {sentence}
+          </p>
+        ))}
       </div>
     </>
   );

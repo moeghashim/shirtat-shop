@@ -95,6 +95,24 @@ export async function Footer() {
               >
                 {t("Sales")}
               </Link>
+              <Link
+                href="/gift-guide"
+                className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t("Gift guide")}
+              </Link>
+              <Link
+                href="/glossary"
+                className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t("Glossary")}
+              </Link>
+              <Link
+                href="/scripts"
+                className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t("Calligraphy scripts")}
+              </Link>
               <p className="text-sm text-muted-foreground leading-6">
                 {t("This project is part of")}{" "}
                 <a
