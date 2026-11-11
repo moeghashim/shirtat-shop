@@ -175,6 +175,9 @@ export function SeoChecklist({ tasks }: { tasks: SeoDashboardData["tasks"] }) {
                               </>
                             ) : null}
                           </p>
+                          <p className="text-sm" dir="auto">
+                            {task.approval}
+                          </p>
                           {view.completion ? (
                             <p className="text-muted-foreground text-sm" dir="auto">
                               {view.completion}
