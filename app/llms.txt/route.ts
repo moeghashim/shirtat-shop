@@ -1,6 +1,7 @@
 import { getCollections } from "@/lib/collections/server";
 import { shopConfig } from "@/lib/config";
 import { summarizeText } from "@/lib/content";
+import { GUIDES } from "@/lib/guides/copy";
 import { escapeMarkdown } from "@/lib/markdown";
 import { getShopPolicies } from "@/lib/policies/server";
 
@@ -61,6 +62,10 @@ ${[
 
 - [All products](${url}/collections/all): The full product catalog.
 ${collectionLinks.length > 0 ? `\n## Collections\n\n${collectionLinks.join("\n")}\n` : ""}
+## Guides
+
+${GUIDES.map((guide) => `- [${escapeMarkdown(guide.h1.en)}](${url}${guide.path}): ${escapeMarkdown(guide.seoDescription.en)}`).join("\n")}
+
 ## Discovery
 
 - [Sitemap](${url}/sitemap.xml): Complete index of product and collection URLs.

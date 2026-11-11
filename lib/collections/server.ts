@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { describeCollection, PRODUCTS_PER_PAGE, resolveBrowseParams } from "@/lib/collections";
-import { categoryCollection, localizeCategory } from "@/lib/collections/categories";
+import {
+  categoryCollection,
+  collectionDocument,
+  collectionLeads,
+  localizeCategory,
+} from "@/lib/collections/categories";
 import type {
   BrowseResults,
   BrowseState,
@@ -207,7 +212,8 @@ export async function fetchCollectionResults({
 
 export async function getAllProductsCollection(locale: Locale = "en"): Promise<Collection> {
   const title = translate(locale, "Products");
-  const description = "";
+  const document = collectionDocument(ALL_PRODUCTS_HANDLE, locale);
+  const description = (collectionLeads(ALL_PRODUCTS_HANDLE, locale) ?? []).join(" ");
   return {
     handle: ALL_PRODUCTS_HANDLE,
     title,
@@ -215,8 +221,10 @@ export async function getAllProductsCollection(locale: Locale = "en"): Promise<C
     image: null,
     path: `/collections/${ALL_PRODUCTS_HANDLE}`,
     seo: {
-      description: `Browse every product at ${shopConfig.site.name}: compare prices and check availability.`,
-      title,
+      description:
+        document?.description ??
+        `Browse every product at ${shopConfig.site.name}: compare prices and check availability.`,
+      title: document?.title ?? title,
     },
   };
 }
@@ -228,8 +236,9 @@ function browseMetadata(
   locale: Locale = "en",
 ): Metadata {
   const url = `/collections/${handle}`;
+  const documentTitle = title.includes("|") ? { absolute: title } : title;
   return {
-    title,
+    title: documentTitle,
     description,
     alternates: buildAlternates({ locale, pathname: url }),
     openGraph: buildOpenGraph({ locale, title, description, url, type: "website" }),
@@ -265,10 +274,11 @@ export async function getCollectionMetadata(handle: string): Promise<Metadata> {
 
 export async function getAllProductsMetadata(): Promise<Metadata> {
   const locale = await getLocale();
+  const collection = await getAllProductsCollection(locale);
   return browseMetadata(
     ALL_PRODUCTS_HANDLE,
-    translate(locale, "Products"),
-    describeCollection(await getAllProductsCollection(locale)),
+    collection.seo.title,
+    describeCollection(collection),
     locale,
   );
 }

@@ -12,7 +12,34 @@ const nextConfig: NextConfig = {
     serverActions: { bodySizeLimit: "4.5mb" },
   },
   async redirects() {
-    return [{ source: "/log", destination: "/making-of", permanent: true }];
+    return [
+      { destination: "/making-of", permanent: true, source: "/log" },
+      {
+        destination: "/collections/posters-prints",
+        permanent: true,
+        source: "/collections/prints",
+      },
+      {
+        destination: "/collections/posters-prints",
+        permanent: true,
+        source: "/collections/prints/",
+      },
+      {
+        destination: "/ar/collections/posters-prints",
+        permanent: true,
+        source: "/ar/collections/prints",
+      },
+      {
+        destination: "/ar/collections/posters-prints",
+        permanent: true,
+        source: "/ar/collections/prints/",
+      },
+      {
+        destination: "/collections/posters-prints",
+        permanent: true,
+        source: "/en/collections/prints",
+      },
+    ];
   },
   images: {
     // Small widths so phones don't download 1320px+ images (Lighthouse LCP).

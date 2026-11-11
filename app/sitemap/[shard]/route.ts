@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 
 import { shopConfig } from "@/lib/config";
+import { GUIDE_PATHS } from "@/lib/guides/copy";
 import { locales, localizePath, type Locale } from "@/lib/i18n";
 import { LEGAL } from "@/lib/legal/content";
 import { getShopPolicies } from "@/lib/policies/server";
-import { SITEMAP_STATIC_PATHS } from "@/lib/seo";
+import { GUIDE_LASTMOD, SITEMAP_STATIC_PATHS } from "@/lib/seo/paths";
 import {
   getShopifySitemapPage,
   getShopifySitemapPagesCount,
@@ -64,6 +65,7 @@ function staticLastmod(pathname: string): string {
   ) {
     return LEGAL_LASTMOD;
   }
+  if ((GUIDE_PATHS as readonly string[]).includes(pathname)) return GUIDE_LASTMOD;
   return STATIC_LASTMOD;
 }
 

@@ -2,8 +2,7 @@ import Image from "next/image";
 
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
-import { type Locale } from "@/lib/i18n";
-import { getLocale, getT } from "@/lib/i18n/server";
+import { getT } from "@/lib/i18n/server";
 
 interface InspirationCard {
   title: string;
@@ -31,19 +30,16 @@ const cards: InspirationCard[] = [
   },
 ];
 
-function scriptHref(title: string, locale: Locale): string | undefined {
-  if (title === "Thuluth") return "/design#thuluth";
-  if (title === "Diwani") return "/design#diwani";
-  if (title === "Kufic") {
-    const query = locale === "ar" ? "كوفي" : "Kufic";
-    return `/search?q=${encodeURIComponent(query)}`;
-  }
+function scriptHref(title: string): string | undefined {
+  if (title === "Thuluth") return "/scripts/thuluth";
+  if (title === "Diwani") return "/scripts/diwani";
+  if (title === "Kufic") return "/scripts/kufic";
+  if (title === "Words worth wearing") return "/glossary";
   return undefined;
 }
 
 export async function Inspiration() {
   const t = await getT();
-  const locale = await getLocale();
   return (
     <Container>
       <section className="relative overflow-hidden rounded-3xl bg-muted/60 px-6 py-14 md:px-14 md:py-20">
@@ -71,7 +67,7 @@ export async function Inspiration() {
         </div>
         <ul className="relative mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((card) => {
-            const href = scriptHref(card.title, locale);
+            const href = scriptHref(card.title);
             const className =
               "flex h-full flex-col gap-2 rounded-2xl border border-border bg-background/80 p-6 backdrop-blur-sm";
             const body = (
