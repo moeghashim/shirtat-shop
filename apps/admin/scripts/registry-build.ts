@@ -31,7 +31,7 @@ try {
     });
     Object.assign(built, theme);
     built.docs =
-      "Requires React 19 and an initialized Tailwind v4 + shadcn project. Installs the tenboards default theme globally (light/dark, typography, density, focus and motion); review CSS changes. Components and exact UI dependencies live under components/tenboards, helpers under lib/tenboards. No server/data/auth dependencies.";
+      "Requires React 19 and an initialized Tailwind v4 + shadcn project. Installs the Shirtat default theme globally (light/dark, typography, density, focus and motion); review CSS changes. Components and exact UI dependencies live under components/tenboards, helpers under lib/tenboards. No server/data/auth dependencies.";
     for (const file of built.files) {
       file.content = file.content
         .replaceAll("@/components/ui/", "@/components/tenboards/ui/")

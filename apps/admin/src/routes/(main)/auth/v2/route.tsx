@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-import { Brand } from "@/components/brand/brand";
+import { BrandLogo } from "@/components/brand/brand";
 import { APP_CONFIG } from "@/config/app-config";
 
 export const Route = createFileRoute("/(main)/auth/v2")({
@@ -18,7 +18,7 @@ function Layout() {
       </div>
       <aside className="bg-muted m-2 hidden flex-col justify-between gap-12 rounded-xl p-10 lg:flex">
         <div className="space-y-3">
-          <Brand className="text-foreground text-2xl" />
+          <BrandLogo className="text-foreground h-16" />
           <p className="text-muted-foreground text-sm">Owner and designer dashboards.</p>
         </div>
         <div className="grid gap-6 xl:grid-cols-2">

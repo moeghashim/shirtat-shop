@@ -88,7 +88,7 @@ writeFileSync(
   file,
   `import { Line } from "recharts";
 const color = "#123abc";
-const el = <section className="rounded-xl border bg-card p-[13px]"><h1>Reports</h1></section>;`,
+const el = <section className="rounded-xl border bg-card p-[13px]"><h1>Reports</h1><select /><input type="date" /></section>;`,
   { flag: "wx" },
 );
 try {

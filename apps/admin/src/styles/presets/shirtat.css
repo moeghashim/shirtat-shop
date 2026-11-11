@@ -1,0 +1,12 @@
+/*
+label: Shirtat
+value: shirtat
+*/
+
+:root[data-theme-preset="shirtat"] {
+  --primary: var(--accent-shirtat-light);
+}
+
+.dark:root[data-theme-preset="shirtat"] {
+  --primary: var(--accent-shirtat-dark);
+}

@@ -1,6 +1,6 @@
 # Shirtat admin
 
-Owner and designer dashboards for Shirtat. This directory is its own Vercel project (`apps/admin`). It is adapted from [tenboards](https://github.com/moeghashim/tenboards), an MIT TanStack Start template. The tenboards theme, Tailwind setup and block installer stay inside this app. Do not install those blocks into the storefront: a block install applies the theme globally.
+Owner and designer dashboards for Shirtat. This directory is its own Vercel project (`apps/admin`). It is adapted from [tenboards](https://github.com/moeghashim/tenboards), an MIT TanStack Start template. The default palette is Shirtat's. v0.10.1 uses one field and outline-button recipe, clearable FilterSelect controls, and aligned filter rows. The theme system, Tailwind setup and block installer stay inside this app. Do not install those blocks into the storefront: a block install applies the theme globally.
 
 Signed-in owners land on the SEO plan. Designers land on `/dashboard/designers`. Public sign-up is closed. See [docs/deploy.md](docs/deploy.md) for the Vercel project settings and Neon env vars.
 
@@ -30,7 +30,7 @@ Start a fresh Codex or Claude Code session in your clone and ask, for example, �
 - **Generators:** `npm run new:dashboard sales` or `npm run new:page vendors` scaffold a route, navigation entry, guarded loader, typed reads and fixtures.
 - **Blocks:** import `PageHeader`, `DashboardCard`, `StatCard`, `DataTable`, `DashboardChart` and friends from `@/components/blocks`. Every block has a live example at `/dashboard/kit`.
 - **Guardrails:** `npm run check` fails on raw colors, arbitrary sizes and look-alike cards. `npm run verify:page -- /dashboard/<slug>` captures light/dark × desktop/mobile and fails on axe violations and console or hydration errors. All 37 catalog routes pass.
-- **Outside this repo:** agents can read `/llms.txt` and `/llms-full.txt`. Other shadcn projects can install blocks with `npx shadcn add https://YOUR-HOST/r/stat-card.json`. Installing a block also applies the tenboards theme globally, so review the CSS changes.
+- **Outside this repo:** agents can read `/llms.txt` and `/llms-full.txt`. Other shadcn projects can install blocks with `npx shadcn add https://YOUR-HOST/r/stat-card.json`. Installing a block also applies the Shirtat default theme globally, so review the CSS changes.
 
 Generated database reads are illustrative stubs. Use the data skill and `npm run data:parity` before claiming a real database integration.
 
@@ -78,7 +78,7 @@ The live site is a zero-config demo with sample data and auth off. Adopters conn
 
 - [Reference](docs/reference.md): commands, previews, visual QA, data layer, auth and per-milestone notes
 - [Design guardrails](docs/design-guardrails.md) · [Data layer](docs/data-layer.md) · [Auth](docs/auth.md) · [Assistant](docs/assistant.md) · [Deploy](docs/deploy.md)
-- [Changelog](CHANGELOG.md) and [releases](https://github.com/moeghashim/tenboards/releases). v0.1–v0.10 are released; v0.9.0 is the agent-first release, v0.9.1 adds the project homepage and v0.10.0 adds generative dashboards in the AI Assistant.
+- [Changelog](CHANGELOG.md) and [releases](https://github.com/moeghashim/tenboards/releases). v0.1–v0.10.1 are released; v0.9.0 is the agent-first release, v0.9.1 adds the project homepage, v0.10.0 adds generative dashboards in the AI Assistant, and v0.10.1 unifies form controls and filters.
 
 ## Contributing
 

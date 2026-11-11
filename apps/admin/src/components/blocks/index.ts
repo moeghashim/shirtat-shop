@@ -47,5 +47,6 @@ export {
 } from "./charts";
 export type { DataTableProps } from "./data-table";
 export { DataTable } from "./data-table";
+export { FilterSelect, type FilterSelectProps } from "./filter-select";
 export type { PageHeaderProps } from "./page-header";
 export { PageHeader } from "./page-header";

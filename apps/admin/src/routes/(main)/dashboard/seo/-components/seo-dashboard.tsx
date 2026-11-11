@@ -29,6 +29,8 @@ import {
 } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import type { SeoDashboardData, SeoQuery } from "@/server/seo/read.server";
 
 import type {
@@ -312,7 +314,7 @@ export function SeoDashboard({ data, search }: { data: SeoDashboardData; search:
         title="SEO plan"
         description="Owner only. Search Console, the published catalog and the sitemap load from this server. Task statuses are edited in the plan file."
         actions={
-          <Button type="button" variant="outline" onClick={() => void router.invalidate()}>
+          <Button type="button" variant="ghost" onClick={() => void router.invalidate()}>
             Refresh
           </Button>
         }
@@ -352,25 +354,13 @@ export function SeoDashboard({ data, search }: { data: SeoDashboardData; search:
             ["90", "Last 90 days"],
           ]}
         />
-        <label className="grid gap-1 text-sm" htmlFor="seo-start">
+        <label className="flex flex-col gap-1 text-sm" htmlFor="seo-start">
           Start date
-          <input
-            className="border-input bg-background h-9 rounded-md border px-3"
-            id="seo-start"
-            onChange={(event) => setStart(event.target.value)}
-            type="date"
-            value={start}
-          />
+          <Input id="seo-start" onChange={(event) => setStart(event.target.value)} type="date" value={start} />
         </label>
-        <label className="grid gap-1 text-sm" htmlFor="seo-end">
+        <label className="flex flex-col gap-1 text-sm" htmlFor="seo-end">
           End date
-          <input
-            className="border-input bg-background h-9 rounded-md border px-3"
-            id="seo-end"
-            onChange={(event) => setEnd(event.target.value)}
-            type="date"
-            value={end}
-          />
+          <Input id="seo-end" onChange={(event) => setEnd(event.target.value)} type="date" value={end} />
         </label>
         <Button type="submit">Apply</Button>
       </form>
@@ -626,20 +616,15 @@ function Filter({
   value: string;
 }) {
   return (
-    <label className="grid gap-1 text-sm" htmlFor={`seo-${name}`}>
+    <label className="flex flex-col gap-1 text-sm" htmlFor={`seo-${name}`}>
       {label}
-      <select
-        className="border-input bg-background h-9 rounded-md border px-3"
-        defaultValue={value}
-        id={`seo-${name}`}
-        name={name}
-      >
+      <NativeSelect defaultValue={value} id={`seo-${name}`} name={name}>
         {options.map(([id, text]) => (
-          <option key={id} value={id}>
+          <NativeSelectOption key={id} value={id}>
             {text}
-          </option>
+          </NativeSelectOption>
         ))}
-      </select>
+      </NativeSelect>
     </label>
   );
 }

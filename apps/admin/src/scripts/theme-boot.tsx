@@ -86,7 +86,7 @@ export function ThemeBootScript() {
         root.style.colorScheme = resolvedMode;
 
         function applyFont(font) {
-          root.style.setProperty("--app-font-sans", '"' + font.family + '", ' + font.fallback);
+          root.style.setProperty("--app-font-sans", '"' + font.family + '", "El Messiri", ' + font.fallback);
           root.style.setProperty("--app-font-variation-settings", font.variationSettings || "normal");
         }
 

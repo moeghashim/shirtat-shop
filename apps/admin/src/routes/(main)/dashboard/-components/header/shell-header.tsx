@@ -1,14 +1,16 @@
 import { useLayoutEffect, useRef } from "react";
 
-import { useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 
 import { cn } from "cn";
 
+import { BrandMark } from "@/components/brand/brand";
 import { SearchTrigger } from "@/components/navigation/search-trigger";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import type { DemoAccount } from "@/data/users";
 import type { AuthState } from "@/lib/auth/types";
+import { APP_LANDING_ROUTE } from "@/navigation/landing";
 import { routeCatalog } from "@/navigation/route-catalog";
 
 import { AccountSwitcher } from "./account-switcher";
@@ -50,6 +52,9 @@ export function ShellHeader({ identity }: { identity: ShellIdentity }) {
           if (toggleRef.current?.getClientRects().length) toggleHadFocus.current = false;
         }}
       />
+      <Link to={APP_LANDING_ROUTE} aria-label="Shirtat" className="text-foreground shrink-0 rounded-md">
+        <BrandMark className="h-6" />
+      </Link>
       <div className="flex min-w-0 flex-1 items-center gap-2 text-sm">
         <span className="text-muted-foreground hidden shrink-0 sm:inline">Workspace</span>
         <span className="text-muted-foreground hidden sm:inline" aria-hidden="true">

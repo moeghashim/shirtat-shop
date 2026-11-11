@@ -9,8 +9,8 @@ export function GitHubRepositoriesMenu() {
       nativeButton={false}
       variant="ghost"
       size="icon"
-      render={<a href="https://github.com/moeghashim/tenboards" target="_blank" rel="noreferrer" />}
-      aria-label="tenboards on GitHub"
+      render={<a href="https://github.com/moeghashim/shirtat-shop" target="_blank" rel="noreferrer" />}
+      aria-label="Shirtat on GitHub"
     >
       <SimpleIcon icon={siGithub} className="fill-current" />
     </Button>
