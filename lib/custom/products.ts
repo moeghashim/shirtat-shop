@@ -1,12 +1,27 @@
 import { retailPrice, SUPPLIER_CATALOG } from "@/lib/catalog/pricing";
+import { type Locale, localizePath } from "@/lib/i18n";
 
-import { CUSTOM_DESIGN_HANDLES } from "./handles";
-import regions from "./regions.json";
+import {
+  CUSTOM_DESIGN_HANDLES,
+  CUSTOM_HOODIE_HANDLE,
+  CUSTOM_MUG_HANDLE,
+  CUSTOM_TEE_HANDLE,
+} from "./handles";
+import regions from "./regions.json" with { type: "json" };
 
-export { CUSTOM_HOODIE_HANDLE, CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE } from "./handles";
+export { CUSTOM_HOODIE_HANDLE, CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE };
 
 export function isCustomDesignHandle(handle: string) {
   return CUSTOM_DESIGN_HANDLES.has(handle);
+}
+
+/** HTML design-builder path for a custom product, in the shopper's locale. */
+export function customDesignPath(handle: string, locale: Locale): string | null {
+  if (!isCustomDesignHandle(handle)) return null;
+  const path = localizePath(locale, "/design");
+  if (handle === CUSTOM_MUG_HANDLE) return `${path}?product=mug`;
+  if (handle === CUSTOM_HOODIE_HANDLE) return `${path}?product=hoodie`;
+  return path;
 }
 export const CUSTOM_TAG = "custom-design";
 export const CUSTOM_SKU_PREFIX = "CUS-";

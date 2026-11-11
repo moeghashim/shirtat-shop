@@ -1,17 +1,16 @@
 import { getGuide } from "@/lib/guides/copy";
 import { guideToMarkdown } from "@/lib/guides/markdown";
-import type { Locale } from "@/lib/i18n";
 import { localizePath } from "@/lib/i18n";
-import { markdownHeaders } from "@/lib/markdown/representation";
+import { markdownHeaders, markdownLocale } from "@/lib/markdown/representation";
 
 export function generateStaticParams(): Array<{ path: string[] }> {
   return [];
 }
 
-export async function GET(_request: Request, { params }: { params: Promise<{ path: string[] }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
   const joined = `/${path.join("/")}`;
-  const locale: Locale = joined === "/ar" || joined.startsWith("/ar/") ? "ar" : "en";
+  const locale = markdownLocale(request);
   const pagePath = joined.replace(/^\/ar(?=\/|$)/, "") || "/";
   const guide = getGuide(pagePath);
   const pathname = localizePath(locale, pagePath);

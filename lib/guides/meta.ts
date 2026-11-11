@@ -11,7 +11,7 @@ export function guideMetadata(guide: Guide, locale: Locale): Metadata {
   const description = pick(guide.seoDescription, locale);
   const title = pick(guide.seoTitle, locale);
   return {
-    alternates: buildAlternates({ locale, pathname: guide.path }),
+    alternates: buildAlternates({ locale, markdown: true, pathname: guide.path }),
     description,
     openGraph: buildOpenGraph({
       description,

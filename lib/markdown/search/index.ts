@@ -1,7 +1,12 @@
 import { getSearchResultUrl } from "@shopify/hydrogen";
 
-import { shopConfig } from "@/lib/config";
-import { escapeRequestText, markdownFrontmatter } from "@/lib/markdown";
+import { type Locale, localizePath } from "@/lib/i18n";
+import {
+  absoluteStoreUrl,
+  aiReferralOffer,
+  escapeRequestText,
+  markdownFrontmatter,
+} from "@/lib/markdown";
 import { SEARCH_TERM_MAX_LENGTH } from "@/lib/search";
 
 function normalizeSearchTerm(query: string | undefined): string {
@@ -9,10 +14,12 @@ function normalizeSearchTerm(query: string | undefined): string {
   return Array.from(term).slice(0, SEARCH_TERM_MAX_LENGTH).join("").trimEnd();
 }
 
-export function searchToMarkdown(query: string | undefined): string {
-  const siteUrl = shopConfig.site.url;
+export function searchToMarkdown(query: string | undefined, locale: Locale = "en"): string {
   const term = normalizeSearchTerm(query);
-  const shopPath = term ? getSearchResultUrl({ baseUrl: "/search", term }) : "/search";
+  const shopPath = localizePath(
+    locale,
+    term ? getSearchResultUrl({ baseUrl: "/search", term }) : "/search",
+  );
 
   const title = term ? `Search: ${term}` : "Search";
   const description =
@@ -20,10 +27,12 @@ export function searchToMarkdown(query: string | undefined): string {
 
   return [
     markdownFrontmatter({
-      canonicalUrl: new URL(shopPath, siteUrl).toString(),
+      canonicalUrl: absoluteStoreUrl(shopPath),
       description,
       title,
     }),
+    "",
+    aiReferralOffer(locale),
     "",
     `# ${term ? `Search: ${escapeRequestText(term)}` : "Search"}`,
     "",
@@ -31,7 +40,7 @@ export function searchToMarkdown(query: string | undefined): string {
     "",
     "## Search",
     "",
-    `- Shop: ${new URL(shopPath, siteUrl)}`,
-    `- Live products, prices, and availability: UCP catalog search at ${new URL("/.well-known/ucp", siteUrl)}`,
+    `- Shop: ${absoluteStoreUrl(shopPath)}`,
+    `- Products: ${absoluteStoreUrl(`${localizePath(locale, "/products")}.md`)}`,
   ].join("\n");
 }

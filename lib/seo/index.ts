@@ -7,6 +7,24 @@ import type { SearchParamsInput } from "./types";
 
 export { SITEMAP_LOCALES, SITEMAP_STATIC_PATHS } from "./paths";
 
+/** Markdown indexes that have an English and Arabic URL. */
+export const SITEMAP_LOCALIZED_MARKDOWN_PATHS = [
+  "/collections.md",
+  "/collections/all.md",
+  "/products.md",
+] as const;
+
+/** One URL for both languages. The file itself is bilingual. */
+export const SITEMAP_SHARED_MARKDOWN_PATHS = ["/llms-full.txt", "/llms.txt"] as const;
+
+export function sitemapResourcePaths(
+  pathname: string,
+  kind: "collection" | "other" | "product",
+): string[] {
+  if (kind === "collection" || kind === "product") return [pathname, `${pathname}.md`];
+  return [pathname];
+}
+
 function normalizePath(pathname: string): string {
   if (!pathname) return "/";
   const withLeadingSlash = pathname.startsWith("/") ? pathname : `/${pathname}`;
@@ -48,10 +66,12 @@ function buildCanonicalPath(pathname: string, searchParams?: SearchParamsInput):
 
 export function buildAlternates({
   locale = defaultLocale,
+  markdown = false,
   pathname,
   searchParams,
 }: {
   locale?: Locale;
+  markdown?: boolean;
   pathname: string;
   searchParams?: SearchParamsInput;
 }): Metadata["alternates"] {
@@ -60,9 +80,13 @@ export function buildAlternates({
     languages[candidate] = buildCanonicalPath(localizePath(candidate, pathname), searchParams);
   }
   languages["x-default"] = buildCanonicalPath(localizePath(defaultLocale, pathname), searchParams);
+  const canonical = buildCanonicalPath(localizePath(locale, pathname), searchParams);
   return {
-    canonical: buildCanonicalPath(localizePath(locale, pathname), searchParams),
+    canonical,
     languages,
+    ...(markdown
+      ? { types: { "text/markdown": `${buildCanonicalPath(localizePath(locale, pathname))}.md` } }
+      : {}),
   };
 }
 

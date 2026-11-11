@@ -4,6 +4,9 @@ const defaultUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : "http://localhost:3000";
 
+/** Checkout code for shoppers who arrive from an AI assistant. Created in Shopify admin, not in this app. */
+export const AI_ASSISTANT_DISCOUNT_CODE = "SHIRTAT-AI";
+
 export const shopConfig = {
   agent: {
     isEnabled: true,

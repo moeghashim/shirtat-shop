@@ -5,7 +5,13 @@ import { GUIDE_PATHS } from "@/lib/guides/copy";
 import { locales, localizePath, type Locale } from "@/lib/i18n";
 import { LEGAL } from "@/lib/legal/content";
 import { getShopPolicies } from "@/lib/policies/server";
-import { GUIDE_LASTMOD, SITEMAP_STATIC_PATHS } from "@/lib/seo/paths";
+import {
+  SITEMAP_LOCALIZED_MARKDOWN_PATHS,
+  SITEMAP_SHARED_MARKDOWN_PATHS,
+  SITEMAP_STATIC_PATHS,
+  sitemapResourcePaths,
+} from "@/lib/seo";
+import { GUIDE_LASTMOD } from "@/lib/seo/paths";
 import {
   getShopifySitemapPage,
   getShopifySitemapPagesCount,
@@ -76,10 +82,19 @@ async function renderStatic(): Promise<Response> {
     ...Object.values(LEGAL).map(({ path }) => path),
     ...policies.map(({ handle }) => `/policies/${handle}`),
   ]);
-  const entries = [...paths]
-    .map((pathname) => localizedEntries(pathname, staticLastmod(pathname)))
-    .join("\n");
+  const entries = [
+    ...[...paths].map((pathname) => localizedEntries(pathname, staticLastmod(pathname))),
+    ...SITEMAP_LOCALIZED_MARKDOWN_PATHS.map((pathname) =>
+      localizedEntries(pathname, STATIC_LASTMOD),
+    ),
+    ...GUIDE_PATHS.map((pathname) => localizedEntries(`${pathname}.md`, GUIDE_LASTMOD)),
+    ...SITEMAP_SHARED_MARKDOWN_PATHS.map((pathname) => singleEntry(pathname, STATIC_LASTMOD)),
+  ].join("\n");
   return xmlResponse(urlsetWrap(entries));
+}
+
+function singleEntry(pathname: string, lastmod: string): string {
+  return `  <url>\n    <loc>${escapeXml(toAbsoluteUrl(pathname))}</loc>\n    <lastmod>${escapeXml(lastmod)}</lastmod>\n  </url>`;
 }
 
 async function renderShard(
@@ -94,8 +109,15 @@ async function renderShard(
   for (const item of items) {
     if (await isIndexableSitemapResource(type, item.handle)) indexable.push(item);
   }
+  const kind =
+    segment === "products" ? "product" : segment === "collections" ? "collection" : "other";
   const entries = indexable
-    .map((item) => localizedEntries(item.pathname ?? `/${segment}/${item.handle}`, item.updatedAt))
+    .flatMap((item) => {
+      const path = item.pathname ?? `/${segment}/${item.handle}`;
+      return sitemapResourcePaths(path, kind).map((entry) =>
+        localizedEntries(entry, item.updatedAt),
+      );
+    })
     .join("\n");
 
   return xmlResponse(urlsetWrap(entries));

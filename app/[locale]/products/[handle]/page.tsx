@@ -59,6 +59,7 @@ async function buildProductMetadata(handle: string, canonicalPath: string): Prom
     description: product.seo.description,
     alternates: buildAlternates({
       locale,
+      markdown: true,
       pathname: canonicalPath,
     }),
     openGraph: buildOpenGraph({
