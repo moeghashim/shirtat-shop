@@ -10,6 +10,7 @@ import { SeoDashboard } from "./-components/seo-dashboard";
 
 const seoQuerySchema = z.object({
   area: z.string().optional(),
+  checked: z.string().optional(),
   owner: z.string().optional(),
   phase: z.string().optional(),
   status: z.string().optional(),

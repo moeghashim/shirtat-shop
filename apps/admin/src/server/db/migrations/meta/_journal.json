@@ -120,6 +120,13 @@
       "when": 1792900000000,
       "tag": "0016_auth_user_role",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794421833646,
+      "tag": "0017_seo_task_check",
+      "breakpoints": true
     }
   ]
 }
