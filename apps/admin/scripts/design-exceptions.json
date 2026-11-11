@@ -1,0 +1,65 @@
+[
+  {
+    "file": "src/components/blocks/data-table.tsx",
+    "rule": "card-markup",
+    "value": "\"bg-card overflow-hidden rounded-xl border\"",
+    "count": 1,
+    "reason": "DataTable is the public table block; its flush table frame intentionally does not add DashboardCard padding."
+  },
+  {
+    "file": "src/routes/(main)/auth/v2/-components/auth-frame.tsx",
+    "rule": "page-header",
+    "value": "<h1>",
+    "count": 1,
+    "reason": "Authentication frame heading uses its existing centered form hierarchy, not the app-page header."
+  },
+  {
+    "file": "src/routes/(main)/dashboard/$.tsx",
+    "rule": "page-header",
+    "value": "<h1>",
+    "count": 1,
+    "reason": "Standalone recovery/status heading uses a centered or minimal boundary layout, not an app-page header."
+  },
+  {
+    "file": "src/routes/(main)/dashboard/-components/header/signed-in-account.tsx",
+    "rule": "arbitrary-value",
+    "value": "max-w-[calc(100vw-2rem)]",
+    "count": 1,
+    "reason": "Viewport-relative pane height subtracts existing shell geometry or bounds local scrolling."
+  },
+  {
+    "file": "src/routes/(main)/dashboard/-components/sidebar/nav-main.tsx",
+    "rule": "arbitrary-value",
+    "value": "text-[13px]",
+    "count": 1,
+    "reason": "Inherited explicit label size matches the approved compact scale; preserved to avoid changing contextual typography."
+  },
+  {
+    "file": "src/routes/(main)/dashboard/profile/-components/profile-header.tsx",
+    "rule": "page-header",
+    "value": "<h1>",
+    "count": 1,
+    "reason": "Existing heading preserves its screen-specific title size and surrounding controls; replacing it with PageHeader would alter the approved render."
+  },
+  {
+    "file": "src/routes/(main)/unauthorized.tsx",
+    "rule": "page-header",
+    "value": "<h1>",
+    "count": 1,
+    "reason": "Standalone recovery/status heading uses a centered or minimal boundary layout, not an app-page header."
+  },
+  {
+    "file": "src/routes/-components/not-found.tsx",
+    "rule": "page-header",
+    "value": "<h1>",
+    "count": 1,
+    "reason": "Standalone recovery/status heading uses a centered or minimal boundary layout, not an app-page header."
+  },
+  {
+    "file": "src/routes/-components/root-error.tsx",
+    "rule": "page-header",
+    "value": "<h1>",
+    "count": 1,
+    "reason": "Standalone recovery/status heading uses a centered or minimal boundary layout, not an app-page header."
+  }
+]

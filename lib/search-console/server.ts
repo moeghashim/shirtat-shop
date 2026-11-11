@@ -1,5 +1,4 @@
-import { SEARCH_CONSOLE_SITE, resolveSearchWindow, type SearchWindow } from "@/lib/search-console";
-
+import { SEARCH_CONSOLE_SITE, resolveSearchWindow, type SearchWindow } from "./index";
 import type {
   GscReading,
   SearchRow,

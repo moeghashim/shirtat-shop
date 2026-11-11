@@ -1,0 +1,19 @@
+import type { __NAME__Data } from "../../data/__SLUG__.types.ts";
+
+export const fixture: __NAME__Data = {
+  metrics: { open: 24, inReview: 12, completed: 86 },
+  activity: [
+    { day: "Mon", opened: 12, completed: 8 },
+    { day: "Tue", opened: 18, completed: 14 },
+    { day: "Wed", opened: 15, completed: 16 },
+    { day: "Thu", opened: 22, completed: 18 },
+    { day: "Fri", opened: 19, completed: 24 },
+  ],
+  records: [
+    { id: "REQ-101", title: "Review onboarding copy", owner: "Jordan Lee", status: "In review" },
+    { id: "REQ-102", title: "Check mobile navigation", owner: "Morgan Chen", status: "Open" },
+    { id: "REQ-103", title: "Document chart patterns", owner: "Alex Rivera", status: "Complete" },
+    { id: "REQ-104", title: "Verify keyboard focus", owner: "Casey Patel", status: "Open" },
+    { id: "REQ-105", title: "Publish release notes", owner: "Jordan Lee", status: "In review" },
+  ],
+};

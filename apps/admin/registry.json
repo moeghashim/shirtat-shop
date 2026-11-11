@@ -1,0 +1,219 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "tenboards",
+  "homepage": "https://github.com/moeghashim/tenboards",
+  "items": [
+    {
+      "name": "dashboard-card",
+      "type": "registry:style",
+      "title": "DashboardCard",
+      "description": "Compact or standard card surface with composable slots.",
+      "dependencies": ["cn"],
+      "files": [
+        {
+          "path": "src/components/blocks/cards.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/cards.tsx"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/ui/card.tsx"
+        }
+      ],
+      "meta": {
+        "themeSource": "src/styles/styles.css",
+        "kitSection": "cards"
+      }
+    },
+    {
+      "name": "section-header",
+      "type": "registry:style",
+      "title": "SectionHeader",
+      "description": "Semantic card heading with description and wrapping actions.",
+      "dependencies": ["cn"],
+      "files": [
+        {
+          "path": "src/components/blocks/cards.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/cards.tsx"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/ui/card.tsx"
+        }
+      ],
+      "meta": {
+        "themeSource": "src/styles/styles.css",
+        "kitSection": "cards"
+      }
+    },
+    {
+      "name": "stat-card",
+      "type": "registry:style",
+      "title": "StatCard",
+      "description": "Labelled metric with tabular value, trend and supporting text.",
+      "dependencies": ["cn"],
+      "files": [
+        {
+          "path": "src/components/blocks/cards.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/cards.tsx"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/ui/card.tsx"
+        }
+      ],
+      "meta": {
+        "themeSource": "src/styles/styles.css",
+        "kitSection": "cards"
+      }
+    },
+    {
+      "name": "card-content",
+      "type": "registry:style",
+      "title": "CardContent",
+      "description": "Content slot with the shared card spacing.",
+      "dependencies": ["cn"],
+      "files": [
+        {
+          "path": "src/components/blocks/cards.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/cards.tsx"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/ui/card.tsx"
+        }
+      ],
+      "meta": {
+        "themeSource": "src/styles/styles.css",
+        "kitSection": "cards"
+      }
+    },
+    {
+      "name": "page-header",
+      "type": "registry:style",
+      "title": "PageHeader",
+      "description": "Responsive page h1 with description and action slots.",
+      "dependencies": ["cn"],
+      "files": [
+        {
+          "path": "src/components/blocks/page-header.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/page-header.tsx"
+        }
+      ],
+      "meta": {
+        "themeSource": "src/styles/styles.css",
+        "kitSection": "page-header"
+      }
+    },
+    {
+      "name": "dashboard-chart",
+      "type": "registry:style",
+      "title": "DashboardChart",
+      "description": "Responsive Recharts container with series, axis and reduced-motion helpers.",
+      "dependencies": ["cn", "recharts"],
+      "files": [
+        {
+          "path": "src/components/blocks/charts.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/charts.tsx"
+        },
+        {
+          "path": "src/components/ui/chart.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/ui/chart.tsx"
+        }
+      ],
+      "meta": {
+        "themeSource": "src/styles/styles.css",
+        "kitSection": "charts"
+      }
+    },
+    {
+      "name": "dashboard-tooltip",
+      "type": "registry:style",
+      "title": "DashboardTooltip",
+      "description": "Token-colored tooltip preserving named series and value formatting.",
+      "dependencies": ["cn", "recharts"],
+      "files": [
+        {
+          "path": "src/components/blocks/charts.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/charts.tsx"
+        },
+        {
+          "path": "src/components/ui/chart.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/ui/chart.tsx"
+        }
+      ],
+      "meta": {
+        "themeSource": "src/styles/styles.css",
+        "kitSection": "charts"
+      }
+    },
+    {
+      "name": "dashboard-legend",
+      "type": "registry:style",
+      "title": "DashboardLegend",
+      "description": "Wrapping legend with labelled, distinct line patterns.",
+      "dependencies": ["cn", "recharts"],
+      "files": [
+        {
+          "path": "src/components/blocks/charts.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/charts.tsx"
+        },
+        {
+          "path": "src/components/ui/chart.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/ui/chart.tsx"
+        }
+      ],
+      "meta": {
+        "themeSource": "src/styles/styles.css",
+        "kitSection": "charts"
+      }
+    },
+    {
+      "name": "data-table",
+      "type": "registry:style",
+      "title": "DataTable",
+      "description": "Caller-owned TanStack Table v9 with sorting, pagination, mobile reflow and empty state.",
+      "dependencies": ["cn", "@tanstack/react-table", "lucide-react", "@base-ui/react", "class-variance-authority"],
+      "files": [
+        {
+          "path": "src/components/blocks/data-table.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/data-table.tsx"
+        },
+        {
+          "path": "src/components/ui/table.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/ui/table.tsx"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:component",
+          "target": "@components/tenboards/ui/button.tsx"
+        },
+        {
+          "path": "src/lib/data-table-features.ts",
+          "type": "registry:lib",
+          "target": "@lib/tenboards/data-table-features.ts"
+        }
+      ],
+      "meta": {
+        "themeSource": "src/styles/styles.css",
+        "kitSection": "data-table"
+      }
+    }
+  ]
+}

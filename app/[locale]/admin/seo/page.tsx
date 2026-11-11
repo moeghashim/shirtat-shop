@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -10,7 +11,7 @@ import { Page } from "@/components/ui/page";
 import { getSession } from "@/lib/creators/auth";
 import { localizePath } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
-import { seoDashboardAccess } from "@/lib/seo-plan";
+import { seoDashboardAccess } from "@/lib/seo-plan/access";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -32,11 +33,29 @@ export default function SeoPlanPage() {
   );
 }
 
+// SHIRTAT_ADMIN_URL, when it is another origin, sends owners to the Shirtat admin app. Unset keeps this page.
+function shirtatAdminUrl(): string | null {
+  const value = process.env.SHIRTAT_ADMIN_URL?.trim();
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if ((url.protocol !== "https:" && url.protocol !== "http:") || url.username || url.password)
+      return null;
+    return url.origin;
+  } catch {
+    return null;
+  }
+}
+
 async function SeoPlanGate() {
   await connection();
   const session = await getSession();
   const locale = await getLocale();
   if (!seoDashboardAccess(session)) redirect(localizePath(locale, "/creators/signin"));
+  const target = shirtatAdminUrl();
+  const headerList = await headers();
+  const host = headerList.get("x-forwarded-host") ?? headerList.get("host");
+  if (target && host && new URL(target).host !== host) redirect(target);
   const t = await getT();
   return (
     <div className="grid gap-6">

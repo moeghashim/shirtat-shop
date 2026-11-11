@@ -1,0 +1,7 @@
+export type __NAME__Record = { id: string; title: string; owner: string; status: string };
+export type __NAME__Point = { day: string; opened: number; completed: number };
+export type __NAME__Data = {
+  records: __NAME__Record[];
+  activity: __NAME__Point[];
+  metrics: { open: number; inReview: number; completed: number };
+};

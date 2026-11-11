@@ -1,0 +1,207 @@
+[
+  {
+    "name": "hex",
+    "source": "const color = '#123abc';",
+    "rule": "raw-color"
+  },
+  {
+    "name": "short hex",
+    "source": "<div style={{color: '#fff'}} />",
+    "rule": "raw-color"
+  },
+  {
+    "name": "alpha hex",
+    "source": "const color = '#11223344';",
+    "rule": "raw-color"
+  },
+  {
+    "name": "rgb",
+    "source": "const color = 'rgb(1 2 3 / .5)';",
+    "rule": "raw-color"
+  },
+  {
+    "name": "rgba",
+    "source": "const color = 'rgba(1, 2, 3, .5)';",
+    "rule": "raw-color"
+  },
+  {
+    "name": "hsl",
+    "source": "const color = 'hsl(100 30% 40%)';",
+    "rule": "raw-color"
+  },
+  {
+    "name": "oklch",
+    "source": "const color = `oklch(.5 .2 100)`;",
+    "rule": "raw-color"
+  },
+  {
+    "name": "color class",
+    "source": "<div className='bg-[#123abc]' />",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "size",
+    "source": "const classes = 'md:w-[137px]';",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "spacing",
+    "source": "<div className={cn('p-[13px]', active && 'gap-[5px]')} />",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "typography",
+    "source": "<p className='text-[13px] tracking-[.3em]' />",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "arbitrary selector and value",
+    "source": "<div className='[&>p]:text-[13px]' />",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "property syntax",
+    "source": "<div className='[color:red]' />",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "template",
+    "source": "const cls = `p-[13px] ${active ? 'text-sm' : 'text-base'}`;",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "hand rolled card",
+    "source": "<section className='rounded-xl border bg-card p-4'>A card</section>",
+    "rule": "card-markup"
+  },
+  {
+    "name": "conditional card",
+    "source": "<div className={cn('rounded-xl', 'border', 'bg-card')}>Metric</div>",
+    "rule": "card-markup"
+  },
+  {
+    "name": "page header",
+    "source": "<header><h1>Reports</h1><p>Summary</p></header>",
+    "rule": "page-header"
+  },
+  {
+    "name": "recharts",
+    "source": "import { Line } from 'recharts';",
+    "fix": "@/components/blocks/charts"
+  },
+  {
+    "name": "recharts dynamic",
+    "source": "const chart = await import('recharts');",
+    "fix": "@/components/blocks/charts"
+  },
+  {
+    "name": "recharts export",
+    "source": "export { Line } from 'recharts';",
+    "fix": "@/components/blocks/charts"
+  },
+  {
+    "name": "recharts deep",
+    "source": "import { Line } from 'recharts/es6/cartesian/Line';",
+    "fix": "@/components/blocks/charts"
+  },
+  {
+    "name": "primitive card",
+    "source": "import { Card as Surface } from '@/components/ui/card';",
+    "fix": "DashboardCard"
+  },
+  {
+    "name": "relative primitive card",
+    "source": "import { Card } from '../../../../components/ui/card';",
+    "fix": "DashboardCard"
+  },
+  {
+    "name": "namespace primitive card",
+    "source": "import * as Cards from \"@/components/ui/card\";",
+    "fix": "DashboardCard"
+  },
+  {
+    "name": "dynamic primitive card",
+    "source": "const cards = await import(\"@/components/ui/card\");",
+    "fix": "DashboardCard"
+  },
+  {
+    "name": "literal remains banned: min-w-[760px]",
+    "source": "const cls = \"min-w-[760px]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: max-w-[752px]",
+    "source": "const cls = \"max-w-[752px]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: h-[12rem]",
+    "source": "const cls = \"h-[12rem]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: h-[calc(100dvh-2rem)]",
+    "source": "const cls = \"h-[calc(100dvh-2rem)]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: h-[calc(var(--header-height)+13px)]",
+    "source": "const cls = \"h-[calc(var(--header-height)+13px)]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: w-[var(--width,760px)]",
+    "source": "const cls = \"w-[var(--width,760px)]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: text-[red]",
+    "source": "const cls = \"text-[red]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: text-[1.2rem]",
+    "source": "const cls = \"text-[1.2rem]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: leading-[1.3]",
+    "source": "const cls = \"leading-[1.3]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: tracking-[.3em]",
+    "source": "const cls = \"tracking-[.3em]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: m-[13px]",
+    "source": "const cls = \"m-[13px]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: gap-[5px]",
+    "source": "const cls = \"gap-[5px]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: space-x-[7px]",
+    "source": "const cls = \"space-x-[7px]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: rounded-[12px]",
+    "source": "const cls = \"rounded-[12px]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: shadow-[0_2px_8px_black]",
+    "source": "const cls = \"shadow-[0_2px_8px_black]\";",
+    "rule": "arbitrary-value"
+  },
+  {
+    "name": "literal remains banned: p-[calc(var(--spacing)*2+1rem)]",
+    "source": "const cls = \"p-[calc(var(--spacing)*2+1rem)]\";",
+    "rule": "arbitrary-value"
+  }
+]

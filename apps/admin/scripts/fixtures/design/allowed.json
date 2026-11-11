@@ -1,0 +1,18 @@
+[
+  "h-(--header-height)",
+  "hover:!w-(--anchor-width)",
+  "[&>p]:text-(--label-color)",
+  "bg-[var(--primary)]",
+  "h-[calc(100dvh-var(--dashboard-header-height))]",
+  "h-[calc(100svh-var(--header-height))]!",
+  "w-[calc(var(--width)*2)]",
+  "w-[calc(100vw/2)]",
+  "h-[calc(100dvh-calc(var(--header-height)*2))]",
+  "[width:var(--panel-width)]",
+  "p-[var(--spacing)]",
+  "grid-cols-[22.5rem_minmax(0,1fr)]",
+  "xl:grid-cols-[22.5rem_minmax(0,1fr)_var(--profile-width)]",
+  "grid-rows-[auto_1fr_40px]",
+  "auto-cols-[12rem]",
+  "auto-rows-[minmax(0,1fr)]"
+]

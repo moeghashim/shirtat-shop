@@ -1,0 +1,26 @@
+import { CardContent, DashboardCard, PageHeader, SectionHeader, StatCard } from "@/components/blocks";
+import type { __NAME__Data } from "@/server/data/__SLUG__.types";
+
+import { ActivityChart } from "./activity-chart";
+import { RecordsTable } from "./records-table";
+
+export function __NAME__Page({ data }: { data: __NAME__Data }) {
+  return (
+    <section className="min-w-0 space-y-5" aria-label={__TITLE__}>
+      <PageHeader title={__TITLE__} description="Illustrative weekly activity for a sample team." />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard label="Open requests" value={data.metrics.open} />
+        <StatCard label="In review" value={data.metrics.inReview} />
+        <StatCard label="Completed requests" value={data.metrics.completed} />
+      </div>
+      <DashboardCard>
+        <SectionHeader title="Weekly activity" description="Opened and completed requests, Monday through Friday." />
+        <CardContent><ActivityChart data={data.activity} /></CardContent>
+      </DashboardCard>
+      <DashboardCard>
+        <SectionHeader title="Requests" description="A sample of requests; weekly totals include other records." />
+        <CardContent><RecordsTable records={data.records} /></CardContent>
+      </DashboardCard>
+    </section>
+  );
+}

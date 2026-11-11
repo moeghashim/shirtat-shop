@@ -1,0 +1,11 @@
+import type { __NAME__Data } from "../../data/__SLUG__.types.ts";
+
+export const fixture: __NAME__Data = {
+  records: [
+    { id: "REQ-101", title: "Review onboarding copy", owner: "Jordan Lee", status: "In review" },
+    { id: "REQ-102", title: "Check mobile navigation", owner: "Morgan Chen", status: "Open" },
+    { id: "REQ-103", title: "Document chart patterns", owner: "Alex Rivera", status: "Complete" },
+    { id: "REQ-104", title: "Verify keyboard focus", owner: "Casey Patel", status: "Open" },
+    { id: "REQ-105", title: "Publish release notes", owner: "Jordan Lee", status: "In review" },
+  ],
+};

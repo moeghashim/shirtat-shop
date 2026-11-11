@@ -1,0 +1,16 @@
+import { CardContent, DashboardCard, PageHeader, SectionHeader } from "@/components/blocks";
+import type { __NAME__Data } from "@/server/data/__SLUG__.types";
+
+import { RecordsTable } from "./records-table";
+
+export function __NAME__Page({ data }: { data: __NAME__Data }) {
+  return (
+    <section className="min-w-0 space-y-5" aria-label={__TITLE__}>
+      <PageHeader title={__TITLE__} description="Illustrative requests for a sample team." />
+      <DashboardCard>
+        <SectionHeader title="Requests" description="Sample records. Sort columns or browse the next page." />
+        <CardContent><RecordsTable records={data.records} /></CardContent>
+      </DashboardCard>
+    </section>
+  );
+}
