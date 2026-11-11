@@ -1,7 +1,6 @@
 import { type ReactNode, useState } from "react";
 
 import { useNavigate, useRouter } from "@tanstack/react-router";
-import { type ColumnDef, useTable } from "@tanstack/react-table";
 
 import {
   Bar,
@@ -14,9 +13,6 @@ import {
   DashboardChart,
   DashboardLegend,
   DashboardTooltip,
-  DataTable,
-  type DataTableFeatures,
-  dataTableFeatures,
   Legend,
   PageHeader,
   SectionHeader,
@@ -31,6 +27,8 @@ import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress";
+import { seoText } from "@/server/seo/copy.ts";
 import type { SeoDashboardData, SeoQuery } from "@/server/seo/read.server";
 
 import type {
@@ -38,8 +36,8 @@ import type {
   ProgressSlice,
   SearchRow,
   SearchSlice,
-  TaskRow,
 } from "../../../../../../../../lib/seo-plan/types.ts";
+import { SeoChecklist } from "./seo-checklist";
 
 const PHASES = [
   ["all", "All phases"],
@@ -75,13 +73,6 @@ const OWNERS = [
   ["moe", "Moe"],
   ["bot", "Bot"],
 ] as const;
-
-const STATUS_LABEL = {
-  "blocked-on-approval": "Blocked on approval",
-  done: "Done",
-  "in-progress": "In progress",
-  "not-started": "Not started",
-} as const;
 
 const phaseChart = seriesConfig({ done: "Done", remaining: "Remaining" });
 
@@ -190,68 +181,6 @@ function SearchSliceView({ slice, title }: { slice: SearchSlice; title: string }
   );
 }
 
-const taskColumns: ColumnDef<DataTableFeatures, TaskRow>[] = [
-  { accessorKey: "id", header: "Task", sortFn: "alphanumeric" },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ getValue }) => STATUS_LABEL[getValue() as TaskRow["status"]] ?? String(getValue()),
-  },
-  { accessorKey: "phase", header: "Phase" },
-  { accessorKey: "area", header: "Area" },
-  {
-    accessorKey: "action",
-    header: "Action",
-    cell: ({ getValue }) => <Bilingual>{String(getValue() ?? "")}</Bilingual>,
-  },
-  {
-    accessorKey: "owner",
-    header: "Owner",
-    cell: ({ getValue }) => (getValue() === "moe" ? "Moe" : "Bot"),
-  },
-  { accessorKey: "updated", header: "Updated" },
-  {
-    accessorKey: "approval",
-    header: "Approval",
-    cell: ({ getValue }) => <Bilingual>{String(getValue() ?? "")}</Bilingual>,
-  },
-  {
-    accessorKey: "measure",
-    header: "Measure",
-    cell: ({ getValue }) => <Bilingual>{String(getValue() ?? "")}</Bilingual>,
-  },
-  {
-    accessorKey: "evidence",
-    header: "Evidence",
-    cell: ({ getValue }) => <Bilingual>{getValue() ? String(getValue()) : "—"}</Bilingual>,
-  },
-  {
-    accessorKey: "link",
-    header: "Link",
-    cell: ({ getValue }) => {
-      const link = getValue();
-      return typeof link === "string" && link ? (
-        <a className="underline underline-offset-4" href={link} rel="noreferrer">
-          Open
-        </a>
-      ) : (
-        "—"
-      );
-    },
-  },
-];
-
-function TaskTable({ tasks }: { tasks: TaskRow[] }) {
-  const table = useTable({
-    columns: taskColumns,
-    data: tasks,
-    features: dataTableFeatures,
-    getRowId: (row) => row.id,
-    initialState: { pagination: { pageIndex: 0, pageSize: 10 } },
-  });
-  return <DataTable label="SEO tasks" table={table} />;
-}
-
 function PhaseChart({ phases }: { phases: ProgressSlice[] }) {
   const motion = useChartMotion();
   const data = phases.map((phase) => ({
@@ -301,6 +230,12 @@ function PhaseChart({ phases }: { phases: ProgressSlice[] }) {
   );
 }
 
+function pageDescription(state: SeoDashboardData["tasks"]["checksState"], locale: SeoDashboardData["tasks"]["locale"]) {
+  if (state === "ready") return seoText("pageReady", locale);
+  if (state === "missing-table") return seoText("pageMissing", locale);
+  return seoText("pageDemo", locale);
+}
+
 export function SeoDashboard({ data, search }: { data: SeoDashboardData; search: SeoQuery }) {
   const navigate = useNavigate();
   const router = useRouter();
@@ -308,11 +243,14 @@ export function SeoDashboard({ data, search }: { data: SeoDashboardData; search:
   const [start, setStart] = useState(custom[0] ?? "");
   const [end, setEnd] = useState(custom[1] ?? "");
   const gsc = data.kpis.gsc;
+  const locale = data.tasks.locale;
+  const description = pageDescription(data.tasks.checksState, locale);
+  const checkedValue = search.checked === "done" || search.checked === "open" ? search.checked : "all";
   return (
     <div className="grid gap-6">
       <PageHeader
         title="SEO plan"
-        description="Owner only. Search Console, the published catalog and the sitemap load from this server. Task statuses are edited in the plan file."
+        description={description}
         actions={
           <Button type="button" variant="ghost" onClick={() => void router.invalidate()}>
             Refresh
@@ -333,6 +271,7 @@ export function SeoDashboard({ data, search }: { data: SeoDashboardData; search:
             to: "/dashboard/seo",
             search: {
               area: value("area"),
+              checked: value("checked"),
               owner: value("owner"),
               phase: value("phase"),
               status: value("status"),
@@ -345,6 +284,16 @@ export function SeoDashboard({ data, search }: { data: SeoDashboardData; search:
         <Filter name="area" label="Area" value={search.area ?? "all"} options={AREAS} />
         <Filter name="status" label="Status" value={search.status ?? "all"} options={STATUSES} />
         <Filter name="owner" label="Owner" value={search.owner ?? "all"} options={OWNERS} />
+        <Filter
+          name="checked"
+          label={seoText("checkedFilter", locale)}
+          value={checkedValue}
+          options={[
+            ["all", seoText("checkedAll", locale)],
+            ["done", seoText("checkedDone", locale)],
+            ["open", seoText("checkedOpen", locale)],
+          ]}
+        />
         <Filter
           name="window"
           label="Date window"
@@ -375,8 +324,12 @@ export function SeoDashboard({ data, search }: { data: SeoDashboardData; search:
         <StatCard label="Not started" value={String(data.progress.notStarted)} />
       </div>
       <DashboardCard>
-        <SectionHeader title="Progress" description="Unfiltered. Phase and area counts ignore the task filters." />
+        <SectionHeader title="Progress" description={seoText("progressDescription", locale)} />
         <CardContent className="grid gap-6">
+          <Progress aria-label={seoText("checkedDone", locale)} locale="en-US" value={data.progress.percent}>
+            <ProgressLabel>{seoText("checkedDone", locale)}</ProgressLabel>
+            <ProgressValue />
+          </Progress>
           <PhaseChart phases={data.progress.phases} />
           <Table aria-label="Progress by area">
             <TableHeader>
@@ -458,12 +411,9 @@ export function SeoDashboard({ data, search }: { data: SeoDashboardData; search:
         </CardContent>
       </DashboardCard>
       <DashboardCard>
-        <SectionHeader
-          title="Tasks"
-          description="Filtered by phase, area, status and owner. The date window does not change this list."
-        />
+        <SectionHeader title="Tasks" description={seoText("tasksDescription", locale)} />
         <CardContent>
-          <TaskTable tasks={data.tasks.tasks} />
+          <SeoChecklist tasks={data.tasks} />
         </CardContent>
       </DashboardCard>
       <DashboardCard>

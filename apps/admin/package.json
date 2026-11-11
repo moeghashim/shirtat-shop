@@ -16,6 +16,7 @@
     "check:fix": "biome check --write",
     "generate:presets": "ts-node -P tsconfig.scripts.json src/scripts/generate-theme-presets.ts",
     "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --import ./scripts/test-register.mjs --test src/server/seo/checks.test.ts",
     "screenshots": "node --experimental-strip-types scripts/screenshots.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node --env-file-if-exists=.env --experimental-strip-types scripts/database.ts migrate",

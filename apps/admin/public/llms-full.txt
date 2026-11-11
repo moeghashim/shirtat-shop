@@ -663,6 +663,8 @@ npm ci
 npm run db:migrate -- --allow-remote
 ```
 
+That command applies every migration in `src/server/db/migrations`, including `seo_task_check`. Until that table exists, `/dashboard/seo` stays read-only and shows the plan statuses.
+
 Then create the owner. Export the pooled or direct URL, the auth secret, `BETTER_AUTH_URL`, `OWNER_EMAIL` and `OWNER_PASSWORD` in the same private shell:
 
 ```sh
