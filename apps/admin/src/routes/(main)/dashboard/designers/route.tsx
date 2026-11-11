@@ -64,7 +64,8 @@ function DesignersPage() {
               className="grid max-w-md gap-3"
               onSubmit={(event) => {
                 event.preventDefault();
-                const form = new FormData(event.currentTarget);
+                const formElement = event.currentTarget;
+                const form = new FormData(formElement);
                 const parsed = inviteSchema.safeParse({
                   email: form.get("email"),
                   name: form.get("name"),
@@ -81,7 +82,7 @@ function DesignersPage() {
                   .then((result) => {
                     setEmail(result.email);
                     setPassword(result.password);
-                    event.currentTarget.reset();
+                    formElement.reset();
                   })
                   .catch(() => {
                     setPassword(null);

@@ -1,12 +1,11 @@
 import { eq } from "drizzle-orm";
 
-import { getAuth } from "@/lib/auth/auth.server";
-import { inviteSignUp } from "@/lib/auth/invite-context";
-import { isOwner } from "@/lib/auth/roles";
-import { readAuthState } from "@/lib/auth/session.server";
-import { authUser } from "@/server/db/auth-schema";
-import { getDatabase } from "@/server/db/client.server";
-
+import { getAuth } from "../../lib/auth/auth.server.ts";
+import { inviteSignUp } from "../../lib/auth/invite-context.ts";
+import { isOwner } from "../../lib/auth/roles.ts";
+import { readAuthState } from "../../lib/auth/session.server.ts";
+import { authUser } from "../db/auth-schema.ts";
+import { getDatabase } from "../db/client.server.ts";
 import { randomBytes } from "node:crypto";
 
 export async function inviteUser(input: { email: string; name: string; role: "designer" | "owner" }) {
