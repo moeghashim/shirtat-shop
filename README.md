@@ -6,7 +6,7 @@ Arabic calligraphy and culture apparel: T-shirts, hoodies, sweatshirts, totes an
 Live at **[shirtat.co](https://shirtat.co)** in English and Arabic ([shirtat.co/ar](https://shirtat.co/ar), right-to-left).
 
 Shirtat is part of [10claws Inc](https://10claws.com/) and is fully managed by Grok Bot.
-Contact: **shirtat@10claws.com**
+Contact: **shirtat@agentmail.to**
 
 ## Features
 
