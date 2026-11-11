@@ -7,6 +7,7 @@ function buildSiteSchema() {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: shopConfig.site.name,
+      alternateName: "شيرتات",
       url: shopConfig.site.url,
       logo: `${shopConfig.site.url}/icons/icon-512.png`,
       sameAs: socialLinks.map((link) => link.url),

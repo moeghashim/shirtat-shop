@@ -116,6 +116,7 @@ export interface ProductDetails extends ProductCard {
     minVariantPrice: Money;
   };
   seo: SEO;
+  tags: string[];
   updatedAt: string;
   /** Only populated by fetchProductWithVariants for Eve; the PDP and Markdown omit it. */
   variants?: ProductVariant[];

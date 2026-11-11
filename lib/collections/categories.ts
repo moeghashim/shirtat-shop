@@ -407,6 +407,77 @@ export function getCategory(id: string): CategoryConfig | undefined {
   return CATEGORIES.find((c) => c.id === id);
 }
 
+/** Garment collections published in the shop. Labels are for product-page links only. */
+const PRODUCT_COLLECTIONS: { id: string; labelAr: string; labelEn: string; suffixes: string[] }[] =
+  [
+    { id: "kids", labelAr: "أطفال", labelEn: "Kids", suffixes: ["-kids-t-shirt"] },
+    { id: "baby", labelAr: "رضّع", labelEn: "Baby", suffixes: ["-baby-bodysuit"] },
+    { id: "t-shirts", labelAr: "تيشيرتات", labelEn: "T-shirts", suffixes: ["-t-shirt"] },
+    { id: "hoodies", labelAr: "هوديز", labelEn: "Hoodies", suffixes: ["-hoodie"] },
+    { id: "sweatshirts", labelAr: "سويتشيرتات", labelEn: "Sweatshirts", suffixes: ["-sweatshirt"] },
+    { id: "tote-bags", labelAr: "حقائب قماشية", labelEn: "Tote bags", suffixes: ["-tote-bag"] },
+    { id: "posters-prints", labelAr: "مطبوعات", labelEn: "Prints", suffixes: ["-print"] },
+    {
+      id: "caps-beanies",
+      labelAr: "قبعات وطواقي",
+      labelEn: "Caps & beanies",
+      suffixes: ["-cap", "-beanie"],
+    },
+    { id: "mugs", labelAr: "أكواب", labelEn: "Mugs", suffixes: ["-mug"] },
+  ];
+
+const PRODUCT_SUFFIXES = PRODUCT_COLLECTIONS.flatMap((collection) =>
+  collection.suffixes.map((suffix) => ({ id: collection.id, suffix })),
+).sort((a, b) => b.suffix.length - a.suffix.length || a.suffix.localeCompare(b.suffix));
+
+const COLLECTION_ORDER = ["poetry", "humor", "occasions", "politics", "cultures", "kids", "baby"];
+const PRODUCT_ORDER = PRODUCT_COLLECTIONS.map((collection) => collection.id);
+
+export function collectionLabel(id: string): { labelAr: string; labelEn: string } | undefined {
+  const category = getCategory(id);
+  if (category) return { labelAr: category.labelAr, labelEn: category.labelEn };
+  const product = PRODUCT_COLLECTIONS.find((collection) => collection.id === id);
+  return product ? { labelAr: product.labelAr, labelEn: product.labelEn } : undefined;
+}
+
+/** The published product-type collection for this handle, when the shop has one. */
+export function productCollectionId(handle: string): string | undefined {
+  return PRODUCT_SUFFIXES.find((rule) => handle.endsWith(rule.suffix))?.id;
+}
+
+/** Theme collections plus the product-type collection. Only ids the shop publishes. */
+export function relatedCollectionIds(handle: string, tags: readonly string[]): string[] {
+  const tagged = tags
+    .filter((tag) => tag.startsWith("category:"))
+    .map((tag) => tag.slice("category:".length));
+  const typeId = productCollectionId(handle);
+  return [...new Set([...tagged, ...(typeId ? [typeId] : [])])]
+    .filter((id) => collectionLabel(id))
+    .sort((a, b) => collectionSort(a) - collectionSort(b));
+}
+
+function collectionSort(id: string): number {
+  const theme = COLLECTION_ORDER.indexOf(id);
+  if (theme >= 0) return theme;
+  const type = PRODUCT_ORDER.indexOf(id);
+  return type >= 0
+    ? COLLECTION_ORDER.length + type
+    : PRODUCT_ORDER.length + COLLECTION_ORDER.length;
+}
+
+/** One collection for the product breadcrumb: the theme, otherwise the product type. */
+export function breadcrumbCollectionId(
+  handle: string,
+  tags: readonly string[],
+): string | undefined {
+  const ids = relatedCollectionIds(handle, tags);
+  const theme = ids.find((id) => {
+    const category = getCategory(id);
+    return category !== undefined && id !== "kids" && id !== "baby";
+  });
+  return theme ?? productCollectionId(handle) ?? ids[0];
+}
+
 export function collectionLeads(handle: string, locale: Locale): readonly string[] | undefined {
   if (handle === "all") return locale === "ar" ? ALL_PRODUCTS.leadAr : ALL_PRODUCTS.leadEn;
   const copy = OVERLAY.get(handle);

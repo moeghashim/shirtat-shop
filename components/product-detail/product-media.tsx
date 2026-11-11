@@ -40,8 +40,11 @@ function mediaKey(item: MediaItem) {
   return "placeholder";
 }
 
-// `preload` alone does not set high fetch priority; other images stay lazy so the hidden carousel or grid never downloads.
-const LCP_IMAGE_PROPS = { fetchPriority: "high", loading: "eager", preload: true } as const;
+// The hidden breakpoint's copy uses a 32px slot so it does not download a second hero.
+const MOBILE_HERO_SIZES = "(min-width: 1024px) 32px, 100vw";
+const DESKTOP_HERO_SIZES = "(max-width: 1023px) 32px, (min-width: 1536px) 858px, 55vw";
+
+const LCP_IMAGE_PROPS = { fetchPriority: "high", loading: "eager" } as const;
 
 const LAZY_IMAGE_PROPS = { loading: "lazy" } as const;
 
@@ -50,18 +53,40 @@ const DESKTOP_MEDIA = "(min-width: 1024px)";
 // The 2x2 grid is above the fold, so desktop preloads every tile while the lazy <img> keeps mobile from fetching them.
 const DESKTOP_GRID_PRELOAD_COUNT = 4;
 
+function heroSizes(slot: "desktop" | "mobile"): string {
+  return slot === "mobile" ? MOBILE_HERO_SIZES : DESKTOP_HERO_SIZES;
+}
+
 // The preload must share the <img>'s srcset and sizes, or the browser downloads the tile twice.
-function preloadDesktopGridImage(image: ImageType) {
+function preloadHero(image: ImageType, slot: "desktop" | "mobile") {
   const { props } = getImageProps({
-    src: image.url,
     alt: "",
-    fill: true,
-    sizes: "100vw",
+    height: image.height,
+    sizes: heroSizes(slot),
+    src: image.url,
+    width: image.width,
   });
   preload(props.src, {
     as: "image",
-    imageSrcSet: props.srcSet,
+    fetchPriority: "high",
     imageSizes: props.sizes,
+    imageSrcSet: props.srcSet,
+    media: slot === "mobile" ? "(max-width: 1023px)" : DESKTOP_MEDIA,
+  });
+}
+
+function preloadDesktopGridImage(image: ImageType) {
+  const { props } = getImageProps({
+    alt: "",
+    height: image.height,
+    sizes: "(min-width: 1024px) 15vw, 32px",
+    src: image.url,
+    width: image.width,
+  });
+  preload(props.src, {
+    as: "image",
+    imageSizes: props.sizes,
+    imageSrcSet: props.srcSet,
     media: DESKTOP_MEDIA,
   });
 }
@@ -71,15 +96,18 @@ function MediaImage({
   title,
   idx,
   priority,
+  slot,
   className,
 }: {
   item: Extract<MediaItem, { type: "image" }>;
   title: string;
   idx: number;
   priority: boolean;
+  slot: "desktop" | "mobile";
   className?: string;
 }) {
   const caption = useImageCaption(item.image);
+  if (priority) preloadHero(item.image, slot);
   return (
     <Image
       src={item.image.url}
@@ -87,8 +115,11 @@ function MediaImage({
       height={item.image.height}
       width={item.image.width}
       className={cn("absolute inset-0 size-full object-cover", className)}
-      sizes="(min-width: 1024px) 50vw, 100vw"
+      sizes={
+        priority ? heroSizes(slot) : slot === "mobile" ? "100vw" : "(min-width: 1024px) 15vw, 40vw"
+      }
       {...(priority ? LCP_IMAGE_PROPS : LAZY_IMAGE_PROPS)}
+      decoding={priority ? "sync" : "async"}
       draggable={false}
     />
   );
@@ -213,7 +244,7 @@ function Carousel({
               ) : item.type === "placeholder" ? (
                 <ImagePlaceholder className="size-full" />
               ) : (
-                <MediaImage item={item} title={title} idx={idx} priority={priority} />
+                <MediaImage item={item} title={title} idx={idx} priority={priority} slot="mobile" />
               )}
             </div>
           );
@@ -263,7 +294,7 @@ function GridItem({
       ) : item.type === "placeholder" ? (
         <ImagePlaceholder className="size-full" />
       ) : (
-        <CaptionedLightbox item={item} title={title} idx={idx} priority={priority} />
+        <CaptionedLightbox item={item} title={title} idx={idx} priority={priority} slot="desktop" />
       )}
     </div>
   );
@@ -287,7 +318,7 @@ function Grid({
   for (const [idx, item] of mediaItems.entries()) {
     const tile = idx + firstTileOffset;
     if (tile >= DESKTOP_GRID_PRELOAD_COUNT) break;
-    // Tile 0 is the LCP image and already preloaded via next/image's `preload` prop.
+    // Tile 0 is the hero and is preloaded with a desktop media query.
     if (tile > 0 && item.type === "image") preloadDesktopGridImage(item.image);
   }
 
@@ -314,17 +345,19 @@ function CaptionedLightbox({
   idx,
   item,
   priority,
+  slot,
   title,
 }: {
   idx: number;
   item: Extract<MediaItem, { type: "image" }>;
   priority: boolean;
+  slot: "desktop" | "mobile";
   title: string;
 }) {
   const caption = useImageCaption(item.image);
   return (
     <LightboxTrigger image={{ ...item.image, altText: caption }}>
-      <MediaImage item={item} title={title} idx={idx} priority={priority} />
+      <MediaImage item={item} title={title} idx={idx} priority={priority} slot={slot} />
     </LightboxTrigger>
   );
 }
@@ -343,6 +376,7 @@ export function ColorImageGrid({ images, title }: { images: ImageType[]; title: 
 
 function CaptionedCarouselImage({ idx, image }: { idx: number; image: ImageType }) {
   const caption = useImageCaption(image);
+  if (idx === 0) preloadHero(image, "mobile");
   return (
     <Image
       src={image.url}
@@ -350,8 +384,9 @@ function CaptionedCarouselImage({ idx, image }: { idx: number; image: ImageType 
       height={image.height}
       width={image.width}
       className="absolute inset-0 size-full object-cover"
-      sizes="(min-width: 1024px) 50vw, 100vw"
+      sizes={idx === 0 ? MOBILE_HERO_SIZES : "100vw"}
       {...(idx === 0 ? LCP_IMAGE_PROPS : LAZY_IMAGE_PROPS)}
+      decoding={idx === 0 ? "sync" : "async"}
       draggable={false}
     />
   );

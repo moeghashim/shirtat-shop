@@ -133,14 +133,16 @@ export function describeProductImage({
   const colorName = color ? localizeAnyOptionValue(color, locale) : "";
   if (locale === "ar") {
     const base = colorName ? `${name} باللون ${colorName}` : name;
-    if (kind === "model") return `${base}، على عارض، خط عربي`;
-    if (kind === "detail") return `${base}، تفاصيل التصميم، خط عربي`;
-    return `${base}، خط عربي`;
+    const mark = /خط/.test(name) ? "" : "، خط عربي";
+    if (kind === "model") return `${base}، على عارض${mark}`;
+    if (kind === "detail") return `${base}، تفاصيل التصميم${mark}`;
+    return `${base}${mark}`;
   }
   const base = colorName ? `${name} in ${colorName}` : name;
-  if (kind === "model") return `${base}, worn by a model, Arabic calligraphy`;
-  if (kind === "detail") return `${base}, design detail, Arabic calligraphy`;
-  return `${base}, Arabic calligraphy`;
+  const calligraphy = /arabic calligraphy/i.test(name) ? "" : ", Arabic calligraphy";
+  if (kind === "model") return `${base}, worn by a model${calligraphy}`;
+  if (kind === "detail") return `${base}, design detail${calligraphy}`;
+  return `${base}${calligraphy}`;
 }
 
 /** English sentences that appear in product descriptions next to the Arabic paragraph. */
@@ -168,12 +170,132 @@ const PARAGRAPH = /<p\b[^>]*>[\s\S]*?<\/p>/g;
 
 function plain(html: string): string {
   return html
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/(p|div|li|h[1-6])>/gi, " ")
     .replace(/<[^>]+>/g, "")
     .replace(/&amp;/g, "&")
     .replace(/&quot;/g, '"')
     .replace(/&#39;|&#x27;/g, "'")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+const ARABIC_MARKS = /[\u0640\u064B-\u065F\u0670\u06D6-\u06ED]/g;
+
+function arabicKey(value: string): string {
+  return value.replace(ARABIC_MARKS, "").replace(/\s+/g, " ").trim();
+}
+
+// The Arabic paragraph leads with the phrase in bold, then a line break, then the same phrase in guillemets.
+// Stripping the break glues the two into one doubled word, so the lead is dropped when they are the same phrase.
+export function dedupeDescriptionHtml(html: string): string {
+  return html.replace(
+    /<strong>([^<]+)<\/strong>\s*(?:<br\s*\/?>\s*)?«([^»]*)»/gi,
+    (full, lead: string, quoted: string) =>
+      arabicKey(lead) === arabicKey(quoted) ? `«${quoted}»` : full,
+  );
+}
+
+const SCRIPTS = [
+  {
+    ar: "الكوفي",
+    en: "Kufic",
+    id: "kufic",
+    pattern: /kufic|كوفي/i,
+    queryAr: "كوفي",
+    queryEn: "Kufic",
+  },
+  {
+    ar: "الثلث",
+    en: "Thuluth",
+    id: "thuluth",
+    pattern: /thuluth|الثلث/i,
+    queryAr: "الثلث",
+    queryEn: "Thuluth",
+  },
+  {
+    ar: "الديواني",
+    en: "Diwani",
+    id: "diwani",
+    pattern: /diwani|ديواني/i,
+    queryAr: "ديواني",
+    queryEn: "Diwani",
+  },
+] as const;
+
+export type ProductScript = (typeof SCRIPTS)[number];
+
+export function detectProductScript(text: string): ProductScript | undefined {
+  return SCRIPTS.find((script) => script.pattern.test(text));
+}
+
+const GARMENT_KEYS = Object.keys(TYPE_AR).sort((a, b) => b.length - a.length || a.localeCompare(b));
+
+function canonicalGarment(value: string): string | undefined {
+  const trimmed = value.trim();
+  return GARMENT_KEYS.find((key) => key.toLowerCase() === trimmed.toLowerCase());
+}
+
+function garmentEn(garment: string): string {
+  return /^t-shirt$/i.test(garment) ? "T-Shirt" : garment;
+}
+
+function designName(before: string): string {
+  const name = before.split(/\s+[–—]\s+|\s+-\s+/)[0]?.trim() ?? "";
+  return name || before.trim();
+}
+
+export interface ParsedProductTitle {
+  design: string;
+  garment: string;
+  phrase?: string;
+}
+
+export function parseProductTitle(title: string): ParsedProductTitle | undefined {
+  const paren = title.match(/^(.*?)\s*\(([^)]+)\)\s*(.+)$/);
+  if (paren && ARABIC_LETTER.test(paren[2] ?? "")) {
+    const garment = canonicalGarment(paren[3] ?? "");
+    const design = designName(paren[1] ?? "");
+    if (garment && design) return { design, garment, phrase: paren[2]!.trim() };
+  }
+  const trimmed = title.trim();
+  for (const garment of GARMENT_KEYS) {
+    const escaped = garment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const match = trimmed.match(new RegExp(`^(.*)\\s+${escaped}$`, "i"));
+    const design = match?.[1]?.trim();
+    if (design) return { design: designName(design), garment };
+  }
+  return undefined;
+}
+
+export function productHeading(title: string, scriptSource: string, locale: Locale): string {
+  const parsed = parseProductTitle(title);
+  if (!parsed) return localizeProductTitle(title, locale);
+  const script = detectProductScript(scriptSource);
+  const calligraphy =
+    Boolean(script) || Boolean(parsed.phrase) || /calligraphy|خط/i.test(scriptSource);
+  if (locale === "ar") {
+    const typeAr = TYPE_AR[parsed.garment];
+    if (!typeAr) return localizeProductTitle(title, locale);
+    if (parsed.phrase) {
+      const scriptPart = script ? ` بالخط ${script.ar}` : " بالخط العربي";
+      return `${typeAr} «${parsed.phrase}»${scriptPart}`;
+    }
+    return `${typeAr} ${parsed.design}`;
+  }
+  const lead = parsed.phrase ? `${parsed.design} (${parsed.phrase})` : parsed.design;
+  const tail = [
+    script?.en,
+    calligraphy ? "Arabic Calligraphy" : undefined,
+    garmentEn(parsed.garment),
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return `${lead} ${tail}`.replace(/\s+/g, " ").trim();
+}
+
+export function productDocumentTitle(heading: string, locale: Locale): string {
+  return `${heading} | ${locale === "ar" ? "شيرتات" : "Shirtat"}`;
 }
 
 function translateEnglishParagraph(text: string): string | null {
@@ -190,11 +312,12 @@ function translateEnglishParagraph(text: string): string | null {
  * drop the English paragraph that the Arabic one already says.
  */
 export function localizeDescriptionHtml(html: string, locale: Locale): string {
-  if (locale !== "ar" || !html) return html;
-  const paragraphs = html.match(PARAGRAPH);
-  if (!paragraphs) return html;
+  const normalized = dedupeDescriptionHtml(html);
+  if (locale !== "ar" || !normalized) return normalized;
+  const paragraphs = normalized.match(PARAGRAPH);
+  if (!paragraphs) return normalized;
   const hasArabic = paragraphs.some((p) => ARABIC_LETTER.test(plain(p)));
-  if (!hasArabic) return html;
+  if (!hasArabic) return normalized;
   return paragraphs
     .flatMap((p) => {
       const text = plain(p);
@@ -230,11 +353,10 @@ export function localizeDetails<
   },
 >(details: T, commerce: CommerceLanguage): T {
   const locale = localeOf(commerce);
-  if (locale !== "ar") return details;
-  const title = localizeProductTitle(details.title, locale);
   const descriptionHtml = localizeDescriptionHtml(details.descriptionHtml, locale);
-  const description =
-    localizeDescriptionText(details.descriptionHtml, locale) || details.description;
+  const scriptSource = plain(dedupeDescriptionHtml(details.descriptionHtml));
+  const description = plain(descriptionHtml) || details.description;
+  const title = productHeading(details.title, scriptSource, locale);
   return {
     ...details,
     description,
