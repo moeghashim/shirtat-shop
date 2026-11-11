@@ -1,0 +1,8 @@
+import { createServerFn } from "@tanstack/react-start";
+
+export const load__NAME__ = createServerFn({ method: "GET" }).handler(async () => {
+  const { requireSession } = await import("@/lib/auth/session.server");
+  await requireSession();
+  const { read__NAME__ } = await import("@/server/data/__SLUG__");
+  return read__NAME__();
+});

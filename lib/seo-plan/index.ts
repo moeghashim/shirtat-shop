@@ -1,8 +1,5 @@
 import { z } from "zod/v4";
 
-import { reviewAccess, type ReviewSession } from "@/lib/chat-review";
-import { type Locale } from "@/lib/i18n";
-
 import {
   SEO_AREAS,
   SEO_OWNERS,
@@ -24,6 +21,8 @@ import {
   type TaskFilter,
   type TaskRow,
 } from "./types";
+
+export type SeoLocale = "en" | "ar";
 
 function text(en: string, ar: string): SeoCopy {
   return { ar, en };
@@ -1249,7 +1248,7 @@ export const seoPlan: SeoPlan = {
   ],
 };
 
-function pick(copy: SeoCopy, locale: Locale): string {
+function pick(copy: SeoCopy, locale: SeoLocale): string {
   return copy[locale];
 }
 
@@ -1297,7 +1296,7 @@ function slice(id: string, label: string, tasks: readonly SeoTask[]): ProgressSl
   };
 }
 
-export function progressOf(tasks: readonly SeoTask[], locale: Locale) {
+export function progressOf(tasks: readonly SeoTask[], locale: SeoLocale) {
   const done = tasks.filter((task) => task.status === "done").length;
   return {
     areas: SEO_AREAS.map((area) =>
@@ -1323,7 +1322,7 @@ export function progressOf(tasks: readonly SeoTask[], locale: Locale) {
   };
 }
 
-export function presentTasks(locale: Locale, filter: TaskFilter): TaskRow[] {
+export function presentTasks(locale: SeoLocale, filter: TaskFilter): TaskRow[] {
   return filterTasks(seoPlan.tasks, filter).map((task) => ({
     action: pick(task.action, locale),
     approval: pick(task.approval, locale),
@@ -1340,7 +1339,7 @@ export function presentTasks(locale: Locale, filter: TaskFilter): TaskRow[] {
   }));
 }
 
-export function presentApprovals(locale: Locale) {
+export function presentApprovals(locale: SeoLocale) {
   const items = seoPlan.approvals.map((item: SeoApproval) => ({
     id: item.id,
     meta: item.meta ? pick(item.meta, locale) : null,
@@ -1355,14 +1354,14 @@ export function presentApprovals(locale: Locale) {
   };
 }
 
-export function presentTimeline(locale: Locale) {
+export function presentTimeline(locale: SeoLocale) {
   return seoPlan.timeline.map((row: SeoTimelineRow) => ({
     focus: pick(row.focus, locale),
     window: pick(row.window, locale),
   }));
 }
 
-export function presentReference(locale: Locale) {
+export function presentReference(locale: SeoLocale) {
   return {
     keywords: seoPlan.keywords.map((row: SeoKeyword) => ({
       cluster: pick(row.cluster, locale),
@@ -1380,7 +1379,7 @@ export function presentReference(locale: Locale) {
   };
 }
 
-export function presentKpiDefinitions(locale: Locale) {
+export function presentKpiDefinitions(locale: SeoLocale) {
   return seoPlan.kpis.map((kpi: SeoKpi) => ({
     baseline: pick(kpi.baseline, locale),
     cadence: pick(kpi.cadence, locale),
@@ -1389,13 +1388,4 @@ export function presentKpiDefinitions(locale: Locale) {
     name: pick(kpi.name, locale),
     source: pick(kpi.source, locale),
   }));
-}
-
-export function seoDashboardAccess(session: ReviewSession | null): session is ReviewSession {
-  return reviewAccess(session);
-}
-
-/** Logged-out and non-owner requests get the same 404 the chat export uses. */
-export function seoDashboardHttpStatus(session: ReviewSession | null): 200 | 404 {
-  return seoDashboardAccess(session) ? 200 : 404;
 }

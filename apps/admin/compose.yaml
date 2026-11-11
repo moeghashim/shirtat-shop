@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - "127.0.0.1:54329:5432"
+    environment:
+      POSTGRES_USER: tenboards
+      POSTGRES_PASSWORD: tenboards_local
+      POSTGRES_DB: tenboards
+    volumes:
+      - tenboards_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U tenboards -d tenboards" ]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+volumes:
+  tenboards_postgres:

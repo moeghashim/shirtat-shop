@@ -1,0 +1,256 @@
+{
+  "milestones": [
+    {
+      "id": "v0.1-design-system-shell",
+      "status": "done",
+      "tasks": [
+        "001-import-upstream",
+        "002-workers-preview",
+        "003-impeccable-context",
+        "004-visual-capture",
+        "005-design-tokens",
+        "006-brand-assets",
+        "007-theme-presets",
+        "008-floating-sidebar",
+        "009-shell-header",
+        "010-command-palette",
+        "011-layout-settings",
+        "012-shell-acceptance"
+      ],
+      "taskStatuses": {
+        "001-import-upstream": "merged",
+        "002-workers-preview": "merged",
+        "003-impeccable-context": "merged",
+        "004-visual-capture": "merged",
+        "005-design-tokens": "merged",
+        "006-brand-assets": "merged",
+        "007-theme-presets": "merged",
+        "008-floating-sidebar": "merged",
+        "009-shell-header": "merged",
+        "010-command-palette": "merged",
+        "011-layout-settings": "merged",
+        "012-shell-acceptance": "merged"
+      }
+    },
+    {
+      "id": "v0.2-dashboards",
+      "status": "done",
+      "tasks": [
+        "001-dashboard-foundation",
+        "002-default-dashboards",
+        "003-crm-dashboards",
+        "004-finance-dashboards",
+        "005-analytics-dashboards",
+        "006-productivity-dashboard",
+        "007-ecommerce-dashboard",
+        "008-academy-dashboard",
+        "009-logistics-dashboard",
+        "010-infrastructure-dashboard",
+        "011-patient-monitoring-dashboard",
+        "012-dashboard-acceptance"
+      ],
+      "taskStatuses": {
+        "001-dashboard-foundation": "merged",
+        "002-default-dashboards": "merged",
+        "003-crm-dashboards": "merged",
+        "004-finance-dashboards": "merged",
+        "005-analytics-dashboards": "merged",
+        "006-productivity-dashboard": "merged",
+        "007-ecommerce-dashboard": "merged",
+        "008-academy-dashboard": "merged",
+        "009-logistics-dashboard": "merged",
+        "010-infrastructure-dashboard": "merged",
+        "011-patient-monitoring-dashboard": "merged",
+        "012-dashboard-acceptance": "merged"
+      }
+    },
+    {
+      "id": "v0.3-app-pages",
+      "status": "done",
+      "tasks": [
+        "001-app-page-foundation",
+        "002-mail-pages",
+        "003-chat-pages",
+        "004-calendar-page",
+        "005-kanban-page",
+        "006-tasks-page",
+        "007-invoice-page",
+        "008-file-manager-page",
+        "009-products-page",
+        "010-users-roles-pages",
+        "011-profile-page",
+        "012-auth-pages",
+        "013-system-pages",
+        "014-app-pages-acceptance"
+      ],
+      "taskStatuses": {
+        "001-app-page-foundation": "merged",
+        "002-mail-pages": "merged",
+        "003-chat-pages": "merged",
+        "004-calendar-page": "merged",
+        "005-kanban-page": "merged",
+        "006-tasks-page": "merged",
+        "007-invoice-page": "merged",
+        "008-file-manager-page": "merged",
+        "009-products-page": "merged",
+        "010-users-roles-pages": "merged",
+        "011-profile-page": "merged",
+        "012-auth-pages": "merged",
+        "013-system-pages": "merged",
+        "014-app-pages-acceptance": "merged"
+      }
+    },
+    {
+      "id": "v0.4-data-layer",
+      "status": "done",
+      "tasks": [
+        "001-data-foundation",
+        "002-people-profile",
+        "003-commerce-data",
+        "004-workspace-data",
+        "005-communication-data",
+        "006-core-dashboard-data",
+        "007-operational-dashboard-data",
+        "008-data-layer-acceptance"
+      ],
+      "taskStatuses": {
+        "001-data-foundation": "merged",
+        "002-people-profile": "merged",
+        "003-commerce-data": "merged",
+        "004-workspace-data": "merged",
+        "005-communication-data": "merged",
+        "006-core-dashboard-data": "merged",
+        "007-operational-dashboard-data": "merged",
+        "008-data-layer-acceptance": "merged"
+      }
+    },
+    {
+      "id": "v0.5-auth",
+      "status": "done",
+      "tasks": [
+        "001-auth-foundation",
+        "002-auth-flows",
+        "003-protection-shell",
+        "004-account-sessions",
+        "005-auth-acceptance"
+      ],
+      "taskStatuses": {
+        "001-auth-foundation": "merged",
+        "002-auth-flows": "merged",
+        "003-protection-shell": "merged",
+        "004-account-sessions": "merged",
+        "005-auth-acceptance": "merged"
+      }
+    },
+    {
+      "id": "v0.6-production",
+      "status": "done",
+      "tasks": [
+        "001-workers-database-runtime",
+        "002-preview-isolation-hardening",
+        "003-ops-docs-acceptance",
+        "004-production-cutover"
+      ],
+      "taskStatuses": {
+        "001-workers-database-runtime": "merged",
+        "002-preview-isolation-hardening": "merged",
+        "003-ops-docs-acceptance": "merged",
+        "004-production-cutover": "merged"
+      }
+    },
+    {
+      "id": "v0.6.1-legacy-removal",
+      "status": "done",
+      "tasks": ["001-remove-legacy", "002-collapsed-header-toggle"],
+      "taskStatuses": {
+        "001-remove-legacy": "merged",
+        "002-collapsed-header-toggle": "merged"
+      }
+    },
+    {
+      "id": "v0.6.2-compact-density",
+      "status": "done",
+      "tasks": ["001-compact-density"],
+      "taskStatuses": {
+        "001-compact-density": "merged"
+      }
+    },
+    {
+      "id": "v0.7-assistant",
+      "status": "done",
+      "tasks": ["001-assistant-foundation", "002-provider-streaming-endpoint", "003-picker-conversation-acceptance"],
+      "taskStatuses": {
+        "001-assistant-foundation": "merged",
+        "002-provider-streaming-endpoint": "merged",
+        "003-picker-conversation-acceptance": "merged"
+      }
+    },
+    {
+      "id": "v0.8-projects",
+      "status": "done",
+      "tasks": [
+        "001-project-data-foundation",
+        "002-project-board-list",
+        "003-project-overview-timeline-files",
+        "004-workspace-home-projects-index",
+        "005-project-navigation-consolidation",
+        "006-projects-acceptance"
+      ],
+      "taskStatuses": {
+        "001-project-data-foundation": "merged",
+        "002-project-board-list": "merged",
+        "003-project-overview-timeline-files": "merged",
+        "004-workspace-home-projects-index": "merged",
+        "005-project-navigation-consolidation": "merged",
+        "006-projects-acceptance": "merged"
+      }
+    },
+    {
+      "id": "v0.8.1-default-landing",
+      "status": "done",
+      "tasks": ["001-default-landing"],
+      "taskStatuses": {
+        "001-default-landing": "merged"
+      }
+    },
+    {
+      "id": "v0.9-agent-ready",
+      "status": "done",
+      "tasks": [
+        "001-blocks-kit",
+        "002-page-generators",
+        "003-design-guardrails",
+        "004-adopter-guide-skills",
+        "005-registry-llms",
+        "006-accessibility-debt"
+      ],
+      "taskStatuses": {
+        "001-blocks-kit": "merged",
+        "002-page-generators": "merged",
+        "003-design-guardrails": "merged",
+        "004-adopter-guide-skills": "merged",
+        "005-registry-llms": "merged",
+        "006-accessibility-debt": "merged"
+      }
+    },
+    {
+      "id": "v0.9.1-homepage",
+      "status": "done",
+      "tasks": ["001-homepage"],
+      "taskStatuses": {
+        "001-homepage": "merged"
+      }
+    },
+    {
+      "id": "v0.10-generative-dashboards",
+      "status": "done",
+      "tasks": ["001-spike", "002-blocks-library", "003-data-tools", "004-dashboard-canvas"],
+      "taskStatuses": {
+        "001-spike": "merged",
+        "002-blocks-library": "merged",
+        "003-data-tools": "merged",
+        "004-dashboard-canvas": "merged"
+      }
+    }
+  ]
+}

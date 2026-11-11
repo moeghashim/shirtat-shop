@@ -1,16 +1,12 @@
 import { retailPrice, SUPPLIER_CATALOG } from "@/lib/catalog/pricing";
 
+import { CUSTOM_DESIGN_HANDLES } from "./handles";
 import regions from "./regions.json";
 
-/** Shopify handles of the products the design builder sells. */
-export const CUSTOM_TEE_HANDLE = "custom-calligraphy-t-shirt";
-export const CUSTOM_HOODIE_HANDLE = "custom-calligraphy-hoodie";
-export const CUSTOM_MUG_HANDLE = "custom-calligraphy-mug";
+export { CUSTOM_HOODIE_HANDLE, CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE } from "./handles";
 
 export function isCustomDesignHandle(handle: string) {
-  return (
-    handle === CUSTOM_TEE_HANDLE || handle === CUSTOM_HOODIE_HANDLE || handle === CUSTOM_MUG_HANDLE
-  );
+  return CUSTOM_DESIGN_HANDLES.has(handle);
 }
 export const CUSTOM_TAG = "custom-design";
 export const CUSTOM_SKU_PREFIX = "CUS-";

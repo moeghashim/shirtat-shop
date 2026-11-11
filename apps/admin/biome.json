@@ -1,0 +1,200 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.2/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              "react",
+              "react/**",
+              ":BLANK_LINE:",
+              "@tanstack/**",
+              ":BLANK_LINE:",
+              ":PACKAGE:",
+              ":BLANK_LINE:",
+              ":ALIAS:",
+              ":BLANK_LINE:",
+              ":PATH:"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!**/*.md",
+      "!.github",
+      "!node_modules",
+      "!dist",
+      "!.output",
+      "!.tanstack",
+      "!.nitro",
+      "!.vercel",
+      "!**/src/routeTree.gen.ts",
+      "!**/src/styles/styles.css",
+      "!src/components/ui",
+      "!src/components/calendar"
+    ]
+  },
+  "overrides": [
+    {
+      "includes": ["src/routes/**/$*.tsx", "src/routes/**/$*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/components/blocks/**",
+        "!src/components/blocks/charts.tsx",
+        "!src/components/blocks/charts-*.tsx",
+        "!src/components/blocks/charts/**",
+        "!**/*.gen.*",
+        "!**/*.generated.*"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "recharts": "Import chart primitives from @/components/blocks/charts; keep Recharts access in the chart block module."
+                },
+                "patterns": [
+                  {
+                    "group": ["recharts/**"],
+                    "message": "Import chart primitives from @/components/blocks/charts."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/routes/**", "!**/*.gen.*", "!**/*.generated.*"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "recharts": "Import chart primitives from @/components/blocks/charts; keep Recharts access in the chart block module."
+                },
+                "patterns": [
+                  {
+                    "group": ["recharts/**"],
+                    "message": "Import chart primitives from @/components/blocks/charts."
+                  },
+                  {
+                    "group": ["**/ui/card", "**/ui/card.tsx"],
+                    "message": "Use DashboardCard or StatCard from @/components/blocks; UI card slots remain composable.",
+                    "importNamePattern": "CardAction|CardContent|CardDescription|CardFooter|CardHeader|CardTitle",
+                    "invertImportNamePattern": true
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 120,
+    "attributePosition": "auto",
+    "bracketSameLine": false,
+    "bracketSpacing": true,
+    "expand": "auto",
+    "useEditorconfig": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "correctness": {
+        "noUndeclaredVariables": "error",
+        "noNestedComponentDefinitions": "error",
+        "noUndeclaredDependencies": "error"
+      },
+      "nursery": {
+        "useTailwindSortedClasses": "on",
+        "useNullishCoalescing": "error",
+        "noFloatingPromises": "error",
+        "noMisusedPromises": "error"
+      },
+      "style": {
+        "noCommonJs": "error",
+        "noNamespace": "error",
+        "useAsConstAssertion": "error",
+        "useSelfClosingElements": "error",
+        "noNestedTernary": "warn",
+        "noParameterAssign": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error",
+        "useFilenamingConvention": "error"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "warn",
+        "noConstantBinaryExpressions": "error",
+        "noEmptyBlockStatements": "error",
+        "noUnknownAtRules": "off",
+        "noImportCycles": "error",
+        "noUnnecessaryConditions": "warn"
+      },
+      "complexity": {
+        "noImportantStyles": "off"
+      }
+    },
+    "domains": {
+      "react": "recommended"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "all",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSameLine": false,
+      "quoteStyle": "double",
+      "attributePosition": "auto",
+      "bracketSpacing": true
+    }
+  },
+  "html": {
+    "formatter": {
+      "indentScriptAndStyle": false,
+      "selfCloseVoidElements": "always"
+    }
+  }
+}

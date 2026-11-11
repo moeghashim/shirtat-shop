@@ -1,0 +1,933 @@
+{
+  "id": "30dc416d-28df-4318-b131-164bcc420d38",
+  "prevId": "754bae5b-d60c-478e-a0e1-4af7ea49f9ad",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.directory_users": {
+      "name": "directory_users",
+      "schema": "",
+      "columns": {
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team": {
+          "name": "team",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "joinedDate": {
+          "name": "joinedDate",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lastActive": {
+          "name": "lastActive",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.display_roles": {
+      "name": "display_roles",
+      "schema": "",
+      "columns": {
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "group": {
+          "name": "group",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accessLevel": {
+          "name": "accessLevel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "users": {
+          "name": "users",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lastReview": {
+          "name": "lastReview",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "owner": {
+          "name": "owner",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.metric_dimensions": {
+      "name": "metric_dimensions",
+      "schema": "",
+      "columns": {
+        "domain": {
+          "name": "domain",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "series": {
+          "name": "series",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pointKey": {
+          "name": "pointKey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "metric_dimensions_domain_series_pointKey_metric_points_domain_series_pointKey_fk": {
+          "name": "metric_dimensions_domain_series_pointKey_metric_points_domain_series_pointKey_fk",
+          "tableFrom": "metric_dimensions",
+          "tableTo": "metric_points",
+          "columnsFrom": ["domain", "series", "pointKey"],
+          "columnsTo": ["domain", "series", "pointKey"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "metric_dimensions_domain_series_pointKey_name_pk": {
+          "name": "metric_dimensions_domain_series_pointKey_name_pk",
+          "columns": ["domain", "series", "pointKey", "name"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.metric_points": {
+      "name": "metric_points",
+      "schema": "",
+      "columns": {
+        "domain": {
+          "name": "domain",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "series": {
+          "name": "series",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pointKey": {
+          "name": "pointKey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unit": {
+          "name": "unit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "metric_points_domain_series_pointKey_pk": {
+          "name": "metric_points_domain_series_pointKey_pk",
+          "columns": ["domain", "series", "pointKey"]
+        }
+      },
+      "uniqueConstraints": {
+        "metric_points_domain_series_position_unique": {
+          "name": "metric_points_domain_series_position_unique",
+          "nullsNotDistinct": false,
+          "columns": ["domain", "series", "position"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "metric_currency_unit": {
+          "name": "metric_currency_unit",
+          "value": "(\"metric_points\".\"unit\" = 'currency') = (\"metric_points\".\"currency\" IS NOT NULL)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.role_permissions": {
+      "name": "role_permissions",
+      "schema": "",
+      "columns": {
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "permission": {
+          "name": "permission",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "role_permissions_role_display_roles_role_fk": {
+          "name": "role_permissions_role_display_roles_role_fk",
+          "tableFrom": "role_permissions",
+          "tableTo": "display_roles",
+          "columnsFrom": ["role"],
+          "columnsTo": ["role"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "role_permissions_role_permission_pk": {
+          "name": "role_permissions_role_permission_pk",
+          "columns": ["role", "permission"]
+        }
+      },
+      "uniqueConstraints": {
+        "role_permissions_role_position_unique": {
+          "name": "role_permissions_role_position_unique",
+          "nullsNotDistinct": false,
+          "columns": ["role", "position"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.workspace_memberships": {
+      "name": "workspace_memberships",
+      "schema": "",
+      "columns": {
+        "userEmail": {
+          "name": "userEmail",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspaceName": {
+          "name": "workspaceName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "workspace_memberships_userEmail_directory_users_email_fk": {
+          "name": "workspace_memberships_userEmail_directory_users_email_fk",
+          "tableFrom": "workspace_memberships",
+          "tableTo": "directory_users",
+          "columnsFrom": ["userEmail"],
+          "columnsTo": ["email"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "workspace_memberships_workspaceName_workspaces_name_fk": {
+          "name": "workspace_memberships_workspaceName_workspaces_name_fk",
+          "tableFrom": "workspace_memberships",
+          "tableTo": "workspaces",
+          "columnsFrom": ["workspaceName"],
+          "columnsTo": ["name"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "workspace_memberships_userEmail_workspaceName_pk": {
+          "name": "workspace_memberships_userEmail_workspaceName_pk",
+          "columns": ["userEmail", "workspaceName"]
+        }
+      },
+      "uniqueConstraints": {
+        "workspace_memberships_userEmail_position_unique": {
+          "name": "workspace_memberships_userEmail_position_unique",
+          "nullsNotDistinct": false,
+          "columns": ["userEmail", "position"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.workspaces": {
+      "name": "workspaces",
+      "schema": "",
+      "columns": {
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.demo_accounts": {
+      "name": "demo_accounts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "avatar": {
+          "name": "avatar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.profile_contacts": {
+      "name": "profile_contacts",
+      "schema": "",
+      "columns": {
+        "contractorId": {
+          "name": "contractorId",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "workEmail": {
+          "name": "workEmail",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "personalEmail": {
+          "name": "personalEmail",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workPhone": {
+          "name": "workPhone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "emergencyContact": {
+          "name": "emergencyContact",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "emergencyPhone": {
+          "name": "emergencyPhone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profile_contacts_contractorId_profiles_contractorId_fk": {
+          "name": "profile_contacts_contractorId_profiles_contractorId_fk",
+          "tableFrom": "profile_contacts",
+          "tableTo": "profiles",
+          "columnsFrom": ["contractorId"],
+          "columnsTo": ["contractorId"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.profile_documents": {
+      "name": "profile_documents",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "contractorId": {
+          "name": "contractorId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "isRestricted": {
+          "name": "isRestricted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profile_documents_contractorId_profiles_contractorId_fk": {
+          "name": "profile_documents_contractorId_profiles_contractorId_fk",
+          "tableFrom": "profile_documents",
+          "tableTo": "profiles",
+          "columnsFrom": ["contractorId"],
+          "columnsTo": ["contractorId"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.profile_employment": {
+      "name": "profile_employment",
+      "schema": "",
+      "columns": {
+        "contractorId": {
+          "name": "contractorId",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "jobTitle": {
+          "name": "jobTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jobLevel": {
+          "name": "jobLevel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "department": {
+          "name": "department",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team": {
+          "name": "team",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currentProject": {
+          "name": "currentProject",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workplace": {
+          "name": "workplace",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timeZone": {
+          "name": "timeZone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "startDate": {
+          "name": "startDate",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "engagementLength": {
+          "name": "engagementLength",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "employmentType": {
+          "name": "employmentType",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "weeklyHours": {
+          "name": "weeklyHours",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "schedule": {
+          "name": "schedule",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contractingEntity": {
+          "name": "contractingEntity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "noticePeriod": {
+          "name": "noticePeriod",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profile_employment_contractorId_profiles_contractorId_fk": {
+          "name": "profile_employment_contractorId_profiles_contractorId_fk",
+          "tableFrom": "profile_employment",
+          "tableTo": "profiles",
+          "columnsFrom": ["contractorId"],
+          "columnsTo": ["contractorId"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.profile_leave": {
+      "name": "profile_leave",
+      "schema": "",
+      "columns": {
+        "contractorId": {
+          "name": "contractorId",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "leavePolicy": {
+          "name": "leavePolicy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "annualLeaveAllowance": {
+          "name": "annualLeaveAllowance",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "remainingLeave": {
+          "name": "remainingLeave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "carriedOverLeave": {
+          "name": "carriedOverLeave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "usedLeave": {
+          "name": "usedLeave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scheduledLeave": {
+          "name": "scheduledLeave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pendingLeaveRequests": {
+          "name": "pendingLeaveRequests",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "leaveYear": {
+          "name": "leaveYear",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nextLeave": {
+          "name": "nextLeave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lastWorkingDay": {
+          "name": "lastWorkingDay",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profile_leave_contractorId_profiles_contractorId_fk": {
+          "name": "profile_leave_contractorId_profiles_contractorId_fk",
+          "tableFrom": "profile_leave",
+          "tableTo": "profiles",
+          "columnsFrom": ["contractorId"],
+          "columnsTo": ["contractorId"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.profile_people": {
+      "name": "profile_people",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "initials": {
+          "name": "initials",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.profiles": {
+      "name": "profiles",
+      "schema": "",
+      "columns": {
+        "contractorId": {
+          "name": "contractorId",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "managerId": {
+          "name": "managerId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "preferredName": {
+          "name": "preferredName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legalName": {
+          "name": "legalName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pronouns": {
+          "name": "pronouns",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "initials": {
+          "name": "initials",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "avatar": {
+          "name": "avatar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "engagementStatus": {
+          "name": "engagementStatus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dateOfBirth": {
+          "name": "dateOfBirth",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bio": {
+          "name": "bio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profiles_managerId_profile_people_id_fk": {
+          "name": "profiles_managerId_profile_people_id_fk",
+          "tableFrom": "profiles",
+          "tableTo": "profile_people",
+          "columnsFrom": ["managerId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
