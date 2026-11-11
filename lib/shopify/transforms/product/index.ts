@@ -160,10 +160,7 @@ const DESIGN_ALT = /\b(design|artwork|calligraphy)\b/i;
 const LIFESTYLE_ALT = /\bmodel wearing\b/i;
 
 // Hover image: flat design art (alt mentions design/artwork/calligraphy), else the on-model lifestyle shot, else the next media image.
-function buildCardGallery(
-  featured: Image | null,
-  nodes: ReadonlyArray<object>,
-): Image[] {
+function buildCardGallery(featured: Image | null, nodes: ReadonlyArray<object>): Image[] {
   const featuredBase = featured?.url.split("?")[0];
   const rest: Image[] = [];
   for (const node of nodes) {
@@ -268,6 +265,7 @@ export function transformShopifyProductDetails(product: ShopifyProduct): Product
       title: product.seo.title || product.title,
       description: product.seo.description || product.description,
     },
+    tags: product.tags ?? [],
     category: transformCategory(product.category),
     updatedAt: product.updatedAt,
     priceRange: product.priceRange,

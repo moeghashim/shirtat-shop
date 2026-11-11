@@ -3,8 +3,10 @@ import { type ReactNode, Suspense } from "react";
 import { T } from "@/components/i18n/t";
 import { ProductCard } from "@/components/product-card/product-card";
 import { ProductsGridSkeleton } from "@/components/product/products-grid";
+import { ItemListSchema } from "@/components/schema/collection-schema";
 import { PRODUCTS_PER_PAGE } from "@/lib/collections";
 import type { BrowseResults, BrowseState, SortValue } from "@/lib/collections/types";
+import { getLocale } from "@/lib/i18n/server";
 import { getT } from "@/lib/i18n/server";
 
 import { BrowsePublisher, CollectionBrowseProvider } from "./collection-browse-provider";
@@ -70,6 +72,7 @@ async function StreamedResultsGrid({ results }: { results: Promise<BrowseResults
 
 async function BrowseResultsGrid({ results }: BrowseResultsGridProps) {
   const t = await getT();
+  const locale = await getLocale();
   const { dataSearch, pageInfo, products, source } = results;
   if (products.length === 0) {
     const query = source.type === "search" ? source.query : undefined;
@@ -89,6 +92,15 @@ async function BrowseResultsGrid({ results }: BrowseResultsGridProps) {
   return (
     <>
       <h2 className="sr-only">{t("Products")}</h2>
+      {source.type === "collection" ? (
+        <ItemListSchema
+          items={products.map((product) => ({
+            name: product.title,
+            path: `/products/${product.handle}`,
+          }))}
+          locale={locale}
+        />
+      ) : null}
       <InfiniteProductGrid
         key={`${JSON.stringify(source)}?${dataSearch}`}
         initialPageInfo={pageInfo}
