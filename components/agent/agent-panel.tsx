@@ -13,15 +13,17 @@ import {
 } from "@/components/ui/sheet";
 import { setAgentCartStatus, useAgentCartPending } from "@/lib/agent/cart/client";
 import { readStoredChat, writeStoredChat } from "@/lib/agent/chat/client";
-import { useT } from "@/lib/i18n/client";
+import type { VoiceFailure } from "@/lib/agent/voice/browser";
+import { useLocale, useT } from "@/lib/i18n/client";
 
 import { CapturedStream } from "./captured-stream";
 import { AgentCartBridge } from "./cart-bridge";
 import { ChatMessage } from "./chat-message";
 import { AgentComposer } from "./composer";
-import { AgentFixtureScene, readAgentFixture } from "./fixture";
+import { AgentFixtureScene, readAgentFixture, voiceFixtureExchange } from "./fixture";
 import { AgentCartSummary } from "./shopping-results";
 import { AgentThinking } from "./thinking";
+import { useShirtatVoice, VoiceExchangeView, type VoiceActivity } from "./voice";
 
 const WELCOME_SUGGESTIONS = [
   ["Gifts", "Help me choose a gift"],
@@ -49,8 +51,11 @@ export interface AgentPanelProps {
 
 export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) {
   const t = useT();
+  const locale = useLocale();
   const panelRef = useRef<HTMLDivElement>(null);
   const [fixture] = useState(() => readAgentFixture(window.location.search));
+  const [fixtureListening, setFixtureListening] = useState(true);
+  const voice = useShirtatVoice(open && fixture !== "voice");
   const [fixtureNote, setFixtureNote] = useState<string | null>(null);
   const [fixtureBusy, setFixtureBusy] = useState(false);
   const [stored] = useState(readStoredChat);
@@ -223,6 +228,7 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
     });
   };
   const handleSend = (text: string) => {
+    if (!fixture) voice.stop();
     if (fixture) {
       pinnedRef.current = true;
       setFixtureNote(text);
@@ -249,10 +255,12 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
     if (fixture) {
       setFixtureNote(null);
       setFixtureBusy(false);
+      setFixtureListening(false);
       setInput("");
       setControlError(null);
       return;
     }
+    voice.clear();
     if (clearAttempt.current) return;
     setClearing(true);
     setControlError(null);
@@ -329,10 +337,13 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
                 clearing ||
                 (fixture === null &&
                   !messages.length &&
+                  !voice.exchanges.length &&
+                  voice.activity === "idle" &&
                   !input.trim() &&
                   !agent.session &&
                   !busy) ||
-                (fixture !== null && !fixtureNote && !input.trim())
+                (fixture !== null && !fixtureNote && !input.trim() && fixture !== "voice") ||
+                (fixture === "voice" && !fixtureListening && !fixtureNote && !input.trim())
               }
               onClick={handleClear}
               type="button"
@@ -371,7 +382,10 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
             aria-busy={busy}
             aria-label="Conversation"
             className="flex min-h-full flex-col justify-end gap-8 px-5 py-6 [&>*]:shrink-0 data-[welcome=true]:justify-start"
-            data-welcome={fixture === "welcome" || (!fixture && messages.length === 0)}
+            data-welcome={
+              fixture === "welcome" ||
+              (!fixture && messages.length === 0 && voice.exchanges.length === 0)
+            }
             role="log"
           >
             {fixture ? (
@@ -381,7 +395,7 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
                 note={fixtureNote}
                 onSuggest={handleSend}
               />
-            ) : messages.length === 0 ? (
+            ) : messages.length === 0 && voice.exchanges.length === 0 ? (
               restoring ? (
                 showRestoring && (
                   <p className="text-muted-foreground text-sm">
@@ -400,10 +414,28 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
                     status === "streaming" && !hasReachedLimit && index === messages.length - 1
                   }
                   message={message}
-                  onFollowUp={handleSend}
+                  onFollowUp={(text) => {
+                    if (voice.say(text)) return;
+                    handleSend(text);
+                  }}
                 />
               ))
             )}
+            {fixture === "voice" ? (
+              <VoiceExchangeView exchange={voiceFixtureExchange(locale)} onFollowUp={handleSend} />
+            ) : null}
+            {fixture !== "voice"
+              ? voice.exchanges.map((exchange) => (
+                  <VoiceExchangeView
+                    exchange={exchange}
+                    key={exchange.id}
+                    onFollowUp={(text) => {
+                      if (voice.say(text)) return;
+                      handleSend(text);
+                    }}
+                  />
+                ))
+              : null}
             {!fixture && awaitingReply && <AgentThinking active />}
           </div>
         </div>
@@ -418,7 +450,20 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
           </p>
         )}
         <AgentCartBridge messages={fixture ? [] : messages} status={fixture ? "ready" : status} />
+        <VoiceStatus
+          activity={
+            fixture === "voice" ? (fixtureListening ? "listening" : "idle") : voice.activity
+          }
+          failure={fixture ? null : voice.failure}
+        />
         <AgentComposer
+          onVoice={
+            fixture === "voice"
+              ? () => setFixtureListening((current) => !current)
+              : voice.enabled
+                ? voice.start
+                : undefined
+          }
           disabled={fixture ? false : !busy && (clearing || cartPending || hasReachedLimit)}
           onChange={(value) => {
             setInput(value);
@@ -441,6 +486,15 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
                       : status
           }
           value={input}
+          voice={
+            fixture === "voice" || voice.enabled
+              ? fixture === "voice"
+                ? fixtureListening
+                  ? "listening"
+                  : "idle"
+                : voice.activity
+              : undefined
+          }
         />
         {!fixture && (error || controlError) && (
           <p role="alert" className="px-5 pb-3 text-destructive text-sm">
@@ -451,6 +505,42 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
       </SheetContent>
     </Sheet>
   );
+}
+
+function VoiceStatus({
+  activity,
+  failure,
+}: {
+  activity: VoiceActivity;
+  failure: VoiceFailure | null;
+}) {
+  const t = useT();
+  const text = failure
+    ? t(voiceFailureCopy(failure))
+    : activity === "idle"
+      ? ""
+      : t(voiceActivityCopy(activity));
+  if (!text) return null;
+  return (
+    <p className="px-5 text-sm text-foreground/80" role={failure ? "alert" : "status"}>
+      {text}
+    </p>
+  );
+}
+
+function voiceActivityCopy(activity: Exclude<VoiceActivity, "idle">) {
+  if (activity === "connecting") return "Connecting voice…";
+  if (activity === "speaking") return "Speaking";
+  return "Listening";
+}
+
+function voiceFailureCopy(failure: VoiceFailure) {
+  if (failure === "denied") return "Voice needs the microphone. You can keep typing.";
+  if (failure === "duration")
+    return "This voice session reached its time limit. You can type, or start voice again.";
+  if (failure === "daily_cap") return "Voice sessions are paused for today. You can keep typing.";
+  if (failure === "rate_limited") return "Voice is busy right now. You can keep typing.";
+  return "Voice is unavailable right now. You can keep typing.";
 }
 
 function Welcome({ onSuggest }: { onSuggest: (text: string) => void }) {

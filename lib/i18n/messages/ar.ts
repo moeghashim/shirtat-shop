@@ -124,6 +124,20 @@ export const ar = {
   "Updating…": "جارٍ التحديث…",
   "View All": "عرض الكل",
   "View product": "عرض المنتج",
+  "Start voice": "بدء الصوت",
+  "Stop voice": "إيقاف الصوت",
+  Listening: "يستمع",
+  Speaking: "يتكلم",
+  "Connecting voice…": "جارٍ توصيل الصوت…",
+  "Voice needs the microphone. You can keep typing.":
+    "الصوت يحتاج إلى الميكروفون. يمكنك متابعة الكتابة.",
+  "Voice is unavailable right now. You can keep typing.":
+    "الصوت غير متاح الآن. يمكنك متابعة الكتابة.",
+  "This voice session reached its time limit. You can type, or start voice again.":
+    "بلغت جلسة الصوت حدها الزمني. يمكنك الكتابة، أو بدء الصوت من جديد.",
+  "Voice sessions are paused for today. You can keep typing.":
+    "جلسات الصوت متوقفة لليوم. يمكنك متابعة الكتابة.",
+  "Voice is busy right now. You can keep typing.": "الصوت مشغول الآن. يمكنك متابعة الكتابة.",
   "View this collection": "عرض هذه المجموعة",
   "Words worth wearing": "كلمات تستحق أن تُرتدى",
   "Write a personal note (optional)": "اكتب رسالة شخصية (اختياري)",

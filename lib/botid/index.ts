@@ -13,6 +13,11 @@ export const botIdProtectedRoutes = [
           method: "*",
           path: "/eve/v1/session/*",
         },
+        {
+          advancedOptions: { checkLevel: shopConfig.botid.checkLevel },
+          method: "POST",
+          path: "/api/agent/voice",
+        },
       ]
     : []),
 ];
