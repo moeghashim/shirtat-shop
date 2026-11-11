@@ -118,7 +118,7 @@ export function AccountPanel() {
     <div className="max-w-3xl space-y-8">
       <div className="space-y-2">
         <h2 className="text-xl font-semibold">Your sign-in account</h2>
-        <p className="text-muted-foreground text-sm">Manage your name, password and browsers signed in to tenboards.</p>
+        <p className="text-muted-foreground text-sm">Manage your name, password and browsers signed in to Shirtat.</p>
       </div>
       {content()}
     </div>

@@ -1,7 +1,7 @@
 {
-  "short_name": "tenboards",
-  "name": "tenboards - TanStack Start Dashboard",
-  "description": "A modern, customizable admin dashboard template built with TanStack Start and shadcn/ui.",
+  "short_name": "Shirtat",
+  "name": "Shirtat admin",
+  "description": "Owner and designer dashboards for Shirtat.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -22,6 +22,6 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "theme_color": "#1e40af",
-  "background_color": "#f8f9fb"
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
 }

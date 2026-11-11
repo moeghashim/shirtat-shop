@@ -19,7 +19,7 @@ export function RegistryInstall({ section }: { section: string }) {
             : registry.items.find((item) => item.meta.kitSection === section)?.title}
         </summary>
         <p className="text-muted-foreground mt-3 max-w-prose text-sm">
-          Requires React 19, Tailwind v4 and initialized shadcn. Includes the default tenboards theme, typography and
+          Requires React 19, Tailwind v4 and initialized shadcn. Includes the default Shirtat theme, typography and
           compact spacing; review the global CSS changes. Related blocks share their source module.
         </p>
         <ul className="mt-3 space-y-4">

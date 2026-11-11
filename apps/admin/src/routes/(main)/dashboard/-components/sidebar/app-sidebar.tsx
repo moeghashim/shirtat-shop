@@ -5,7 +5,7 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { BookOpen, CircleHelp, MessageCircle } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
-import { BrandMark, BrandWordmark } from "@/components/brand/brand";
+import { BrandLogo } from "@/components/brand/brand";
 import { SearchTrigger } from "@/components/navigation/search-trigger";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,10 +56,7 @@ export function AppSidebar({
             aria-label="Shirtat admin"
             className="flex min-w-0 flex-1 items-center gap-3 rounded-lg group-data-[collapsible=icon]:hidden"
           >
-            <span className="bg-muted flex size-9 shrink-0 items-center justify-center rounded-xl">
-              <BrandMark className="size-5" />
-            </span>
-            <BrandWordmark className="text-base" />
+            <BrandLogo className="h-11" />
           </Link>
           <SidebarTrigger className="shrink-0" />
         </div>
@@ -76,13 +73,13 @@ export function AppSidebar({
           <LayoutControls sidebar />
           <div className="ml-auto flex group-data-[collapsible=icon]:hidden">
             {[
-              { title: "Help", href: "https://github.com/moeghashim/tenboards/issues", icon: CircleHelp },
+              { title: "Help", href: "https://shirtat.co", icon: CircleHelp },
               {
                 title: "Documentation",
-                href: "https://github.com/moeghashim/tenboards/blob/main/README.md",
+                href: "https://github.com/moeghashim/shirtat-shop/blob/main/apps/admin/README.md",
                 icon: BookOpen,
               },
-              { title: "Feedback", href: "https://github.com/moeghashim/tenboards/issues/new", icon: MessageCircle },
+              { title: "Feedback", href: "https://github.com/moeghashim/shirtat-shop/issues/new", icon: MessageCircle },
             ].map(({ title, href, icon: Icon }) => (
               <Button
                 key={title}

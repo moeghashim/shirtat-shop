@@ -4,7 +4,7 @@ import { cn } from "cn";
 
 import { ChartContainer, type ChartLegendContent, ChartTooltipContent } from "@/components/ui/chart";
 
-/** Opaque chart colors and distinct line patterns. Skips duplicate Default chart-3. */
+/** Opaque chart colors and distinct line patterns. chart-3 is danger red, kept off the default four-series set. */
 export const chartSeries = [
   { color: "var(--chart-1)", strokeDasharray: undefined },
   { color: "var(--chart-2)", strokeDasharray: "6 3" },

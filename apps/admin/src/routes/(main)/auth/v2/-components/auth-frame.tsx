@@ -4,6 +4,8 @@ import { getRouteApi } from "@tanstack/react-router";
 
 import { Globe } from "lucide-react";
 
+import { BrandLogo } from "@/components/brand/brand";
+
 import { useAuthFlow } from "../../-components/auth-flow";
 import { ProviderControls } from "../../-components/social-auth/provider-controls";
 
@@ -21,6 +23,7 @@ export function AuthFrame({ mode, children }: { mode: "login" | "register"; chil
       </nav>
       <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 py-4">
         <div className="space-y-2">
+          <BrandLogo className="text-foreground h-14 lg:hidden" />
           <h1 className="text-2xl font-medium">{login ? "Login to your account" : "Create your account"}</h1>
           <p className="text-muted-foreground text-sm">
             {auth.mode === "auth" ? "Enter your details to continue." : demoDescription}

@@ -3,7 +3,7 @@ import { type FontKey, fontRegistry } from "./registry";
 export function applyFont(fontKey: FontKey): void {
   const font = fontRegistry[fontKey];
   const root = document.documentElement;
-  const family = `"${font.family}", ${font.fallback}`;
+  const family = `"${font.family}", "El Messiri", ${font.fallback}`;
 
   root.setAttribute("data-font", fontKey);
   root.style.setProperty("--app-font-sans", family);

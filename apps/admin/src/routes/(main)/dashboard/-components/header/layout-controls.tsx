@@ -221,11 +221,11 @@ export function LayoutControls({ sidebar = false }: { sidebar?: boolean }) {
             onClick={() => {
               resetPreferences();
               setOpen(true);
-              setResetMessage("tenboards defaults restored.");
+              setResetMessage("Shirtat defaults restored.");
             }}
           >
             <RotateCcw />
-            Reset to tenboards defaults
+            Reset to Shirtat defaults
           </Button>
           <p role="status" className="text-muted-foreground min-h-4 text-center text-xs">
             {resetMessage || `Defaults: ${defaultsSummary}`}

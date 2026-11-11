@@ -11,7 +11,7 @@ export function HeaderExample() {
       title="Blocks kit"
       description={
         details
-          ? "Build with the same presentation blocks used throughout tenboards. All examples use illustrative data."
+          ? "Build with the same presentation blocks used throughout Shirtat. All examples use illustrative data."
           : undefined
       }
       actions={

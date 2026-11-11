@@ -15,8 +15,8 @@ export const THEME_PRESET_OPTIONS = [
     label: "Default",
     value: "default",
     primary: {
-      light: "#1e40af",
-      dark: "#a9c2ff",
+      light: "#000000",
+      dark: "#ffffff",
     },
   },
   {
@@ -41,6 +41,14 @@ export const THEME_PRESET_OPTIONS = [
     primary: {
       light: "#115e59",
       dark: "#5eead4",
+    },
+  },
+  {
+    label: "Shirtat",
+    value: "shirtat",
+    primary: {
+      light: "#000000",
+      dark: "#ffffff",
     },
   },
 ] as const;

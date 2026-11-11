@@ -198,9 +198,9 @@ Captures wait for React hydration, fonts, network idle, images, JS chart settlin
 
 ## Brand assets
 
-The original tenboards mark pairs a solid upright with an open board, reading as “10” at small sizes. `src/components/brand/brand.tsx` supplies the inherited-color mark and wordmark; adjacent visible text or the enclosing link supplies its accessible name. The sidebar uses an explicit home label in collapsed mode. Auth changes replace brand symbols only; form behavior is unchanged.
+Shirtat uses the storefront calligraphy mark and the SHIRTAT wordmark. `src/components/brand/brand.tsx` supplies the inherited-color mark and lockup; the enclosing link supplies the accessible name. Favicons use the storefront white S on a black tile.
 
-`public/brand/mark.svg` and `wordmark.svg` are vector masters (the wordmark outlines the bundled SIL-OFL Geist face). `favicon.svg`, ICO/16/32px PNGs, the 180px touch icon, and 192/512px app icons share the same original silhouette. `public/brand/og.svg` is the 1200×630 social-image source for `public/og.png`. PNG/ICO derivatives were rendered locally from these authored vectors, with no stock or third-party logo. Preserve the font package license when redistributing its font files.
+`public/brand/mark.svg` and `wordmark.svg` are the storefront vector masters. `favicon.svg`, the ICO and 16/32px PNGs, the touch icon, and the 192/512px app icons are the storefront icon set. `public/og.png` is the social image. Preserve the font package license when redistributing its font files.
 
 Social metadata, favicons and the manifest use origin-relative asset URLs, so a fork does not point to this project's live host. Set `APP_CONFIG.meta.image` in `src/config/app-config.ts` to `https://<worker-name>.<account-subdomain>.workers.dev/og.png` if your social crawler requires an absolute image URL. Inspect `/og.png` on your deployment or PR preview.
 
@@ -212,7 +212,7 @@ Desktop icon rails own the expand/collapse control; the header hides its redunda
 
 Open search from the sidebar, the mobile header, or **⌘K / Ctrl+K** on any retained route. Arrow keys choose results; Enter opens a page; Escape closes and restores focus. The palette exposes 27 static screens plus 15 views across the three sample projects; four non-searchable catalog entries cover redirects and the auth layout route. Pressing the shortcut again closes search. Other visible dialogs, alert dialogs, menus, and listboxes retain the shortcut (the mobile navigation sheet excepted); text-field focus alone does not suppress it. The bare `/auth/v2` path is an inherited layout-only screen; its login/register children are the searchable destinations.
 
-Settings in the sidebar or header controls theme (including System), Default/Graphite/Pine/Iris presets, the existing font registry, content width, header behavior, sidebar style, and collapse behavior. Changes persist in the existing seven-day browser cookies, one per preference key, plus the separate sidebar-state cookie. Reset restores Light, Default, Geist, Centered, Sticky, Panel, Show icons, and expanded navigation. Inset also frames the content; every desktop style preserves the reference sidebar. Mobile navigation always uses a sheet.
+Settings in the sidebar or header controls theme (including System), Shirtat/Graphite/Pine/Iris presets, the existing font registry, content width, header behavior, sidebar style, and collapse behavior. Changes persist in the existing seven-day browser cookies, one per preference key, plus the separate sidebar-state cookie. Reset restores Light, Shirtat, Geist, Centered, Sticky, Panel, Show icons, and expanded navigation. Inset also frames the content; every desktop style preserves the reference sidebar. Mobile navigation always uses a sheet.
 
 Shell accessibility checks cover keyboard navigation, named controls, visible focus, palette selection and focus return, settings radio/select operation and focus trapping, mobile sheets, and reduced-motion CSS across all four presets in both modes. Run the supported token-pair contrast audit with:
 

@@ -64,7 +64,7 @@ export const PREFERENCE_REGISTRY = {
   theme_preset: definePreference({
     values: THEME_PRESET_VALUES,
     legacyValues: ["brutalist", "neo-brutalism", "soft-pop", "tangerine"],
-    defaultValue: "default",
+    defaultValue: "shirtat",
     persistence: "client-cookie",
     attribute: "data-theme-preset",
   }),

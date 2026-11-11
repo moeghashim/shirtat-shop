@@ -4,8 +4,8 @@ import { spawnSync } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
 
 const theme = registryTheme(await readFile("src/styles/styles.css", "utf8"));
-assert.equal(theme.cssVars.light.primary, "#1e40af");
-assert.equal(theme.cssVars.dark.primary, "#a9c2ff");
+assert.equal(theme.cssVars.light.primary, "#000000");
+assert.equal(theme.cssVars.dark.primary, "#ffffff");
 assert.equal(theme.cssVars.dark.card, "var(--surface)");
 assert.equal(theme.cssVars.dark["chart-1"], "var(--primary)");
 assert.equal(theme.cssVars.theme["text-sm"], "0.8125rem");
