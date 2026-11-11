@@ -4,6 +4,7 @@ import { CardGallery } from "@/components/product-card/card-gallery";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { CATEGORIES } from "@/lib/collections/categories";
+import { isCustomDesignHandle } from "@/lib/custom/products";
 import { type HomeProduct, getHomeProducts } from "@/lib/home/server";
 import { describeProductImage } from "@/lib/i18n/product";
 import { getLocale, getT } from "@/lib/i18n/server";
@@ -20,13 +21,24 @@ const CATEGORY_STYLE: Record<string, { bg: string; glyph: string }> = {
   politics: { bg: "from-slate-900 to-blue-900", glyph: "سياسة" },
 };
 
-const PRODUCT_TYPES = [
-  { handle: "t-shirts", search: "T-shirt", label: "T-shirts", type: "T-Shirt" },
-  { handle: "hoodies", search: "Hoodie", label: "Hoodies", type: "Hoodie" },
-  { handle: "sweatshirts", search: "Sweatshirt", label: "Sweatshirts", type: "Sweatshirt" },
-  { handle: "tote-bags", search: "Tote", label: "Tote bags", type: "Tote Bag" },
-  { handle: "posters-prints", search: "Print", label: "Prints", type: "Poster" },
-  { handle: "mugs", search: "Mug", label: "Mugs", type: "Mug" },
+const PRODUCT_TYPES: {
+  handle: string;
+  label: string;
+  match: (product: HomeProduct) => boolean;
+}[] = [
+  { handle: "t-shirts", label: "T-shirts", match: (p) => /^t-?shirts?$/i.test(p.productType) },
+  { handle: "hoodies", label: "Hoodies", match: (p) => /hoodie/i.test(p.productType) },
+  { handle: "sweatshirts", label: "Sweatshirts", match: (p) => /sweatshirt/i.test(p.productType) },
+  { handle: "tote-bags", label: "Tote bags", match: (p) => /tote/i.test(p.productType) },
+  { handle: "posters-prints", label: "Prints", match: (p) => /print|poster/i.test(p.productType) },
+  { handle: "mugs", label: "Mugs", match: (p) => /mug/i.test(p.productType) },
+  {
+    handle: "caps-beanies",
+    label: "Caps & beanies",
+    match: (p) => /cap|beanie/i.test(p.productType),
+  },
+  { handle: "kids", label: "Kids", match: (p) => /kid/i.test(p.productType) },
+  { handle: "baby", label: "Baby", match: (p) => /baby/i.test(p.productType) },
 ];
 
 /** "English (العربية) Type" → the part for the current locale. */
@@ -106,8 +118,12 @@ export async function CategoryTiles() {
   );
 }
 
-function pickByType(products: HomeProduct[], type: string) {
-  return products.find((p) => p.productType === type && p.image);
+function pickByType(products: HomeProduct[], match: (product: HomeProduct) => boolean) {
+  return products.find((p) => !isCustomDesignHandle(p.handle) && match(p) && p.image);
+}
+
+function productTypeLabel(product: HomeProduct): string {
+  return PRODUCT_TYPES.find((type) => type.match(product))?.label ?? product.productType;
 }
 
 export async function ProductTypeRow() {
@@ -117,12 +133,12 @@ export async function ProductTypeRow() {
   return (
     <Container>
       <SectionHeader eyebrow={t("Products")} title={t("Shop by product")} />
-      <ul className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-6 md:overflow-visible md:px-0">
+      <ul className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 lg:grid-cols-5 xl:grid-cols-9">
         {PRODUCT_TYPES.map((pt) => {
-          const p = pickByType(products, pt.type);
+          const p = pickByType(products, pt.match);
           return (
             <li className="w-40 shrink-0 snap-start md:w-auto" key={pt.handle}>
-              <Link className="group block" href={`/search?q=${encodeURIComponent(pt.search)}`}>
+              <Link className="group block" href={`/collections/${pt.handle}`}>
                 <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
                   {p?.image && (
                     <Image
@@ -359,8 +375,7 @@ export async function NewArrivals() {
                 </Link>
               </p>
               <p className="text-sm text-muted-foreground">
-                {t(PRODUCT_TYPES.find((x) => x.type === p.productType)?.label ?? p.productType)} ·{" "}
-                {fmt.format(Number(p.price.amount))}
+                {t(productTypeLabel(p))} · {fmt.format(Number(p.price.amount))}
               </p>
             </article>
           </li>

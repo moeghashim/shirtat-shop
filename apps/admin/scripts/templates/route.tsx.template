@@ -1,0 +1,15 @@
+import { createFileRoute } from "@tanstack/react-router";
+
+import { requireAppRoute } from "@/lib/auth/app-route";
+
+import { load__NAME__ } from "./-components/load";
+import { __NAME__Page } from "./-components/page";
+
+export const Route = createFileRoute("/(main)/dashboard/__SLUG__/")({
+  beforeLoad: requireAppRoute,
+  loader: () => load__NAME__(),
+  component: Page,
+});
+function Page() {
+  return <__NAME__Page data={Route.useLoaderData()} />;
+}

@@ -740,3 +740,55 @@ export async function fetchSenatorCampaignProducts(params: {
   }
   return products;
 }
+
+const GUIDE_CATALOG_QUERY = gql(
+  `#graphql
+  query guideCatalog($cursor: String, $country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
+    products(first: 100, after: $cursor, sortKey: TITLE) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      nodes {
+        availableForSale
+        description
+        handle
+        productType
+        tags
+        title
+        featuredImage {
+          altText
+          height
+          url
+          width
+        }
+        priceRange {
+          maxVariantPrice {
+            amount
+            currencyCode
+          }
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+      }
+    }
+  }
+`,
+);
+
+export async function fetchGuideCatalogPage({
+  cursor,
+  locale = shopConfig.localization,
+}: {
+  cursor?: string | null;
+  locale?: CommerceLocale;
+}) {
+  const response = await storefront.request(GUIDE_CATALOG_QUERY, {
+    locale,
+    variables: { cursor },
+  });
+  assertStorefrontOk(response, "guideCatalog");
+  return response.data.products;
+}

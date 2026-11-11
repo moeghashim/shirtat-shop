@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { LinkedText } from "@/components/content/linked-text";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { getLocale, getT } from "@/lib/i18n/server";
@@ -61,7 +62,9 @@ export default async function MakingOfPage() {
               </h3>
               <ul className="flex flex-col gap-1 list-disc ps-5">
                 {day.entries.map((entry) => (
-                  <li key={entry.en}>{entry[locale]}</li>
+                  <li key={entry.en}>
+                    <LinkedText text={entry[locale]} />
+                  </li>
                 ))}
               </ul>
             </div>

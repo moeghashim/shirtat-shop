@@ -1,6 +1,7 @@
 import { getCategory } from "@/lib/collections/categories";
 import type { Collection } from "@/lib/collections/types";
 import { shopConfig } from "@/lib/config";
+import { GUIDES } from "@/lib/guides/copy";
 import { localizePath } from "@/lib/i18n";
 import {
   absoluteStoreUrl,
@@ -9,11 +10,24 @@ import {
   escapeMarkdown,
 } from "@/lib/markdown";
 import { productLinkLine, productPriceAmount } from "@/lib/markdown/catalog";
+import type { ShopPolicy } from "@/lib/policies/types";
 import type { ProductCard } from "@/lib/product/types";
 
 export interface LlmsCatalog {
   collections: Collection[];
+  policies?: ShopPolicy[];
   products: ProductCard[];
+}
+
+function guideLink(guide: (typeof GUIDES)[number]): string {
+  const path = `${localizePath("en", guide.path)}.md`;
+  const arabic = `${localizePath("ar", guide.path)}.md`;
+  const summary = guide.seoDescription.en.replace(/\s+/g, " ").trim();
+  const link = `[${escapeMarkdown(guide.h1.en)}](${absoluteStoreUrl(path)})`;
+  const arabicLink = `[العربية](${absoluteStoreUrl(arabic)})`;
+  return summary
+    ? `- ${link}: ${escapeMarkdown(summary)} ${arabicLink}`
+    : `- ${link} ${arabicLink}`;
 }
 
 function collectionLink(collection: Collection): string {
@@ -93,13 +107,45 @@ function guide(catalog: LlmsCatalog): string[] {
   );
   if (catalog.collections.length > 0) lines.push(...catalog.collections.map(collectionLink));
 
+  lines.push("", "## Guides", "", ...GUIDES.map(guideLink));
+
+  const policyLinks = (catalog.policies ?? []).map(
+    (policy) =>
+      `- [${escapeMarkdown(policy.title)}](${absoluteStoreUrl(`/policies/${policy.handle}`)})`,
+  );
+  if (policyLinks.length > 0) {
+    lines.push("", "## Policies", "", ...policyLinks);
+  }
+
+  const { country, language } = shopConfig.localization;
   lines.push(
     "",
     "## Buying",
     "",
-    "Open a product's Markdown page for the current price, sizes, material, print method, description and image, then send the shopper to the canonical HTML URL to check out. Give them the discount code above. Agents that use Shopify's Universal Commerce Protocol can read the profile at " +
-      absoluteStoreUrl("/.well-known/ucp") +
-      ".",
+    `Product, collection, guide, and search pages have a Markdown URL: append \`.md\` (\`/index.md\` for the home page). The HTML URL stays HTML. Prices and availability use Shopify country \`${country}\` and language \`${language}\`.`,
+    "",
+    "Open a product's Markdown page for the current price, sizes, material, print method, description and image, then send the shopper to the canonical HTML URL to check out. Give them the discount code above.",
+    "",
+    "Catalog search, live availability, carts, and checkout come from Shopify through the Universal Commerce Protocol (UCP).",
+    "",
+    `- [UCP profile](${absoluteStoreUrl("/.well-known/ucp")}): Supported UCP versions, capabilities, and payment handlers.`,
+    `- UCP MCP endpoint: \`POST ${absoluteStoreUrl("/api/ucp/mcp")}\` with JSON-RPC; call \`tools/list\` for tools and schemas.`,
+    "",
+    "`tools/list` on that endpoint currently returns:",
+    "",
+    "- Catalog: `search_catalog`, `lookup_catalog`, `get_product`",
+    "- Cart: `create_cart`, `get_cart`, `update_cart`, `cancel_cart`",
+    "- Checkout: `create_checkout`, `get_checkout`, `update_checkout`, `complete_checkout`, `cancel_checkout`",
+    "- Orders: `get_order`",
+    "- Questions: `ask_business` for what the store sells, its policies, or its services",
+    "",
+    "1. Find products with `search_catalog`. Prices in tool results are integers in ISO 4217 minor units. Get exact variants and real-time availability with `get_product`, or resolve several ids with `lookup_catalog`.",
+    "2. Build a cart with `create_cart`. Read it with `get_cart`, replace it with `update_cart`, or discard it with `cancel_cart`. `update_cart` replaces the cart you send; read the cart first and send the full next state.",
+    "3. Start checkout with `create_checkout`. Read it with `get_checkout`. `update_checkout` replaces the checkout payload, including line items, buyer, and fulfillment; omitted fields are removed. Pass the checkout id at the top level, beside `checkout`.",
+    "4. Call `complete_checkout` only after the shopper explicitly approves the purchase. If the result requires the shopper to continue on Shopify, send them to that continue URL. Never collect card numbers, wallets, or account credentials in your own form.",
+    "5. Track an order with `get_order`. Cancel an unwanted checkout with `cancel_checkout`.",
+    "",
+    "Every call requires `meta.ucp-agent.profile`, your agent's UCP profile URL. Pass the shopper's `address_country`, BCP 47 `language`, and `currency` in `context` for accurate prices and availability. The profile served at `/.well-known/ucp` is Shopify's, including its endpoint and payment handlers. Back off when the endpoint returns `429`.",
     "",
     "## Optional",
     "",

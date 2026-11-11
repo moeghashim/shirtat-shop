@@ -1,0 +1,38 @@
+import { type ColumnDef, useTable } from "@tanstack/react-table";
+
+import {
+  CartesianGrid, chartAxis, chartCursor, chartGrid, DashboardChart, DashboardLegend, DashboardTooltip,
+  DataTable, type DataTableFeatures, dataTableFeatures, formatNumber, Legend, Line, LineChart,
+  seriesConfig, Tooltip, useChartMotion, XAxis, YAxis,
+} from "@/components/blocks";
+import type { __NAME__Point } from "@/server/data/__SLUG__.types";
+
+const config = seriesConfig({ opened: "Opened", completed: "Completed" });
+const columns: ColumnDef<DataTableFeatures, __NAME__Point>[] = [
+  { accessorKey: "day", header: "Day", enableSorting: false },
+  { accessorKey: "opened", header: "Opened", enableSorting: false },
+  { accessorKey: "completed", header: "Completed", enableSorting: false },
+];
+export function ActivityChart({ data }: { data: __NAME__Point[] }) {
+  const motion = useChartMotion();
+  const table = useTable({ features: dataTableFeatures, data, columns, getRowId: (row) => row.day });
+  return (
+    <div className="min-w-0 space-y-4">
+      <DashboardChart config={config} aria-label="Illustrative requests by weekday; exact values in the table below">
+        <LineChart data={data} accessibilityLayer>
+          <CartesianGrid {...chartGrid} />
+          <XAxis dataKey="day" {...chartAxis} />
+          <YAxis {...chartAxis} tickFormatter={formatNumber} width={36} />
+          <Tooltip {...motion} cursor={chartCursor} content={<DashboardTooltip />} />
+          <Legend content={<DashboardLegend config={config} />} />
+          <Line dataKey="opened" stroke={config.opened.color} strokeDasharray={config.opened.strokeDasharray} strokeWidth={2} dot {...motion} />
+          <Line dataKey="completed" stroke={config.completed.color} strokeDasharray={config.completed.strokeDasharray} strokeWidth={2} dot {...motion} />
+        </LineChart>
+      </DashboardChart>
+      <details>
+        <summary className="w-fit cursor-pointer rounded-sm text-sm underline underline-offset-4">View chart data</summary>
+        <DataTable table={table} label="Illustrative requests by weekday" mobile="reflow" pagination={false} />
+      </details>
+    </div>
+  );
+}

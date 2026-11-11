@@ -1,0 +1,21 @@
+import { type ColumnDef, useTable } from "@tanstack/react-table";
+
+import { DataTable, type DataTableFeatures, dataTableFeatures } from "@/components/blocks";
+import type { __NAME__Record } from "@/server/data/__SLUG__.types";
+
+const columns: ColumnDef<DataTableFeatures, __NAME__Record>[] = [
+  { accessorKey: "id", header: "Request", sortFn: "alphanumeric" },
+  { accessorKey: "title", header: "Title", sortFn: "text" },
+  { accessorKey: "owner", header: "Owner", sortFn: "text" },
+  { accessorKey: "status", header: "Status", sortFn: "text" },
+];
+export function RecordsTable({ records }: { records: __NAME__Record[] }) {
+  const table = useTable({
+    features: dataTableFeatures,
+    data: records,
+    columns,
+    getRowId: (row) => row.id,
+    initialState: { pagination: { pageIndex: 0, pageSize: 3 } },
+  });
+  return <DataTable table={table} label="Illustrative requests" mobile="reflow" empty="No requests to display." />;
+}

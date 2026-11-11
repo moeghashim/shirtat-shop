@@ -155,6 +155,16 @@ test("markdown URLs rewrite for both locales and HTML URLs never do", () => {
     location: "/products/tafakkar-t-shirt.md",
     type: "redirect",
   });
+  assert.deepEqual(resolveMarkdownRequest(request("/scripts/kufic.md")), {
+    locale: "en",
+    pathname: "/md/guides/scripts/kufic",
+    type: "rewrite",
+  });
+  assert.deepEqual(resolveMarkdownRequest(request("/ar/glossary.md")), {
+    locale: "ar",
+    pathname: "/md/guides/glossary",
+    type: "rewrite",
+  });
 });
 
 test("markdown responses stay readable and point canonical at the HTML page", () => {
@@ -171,7 +181,11 @@ test("markdown responses stay readable and point canonical at the HTML page", ()
 });
 
 test("an English product page lists price, variants, material, print method and the offer", () => {
-  const markdown = productToMarkdown(product, "en", facts);
+  const markdown = productToMarkdown(
+    { ...product, title: "Tafakkar (تفكّر) Kufic Arabic Calligraphy T-Shirt" },
+    "en",
+    facts,
+  );
   assert.ok(markdown.includes(OFFER));
   assert.ok(markdown.includes(AGENT_CONTACT_EMAIL));
   assert.ok(markdown.includes("33.99–41.99 USD"));
@@ -185,6 +199,10 @@ test("an English product page lists price, variants, material, print method and 
   assert.ok(markdown.includes(card.featuredImage!.url));
   assert.ok(markdown.includes(absoluteStoreUrl("/products/tafakkar-t-shirt")));
   assert.ok(markdown.includes("Bold geometric Kufic"));
+  assert.ok(markdown.includes("# Tafakkar (تفكّر) Kufic Arabic Calligraphy T-Shirt"));
+  assert.ok(
+    markdown.includes("Every item is printed to order, then shipped to you with tracking."),
+  );
   assert.equal(markdown.includes("text/markdown"), false);
 });
 
@@ -192,7 +210,7 @@ test("an Arabic product page keeps the offer and translates the same facts", () 
   const arabic = {
     ...product,
     description: "تفكّر بالخط الكوفي الهندسي العريض. تصميم شيرتات.",
-    title: "تيشيرت «تفكّر»",
+    title: "تيشيرت «تفكّر» بالخط الكوفي",
   } as ProductDetails;
   const markdown = productToMarkdown(arabic, "ar", facts);
   assert.ok(markdown.startsWith("---\n"));
@@ -250,6 +268,9 @@ test("llms.txt names Shirtat, shipping, the contact address and the product mark
   assert.ok(body.includes(absoluteStoreUrl("/ar/products/tafakkar-t-shirt.md")));
   assert.ok(body.includes(absoluteStoreUrl("/collections/poetry.md")));
   assert.ok(body.includes("شعر"));
+  assert.equal(body.split(absoluteStoreUrl("/scripts/kufic.md")).length - 1, 1);
+  assert.ok(body.includes(absoluteStoreUrl("/ar/scripts/kufic.md")));
+  assert.ok(body.includes("search_catalog"));
   assert.equal(body.includes("Accept: text/markdown"), false);
   const full = renderLlmsFull({ collections: [], products: [card] });
   assert.ok(full.includes("Currency: USD"));
@@ -315,6 +336,10 @@ test("the proxy serves one body per URL", async () => {
   const arabic = await proxy(new NextRequest("https://shirtat.co/ar/collections/poetry.md"));
   assert.match(arabic.headers.get("x-middleware-rewrite") ?? "", /\/md\/collections\/poetry$/);
   assert.equal(arabic.headers.get("x-middleware-request-x-shirtat-locale"), "ar");
+
+  const guide = await proxy(new NextRequest("https://shirtat.co/ar/scripts/kufic.md"));
+  assert.match(guide.headers.get("x-middleware-rewrite") ?? "", /\/md\/guides\/scripts\/kufic$/);
+  assert.equal(guide.headers.get("x-middleware-request-x-shirtat-locale"), "ar");
 });
 
 test("custom product markdown redirects to the localized design page", async () => {

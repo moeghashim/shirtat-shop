@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { LinkedText } from "@/components/content/linked-text";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { getLocale, getT } from "@/lib/i18n/server";
@@ -61,7 +62,9 @@ export default async function RoadmapPage() {
                       className="flex flex-col gap-1 rounded-lg border border-border bg-background p-4"
                     >
                       <h3 className="font-semibold">{phase.title[locale]}</h3>
-                      <p className="text-sm text-muted-foreground">{phase.summary[locale]}</p>
+                      <p className="text-sm text-muted-foreground">
+                        <LinkedText text={phase.summary[locale]} />
+                      </p>
                     </li>
                   ))}
               </ul>

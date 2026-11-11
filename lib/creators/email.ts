@@ -2,7 +2,7 @@ import { cancelQueuedEmails, newId, queueEmail } from "./store";
 import type { CreatorRecord } from "./types";
 
 /** Public contact address: shown in emails and used as Reply-To. */
-export const CONTACT_EMAIL = "shirtat@10claws.com";
+export const CONTACT_EMAIL = "shirtat@agentmail.to";
 
 export type EmailResult = {
   error?: string;

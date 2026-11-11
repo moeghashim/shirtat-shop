@@ -1,17 +1,18 @@
 import { retailPrice, SUPPLIER_CATALOG } from "@/lib/catalog/pricing";
 import { type Locale, localizePath } from "@/lib/i18n";
 
+import {
+  CUSTOM_DESIGN_HANDLES,
+  CUSTOM_HOODIE_HANDLE,
+  CUSTOM_MUG_HANDLE,
+  CUSTOM_TEE_HANDLE,
+} from "./handles";
 import regions from "./regions.json" with { type: "json" };
 
-/** Shopify handles of the products the design builder sells. */
-export const CUSTOM_TEE_HANDLE = "custom-calligraphy-t-shirt";
-export const CUSTOM_HOODIE_HANDLE = "custom-calligraphy-hoodie";
-export const CUSTOM_MUG_HANDLE = "custom-calligraphy-mug";
+export { CUSTOM_HOODIE_HANDLE, CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE };
 
 export function isCustomDesignHandle(handle: string) {
-  return (
-    handle === CUSTOM_TEE_HANDLE || handle === CUSTOM_HOODIE_HANDLE || handle === CUSTOM_MUG_HANDLE
-  );
+  return CUSTOM_DESIGN_HANDLES.has(handle);
 }
 
 /** HTML design-builder path for a custom product, in the shopper's locale. */

@@ -12,6 +12,7 @@ import type { Money } from "@/lib/money/types";
 import { imageColorNames, isMarkedDown } from "@/lib/product";
 import type { PrintMethod, ProductSpecs } from "@/lib/product/specs";
 import type { ProductDetails } from "@/lib/product/types";
+import { offerPolicyFacts } from "@/lib/seo/product";
 
 const SUMMARY_MAX_LENGTH = 200;
 
@@ -117,7 +118,7 @@ function priceLine(product: ProductDetails, locale: Locale): string {
   parts.push(
     product.availableForSale
       ? label(locale, "In stock", "متوفر")
-      : label(locale, "Sold out", "نفد"),
+      : label(locale, "Out of Stock", "نفدت الكمية"),
   );
   return parts.join(" · ");
 }
@@ -263,6 +264,21 @@ export function productToMarkdown(
       }
     }
     sections.push("");
+  }
+
+  const policies = offerPolicyFacts(locale);
+  sections.push(
+    `## ${label(locale, "Shipping", "الشحن")}`,
+    "",
+    escapeMarkdown(policies.shipping),
+    "",
+    `## ${label(locale, "Returns", "الإرجاع")}`,
+    "",
+    escapeMarkdown(policies.returns),
+    "",
+  );
+  if (product.defaultVariantSku) {
+    sections.push(fact(locale, "SKU", product.defaultVariantSku), "");
   }
 
   const colors = imageColorNames(product.options);

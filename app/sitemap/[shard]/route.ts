@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { shopConfig } from "@/lib/config";
+import { GUIDE_PATHS } from "@/lib/guides/copy";
 import { locales, localizePath, type Locale } from "@/lib/i18n";
 import { LEGAL } from "@/lib/legal/content";
 import { getShopPolicies } from "@/lib/policies/server";
@@ -10,6 +11,7 @@ import {
   SITEMAP_STATIC_PATHS,
   sitemapResourcePaths,
 } from "@/lib/seo";
+import { GUIDE_LASTMOD } from "@/lib/seo/paths";
 import {
   getShopifySitemapPage,
   getShopifySitemapPagesCount,
@@ -69,6 +71,7 @@ function staticLastmod(pathname: string): string {
   ) {
     return LEGAL_LASTMOD;
   }
+  if ((GUIDE_PATHS as readonly string[]).includes(pathname)) return GUIDE_LASTMOD;
   return STATIC_LASTMOD;
 }
 
@@ -84,6 +87,7 @@ async function renderStatic(): Promise<Response> {
     ...SITEMAP_LOCALIZED_MARKDOWN_PATHS.map((pathname) =>
       localizedEntries(pathname, STATIC_LASTMOD),
     ),
+    ...GUIDE_PATHS.map((pathname) => localizedEntries(`${pathname}.md`, GUIDE_LASTMOD)),
     ...SITEMAP_SHARED_MARKDOWN_PATHS.map((pathname) => singleEntry(pathname, STATIC_LASTMOD)),
   ].join("\n");
   return xmlResponse(urlsetWrap(entries));

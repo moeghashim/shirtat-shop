@@ -10,6 +10,7 @@ import {
 } from "@/lib/seo/server";
 import type { ShopifySitemapType } from "@/lib/shopify/operations/sitemap/types";
 
+import { getCatalogCounts } from "./catalog";
 import {
   parseTaskFilter,
   presentApprovals,
@@ -20,6 +21,7 @@ import {
   progressOf,
   seoPlan,
 } from "./index";
+import { countIndexableSitemapUrls } from "./sitemap-count";
 import type {
   ApprovalsPayload,
   CountReading,
@@ -39,83 +41,6 @@ const SITEMAP_TYPES: readonly ShopifySitemapType[] = [
   "PRODUCT",
 ];
 
-const API_VERSION = "2025-01";
-
-function storefrontConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN &&
-    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN,
-  );
-}
-
-async function countConnection(root: "collections" | "products"): Promise<CountReading> {
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-  const token = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
-  if (!domain || !token) return { state: "not-connected" };
-  let count = 0;
-  let cursor: string | null = null;
-  try {
-    for (let page = 0; page < 20; page += 1) {
-      const response = await fetch(`https://${domain}/api/${API_VERSION}/graphql.json`, {
-        body: JSON.stringify({
-          query: `query CatalogCount($cursor: String) { ${root}(first: 250, after: $cursor) { nodes { id } pageInfo { hasNextPage endCursor } } }`,
-          variables: { cursor },
-        }),
-        cache: "no-store",
-        headers: {
-          "content-type": "application/json",
-          "x-shopify-storefront-access-token": token,
-        },
-        method: "POST",
-      });
-      if (!response.ok) return { state: "unavailable" };
-      const json = (await response.json()) as {
-        data?: {
-          collections?: Connection;
-          products?: Connection;
-        };
-        errors?: unknown[];
-      };
-      if (json.errors?.length) return { state: "unavailable" };
-      const connection = json.data?.[root];
-      if (!connection) return { state: "unavailable" };
-      count += connection.nodes.length;
-      if (!connection.pageInfo.hasNextPage) return { count, state: "ok" };
-      if (!connection.pageInfo.endCursor) return { state: "unavailable" };
-      cursor = connection.pageInfo.endCursor;
-    }
-    return { state: "unavailable" };
-  } catch {
-    return { state: "unavailable" };
-  }
-}
-
-interface Connection {
-  nodes: { id: string }[];
-  pageInfo: { endCursor: string | null; hasNextPage: boolean };
-}
-
-async function readCatalogCounts(): Promise<{ collections: CountReading; products: CountReading }> {
-  const [collections, products] = await Promise.all([
-    countConnection("collections"),
-    countConnection("products"),
-  ]);
-  return { collections, products };
-}
-
-export async function getCatalogCounts(): Promise<{
-  collections: CountReading;
-  products: CountReading;
-}> {
-  if (!storefrontConfigured()) {
-    return {
-      collections: { state: "not-connected" },
-      products: { state: "not-connected" },
-    };
-  }
-  return readCatalogCounts();
-}
-
 async function readSitemapUrlCount(): Promise<CountReading> {
   try {
     const policies = await getShopPolicies();
@@ -124,17 +49,23 @@ async function readSitemapUrlCount(): Promise<CountReading> {
       ...Object.values(LEGAL).map((page) => page.path),
       ...policies.map((policy) => `/policies/${policy.handle}`),
     ]);
-    let urls = paths.size * locales.length;
+    const resources: { handle: string; type: string }[] = [];
     for (const type of SITEMAP_TYPES) {
       const pages = await getShopifySitemapPagesCount(type);
       for (let page = 1; page <= pages; page += 1) {
         const { items } = await getShopifySitemapPage(type, page);
-        for (const item of items) {
-          if (await isIndexableSitemapResource(type, item.handle)) urls += locales.length;
-        }
+        for (const item of items) resources.push({ handle: item.handle, type });
       }
     }
-    return { count: urls, state: "ok" };
+    return {
+      count: await countIndexableSitemapUrls({
+        indexable: (type, handle) => isIndexableSitemapResource(type as ShopifySitemapType, handle),
+        localeCount: locales.length,
+        paths,
+        resources,
+      }),
+      state: "ok",
+    };
   } catch {
     return { state: "unavailable" };
   }

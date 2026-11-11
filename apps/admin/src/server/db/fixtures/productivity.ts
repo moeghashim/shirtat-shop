@@ -1,0 +1,160 @@
+export const tables = {
+  days: [
+    {
+      id: "demo",
+      position: 0,
+      date: "2026-10-23",
+      greeting: "Good morning, Jordan.",
+    },
+  ],
+  tasks: [
+    {
+      id: "0",
+      position: 0,
+      title: "Finalize Q2 roadmap",
+      tag: "Work",
+      time: "10:00 AM",
+      checked: false,
+    },
+    {
+      id: "1",
+      position: 1,
+      title: "Review design system updates",
+      tag: "Design",
+      time: "11:30 AM",
+      checked: true,
+    },
+    {
+      id: "2",
+      position: 2,
+      title: "Reply to important emails",
+      tag: "Admin",
+      time: "2:00 PM",
+      checked: false,
+    },
+    {
+      id: "3",
+      position: 3,
+      title: "Plan creator content for this week",
+      tag: "Content",
+      time: "4:30 PM",
+      checked: false,
+    },
+    {
+      id: "4",
+      position: 4,
+      title: "Prepare weekly team sync notes",
+      tag: "Planning",
+      time: "6:00 PM",
+      checked: false,
+    },
+  ],
+  projects: [
+    {
+      id: "0",
+      position: 0,
+      title: "Q2 Roadmap",
+      status: "In Progress",
+      description: "Ship better, ship smarter.",
+      progress: 68,
+      icon: "Orbit",
+      dueDate: "2026-11-01",
+    },
+    {
+      id: "1",
+      position: 1,
+      title: "Website Redesign",
+      status: "Planning",
+      description: "Clean, modern, and fast.",
+      progress: 42,
+      icon: "Globe",
+      dueDate: "2026-11-13",
+    },
+    {
+      id: "2",
+      position: 2,
+      title: "Onboarding",
+      status: "Planning",
+      description: "Trim first-run steps.",
+      progress: 31,
+      icon: "ClipboardCheck",
+      dueDate: "2026-11-10",
+    },
+  ],
+  notes: [
+    {
+      id: "0",
+      position: 0,
+      title: "Design principles that scale",
+      date: "2026-10-23",
+      icon: "FileText",
+    },
+    {
+      id: "1",
+      position: 1,
+      title: "Content ideas – October",
+      date: "2026-10-22",
+      icon: "FileText",
+    },
+    {
+      id: "2",
+      position: 2,
+      title: "Lessons from the week",
+      date: "2026-10-19",
+      icon: "FileText",
+    },
+    {
+      id: "3",
+      position: 3,
+      title: "Books I’m Reading",
+      date: "2026-10-18",
+      icon: "BookOpen",
+    },
+  ],
+  goals: [
+    {
+      id: "week",
+      position: 0,
+      completed: 4,
+      total: 6,
+      progress: 66,
+      encouragement: "You’re doing great. Keep the momentum going.",
+    },
+  ],
+  focus: [
+    {
+      id: "current",
+      position: 0,
+      minutes: 90,
+      seconds: 0,
+      state: "No notifications · Full focus",
+    },
+  ],
+  quotes: [
+    {
+      id: "current",
+      position: 0,
+      quote: "Small, consistent actions lead to big results.",
+      encouragement: "Keep showing up. You've got this.",
+    },
+  ],
+};
+export const metrics = {
+  summaryCards: [
+    {
+      label: "Today",
+      value: "4",
+      help: "tasks scheduled",
+    },
+    {
+      label: "This Week",
+      value: "68%",
+      help: "progress",
+    },
+    {
+      label: "Focus",
+      value: "Deep Work",
+      help: "2 hours remaining",
+    },
+  ],
+};

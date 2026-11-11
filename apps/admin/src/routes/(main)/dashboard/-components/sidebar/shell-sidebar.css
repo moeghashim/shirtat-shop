@@ -1,0 +1,112 @@
+/* Shell usage overrides: preserve the shared sidebar primitives. */
+.tenboards-shell {
+  background: var(--bg);
+}
+/* Use the provider's server-rendered sidebar state, not a hydration-time viewport check.
+   Off-canvas navigation still needs its header opener; mobile always needs it. */
+@media (min-width: 48rem) {
+  .tenboards-shell:has(> [data-slot="sidebar"][data-collapsible="icon"]) .shell-header-sidebar-trigger {
+    display: none;
+  }
+}
+.tenboards-shell > [data-slot="sidebar"] {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100svh;
+}
+.tenboards-shell [data-slot="sidebar-container"] {
+  position: absolute;
+  padding: 12px;
+  border: 0;
+}
+.tenboards-shell [data-slot="sidebar-inner"],
+[data-slot="sidebar"][data-mobile="true"] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-4xl);
+  background: var(--surface);
+  box-shadow: var(--elevation-low);
+  overflow: hidden;
+}
+[data-slot="sidebar"][data-mobile="true"] {
+  inset: 8px auto 8px 8px;
+  height: calc(100dvh - 16px);
+  max-width: calc(100vw - 16px);
+}
+.tenboards-shell [data-slot="sidebar-menu-button"],
+[data-mobile="true"] [data-slot="sidebar-menu-button"] {
+  height: 40px;
+  border-radius: var(--radius-xl);
+  gap: 12px;
+  padding-inline: 12px;
+  font-weight: 400;
+}
+.tenboards-shell [data-slot="sidebar-menu-button"] svg,
+[data-mobile="true"] [data-slot="sidebar-menu-button"] svg {
+  width: 18px;
+  height: 18px;
+}
+.tenboards-shell [data-slot="sidebar-content"],
+[data-mobile="true"] [data-slot="sidebar-content"] {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.shell-search {
+  height: 40px;
+  border-color: var(--border);
+}
+@media (min-width: 48rem) {
+  .tenboards-shell [data-slot="sidebar-menu-button"] {
+    height: 36px;
+    gap: 10px;
+    padding-inline: 10px;
+  }
+  .tenboards-shell [data-slot="sidebar-menu-button"] svg {
+    width: 16px;
+    height: 16px;
+  }
+  .shell-search {
+    height: 36px;
+  }
+}
+[data-collapsible="icon"] .shell-sidebar-header {
+  padding-inline: 8px;
+}
+[data-collapsible="icon"] .shell-sidebar-header > div {
+  justify-content: center;
+}
+[data-collapsible="icon"] .shell-search {
+  width: 32px;
+  padding: 8px;
+  margin-inline: auto;
+}
+[data-collapsible="icon"] .shell-search kbd {
+  display: none;
+}
+.shell-demo-progress {
+  appearance: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-raised);
+}
+.shell-demo-progress::-webkit-progress-bar {
+  background: var(--surface-raised);
+}
+.shell-demo-progress::-webkit-progress-value {
+  background: var(--text-muted);
+}
+.shell-demo-progress::-moz-progress-bar {
+  background: var(--text-muted);
+}
+
+[data-collapsible="icon"] [data-slot="sidebar-content"],
+[data-collapsible="icon"] [data-slot="sidebar-footer"] {
+  padding-inline: 8px;
+}
+
+.tenboards-shell :is(a, button):focus-visible,
+[data-slot="sidebar"][data-mobile="true"] :is(a, button):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}

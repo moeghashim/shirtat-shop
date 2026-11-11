@@ -1,4 +1,5 @@
 import { shopConfig } from "@/lib/config";
+import { GUIDE_PATHS } from "@/lib/guides/copy";
 import { type Locale } from "@/lib/i18n";
 
 export const MARKDOWN_LOCALE_HEADER = "x-shirtat-locale";
@@ -19,6 +20,9 @@ export function getMarkdownPath(pathname: string): string | null {
   if (pathname === "/collections") return "/md/collections";
   if (pathname.startsWith("/collections/")) return `/md${pathname}`;
   if (pathname.startsWith("/products/")) return `/md${pathname}`;
+  const localePrefix = pathname === "/ar" || pathname.startsWith("/ar/") ? "/ar" : "";
+  const bare = pathname.replace(/^\/ar(?=\/|$)/, "") || "/";
+  if ((GUIDE_PATHS as readonly string[]).includes(bare)) return `/md/guides${localePrefix}${bare}`;
   return null;
 }
 

@@ -1,0 +1,12 @@
+/*
+label: Pine
+value: pine
+*/
+
+:root[data-theme-preset="pine"] {
+  --primary: var(--accent-pine-light);
+}
+
+.dark:root[data-theme-preset="pine"] {
+  --primary: var(--accent-pine-dark);
+}

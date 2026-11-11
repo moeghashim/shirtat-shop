@@ -61,4 +61,10 @@ export const arPages = {
   "Recently viewed": "شاهدتها مؤخرًا",
   "Go to image {n}": "الانتقال إلى الصورة {n}",
   "Review your cart items and proceed to checkout": "راجع المنتجات في سلتك ثم تابع إلى الدفع",
+  Baby: "رضّع",
+  "Calligraphy scripts": "خطوط عربية",
+  "Caps & beanies": "قبعات وطواقي",
+  "Gift guide": "دليل الهدايا",
+  Glossary: "معجم العبارات",
+  Kids: "أطفال",
 } as const;

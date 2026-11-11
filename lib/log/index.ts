@@ -35,6 +35,10 @@ export const logDays: LogDay[] = [
         en: "We started preparing a Shirtat shop on Etsy, with products printed in the US, and plan to add stickers.",
         ar: "بدأنا تجهيز متجر Shirtat على Etsy بمنتجات تُطبع في الولايات المتحدة، ونخطط لإضافة الملصقات.",
       },
+      {
+        en: "Changed the public contact email to shirtat@agentmail.to on the site, the legal pages, and designer emails, which now reply to that address.",
+        ar: "غيّرنا بريد التواصل العام إلى shirtat@agentmail.to في الموقع وصفحات السياسات ورسائل المصممين، التي صارت تردّ إلى هذا العنوان.",
+      },
     ],
   },
   {
@@ -290,8 +294,8 @@ export const logDays: LogDay[] = [
         ar: "يمكن أن ينتمي المنتج إلى أكثر من قسم، ولا يُمنح قسم «شعر» إلا للتصاميم الموسومة بأنها شعر.",
       },
       {
-        en: "Changed the contact email to shirtat@10claws.com across the site and emails.",
-        ar: "غيّرنا بريد التواصل إلى shirtat@10claws.com في الموقع والرسائل.",
+        en: "Changed the contact email across the site and emails.",
+        ar: "غيّرنا بريد التواصل في الموقع والرسائل.",
       },
       {
         en: "Made an internal map comparing the products we use with equivalents at other print-on-demand providers, including baby and occasion items.",

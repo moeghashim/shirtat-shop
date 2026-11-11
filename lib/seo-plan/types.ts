@@ -1,6 +1,6 @@
-import type { GscReading } from "@/lib/search-console/types";
+import type { GscReading } from "../search-console/types";
 
-export type { GscReading, SearchRow, SearchSlice, SearchTotals } from "@/lib/search-console/types";
+export type { GscReading, SearchRow, SearchSlice, SearchTotals } from "../search-console/types";
 
 export const SEO_AREAS = [
   "Backlinks",

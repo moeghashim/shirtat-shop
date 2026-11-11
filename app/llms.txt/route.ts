@@ -1,5 +1,6 @@
 import { getCollections } from "@/lib/collections/server";
 import { renderLlmsTxt } from "@/lib/markdown/llms";
+import { getShopPolicies } from "@/lib/policies/server";
 import { getProductIndex } from "@/lib/product/server";
 
 const HEADERS = {
@@ -8,9 +9,10 @@ const HEADERS = {
 };
 
 export async function GET(): Promise<Response> {
-  const [collections, products] = await Promise.all([
+  const [collections, policies, products] = await Promise.all([
     getCollections({ limit: 250 }).catch(() => []),
+    getShopPolicies().catch(() => []),
     getProductIndex().catch(() => []),
   ]);
-  return new Response(renderLlmsTxt({ collections, products }), { headers: HEADERS });
+  return new Response(renderLlmsTxt({ collections, policies, products }), { headers: HEADERS });
 }
