@@ -59,27 +59,21 @@ try {
             });
           }
           for (const surface of ["bg", "surface", "surface-raised"]) {
-            for (const text of ["text", "text-muted", "primary", "success", "warning", "danger", "info"]) {
+            for (const text of ["text", "text-muted", "action-accent", "success", "warning", "danger", "info"]) {
               compare(text, surface);
             }
             compare("ring", surface, 3);
             compare("border-strong", surface, 3);
+            compare("control-edge", surface, 3);
+            compare("filter-edge", surface, 3);
           }
+          compare("filter-accent", "filter-fill");
+          compare("filter-edge", "filter-fill", 3);
+          compare("ring", "filter-fill", 3);
           compare("primary-foreground", "primary");
           for (const semantic of ["success", "warning", "danger", "info"]) compare(semantic, `${semantic}-surface`);
-          // Existing primary buttons use primary/80 on hover; verify the composited fill too.
-          for (const surface of ["bg", "surface", "surface-raised"]) {
-            const fill = color("primary").map((c, index) => c * 0.8 + color(surface)[index] * 0.2);
-            const a = luminance(color("primary-foreground"));
-            const b = luminance(fill);
-            const ratio = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
-            checks.push({
-              pair: `primary-foreground/primary hover on ${surface}`,
-              ratio,
-              minimum: 4.5,
-              pass: ratio >= 4.5,
-            });
-          }
+          compare("primary-foreground", "primary-top");
+          compare("primary-foreground", "primary-hover");
           probe.remove();
           return checks;
         },

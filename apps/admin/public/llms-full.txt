@@ -173,6 +173,9 @@ components:
     textColor: "{colors.surface}"
     rounded: "{rounded.lg}"
     height: "28px"
+  button-primary-hover:
+    backgroundColor: "var(--primary-hover)"
+    textColor: "var(--primary-foreground)"
 ---
 
 # Design System: tenboards
@@ -187,9 +190,9 @@ The frontmatter records the v0.6.2 compact desktop defaults (mobile controls and
 
 ## Colors
 
-src/styles/styles.css owns normative light and dark roles. Shadcn background/card/popover map to bg/surface, their foregrounds map to text, and muted/secondary/accent hover surfaces map to surface-raised. Because shadcn uses “accent” for hover fill, action-accent names the saturated primary action color. Border is a decorative separator; border-strong is the accessible input/control edge. Ring is the action color and an opaque 2px outline supplements inherited translucent focus rings.
+src/styles/styles.css owns normative light and dark roles. Shadcn background/card/popover map to bg/surface, their foregrounds map to text, and muted/secondary/accent hover surfaces map to surface-raised. Because shadcn uses “accent” for hover fill, action-accent names the saturated primary action color. Border is a decorative separator; border-strong is the accessible input/control edge. Ring is the accessible action color. Recipe controls use a single opaque edge with a soft halo; other elements retain the global outline.
 
-Supported AA text pairs: text, text-muted (including placeholders), primary, success, warning, danger, and info on each of bg/surface/surface-raised; primary-foreground on primary (including existing 80% hover fills); each semantic foreground on its matching semantic surface. All require 4.5:1, even for large text. Ring and border-strong require 3:1 against all three neutral surfaces. No claim is made for arbitrary cross-role combinations or inherited hard-coded chart/page colors. Low-contrast decorative border is never the sole control boundary.
+Supported AA text pairs: text, text-muted (including placeholders), action-accent, success, warning, danger, and info on each of bg/surface/surface-raised; primary-foreground on primary (including the highlight and darker hover); each semantic foreground on its matching semantic surface. All require 4.5:1, even for large text. Ring and border-strong require 3:1 against all three neutral surfaces. No claim is made for arbitrary cross-role combinations or inherited hard-coded chart/page colors. Low-contrast decorative border is never the sole control boundary.
 
 Run `node --experimental-strip-types scripts/check-contrast.ts` against the dev server; `--presets` and `--base-url` support later preset/version checks. It resolves rendered CSS values, converts to sRGB, and checks WCAG relative luminance. Disabled controls retain native disabled semantics, pointer suppression, opacity, and cursor treatment; inactive controls are contrast-exempt, and their treatment must not be used for enabled explanatory text. Text selection and input carets use the primary pair.
 
@@ -197,15 +200,15 @@ Presets use only palette primitives from `src/styles/styles.css`. Shirtat is the
 
 Persisted Tangerine, Brutalist/Neo Brutalism, and Soft Pop selections migrate to Default during boot, before hydration, and their cookie is rewritten. The parser and preference store retain their existing allowed-value fallback; the provider reads the sanitized DOM. Valid new selections and the font registry remain intact. Verify all presets with `node --experimental-strip-types scripts/check-contrast.ts --presets default,shirtat,graphite,pine,iris`.
 
-Verified contrast floor (35 supported checks per mode, 2026-11-11):
+Verified contrast floor (43 supported checks per mode, 2026-11-11):
 
 | Preset | Light text / hover | Dark text / hover | Light control / focus | Dark control / focus |
 | --- | --- | --- | --- | --- |
 | Default | 4.73:1 | 5.02:1 | 5.68:1 | 3.83:1 |
 | Shirtat | 4.73:1 | 5.02:1 | 5.68:1 | 3.83:1 |
-| Graphite | 4.73:1 | 5.02:1 | 5.68:1 | 3.83:1 |
-| Pine | 4.67:1 | 5.02:1 | 5.68:1 | 3.83:1 |
-| Iris | 4.73:1 | 5.02:1 | 5.68:1 | 3.83:1 |
+| Graphite | 4.73:1 | 5.02:1 | 4.48:1 | 3.83:1 |
+| Pine | 4.73:1 | 5.02:1 | 3.42:1 | 3.83:1 |
+| Iris | 4.73:1 | 5.02:1 | 4.08:1 | 3.61:1 |
 
 
 ## Typography
@@ -300,6 +303,18 @@ The workspace uses Operate mode at the v0.6.2 compact scale. Shared StatCards pr
 The project header has one project-qualified shell breadcrumb, a compact selector, status, member avatars and progress. Overview uses member rows and request-relative due labels. Timeline preserves visible text/date cues alongside semantic bars, today marker, bounded scrolling range and collapsible unscheduled work; mobile defaults to Table after safe hydration. Calendar geometry and protected adapters are unchanged. File metadata uses local file-type/star/share icons without mutation affordances.
 
 Primary Home/Projects precede Email/Chat and Assistant when present; Default remains under Dashboards. Project disclosures contain indented route links with an exact active child. Rail popovers expose the project name and all five links, dismiss on route resolution including same-path navigation, and return focus on Escape. Expansion state lives above the mobile sheet lifetime. The bounded `tenboards:project-nav:v1` localStorage preference restores after hydration and respects manual collapse within a project. Existing keyboard focus, reduced motion, supported semantic token pairs and sidebar layout preferences are preserved.
+
+## Control recipe (v0.10.1)
+
+`control-recipe` in styles.css owns the 1px border-strong hairline, surface fill, low 1px shadow (dark inset highlight), text-muted hover boundary, and one opaque focus edge with a 20% halo. InputGroup owns its boundary and focus; its inner input has neither. Invalid fields use a destructive edge/halo and FieldError pairs an icon with its message. The opaque edge is the accessible focus indicator, not the translucent halo.
+
+Shirtat stays the default primary: black in light mode and white in dark mode. The upstream saturated Default dark primary is not applied, so Default and Shirtat do not pick up `#3464db`. Dark hover only mixes the existing primary toward the background. Graphite, Pine and Iris still change only primary. Menus use 10px corners, a border and overlay shadow, 5px padding, 30px desktop / 32px mobile minimum rows, left checks, muted group labels and optional tabular counts.
+
+## Filter rows
+
+Use one size step and `items-end` for labelled controls and their action button. Default is 28px desktop / 32px mobile; sm/lg steps remain unchanged. Use flex-column gaps for label/field stacks: Select includes a hidden form input, so space-y can create a trailing gap. Use NativeSelect or Select, never raw `<select>`; date fields use Input. Chevrons use a fixed 16px slot 10px from the edge. `/dashboard/kit` includes the measured regression row.
+
+`FilterSelect` from `@/components/blocks` accepts label, value, options, onValueChange, optional allValue (default All), and searchable. Options accept an optional count. Unset filters show the label; set filters add a tinted value and a separate named clear button which restores trigger focus. Searchable mode uses Combobox. The Users and Products demo routes are not mounted here; the kit example carries the clearable filter.
 
 
 ## Source: docs/data-layer.md
@@ -885,6 +900,10 @@ against the host from which you fetched it before passing a URL to shadcn.
   patterns. The Sales empty-state probe introduced an unused React import; remove
   temporary probes after verification and rerun typecheck. Gitignore is not a
   TypeScript exclusion.
+
+## Controls and filter rows
+
+Use one size step, align end (`items-end`), and use NativeSelect/Select, never raw `<select>`. Date fields use Input. Label/field stacks use flex-column gaps, not space-y around Select's hidden input. Default controls are 28px desktop / 32px mobile. Secondary toolbar actions use ghost; keep one primary action. Use FilterSelect for clearable filters and its searchable mode for long lists; counts are optional option metadata. See the kit regression row and measure control heights/bottom edges before shipping.
 
 
 ## Source: .agents/skills/tenboards-build-ui/references/blocks.md
@@ -1511,13 +1530,13 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default: "control-primary bg-primary text-primary-foreground",
         outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "control-recipe",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+          "text-muted-foreground hover:bg-surface-raised hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",

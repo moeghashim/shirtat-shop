@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-23T09:00:00Z",
+  "generatedAt": "2026-11-11T10:00:00Z",
   "title": "Design System: tenboards",
   "extensions": {
     "breakpoints": [
@@ -40,7 +40,7 @@
     "colorMeta": {
       "primary": {
         "role": "primary",
-        "displayName": "Default blue; Graphite, Pine, and Iris use task 005 primary alternatives"
+        "displayName": "Shirtat black in light mode and white in dark mode; Graphite, Pine, and Iris keep their own primaries"
       }
     }
   },
@@ -49,25 +49,25 @@
       "name": "Primary button",
       "kind": "button",
       "html": "<button class=\"ds-primary\">Save changes</button>",
-      "css": ".ds-primary{background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;border-radius:var(--radius);height:32px;padding:0 10px;font:500 14px Geist,sans-serif}.ds-primary:hover{opacity:.8}.ds-primary:focus-visible{outline:2px solid var(--ring);outline-offset:2px}"
+      "css": ".ds-primary{background:linear-gradient(var(--primary-top),var(--primary));color:var(--primary-foreground);border:1px solid transparent;border-radius:var(--radius);height:28px;padding:0 10px;font:500 13px Geist,sans-serif}.ds-primary:hover{background:var(--primary-hover)}.ds-primary:focus-visible{outline:1px solid var(--ring);outline-offset:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 20%,transparent)}"
     },
     {
       "name": "Text field",
       "kind": "input",
       "html": "<input class=\"ds-input\" aria-label=\"Name\" placeholder=\"Name\">",
-      "css": ".ds-input{background:var(--background);color:var(--foreground);border:1px solid var(--input);border-radius:var(--radius);height:32px;padding:0 10px}.ds-input:focus-visible{outline:2px solid var(--ring);outline-offset:2px}"
+      "css": ".ds-input{background:var(--surface);color:var(--foreground);border:1px solid var(--input);border-radius:var(--radius);height:28px;padding:0 10px}.ds-input:focus-visible{outline:1px solid var(--ring);outline-offset:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 20%,transparent)}"
     },
     {
       "name": "Card",
       "kind": "card",
       "html": "<article class=\"ds-card\">Account overview</article>",
-      "css": ".ds-card{background:var(--card);color:var(--card-foreground);border:1px solid var(--border);border-radius:calc(var(--radius)*1.4);padding:16px;font:14px Geist,sans-serif}"
+      "css": ".ds-card{background:var(--card);color:var(--card-foreground);border:1px solid var(--border);border-radius:calc(var(--radius)*1.4);padding:14px;font:13px Geist,sans-serif}"
     },
     {
       "name": "Navigation",
       "kind": "nav",
       "html": "<a class=\"ds-nav\" href=\"#dashboard\">Dashboard</a>",
-      "css": ".ds-nav{display:block;color:var(--sidebar-foreground);padding:8px;border-radius:var(--radius);text-decoration:none;font:14px Geist,sans-serif}.ds-nav:hover{background:var(--sidebar-accent)}.ds-nav:focus-visible{outline:2px solid var(--sidebar-ring)}"
+      "css": ".ds-nav{display:block;color:var(--sidebar-foreground);padding:8px;border-radius:var(--radius);text-decoration:none;font:13px Geist,sans-serif}.ds-nav:hover{background:var(--sidebar-accent)}.ds-nav:focus-visible{outline:2px solid var(--sidebar-ring)}"
     },
     {
       "name": "Badge",
@@ -76,16 +76,17 @@
       "css": ".ds-chip{display:inline-block;background:var(--primary);color:var(--primary-foreground);border-radius:var(--radius);padding:2px 8px;font:500 12px Geist,sans-serif}"
     },
     {
-      "name": "tenboards identity",
+      "name": "Shirtat identity",
       "kind": "custom",
-      "description": "Original paired-board 10 mark with an accessible visible wordmark.",
-      "html": "<span class=\"ds-brand\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path fill-rule=\"evenodd\" d=\"M4 5h4v14H4V5Zm7 0h9v14h-9V5Zm3 3v8h3V8h-3Z\"/></svg>tenboards</span>",
+      "description": "Storefront calligraphy mark and SHIRTAT wordmark, colored with currentColor.",
+      "html": "<span class=\"ds-brand\">Shirtat</span>",
       "css": ".ds-brand{display:inline-flex;align-items:center;gap:8px;color:var(--foreground);font:600 16px \"Geist Variable\",sans-serif;letter-spacing:-.025em}.ds-brand svg{width:24px;height:24px;fill:currentColor}"
     }
   ],
   "narrative": {
     "northStar": "Refined product UI",
     "overview": "Precision, scanability, and restraint serve dense administrative work.",
-    "keyCharacteristics": ["Neutral-first surfaces", "Compact data", "Restrained depth"]
+    "keyCharacteristics": ["Neutral-first surfaces", "Compact data", "Restrained depth"],
+    "controlRecipe": "Direction A: surface fill, accessible hairline, low shadow, single focus edge and halo. Filter rows use one size step and align end. Shirtat primary stays black in light mode and white in dark mode."
   }
 }

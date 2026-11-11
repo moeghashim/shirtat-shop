@@ -251,6 +251,14 @@
         "003-data-tools": "merged",
         "004-dashboard-canvas": "merged"
       }
+    },
+    {
+      "id": "v0.10.1-controls",
+      "status": "done",
+      "tasks": ["001-control-recipe"],
+      "taskStatuses": {
+        "001-control-recipe": "merged"
+      }
     }
   ]
 }

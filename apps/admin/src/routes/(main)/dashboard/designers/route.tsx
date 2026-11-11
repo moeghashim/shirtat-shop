@@ -9,6 +9,7 @@ import { DashboardCard, PageHeader, SectionHeader } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { isOwner } from "@/lib/auth/roles";
 import { getAuthState } from "@/lib/auth/server-functions";
 
@@ -101,17 +102,12 @@ function DesignersPage() {
                 Email
                 <Input id="invite-email" name="email" type="email" required autoComplete="off" />
               </label>
-              <label className="grid gap-1 text-sm" htmlFor="invite-role">
+              <label className="flex flex-col gap-1 text-sm" htmlFor="invite-role">
                 Role
-                <select
-                  className="border-input bg-background h-9 rounded-md border px-3"
-                  defaultValue="designer"
-                  id="invite-role"
-                  name="role"
-                >
-                  <option value="designer">Designer</option>
-                  <option value="owner">Owner</option>
-                </select>
+                <NativeSelect defaultValue="designer" id="invite-role" name="role">
+                  <NativeSelectOption value="designer">Designer</NativeSelectOption>
+                  <NativeSelectOption value="owner">Owner</NativeSelectOption>
+                </NativeSelect>
               </label>
               <Button type="submit" disabled={pending}>
                 {pending ? "Inviting" : "Create invite"}

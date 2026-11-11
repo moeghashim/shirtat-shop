@@ -1,6 +1,8 @@
 import ts from "typescript";
 
 export const fixes = {
+  "raw-control":
+    "Use Select/NativeSelect and Input for date fields; align labelled rows with items-end and one size step.",
   "raw-color":
     "Use a DESIGN.md token: text-muted-foreground, bg-card, or var(--primary); define palette literals only in the token stylesheet.",
   "arbitrary-value":
@@ -69,6 +71,18 @@ export function inspectDesign(file: string, source: string): Finding[] {
     }
     if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
       const tag = node.tagName.getText(ast);
+      if (
+        tag === "select" ||
+        (tag === "input" &&
+          node.attributes.properties.some(
+            (prop) =>
+              ts.isJsxAttribute(prop) &&
+              prop.name.getText(ast) === "type" &&
+              prop.initializer &&
+              /["'](date|time|datetime-local|month)["']/.test(prop.initializer.getText(ast)),
+          ))
+      )
+        add("raw-control", `<${tag}>`, node.getStart(ast));
       if (tag === "h1" && file !== "src/components/blocks/page-header.tsx")
         add("page-header", "<h1>", node.getStart(ast));
       if (["div", "section", "article", "aside"].includes(tag)) {

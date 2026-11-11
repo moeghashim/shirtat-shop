@@ -4,6 +4,8 @@ import { CardsExample } from "./-components/cards-example";
 import cardsSource from "./-components/cards-example?raw";
 import { ChartExample } from "./-components/chart-example";
 import chartSource from "./-components/chart-example?raw";
+import { ControlsExample } from "./-components/controls-example";
+import controlsSource from "./-components/controls-example?raw";
 import { ExampleSource } from "./-components/example-source";
 import { HeaderExample } from "./-components/header-example";
 import headerSource from "./-components/header-example?raw";
@@ -17,8 +19,11 @@ function KitPage() {
   return (
     <div className="min-w-0 space-y-8">
       <HeaderExample />
+      <ControlsExample />
+      <ExampleSource name="Controls" source={controlsSource} />
       <nav aria-label="Block examples" className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
         {[
+          ["controls", "Controls"],
           ["page-header", "PageHeader"],
           ["cards", "Cards and sections"],
           ["charts", "Charts"],

@@ -82,7 +82,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
           Edit profile
         </Button>
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button aria-label="More profile actions" size="icon-sm" variant="outline" />}>
+          <DropdownMenuTrigger render={<Button aria-label="More profile actions" size="icon-sm" variant="ghost" />}>
             <Ellipsis />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">

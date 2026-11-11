@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.10.1 — Control refinement (2026-11-11)
+
+Ported from [tenboards v0.10.1](https://github.com/moeghashim/tenboards/releases/tag/v0.10.1), merged upstream as #88.
+
+- Unify field and outline-button surfaces, focus, hover and invalid states. Compact sizes and public APIs stay.
+- Add FilterSelect: clearable filters, searchable options, optional counts, left-check menus, and ghost toolbar actions. The Users and Products demo routes are not mounted in this app, so those pages were not restored.
+- Add the kit alignment regression, raw-control guardrails and control guidance.
+- Keep the Shirtat palette. The upstream saturated Default dark primary is not applied.
+
 ## v0.10.0 — Generative dashboards (2026-11-06)
 
 Released as [v0.10.0](https://github.com/moeghashim/tenboards/releases/tag/v0.10.0).

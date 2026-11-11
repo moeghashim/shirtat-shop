@@ -4,6 +4,7 @@ import { RotateCcw, Settings } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "@/components/ui/button";
+import { NativeSelect } from "@/components/ui/native-select";
 import {
   Sheet,
   SheetContent,
@@ -107,18 +108,13 @@ function SelectField({
       <label htmlFor={id} className="block text-sm font-medium">
         {label}
       </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="border-input bg-background h-10 w-full rounded-lg border px-3 text-sm"
-      >
+      <NativeSelect id={id} value={value} onChange={(event) => onChange(event.target.value)} className="w-full">
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
-      </select>
+      </NativeSelect>
     </div>
   );
 }

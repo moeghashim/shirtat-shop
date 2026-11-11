@@ -76,3 +76,7 @@ against the host from which you fetched it before passing a URL to shadcn.
   patterns. The Sales empty-state probe introduced an unused React import; remove
   temporary probes after verification and rerun typecheck. Gitignore is not a
   TypeScript exclusion.
+
+## Controls and filter rows
+
+Use one size step, align end (`items-end`), and use NativeSelect/Select, never raw `<select>`. Date fields use Input. Label/field stacks use flex-column gaps, not space-y around Select's hidden input. Default controls are 28px desktop / 32px mobile. Secondary toolbar actions use ghost; keep one primary action. Use FilterSelect for clearable filters and its searchable mode for long lists; counts are optional option metadata. See the kit regression row and measure control heights/bottom edges before shipping.

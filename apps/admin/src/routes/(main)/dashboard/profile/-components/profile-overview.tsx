@@ -74,7 +74,7 @@ export function ProfileOverview({ profile }: ProfileOverviewProps) {
             <h2 className="font-heading text-base leading-none font-medium">Reporting line</h2>
             <p className="text-muted-foreground text-sm">Direct manager</p>
           </div>
-          <Button size="sm" variant="outline">
+          <Button size="sm" variant="ghost">
             <Users data-icon="inline-start" />
             Org chart
           </Button>
