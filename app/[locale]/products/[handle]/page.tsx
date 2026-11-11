@@ -15,7 +15,7 @@ import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
 import { CUSTOM_HOODIE_HANDLE, CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE } from "@/lib/custom/products";
 import { commerceLocale, localizePath } from "@/lib/i18n";
-import { describeProductImage } from "@/lib/i18n/product";
+import { describeProductImage, productDocumentTitle } from "@/lib/i18n/product";
 import { getLocale } from "@/lib/i18n/server";
 import {
   defaultSelectedOptions,
@@ -53,8 +53,9 @@ async function buildProductMetadata(handle: string, canonicalPath: string): Prom
         },
       ]
     : siteOgImages(locale);
+  const documentTitle = productDocumentTitle(product.seo.title, locale);
   return {
-    title: product.seo.title,
+    title: { absolute: documentTitle },
     description: product.seo.description,
     alternates: buildAlternates({
       locale,
@@ -62,14 +63,14 @@ async function buildProductMetadata(handle: string, canonicalPath: string): Prom
     }),
     openGraph: buildOpenGraph({
       locale: await getLocale(),
-      title: product.seo.title,
+      title: documentTitle,
       description: product.seo.description,
       url: canonicalPath,
       images,
     }),
     twitter: {
       card: "summary_large_image",
-      title: product.seo.title,
+      title: documentTitle,
       description: product.seo.description,
       images,
     },

@@ -2,10 +2,12 @@ import { ChevronDownIcon, GlobeIcon, PrinterIcon, RotateCcwIcon } from "lucide-r
 
 import { ProductCard } from "@/components/product-card/product-card";
 import { Link } from "@/components/ui/link";
-import { getCategory } from "@/lib/collections/categories";
+import { getCategory, relatedCollectionIds } from "@/lib/collections/categories";
 import type { CommerceLocale } from "@/lib/config/types";
+import { detectProductScript } from "@/lib/i18n/product";
 import { getAlsoLike, getMoreFromDesign, getPdpExtras } from "@/lib/product/pdp-extras";
 import { type Bilingual, getProductSpecs } from "@/lib/product/specs";
+import { fetchSearchIndexProducts } from "@/lib/shopify/operations/products/server";
 
 type Copy = Record<string, { en: string; ar: string }>;
 const C: Copy = {
@@ -13,8 +15,8 @@ const C: Copy = {
   meaning: { en: "Meaning", ar: "المعنى" },
   origin: { en: "Origin", ar: "الأصل" },
   printed: { en: "Printed on demand", ar: "طباعة عند الطلب" },
-  ships: { en: "Ships worldwide", ar: "شحن لكل العالم" },
-  returns: { en: "Easy returns", ar: "إرجاع سهل" },
+  ships: { en: "Tracked shipping", ar: "شحن مع تتبع" },
+  returns: { en: "Defects replaced", ar: "استبدال العيوب" },
   designer: { en: "Designed by", ar: "تصميم" },
   sizeGuide: { en: "Size guide", ar: "دليل المقاسات" },
   fabric: { en: "Fabric & care", ar: "القماش والعناية" },
@@ -566,5 +568,81 @@ export async function ProductSpecsBlock({
         </Accordion>
       ) : null}
     </>
+  );
+}
+
+export function RelatedCollections({
+  handle,
+  isArabic,
+  tags,
+}: {
+  handle: string;
+  isArabic: boolean;
+  tags: string[];
+}) {
+  const ids = relatedCollectionIds(handle, tags);
+  if (ids.length === 0) return null;
+  return (
+    <section className="grid gap-3" data-slot="related-collections" dir={isArabic ? "rtl" : "ltr"}>
+      <h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        {isArabic ? "مجموعات ذات صلة" : "Related collections"}
+      </h2>
+      <ul className="flex flex-wrap gap-2">
+        {ids.map((id) => {
+          const category = getCategory(id);
+          if (!category) return null;
+          return (
+            <li key={id}>
+              <Link
+                className="inline-flex min-h-11 items-center rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted"
+                href={`/collections/${id}`}
+              >
+                {isArabic ? category.labelAr : category.labelEn}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+export async function ShopThisScript({
+  description,
+  handle,
+  isArabic,
+  locale,
+}: {
+  description: string;
+  handle: string;
+  isArabic: boolean;
+  locale: CommerceLocale;
+}) {
+  const script = detectProductScript(description);
+  if (!script) return null;
+  const query = isArabic ? script.queryAr : script.queryEn;
+  const results = await fetchSearchIndexProducts({ limit: 8, locale, query });
+  const products = results.products.filter((product) => product.handle !== handle).slice(0, 4);
+  return (
+    <section className="grid gap-4" data-slot="shop-this-script" dir={isArabic ? "rtl" : "ltr"}>
+      <div className="flex items-end justify-between gap-4">
+        <h2 className="text-2xl sm:text-3xl">{isArabic ? "تسوّق هذا الخط" : "Shop this script"}</h2>
+        <Link
+          className="shrink-0 cursor-pointer text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          href={`/search?q=${encodeURIComponent(query)}`}
+        >
+          {isArabic ? script.ar : script.en}
+        </Link>
+      </div>
+      {products.length > 0 ? (
+        <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0">
+          {products.map((product) => (
+            <div key={product.id} className="w-[44%] shrink-0 snap-start sm:w-[30%] lg:w-auto">
+              <ProductCard product={product} outOfStockText={t("outOfStock", isArabic)} />
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </section>
   );
 }

@@ -68,6 +68,32 @@ export function getCategory(id: string): CategoryConfig | undefined {
   return CATEGORIES.find((c) => c.id === id);
 }
 
+const COLLECTION_ORDER = ["poetry", "humor", "occasions", "politics", "cultures", "kids", "baby"];
+
+/** Category collections this product belongs to. Only ids that have a storefront collection. */
+export function relatedCollectionIds(handle: string, tags: readonly string[]): string[] {
+  const tagged = tags
+    .filter((tag) => tag.startsWith("category:"))
+    .map((tag) => tag.slice("category:".length));
+  const fromHandle = handle.endsWith("-kids-t-shirt")
+    ? ["kids"]
+    : handle.endsWith("-baby-bodysuit")
+      ? ["baby"]
+      : [];
+  return [...new Set([...tagged, ...fromHandle])]
+    .filter((id) => getCategory(id))
+    .sort((a, b) => COLLECTION_ORDER.indexOf(a) - COLLECTION_ORDER.indexOf(b));
+}
+
+/** One collection for the product breadcrumb: the theme, then kids or baby. */
+export function breadcrumbCollectionId(
+  handle: string,
+  tags: readonly string[],
+): string | undefined {
+  const ids = relatedCollectionIds(handle, tags);
+  return ids.find((id) => id !== "kids" && id !== "baby") ?? ids[0];
+}
+
 /** A known category before Shopify has a collection for it. No product id is invented. */
 export function categoryCollection(handle: string, language?: string) {
   const cat = getCategory(handle);

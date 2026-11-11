@@ -1,87 +1,66 @@
-import { shopConfig } from "@/lib/config";
+import type { Locale } from "@/lib/i18n";
 import { describeProductImage } from "@/lib/i18n/product";
-import { getLocale } from "@/lib/i18n/server";
 import type { Image } from "@/lib/media/types";
-import type { Money } from "@/lib/money/types";
+import { productJsonLd } from "@/lib/seo/product";
 
-interface ProductSchemaData {
+interface ProductSchemaProps {
   availableForSale: boolean;
+  colors?: Record<string, string>;
   currencyCode: string;
   description: string;
   handle: string;
+  highPrice: string;
   images: Image[];
+  locale: Locale;
+  lowPrice: string;
+  name: string;
   offerCount: number;
-  priceRange: {
-    maxVariantPrice: Money;
-    minVariantPrice: Money;
-  };
+  properties: { name: string; value: string }[];
   sku?: string;
-  title: string;
   vendor?: string;
 }
 
-interface ProductSchemaProps {
-  colors?: Record<string, string>;
-  product: ProductSchemaData;
-}
-
-export async function ProductSchema({ colors = {}, product }: ProductSchemaProps) {
-  const locale = await getLocale();
-  const url = `${shopConfig.site.url}/products/${product.handle}`;
-  const availability = product.availableForSale
-    ? "https://schema.org/InStock"
-    : "https://schema.org/OutOfStock";
-  const { maxVariantPrice, minVariantPrice } = product.priceRange;
-  // Google merchant listings require an Offer; an AggregateOffer only qualifies for product snippets.
-  const singlePrice =
-    minVariantPrice.amount === maxVariantPrice.amount &&
-    minVariantPrice.currencyCode === maxVariantPrice.currencyCode;
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.title,
-    description: product.description,
-    image: product.images.map((img) => {
-      const caption = describeProductImage({
-        altText: img.altText,
-        color: colors[img.url],
+export function ProductSchema({
+  availableForSale,
+  colors = {},
+  currencyCode,
+  description,
+  handle,
+  highPrice,
+  images,
+  locale,
+  lowPrice,
+  name,
+  offerCount,
+  properties,
+  sku,
+  vendor,
+}: ProductSchemaProps) {
+  const schema = productJsonLd({
+    availableForSale,
+    brand: vendor,
+    currencyCode,
+    description,
+    handle,
+    highPrice,
+    images: images.map((image) => ({
+      caption: describeProductImage({
+        altText: image.altText,
+        color: colors[image.url],
         locale,
-        title: product.title,
-      });
-      return {
-        "@type": "ImageObject",
-        caption,
-        ...(img.height > 0 ? { height: img.height } : {}),
-        name: caption,
-        url: img.url,
-        ...(img.width > 0 ? { width: img.width } : {}),
-      };
-    }),
-    brand: product.vendor
-      ? {
-          "@type": "Brand",
-          name: product.vendor,
-        }
-      : undefined,
-    offers: singlePrice
-      ? {
-          "@type": "Offer",
-          availability,
-          price: minVariantPrice.amount,
-          priceCurrency: product.currencyCode,
-          url,
-        }
-      : {
-          "@type": "AggregateOffer",
-          availability,
-          highPrice: maxVariantPrice.amount,
-          lowPrice: minVariantPrice.amount,
-          offerCount: product.offerCount,
-          priceCurrency: product.currencyCode,
-          url,
-        },
-    sku: product.offerCount === 1 ? product.sku : undefined,
-  };
+        title: name,
+      }),
+      height: image.height,
+      url: image.url,
+      width: image.width,
+    })),
+    locale,
+    lowPrice,
+    name,
+    offerCount,
+    properties,
+    sku,
+  });
 
   return <script type="application/ld+json">{JSON.stringify(schema)}</script>;
 }
