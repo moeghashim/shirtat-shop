@@ -13,17 +13,31 @@ export function markdownLocale(request: Request): Locale {
 }
 
 /** Internal markdown route for an unprefixed page path. */
-export function getMarkdownPath(pathname: string): string | null {
+export function getMarkdownPath(pathname: string, locale: Locale = "en"): string | null {
+  const base = markdownBase(pathname);
+  if (!base) return null;
+  // Stored product, collection, and guide output is per path. Arabic uses /md/ar so those handlers never read request headers.
+  if (locale === "ar" && isStoredMarkdownPath(base)) return `/md/ar${base.slice(3)}`;
+  return base;
+}
+
+function markdownBase(pathname: string): string | null {
   if (pathname === "/") return "/md";
   if (pathname === "/search") return "/md/search";
   if (pathname === "/products") return "/md/products";
   if (pathname === "/collections") return "/md/collections";
   if (pathname.startsWith("/collections/")) return `/md${pathname}`;
   if (pathname.startsWith("/products/")) return `/md${pathname}`;
-  const localePrefix = pathname === "/ar" || pathname.startsWith("/ar/") ? "/ar" : "";
-  const bare = pathname.replace(/^\/ar(?=\/|$)/, "") || "/";
-  if ((GUIDE_PATHS as readonly string[]).includes(bare)) return `/md/guides${localePrefix}${bare}`;
+  if ((GUIDE_PATHS as readonly string[]).includes(pathname)) return `/md/guides${pathname}`;
   return null;
+}
+
+function isStoredMarkdownPath(pathname: string): boolean {
+  return (
+    pathname.startsWith("/md/products/") ||
+    pathname.startsWith("/md/collections/") ||
+    pathname.startsWith("/md/guides/")
+  );
 }
 
 function normalize(pathname: string): string {
@@ -51,7 +65,7 @@ export function resolveMarkdownRequest(request: Request): MarkdownResolution | n
     pagePath = normalize(pagePath.slice("/ar".length));
   }
 
-  const internal = getMarkdownPath(pagePath);
+  const internal = getMarkdownPath(pagePath, locale);
   if (!internal) return null;
   return { locale, pathname: internal, type: "rewrite" };
 }

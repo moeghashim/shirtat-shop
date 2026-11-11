@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import robots from "@/app/robots";
@@ -127,10 +128,20 @@ test("markdown URLs rewrite for both locales and HTML URLs never do", () => {
     resolveMarkdownRequest(request("/ar/products/tafakkar-t-shirt.md", "text/html")),
     {
       locale: "ar",
-      pathname: "/md/products/tafakkar-t-shirt",
+      pathname: "/md/ar/products/tafakkar-t-shirt",
       type: "rewrite",
     },
   );
+  assert.deepEqual(resolveMarkdownRequest(request("/collections/hoodies.md")), {
+    locale: "en",
+    pathname: "/md/collections/hoodies",
+    type: "rewrite",
+  });
+  assert.deepEqual(resolveMarkdownRequest(request("/ar/collections/hoodies.md")), {
+    locale: "ar",
+    pathname: "/md/ar/collections/hoodies",
+    type: "rewrite",
+  });
   assert.deepEqual(resolveMarkdownRequest(request("/collections/poetry.md")), {
     locale: "en",
     pathname: "/md/collections/poetry",
@@ -138,7 +149,7 @@ test("markdown URLs rewrite for both locales and HTML URLs never do", () => {
   });
   assert.deepEqual(resolveMarkdownRequest(request("/ar/collections/poetry.md")), {
     locale: "ar",
-    pathname: "/md/collections/poetry",
+    pathname: "/md/ar/collections/poetry",
     type: "rewrite",
   });
   assert.deepEqual(resolveMarkdownRequest(request("/products.md")), {
@@ -160,9 +171,19 @@ test("markdown URLs rewrite for both locales and HTML URLs never do", () => {
     pathname: "/md/guides/scripts/kufic",
     type: "rewrite",
   });
+  assert.deepEqual(resolveMarkdownRequest(request("/glossary/habibi.md")), {
+    locale: "en",
+    pathname: "/md/guides/glossary/habibi",
+    type: "rewrite",
+  });
+  assert.deepEqual(resolveMarkdownRequest(request("/ar/glossary/habibi.md")), {
+    locale: "ar",
+    pathname: "/md/ar/guides/glossary/habibi",
+    type: "rewrite",
+  });
   assert.deepEqual(resolveMarkdownRequest(request("/ar/glossary.md")), {
     locale: "ar",
-    pathname: "/md/guides/glossary",
+    pathname: "/md/ar/guides/glossary",
     type: "rewrite",
   });
 });
@@ -334,12 +355,35 @@ test("the proxy serves one body per URL", async () => {
   assert.equal(english.headers.get("x-middleware-request-x-shirtat-locale"), "en");
 
   const arabic = await proxy(new NextRequest("https://shirtat.co/ar/collections/poetry.md"));
-  assert.match(arabic.headers.get("x-middleware-rewrite") ?? "", /\/md\/collections\/poetry$/);
+  assert.match(arabic.headers.get("x-middleware-rewrite") ?? "", /\/md\/ar\/collections\/poetry$/);
   assert.equal(arabic.headers.get("x-middleware-request-x-shirtat-locale"), "ar");
 
   const guide = await proxy(new NextRequest("https://shirtat.co/ar/scripts/kufic.md"));
-  assert.match(guide.headers.get("x-middleware-rewrite") ?? "", /\/md\/guides\/scripts\/kufic$/);
+  assert.match(
+    guide.headers.get("x-middleware-rewrite") ?? "",
+    /\/md\/ar\/guides\/scripts\/kufic$/,
+  );
   assert.equal(guide.headers.get("x-middleware-request-x-shirtat-locale"), "ar");
+
+  const habibi = await proxy(new NextRequest("https://shirtat.co/glossary/habibi.md"));
+  assert.match(habibi.headers.get("x-middleware-rewrite") ?? "", /\/md\/guides\/glossary\/habibi$/);
+});
+
+test("stored markdown handlers take locale from the path and do not read request headers", () => {
+  const files = [
+    ["app/md/products/[handle]/route.ts", 'productMarkdownResponse(handle, "en")'],
+    ["app/md/ar/products/[handle]/route.ts", 'productMarkdownResponse(handle, "ar")'],
+    ["app/md/collections/[handle]/route.ts", 'collectionMarkdownResponse(handle, "en")'],
+    ["app/md/ar/collections/[handle]/route.ts", 'collectionMarkdownResponse(handle, "ar")'],
+    ["app/md/guides/[...path]/route.ts", 'guideMarkdownResponse(path, "en")'],
+    ["app/md/ar/guides/[...path]/route.ts", 'guideMarkdownResponse(path, "ar")'],
+  ] as const;
+  for (const [file, call] of files) {
+    const source = readFileSync(new URL(`../../${file}`, import.meta.url), "utf8");
+    assert.equal(source.includes("request.headers"), false);
+    assert.equal(source.includes("markdownLocale"), false);
+    assert.equal(source.includes(call), true);
+  }
 });
 
 test("custom product markdown redirects to the localized design page", async () => {
