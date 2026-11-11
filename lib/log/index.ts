@@ -13,6 +13,35 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-11",
+    entries: [
+      {
+        en: "Every product and collection page now has a plain-text Markdown version in English and Arabic, and the site publishes an llms.txt overview of the shop, shipping and returns, so AI assistants and shopping agents can read the catalog accurately.",
+        ar: "صارت لكل صفحة منتج ومجموعة نسخة نصية بصيغة Markdown بالإنجليزية والعربية، وينشر الموقع ملف llms.txt يعرّف بالمتجر والشحن والإرجاع، كي تقرأ المساعدات الذكية ووكلاء التسوق الكتالوج بدقة.",
+      },
+      {
+        en: "New shopper guides are live in English and Arabic: a gift guide, a glossary of phrases like Habibi, Yalla and Inshallah, pages on Thuluth, Kufic and Diwani calligraphy, and pages for custom Arabic name shirts, Eid gift tees and calligraphy hoodies, all using real shop products and prices.",
+        ar: "أدلة جديدة للمتسوقين حيّة بالإنجليزية والعربية: دليل للهدايا، ومعجم لعبارات مثل «حبيبي» و«يلّا» و«إن شاء الله»، وصفحات عن خطوط الثلث والكوفي والديواني، وصفحات لقمصان الأسماء العربية المخصصة وتيشيرتات هدايا العيد وهوديز الخط العربي، وكلها تعتمد على منتجات المتجر وأسعاره الحقيقية.",
+      },
+      {
+        en: "Collection pages have their own Arabic titles and introductions, and the homepage tiles open the collections for each product type, including caps, kids and baby.",
+        ar: "صارت لصفحات المجموعات عناوين ومقدمات عربية خاصة بها، وتفتح مربعات الصفحة الرئيسية مجموعات كل نوع منتج، ومنها القبعات والأطفال والرضّع.",
+      },
+      {
+        en: "Product page titles now name the design, the calligraphy script and the garment, with price and shipping facts at the top that match what search engines read, and each product links to its product-type collection.",
+        ar: "صارت عناوين صفحات المنتجات تذكر التصميم ونوع الخط والقطعة، مع معلومات السعر والشحن في أعلى الصفحة مطابقةً لما تقرؤه محركات البحث، وترتبط كل صفحة منتج بمجموعة نوعها.",
+      },
+      {
+        en: "We built a microphone option for the shopping assistant, so shoppers can speak their request in English or Arabic and see product cards while they talk. It stays switched off on the live shop for now.",
+        ar: "بنينا خيار الميكروفون لمساعد التسوق، ليطلب المتسوقون ما يريدون بالكلام بالإنجليزية أو العربية ويروا بطاقات المنتجات أثناء حديثهم. ويبقى الخيار متوقفًا في المتجر المباشر حاليًا.",
+      },
+      {
+        en: "A separate admin space at admin.shirtat.co, in Shirtat's colours and wordmark with a dark mode, now hosts our search growth plan, where the owner can tick off tasks. Invite-only designer sign-in is set up there too.",
+        ar: "مساحة إدارة مستقلة على admin.shirtat.co، بألوان Shirtat وشعارها النصي مع وضع داكن، تستضيف الآن خطة نموّنا في البحث، حيث يمكن لصاحب المتجر تأشير المهام المنجزة. كما أُعدّ فيها دخول المصممين بالدعوة فقط.",
+      },
+    ],
+  },
+  {
     date: "2026-11-10",
     entries: [
       {

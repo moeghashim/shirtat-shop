@@ -198,8 +198,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Shopping assistant", ar: "مساعد التسوق" },
     status: "in-progress",
     summary: {
-      en: "A shopping chat in English and Arabic is live, with product cards (including compact cards that stay on screen after the reply), the cart, and Shopify checkout. It calls OpenAI directly as gpt-6-luna with medium reasoning.",
-      ar: "دردشة تسوّق بالإنجليزية والعربية حيّة، مع بطاقات المنتجات (بما فيها البطاقات المدمجة التي تبقى ظاهرة بعد الرد)، والسلة، وإتمام الشراء على Shopify. تنادي OpenAI مباشرة بالنموذج gpt-6-luna وبجهد تفكير متوسط.",
+      en: "A shopping chat in English and Arabic is live, with product cards (including compact cards that stay on screen after the reply), the cart, and Shopify checkout. It calls OpenAI directly as gpt-6-luna with medium reasoning. A voice option is built and stays off until we switch it on.",
+      ar: "دردشة تسوّق بالإنجليزية والعربية حيّة، مع بطاقات المنتجات (بما فيها البطاقات المدمجة التي تبقى ظاهرة بعد الرد)، والسلة، وإتمام الشراء على Shopify. تنادي OpenAI مباشرة بالنموذج gpt-6-luna وبجهد تفكير متوسط. وخيار الحديث الصوتي جاهز ويبقى متوقفًا حتى نفعّله.",
     },
   },
   {
@@ -238,8 +238,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Search visibility", ar: "الظهور في البحث" },
     status: "in-progress",
     summary: {
-      en: "Google Search Console is connected, the sitemap lists every real page in English and Arabic with one clean address per product, and product photos have bilingual descriptions; next is watching search results and growing search traffic.",
-      ar: "ربطنا Google Search Console، وتُدرج خريطة الموقع كل صفحة حقيقية بالإنجليزية والعربية بعنوان واحد واضح لكل منتج، وصارت لصور المنتجات أوصاف بلغتين؛ والخطوة التالية متابعة نتائج البحث وزيادة الزيارات منه.",
+      en: "Google Search Console is connected, the sitemap lists every real page in English and Arabic with one clean address per product, and product photos have bilingual descriptions. Product pages carry clear design, script and garment titles, and shopper guides, Arabic collection pages and Markdown versions for AI shopping agents are live; next is watching search results and growing search traffic.",
+      ar: "ربطنا Google Search Console، وتُدرج خريطة الموقع كل صفحة حقيقية بالإنجليزية والعربية بعنوان واحد واضح لكل منتج، وصارت لصور المنتجات أوصاف بلغتين. وتحمل صفحات المنتجات عناوين واضحة بالتصميم ونوع الخط والقطعة، وصارت أدلة المتسوقين وصفحات المجموعات العربية ونسخ Markdown لوكلاء التسوق الذكية حيّة؛ والخطوة التالية متابعة نتائج البحث وزيادة الزيارات منه.",
     },
   },
   {
@@ -360,6 +360,14 @@ export const roadmapPhases: RoadmapPhase[] = [
     summary: {
       en: "Playful Arabic-phrase stickers, printed in the US, starting on Etsy.",
       ar: "ملصقات مرحة بعبارات عربية، تُطبع في الولايات المتحدة، تبدأ على Etsy.",
+    },
+  },
+  {
+    title: { en: "Admin dashboard", ar: "لوحة الإدارة" },
+    status: "in-progress",
+    summary: {
+      en: "A separate admin space at admin.shirtat.co in Shirtat's colours, with a dark mode. The search growth plan with task check-offs is there; designer sign-in comes next.",
+      ar: "مساحة إدارة مستقلة على admin.shirtat.co بألوان Shirtat مع وضع داكن. خطة النمو في البحث مع تأشير المهام موجودة فيها؛ ويأتي بعدها دخول المصممين.",
     },
   },
 ];
