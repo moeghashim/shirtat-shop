@@ -1,114 +1,55 @@
 import { shopConfig } from "@/lib/config";
+import { type Locale } from "@/lib/i18n";
 
-import type { AcceptEntry, Representation } from "./types";
+export const MARKDOWN_LOCALE_HEADER = "x-shirtat-locale";
 
-const REPRESENTATIONS = ["text/html", "text/markdown"] as const;
+export type MarkdownResolution =
+  | { locale: Locale; pathname: string; type: "rewrite" }
+  | { location: string; type: "redirect" };
 
-function matches(entry: AcceptEntry, representation: Representation): boolean {
-  if (entry.type === "*/*") return true;
-  if (entry.type.endsWith("/*")) return representation.startsWith(entry.type.slice(0, -1));
-  return entry.type === representation;
+export function markdownLocale(request: Request): Locale {
+  return request.headers.get(MARKDOWN_LOCALE_HEADER) === "ar" ? "ar" : "en";
 }
 
-function parseAccept(header: string): AcceptEntry[] {
-  return header
-    .split(",")
-    .map((value, position) => {
-      const [type = "", ...parameters] = value
-        .trim()
-        .split(";")
-        .map((part) => part.trim());
-      let quality = 1;
-
-      for (const parameter of parameters) {
-        const [name, rawValue] = parameter.split("=").map((part) => part.trim());
-        if (name?.toLowerCase() !== "q") continue;
-
-        const parsed = Number(rawValue);
-        quality = Number.isFinite(parsed) ? Math.min(1, Math.max(0, parsed)) : 0;
-      }
-
-      const normalizedType = type.toLowerCase();
-      const specificity = normalizedType === "*/*" ? 0 : normalizedType.endsWith("/*") ? 1 : 2;
-
-      return { position, quality, specificity, type: normalizedType };
-    })
-    .filter(({ type }) => type.includes("/"));
-}
-
-function prefersMarkdown(accept: string | null): boolean {
-  if (!accept) return false;
-
-  const entries = parseAccept(accept);
-  if (entries.length === 0) return false;
-
-  let selection: { position: number; quality: number; representation: Representation } | null =
-    null;
-
-  for (const representation of REPRESENTATIONS) {
-    let match: AcceptEntry | null = null;
-
-    for (const entry of entries) {
-      if (!matches(entry, representation)) continue;
-      if (
-        !match ||
-        entry.specificity > match.specificity ||
-        (entry.specificity === match.specificity && entry.position < match.position)
-      ) {
-        match = entry;
-      }
-    }
-
-    if (!match || match.quality === 0) continue;
-    if (
-      !selection ||
-      match.quality > selection.quality ||
-      (match.quality === selection.quality && match.position < selection.position)
-    ) {
-      selection = {
-        position: match.position,
-        quality: match.quality,
-        representation,
-      };
-    }
-  }
-
-  return selection?.representation === "text/markdown";
-}
-
-function appendVaryAccept(headers: Headers): void {
-  const vary = headers.get("Vary");
-  if (!vary) {
-    headers.set("Vary", "Accept");
-    return;
-  }
-
-  const values = vary.split(",").map((value) => value.trim().toLowerCase());
-  if (!values.includes("accept")) headers.set("Vary", `${vary}, Accept`);
-}
-
+/** Internal markdown route for an unprefixed page path. */
 export function getMarkdownPath(pathname: string): string | null {
   if (pathname === "/") return "/md";
   if (pathname === "/search") return "/md/search";
+  if (pathname === "/products") return "/md/products";
+  if (pathname === "/collections") return "/md/collections";
   if (pathname.startsWith("/collections/")) return `/md${pathname}`;
   if (pathname.startsWith("/products/")) return `/md${pathname}`;
   return null;
 }
 
-export function getMarkdownMirrorPath(pathname: string): string | null {
-  if (!pathname.endsWith(".md")) return null;
-  const pagePath = pathname.slice(0, -".md".length);
-  return getMarkdownPath(pagePath === "/index" ? "/" : pagePath);
+function normalize(pathname: string): string {
+  if (pathname === "" || pathname === "/") return "/";
+  const trimmed = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  return trimmed === "/index" ? "/" : trimmed;
 }
 
-export function getMarkdownRewritePath(request: Request): string | null {
+// Accept is ignored on purpose: one URL has one body, and markdown is only the .md URL.
+export function resolveMarkdownRequest(request: Request): MarkdownResolution | null {
   if (request.method !== "GET" && request.method !== "HEAD") return null;
-
   const { pathname } = new URL(request.url);
-  return (
-    getMarkdownMirrorPath(pathname) ??
-    (prefersMarkdown(request.headers.get("Accept")) ? getMarkdownPath(pathname) : null)
-  );
+  if (!pathname.endsWith(".md")) return null;
+
+  let pagePath = normalize(pathname.slice(0, -".md".length));
+
+  if (pagePath === "/en" || pagePath.startsWith("/en/")) {
+    const rest = normalize(pagePath.slice("/en".length));
+    return { location: rest === "/" ? "/index.md" : `${rest}.md`, type: "redirect" };
+  }
+
+  let locale: Locale = "en";
+  if (pagePath === "/ar" || pagePath.startsWith("/ar/")) {
+    locale = "ar";
+    pagePath = normalize(pagePath.slice("/ar".length));
+  }
+
+  const internal = getMarkdownPath(pagePath);
+  if (!internal) return null;
+  return { locale, pathname: internal, type: "rewrite" };
 }
 
 export function markdownHeaders({
@@ -118,12 +59,11 @@ export function markdownHeaders({
   cacheControl: string;
   pathname: string;
 }): Headers {
-  const headers = new Headers({
+  const arabic = pathname === "/ar" || pathname.startsWith("/ar/");
+  return new Headers({
     "Cache-Control": cacheControl,
+    "Content-Language": arabic ? "ar" : "en",
     "Content-Type": "text/markdown; charset=utf-8",
     Link: `<${new URL(pathname, shopConfig.site.url)}>; rel="canonical"`,
-    "X-Robots-Tag": "noindex",
   });
-  appendVaryAccept(headers);
-  return headers;
 }

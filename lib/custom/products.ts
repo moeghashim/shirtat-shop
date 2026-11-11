@@ -1,6 +1,7 @@
 import { retailPrice, SUPPLIER_CATALOG } from "@/lib/catalog/pricing";
+import { type Locale, localizePath } from "@/lib/i18n";
 
-import regions from "./regions.json";
+import regions from "./regions.json" with { type: "json" };
 
 /** Shopify handles of the products the design builder sells. */
 export const CUSTOM_TEE_HANDLE = "custom-calligraphy-t-shirt";
@@ -11,6 +12,15 @@ export function isCustomDesignHandle(handle: string) {
   return (
     handle === CUSTOM_TEE_HANDLE || handle === CUSTOM_HOODIE_HANDLE || handle === CUSTOM_MUG_HANDLE
   );
+}
+
+/** HTML design-builder path for a custom product, in the shopper's locale. */
+export function customDesignPath(handle: string, locale: Locale): string | null {
+  if (!isCustomDesignHandle(handle)) return null;
+  const path = localizePath(locale, "/design");
+  if (handle === CUSTOM_MUG_HANDLE) return `${path}?product=mug`;
+  if (handle === CUSTOM_HOODIE_HANDLE) return `${path}?product=hoodie`;
+  return path;
 }
 export const CUSTOM_TAG = "custom-design";
 export const CUSTOM_SKU_PREFIX = "CUS-";

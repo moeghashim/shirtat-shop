@@ -32,5 +32,9 @@ export async function resolve(specifier, context, nextResolve) {
     const file = withExtension(base);
     if (file) return nextResolve(file, context);
   }
+  // Next's package root has no "exports" map, so Node ESM will not add the .js extension.
+  if (specifier.startsWith("next/") && !specifier.endsWith(".js")) {
+    return nextResolve(`${specifier}.js`, context);
+  }
   return nextResolve(specifier, context);
 }

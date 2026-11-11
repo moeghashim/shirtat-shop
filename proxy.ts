@@ -19,7 +19,7 @@ import { cartHandlers, createCustomerCartHandlers } from "@/lib/cart/request";
 import { getRefinedCollectionPath, isRefinedCollectionPath } from "@/lib/collections";
 import { shopConfig } from "@/lib/config";
 import { isUnlocalizedPath, stripLocale } from "@/lib/i18n";
-import { getMarkdownRewritePath } from "@/lib/markdown/representation";
+import { MARKDOWN_LOCALE_HEADER, resolveMarkdownRequest } from "@/lib/markdown/representation";
 import { predictiveSearchHandlers } from "@/lib/search/request";
 import { SHOPIFY_ROUTE_TEMPLATES } from "@/lib/shopify/routing";
 import { createRequestStorefrontClient } from "@/lib/shopify/storefront/server";
@@ -77,19 +77,28 @@ export async function proxy(request: NextRequest): Promise<Response> {
   const pageRoute = isLocalizablePagePath(pathname);
   const prefix = pageRoute && /^\/ar(?:\/|$)/.test(pathname) ? "ar" : "en";
   const basePath = stripLocale(pathname);
-  if (pageRoute && (/^\/en(?:\/|$)/.test(pathname) || (prefix === "ar" && isUnlocalizedPath(basePath)))) {
+  if (
+    pageRoute &&
+    (/^\/en(?:\/|$)/.test(pathname) || (prefix === "ar" && isUnlocalizedPath(basePath)))
+  ) {
     const target = new URL(`${basePath}${request.nextUrl.search}`, request.url);
     return NextResponse.redirect(target, 308);
   }
   if (isRefinedCollectionPath(basePath)) return new Response("Not Found", { status: 404 });
 
+  const markdown = resolveMarkdownRequest(request);
+  if (markdown?.type === "redirect") {
+    const target = new URL(`${markdown.location}${request.nextUrl.search}`, request.url);
+    return NextResponse.redirect(target, 308);
+  }
+
   const headers = requestContext.getForwardedRequestHeaders();
-  const refinedPath = pageRoute
-    ? getRefinedCollectionPath(basePath, request.nextUrl.search)
-    : null;
+  headers.delete(MARKDOWN_LOCALE_HEADER);
+  if (markdown?.type === "rewrite") headers.set(MARKDOWN_LOCALE_HEADER, markdown.locale);
+  const refinedPath = pageRoute ? getRefinedCollectionPath(basePath, request.nextUrl.search) : null;
   const localizedPath = pageRoute ? `/${prefix}${basePath === "/" ? "" : basePath}` : null;
   const rewritePath =
-    getMarkdownRewritePath(request) ??
+    (markdown?.type === "rewrite" ? markdown.pathname : null) ??
     (refinedPath ? `/${prefix}${refinedPath}` : localizedPath);
   const response = rewritePath
     ? NextResponse.rewrite(new URL(`${rewritePath}${request.nextUrl.search}`, request.url), {
@@ -123,6 +132,6 @@ function customerHandlers(
 export const config = {
   matcher: [
     // Only named static and metadata files skip the proxy: Shopify's dotted routes and `.md` mirrors must still match.
-    "/((?!_next/static|_next/image|_next/data|_vercel|eve(?:/|$)|_eve_internal(?:/|$)|agent/ucp-profile\\.json$|apple-icon\\.png$|favicon\\.ico$|icon\\.svg$|icons/|llms\\.txt$|manifest\\.webmanifest$|og-default\\.png$|og/|banner/|10claws-logo\\.svg$|grokbot-icon\\.png$|shirtat-logo(?:-mark)?\\.svg$|favicon-(?:16x16|32x32)\\.png$|favicon\\.svg$|android-chrome-(?:192x192|512x512)\\.png$|apple-touch-icon\\.png$|site\\.webmanifest$|robots\\.txt$|sitemap\\.xml$|sitemap/).*)",
+    "/((?!_next/static|_next/image|_next/data|_vercel|eve(?:/|$)|_eve_internal(?:/|$)|agent/ucp-profile\\.json$|apple-icon\\.png$|favicon\\.ico$|icon\\.svg$|icons/|llms(?:-full)?\\.txt$|manifest\\.webmanifest$|og-default\\.png$|og/|banner/|10claws-logo\\.svg$|grokbot-icon\\.png$|shirtat-logo(?:-mark)?\\.svg$|favicon-(?:16x16|32x32)\\.png$|favicon\\.svg$|android-chrome-(?:192x192|512x512)\\.png$|apple-touch-icon\\.png$|site\\.webmanifest$|robots\\.txt$|sitemap\\.xml$|sitemap/).*)",
   ],
 };

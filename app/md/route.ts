@@ -1,37 +1,45 @@
 import { shopConfig } from "@/lib/config";
-import { escapeMarkdown, markdownFrontmatter } from "@/lib/markdown";
-import { markdownHeaders } from "@/lib/markdown/representation";
+import { type Locale, localizePath } from "@/lib/i18n";
+import {
+  absoluteStoreUrl,
+  agentContactLine,
+  aiReferralOffer,
+  escapeMarkdown,
+  markdownFrontmatter,
+} from "@/lib/markdown";
+import { markdownHeaders, markdownLocale } from "@/lib/markdown/representation";
 
-export function GET(): Response {
-  const { description, name, url } = shopConfig.site;
+function homeMarkdown(locale: Locale): string {
+  const { description, name } = shopConfig.site;
+  const title = locale === "ar" ? "شيرتات" : name;
+  const intro =
+    locale === "ar"
+      ? "ملابس ومطبوعات بالخط العربي: تيشيرتات وهوديات وسويتشيرتات وحقائب ومطبوعات من الشعر والفكاهة والثقافة. كل قطعة تُطبع حسب الطلب."
+      : description;
+  return `${markdownFrontmatter({ canonicalUrl: absoluteStoreUrl(localizePath(locale, "/")), description: intro, title })}
 
-  return new Response(
-    `${markdownFrontmatter({ canonicalUrl: new URL("/", url).toString(), description, title: name })}
+${aiReferralOffer(locale)}
 
-# ${escapeMarkdown(name)}
+# ${escapeMarkdown(title)}
 
-${escapeMarkdown(description)}
+${escapeMarkdown(intro)}
 
-## Browse
+${agentContactLine(locale)}
 
-- [All products](${url}/collections/all): Browse the complete catalog.
-- [Search](${url}/search): Search products by keyword.
-- [Collections](${url}/collections): Browse products by collection.
+## ${locale === "ar" ? "التصفح" : "Browse"}
 
-## Agent resources
+- [${locale === "ar" ? "كل المنتجات" : "All products"}](${absoluteStoreUrl(`${localizePath(locale, "/products")}.md`)})
+- [${locale === "ar" ? "المجموعات" : "Collections"}](${absoluteStoreUrl(`${localizePath(locale, "/collections")}.md`)})
+- [${locale === "ar" ? "دليل المتجر" : "Storefront guide"}](${absoluteStoreUrl("/llms.txt")})
+`;
+}
 
-- [Storefront guide](${url}/llms.txt): When and how to use this storefront.
-- [UCP profile](${url}/.well-known/ucp): Live catalog search, availability, cart, and checkout.
-- [Sitemap](${url}/sitemap.xml): Complete index of storefront content.
-
----
-
-*Locale: ${shopConfig.localization.locale}*`,
-    {
-      headers: markdownHeaders({
-        cacheControl: "public, max-age=86400, stale-while-revalidate=604800",
-        pathname: "/",
-      }),
-    },
-  );
+export function GET(request: Request): Response {
+  const locale = markdownLocale(request);
+  return new Response(homeMarkdown(locale), {
+    headers: markdownHeaders({
+      cacheControl: "public, max-age=86400, stale-while-revalidate=604800",
+      pathname: localizePath(locale, "/"),
+    }),
+  });
 }

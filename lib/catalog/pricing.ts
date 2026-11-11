@@ -4,7 +4,7 @@
  * blueprint/provider/variant (see printify-catalog.json). Retail price rule, per variant:
  * supplier cost × 3, rounded UP to the next $x.99.
  */
-import catalog from "./printify-catalog.json";
+import catalog from "./printify-catalog.json" with { type: "json" };
 
 export const SUPPLIER = {
   apiDocs: "https://developers.printify.com/",

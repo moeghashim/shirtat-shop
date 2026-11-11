@@ -13,7 +13,8 @@ import { shopConfig } from "@/lib/config";
 import type { CommerceLocale } from "@/lib/config/types";
 import { commerceLocale, type Locale, translate } from "@/lib/i18n";
 import { getLocale } from "@/lib/i18n/server";
-import { tagProducts } from "@/lib/product/server";
+import { collectCatalogProducts, tagProducts } from "@/lib/product/server";
+import type { ProductCard } from "@/lib/product/types";
 import { buildAlternates, buildOpenGraph, siteOgImages } from "@/lib/seo";
 import { getNumericShopifyId } from "@/lib/shopify/id/server";
 import {
@@ -205,6 +206,28 @@ export async function fetchCollectionResults({
   };
 }
 
+const COLLECTION_CATALOG_PAGE_SIZE = 50;
+
+export async function getCollectionCatalog(params: {
+  handle: string;
+  locale?: CommerceLocale;
+}): Promise<ProductCard[]> {
+  "use cache: remote";
+  cacheLife("max");
+  cacheTag("collections", `collection-${params.handle}`, "products-index");
+
+  const products = await collectCatalogProducts((cursor) =>
+    fetchCollectionProducts({
+      collection: params.handle,
+      cursor: cursor ?? undefined,
+      limit: COLLECTION_CATALOG_PAGE_SIZE,
+      locale: params.locale,
+    }),
+  );
+  tagProducts(products);
+  return products;
+}
+
 export async function getAllProductsCollection(locale: Locale = "en"): Promise<Collection> {
   const title = translate(locale, "Products");
   const description = "";
@@ -215,7 +238,10 @@ export async function getAllProductsCollection(locale: Locale = "en"): Promise<C
     image: null,
     path: `/collections/${ALL_PRODUCTS_HANDLE}`,
     seo: {
-      description: `Browse every product at ${shopConfig.site.name}: compare prices and check availability.`,
+      description:
+        locale === "ar"
+          ? `تصفّح كل منتجات ${shopConfig.site.name}: قارن الأسعار وتحقق من التوفّر.`
+          : `Browse every product at ${shopConfig.site.name}: compare prices and check availability.`,
       title,
     },
   };
@@ -231,7 +257,7 @@ function browseMetadata(
   return {
     title,
     description,
-    alternates: buildAlternates({ locale, pathname: url }),
+    alternates: buildAlternates({ locale, markdown: true, pathname: url }),
     openGraph: buildOpenGraph({ locale, title, description, url, type: "website" }),
     twitter: {
       card: "summary_large_image",
