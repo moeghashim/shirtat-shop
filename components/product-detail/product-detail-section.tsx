@@ -8,11 +8,14 @@ import { BuyButtons, PurchaseOptions } from "@/components/product-detail/buy-but
 import { BuyWithShopLogo } from "@/components/product-detail/buy-with-shop-logo";
 import { ComplementaryProducts } from "@/components/product-detail/complementary-products";
 import { GiftCardPurchaseForm } from "@/components/product-detail/gift-card-purchase-form";
+import { OfferFactsFallback, ProductOfferFacts } from "@/components/product-detail/offer-facts";
 import { ProductOpenGraph } from "@/components/product-detail/open-graph";
 import {
   DesignStoryBlock,
   PdpTrustAndDetails,
   ProductSpecsBlock,
+  RelatedCollections,
+  ShopThisScript,
 } from "@/components/product-detail/pdp-extras";
 import {
   ProductForm,
@@ -29,14 +32,15 @@ import {
   ProductMedia,
 } from "@/components/product-detail/product-media";
 import { ProductPrice } from "@/components/product-detail/product-price";
-import { ProductSchema } from "@/components/product-detail/schema";
 import { BreadcrumbSchema } from "@/components/schema/breadcrumb-schema";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Link } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { breadcrumbCollectionId, collectionLabel } from "@/lib/collections/categories";
 import { shopConfig } from "@/lib/config";
-import type { Locale } from "@/lib/i18n";
+import { commerceLocale, type Locale } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
 import {
   defaultSelectedOptions,
@@ -60,33 +64,11 @@ export function ProductDetailSection({
   selectedOptionsPromise: Promise<SelectedOptions>;
   variantPromise: Promise<ProductVariant | undefined>;
 }) {
-  const colors = imageColorNames(product.options);
   return (
     <>
-      <ProductSchema
-        colors={colors}
-        product={{
-          handle: product.handle,
-          title: product.title,
-          description: product.description,
-          images: product.images,
-          vendor: product.vendor,
-          currencyCode: product.currencyCode,
-          priceRange: product.priceRange,
-          offerCount: product.variantsCount,
-          availableForSale: product.availableForSale,
-          sku: product.defaultVariantSku,
-        }}
-      />
       <ProductOpenGraph
         availableForSale={product.availableForSale}
         price={product.priceRange.minVariantPrice}
-      />
-      <BreadcrumbSchema
-        items={[
-          { name: shopConfig.site.name, path: "/" },
-          { name: product.title, path: `/products/${product.handle}` },
-        ]}
       />
       <div className="grid min-w-0 gap-8 lg:grid-cols-10 lg:items-start lg:gap-10">
         <ProductMediaArea product={product} selectedOptionsPromise={selectedOptionsPromise} />
@@ -125,8 +107,7 @@ function ProductMediaArea({
       title={product.title}
       className="lg:col-span-6"
       desktopSlot={
-        // Color image is the LCP slot; a pulsing skeleton flashes harder than an empty image canvas.
-        // Fallback is the default-colour image so the LCP image is in the first HTML flush (no wait on searchParams).
+        // Fallback is the default-colour image so the LCP image is in the first HTML flush.
         <Suspense fallback={<ColorImageGrid images={defaultImages} title={product.title} />}>
           <ResolvedColorImageGrid
             product={product}
@@ -180,9 +161,22 @@ async function ProductInfoArea({
   variantPromise: Promise<ProductVariant | undefined>;
 }) {
   const t = await getT();
-  const isArabic = String(await getLocale())
-    .toLowerCase()
-    .startsWith("ar");
+  const locale = await getLocale();
+  const isArabic = locale === "ar";
+  const collectionId = breadcrumbCollectionId(product.handle, product.tags ?? []);
+  const category = collectionId ? collectionLabel(collectionId) : undefined;
+  const crumbs = [
+    { name: t("Home"), path: "/" },
+    ...(collectionId && category
+      ? [
+          {
+            name: isArabic ? category.labelAr : category.labelEn,
+            path: `/collections/${collectionId}`,
+          },
+        ]
+      : []),
+    { name: product.title, path: `/products/${product.handle}` },
+  ];
   const { options, handle, descriptionHtml } = product;
   const uniformStock = product.allVariantsInStock;
   const singleVariant = product.variantsCount === 1;
@@ -196,6 +190,28 @@ async function ProductInfoArea({
         data-uniform-price={product.hasUniformPricing}
       >
         <div data-slot="product-info-header" className="grid gap-2">
+          <BreadcrumbSchema items={crumbs} />
+          <nav aria-label={isArabic ? "مسار التنقل" : "Breadcrumb"}>
+            <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+              {crumbs.map((crumb, index) => {
+                const last = index === crumbs.length - 1;
+                return (
+                  <li key={crumb.path} className="flex items-center gap-2">
+                    {index > 0 ? <span aria-hidden="true">/</span> : null}
+                    {last ? (
+                      <span aria-current="page" className="text-foreground">
+                        {crumb.name}
+                      </span>
+                    ) : (
+                      <Link className="underline-offset-4 hover:underline" href={crumb.path}>
+                        {crumb.name}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </nav>
           <h1 className="text-foreground text-2xl leading-tight font-semibold sm:text-3xl">
             {product.title}
           </h1>
@@ -207,6 +223,10 @@ async function ProductInfoArea({
             />
           ) : null}
         </div>
+
+        <Suspense fallback={<OfferFactsFallback />}>
+          <ProductOfferFacts locale={locale} product={product} />
+        </Suspense>
 
         {singleVariant ? (
           <ProductInfoContent
@@ -261,6 +281,15 @@ async function ProductInfoArea({
       />
 
       <ProductInfoDescription descriptionHtml={descriptionHtml} />
+      <RelatedCollections handle={handle} isArabic={isArabic} tags={product.tags ?? []} />
+      <Suspense fallback={null}>
+        <ShopThisScript
+          description={`${product.title} ${product.description}`}
+          handle={handle}
+          isArabic={isArabic}
+          locale={commerceLocale(locale)}
+        />
+      </Suspense>
     </div>
   );
 }

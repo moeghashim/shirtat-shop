@@ -1,0 +1,23 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.env
+.env.*
+!.env.example
+.dev.vars*
+wrangler.*.local.json
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+__unconfig*
+todos.json
+
+# Visual QA evidence belongs on pr-assets, never main.
+/screenshots/
+
+# Page verification reports and screenshots belong on pr-assets.
+verify/

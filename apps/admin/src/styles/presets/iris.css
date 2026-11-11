@@ -1,0 +1,12 @@
+/*
+label: Iris
+value: iris
+*/
+
+:root[data-theme-preset="iris"] {
+  --primary: var(--accent-iris-light);
+}
+
+.dark:root[data-theme-preset="iris"] {
+  --primary: var(--accent-iris-dark);
+}

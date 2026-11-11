@@ -55,17 +55,9 @@ export interface LiveCardsPlan {
 
 const HANDLE = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/;
 
-export function voiceModeEnabled(env?: {
-  VERCEL_ENV?: string;
-  VOICE_MODE_ENABLED?: string;
-}): boolean {
-  const source = env ?? {
-    VERCEL_ENV: process.env.VERCEL_ENV,
-    VOICE_MODE_ENABLED: process.env.VOICE_MODE_ENABLED,
-  };
-  if (source.VOICE_MODE_ENABLED === "1") return true;
-  if (source.VOICE_MODE_ENABLED === "0") return false;
-  return source.VERCEL_ENV !== "production";
+export function voiceModeEnabled(env?: { VOICE_MODE_ENABLED?: string }): boolean {
+  const source = env ?? { VOICE_MODE_ENABLED: process.env.VOICE_MODE_ENABLED };
+  return source.VOICE_MODE_ENABLED === "1";
 }
 
 export function voiceLimits(env: Record<string, string | undefined> = process.env): VoiceLimits {

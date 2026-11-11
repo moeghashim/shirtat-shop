@@ -1,0 +1,1 @@
+ALTER TABLE "metric_dimensions" ADD CONSTRAINT "metric_dimensions_domain_series_pointKey_metric_points_domain_series_pointKey_fk" FOREIGN KEY ("domain","series","pointKey") REFERENCES "public"."metric_points"("domain","series","pointKey") ON DELETE no action ON UPDATE no action;

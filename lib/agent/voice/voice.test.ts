@@ -26,13 +26,11 @@ import { parseVoiceToolArguments, realtimeTools } from "./schema";
 
 const limits = voiceLimits({});
 
-test("voice defaults on for preview and off for production", () => {
-  assert.equal(voiceModeEnabled({}), true);
-  assert.equal(voiceModeEnabled({ VERCEL_ENV: "preview" }), true);
-  assert.equal(voiceModeEnabled({ VERCEL_ENV: "production" }), false);
-  assert.equal(voiceModeEnabled({ VERCEL_ENV: "production", VOICE_MODE_ENABLED: "1" }), true);
-  assert.equal(voiceModeEnabled({ VERCEL_ENV: "preview", VOICE_MODE_ENABLED: "0" }), false);
-  assert.equal(voiceModeEnabled({ VOICE_MODE_ENABLED: "true" }), true);
+test("voice stays off unless VOICE_MODE_ENABLED is 1", () => {
+  assert.equal(voiceModeEnabled({}), false);
+  assert.equal(voiceModeEnabled({ VOICE_MODE_ENABLED: "1" }), true);
+  assert.equal(voiceModeEnabled({ VOICE_MODE_ENABLED: "0" }), false);
+  assert.equal(voiceModeEnabled({ VOICE_MODE_ENABLED: "true" }), false);
 });
 
 test("page locale follows the Arabic prefix", () => {

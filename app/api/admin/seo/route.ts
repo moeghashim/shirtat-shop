@@ -2,7 +2,8 @@ import { connection } from "next/server";
 
 import { getSession } from "@/lib/creators/auth";
 import { defaultLocale, isLocale } from "@/lib/i18n";
-import { parseSeoTool, seoDashboardHttpStatus } from "@/lib/seo-plan";
+import { parseSeoTool } from "@/lib/seo-plan";
+import { seoDashboardHttpStatus } from "@/lib/seo-plan/access";
 import { readSeoTool } from "@/lib/seo-plan/server";
 
 const PRIVATE = {

@@ -4,14 +4,13 @@ import test from "node:test";
 import { isUnlocalizedPath, localizePath } from "../i18n/index";
 import { resolveSearchWindow } from "../search-console/index";
 import { SITEMAP_STATIC_PATHS } from "../seo/index";
+import { seoDashboardAccess, seoDashboardHttpStatus } from "./access";
 import {
   filterTasks,
   parseSeoTool,
   parseTaskFilter,
   presentTasks,
   progressOf,
-  seoDashboardAccess,
-  seoDashboardHttpStatus,
   seoPlan,
   seoPlanSchema,
 } from "./index";

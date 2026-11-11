@@ -1,0 +1,16 @@
+import { fixture } from "../db/fixtures/__SLUG__.ts";
+import type { __NAME__Data } from "./__SLUG__.types.ts";
+import { readSource } from "./source.ts";
+
+export async function demo__NAME__(): Promise<__NAME__Data> {
+  return structuredClone(fixture);
+}
+export async function db__NAME__(): Promise<__NAME__Data> {
+  // TODO: replace this explicit scaffold stub with an ordered database query,
+  // add a schema/migration/seed, and extend registry scenarios. Until then both
+  // sources intentionally return illustrative data; no real records are loaded.
+  return structuredClone(fixture);
+}
+export async function read__NAME__(): Promise<__NAME__Data> {
+  return readSource(demo__NAME__, db__NAME__);
+}

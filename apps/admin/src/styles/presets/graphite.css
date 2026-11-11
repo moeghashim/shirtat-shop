@@ -1,0 +1,12 @@
+/*
+label: Graphite
+value: graphite
+*/
+
+:root[data-theme-preset="graphite"] {
+  --primary: var(--accent-graphite-light);
+}
+
+.dark:root[data-theme-preset="graphite"] {
+  --primary: var(--accent-graphite-dark);
+}

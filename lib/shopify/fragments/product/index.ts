@@ -12,6 +12,7 @@ export const PRODUCT_FRAGMENT = gql(
     id
     title
     handle
+    tags
     description
     descriptionHtml
     vendor

@@ -4,6 +4,7 @@
     ".next/**",
     "dist/**",
     "build/**",
+    "apps/**",
     ".agents/**",
     ".claude/**",
     "app/.well-known/**"

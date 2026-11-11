@@ -13,6 +13,35 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-10",
+    entries: [
+      {
+        en: "Search engines now see one clean address per product: links for a size or colour point back to the main product page, and the sitemap lists only real pages, each with a last-updated date.",
+        ar: "ترى محركات البحث الآن عنوانًا واحدًا واضحًا لكل منتج: روابط المقاس أو اللون تشير إلى صفحة المنتج الرئيسية، ولا تُدرج خريطة الموقع إلا الصفحات الحقيقية، ولكل منها تاريخ آخر تحديث.",
+      },
+      {
+        en: "Product and homepage photos have descriptions in English and Arabic, so image search and screen readers can tell what each piece shows.",
+        ar: "صارت لصور المنتجات والصفحة الرئيسية أوصاف بالإنجليزية والعربية، كي يفهم البحث بالصور وقارئات الشاشة ما تعرضه كل قطعة.",
+      },
+      {
+        en: "The calligraphy style cards on the homepage now open the design builder or a search for that script, and each product page links to its collection.",
+        ar: "بطاقات أنماط الخط في الصفحة الرئيسية تفتح الآن أداة التصميم أو بحثًا عن ذلك الخط، وترتبط كل صفحة منتج بمجموعتها.",
+      },
+      {
+        en: "A private page now tracks our search growth plan, with progress for each phase and live counts of products and sitemap pages.",
+        ar: "صفحة خاصة تتابع الآن خطة نموّنا في البحث، مع تقدّم كل مرحلة وأعداد حيّة للمنتجات وصفحات خريطة الموقع.",
+      },
+      {
+        en: "We started preparing a Shirtat shop on Etsy, with products printed in the US, and plan to add stickers.",
+        ar: "بدأنا تجهيز متجر Shirtat على Etsy بمنتجات تُطبع في الولايات المتحدة، ونخطط لإضافة الملصقات.",
+      },
+      {
+        en: "Changed the public contact email to shirtat@agentmail.to on the site, the legal pages, and designer emails, which now reply to that address.",
+        ar: "غيّرنا بريد التواصل العام إلى shirtat@agentmail.to في الموقع وصفحات السياسات ورسائل المصممين، التي صارت تردّ إلى هذا العنوان.",
+      },
+    ],
+  },
+  {
     date: "2026-11-08",
     entries: [
       {
@@ -265,8 +294,8 @@ export const logDays: LogDay[] = [
         ar: "يمكن أن ينتمي المنتج إلى أكثر من قسم، ولا يُمنح قسم «شعر» إلا للتصاميم الموسومة بأنها شعر.",
       },
       {
-        en: "Changed the contact email to shirtat@10claws.com across the site and emails.",
-        ar: "غيّرنا بريد التواصل إلى shirtat@10claws.com في الموقع والرسائل.",
+        en: "Changed the contact email across the site and emails.",
+        ar: "غيّرنا بريد التواصل في الموقع والرسائل.",
       },
       {
         en: "Made an internal map comparing the products we use with equivalents at other print-on-demand providers, including baby and occasion items.",

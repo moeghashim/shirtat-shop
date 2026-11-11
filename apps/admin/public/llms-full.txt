@@ -1,0 +1,2249 @@
+# Shirtat admin
+
+> Shirtat's admin app, built on the MIT tenboards template: React 19, TanStack Start, Tailwind v4, shadcn/Base UI blocks and Better Auth. It deploys to Vercel. Demo mode stays available when BETTER_AUTH_SECRET is unset.
+
+Generated from registry.json, source blocks, package scripts, adopter guidance and Agent Skills. Do not edit generated assets.
+
+## Install and build
+
+Use Node 22+ and npm from apps/admin. Import from @/components/blocks and use the generators. External React 19 + Tailwind v4 projects must initialize shadcn first, then run npx shadcn add <absolute-registry-url>. Items include their exact primitive/chart dependencies and the global default light/dark theme, typography, density, focus and motion rules. Review the CSS changes before installing a block into another app: the theme is global to that install. Installed modules live in components/tenboards; table helpers live in lib/tenboards.
+
+URLs beginning with / are relative to the origin serving this file. Resolve them with new URL(path, llmsUrl).href before passing them to shadcn; for example, resolve /r/stat-card.json against the URL from which you fetched /llms.txt. The kit computes absolute commands from its current browser origin after hydration. No production hostname is baked into installs.
+
+## Generative dashboards
+
+The blocks kit still documents the assistant composition path. Shirtat's signed-in home is the SEO plan. See /agent-docs/docs/assistant.md for the inherited assistant notes.
+
+## Blocks
+
+- [DashboardCard](/r/dashboard-card.json): Compact or standard card surface with composable slots.
+- [SectionHeader](/r/section-header.json): Semantic card heading with description and wrapping actions.
+- [StatCard](/r/stat-card.json): Labelled metric with tabular value, trend and supporting text.
+- [CardContent](/r/card-content.json): Content slot with the shared card spacing.
+- [PageHeader](/r/page-header.json): Responsive page h1 with description and action slots.
+- [DashboardChart](/r/dashboard-chart.json): Responsive Recharts container with series, axis and reduced-motion helpers.
+- [DashboardTooltip](/r/dashboard-tooltip.json): Token-colored tooltip preserving named series and value formatting.
+- [DashboardLegend](/r/dashboard-legend.json): Wrapping legend with labelled, distinct line patterns.
+- [DataTable](/r/data-table.json): Caller-owned TanStack Table v9 with sorting, pagination, mobile reflow and empty state.
+
+## Generators
+
+- npm run new:dashboard <slug>: Metrics and charts; creates /dashboard/<slug>, navigation, guarded loader and typed illustrative demo/database reads.
+- npm run new:page <slug>: Listing page; creates /dashboard/<slug>, navigation, guarded loader and typed illustrative demo/database reads.
+
+## Agent Skills
+
+- [tenboards-build-ui](/agent-docs/agents/skills/tenboards-build-ui/SKILL.md): Build tenboards dashboards and app pages with generators and public blocks. Use when adding or changing a dashboard, page, KPI, chart, revenue summary, or data table.
+- [tenboards-connect-data](/agent-docs/agents/skills/tenboards-connect-data/SKILL.md): Connect tenboards typed reads to demo fixtures and Postgres with Drizzle. Use when adding a data source, database query, schema migration, seed, parity scenario, or auth-guarded server loader.
+
+## Documentation
+
+- [SEO plan](/dashboard/seo): owner dashboard for the Shirtat search plan.
+- [Designers](/dashboard/designers): placeholder for the designer role.
+- [Live block kit](/dashboard/kit): examples, source and installation commands.
+- [AGENTS.md](/agent-docs/AGENTS.md)
+- [DESIGN.md](/agent-docs/DESIGN.md)
+- [docs/data-layer.md](/agent-docs/docs/data-layer.md)
+- [docs/deploy.md](/agent-docs/docs/deploy.md)
+- [docs/assistant.md](/agent-docs/docs/assistant.md)
+- [.agents/skills/tenboards-build-ui/references/blocks.md](/agent-docs/agents/skills/tenboards-build-ui/references/blocks.md)
+- [.agents/skills/tenboards-connect-data/references/data-workflow.md](/agent-docs/agents/skills/tenboards-connect-data/references/data-workflow.md)
+- [Expanded source and guidance](/llms-full.txt)
+
+## Verification
+
+Run npm run build, npm run check, npm run typecheck and npm run verify:page -- /dashboard/<slug>. Keep fixtures server-side and requireSession() inside each app-data server function. A configured failing database must show an error. Use seriesConfig and useChartMotion for charts and preserve accessible data alternatives.
+
+## Source: AGENTS.md
+
+# Shirtat admin
+
+This app lives in `apps/admin` and deploys to its own Vercel project. Read `docs/deploy.md` for the root directory, build, and env vars. The storefront is a separate Next.js app; do not import its React tree or apply this theme outside `apps/admin`. Shared SEO plan data is imported from the shop `lib/seo-plan` module through the `@shop/*` alias.
+
+`/` redirects to `/dashboard/seo` after the auth check. Designers have no SEO access. New designer dashboards start with `npm run new:dashboard`.
+
+# Building with tenboards
+
+Maintaining tenboards upstream? Read dev/MAINTAINERS.md first.
+
+## Stack and map
+
+Use Node 22+, npm, strict TypeScript, React 19, TanStack Start (SSR), Tailwind v4,
+shadcn/Base UI, TanStack Table v9 and Recharts. Reuse installed dependencies.
+Read DESIGN.md for tokens and PRODUCT.md for product context.
+
+- `src/routes/(external)/index.tsx` + adjacent `-components/`: public homepage; `README.md` documents restoring the app redirect.
+- `src/routes/(main)/dashboard/<slug>/`: dashboard and app routes; feature code in `-components/`.
+- `src/components/blocks/`: public cards, headings, tables and chart API; `/dashboard/kit` has live examples.
+- `src/components/ui/` and `src/components/calendar/`: existing primitives; inspect wrappers, do not edit them to style a page.
+- `src/server/data/`: typed demo/database reads and parity registry.
+- `src/server/db/`: schema, additive migrations, canonical fixtures and seed.
+- `src/navigation/`: sidebar and shared route catalog.
+- `scripts/templates/`: generator templates; `docs/data-layer.md` explains database integration.
+- `.agents/skills/`: canonical Agent Skills; `.claude/skills/` contains relative mirrors.
+
+## Build loop
+
+1. Use `tenboards-build-ui` for dashboard/page/KPI/chart/table work; use
+   `tenboards-connect-data` for database reads, fixtures, migrations and parity.
+2. Inspect a local example and the relevant block props before editing.
+3. Scaffold with `npm run new:dashboard sales` or `npm run new:page vendors`.
+   Both create `/dashboard/<slug>`, navigation/catalog entries, guarded loaders,
+   typed reads and illustrative fixtures. Existing slugs are rejected, never overwritten.
+4. Adapt the generated types, fixtures and route-local components to the requested
+   domain. Import presentation from `@/components/blocks`; chart primitives can
+   also come from `@/components/blocks/charts`. Do not rebuild equivalent cards/tables.
+5. Keep data behind typed reads and guarded server functions. The generated DB
+   implementation is an explicit illustrative stub, not a real database query.
+   Use the data skill before connecting live data; never silently fall back on DB errors.
+6. Run `npm run build`, `npm run check`, `npm run typecheck`, then
+   `npm run verify:page -- /dashboard/<slug>` (optionally `--base-url http://127.0.0.1:3000`).
+   `check` includes `check:design` and `check:skills`. Fix failures and rerun affected checks.
+7. Inspect light/dark × desktop/mobile renders, keyboard access and empty states.
+   `verify/` reports contain axe and console/hydration results; keep generated evidence out of source commits.
+
+## Invariants
+
+- Use named semantic tokens and spacing/type scales. No raw color literals or
+  arbitrary color/size/spacing/type values in page/block code; do not add design exceptions for new pages.
+- Preserve compact density: body/table text ≥13px, metadata ≥12px, targets ≥24px;
+  keep mobile input text readable and preserve visible focus/reduced motion.
+- Use `useChartMotion()` on animated marks and tooltips. Keep series labels and
+  an accessible data alternative; color alone must not carry meaning.
+- SSR and first client render must match. Serialize a request clock for date-based
+  data, or start live clocks after hydration. Browser APIs belong in effects or
+  guarded client code; do not add `use client`, disable SSR or suppress hydration errors.
+- Route groups such as `(main)` add no URL segment; `route.tsx` defines layouts,
+  `$param` names dynamic segments, and `-` files are excluded from route generation.
+  Never hand-edit `src/routeTree.gen.ts`; use dev/build or `npm run generate-routes`.
+- Keep fixtures server-side; components consume loader data and type-only contracts.
+  Every app-data server function calls `requireSession()` independently of the route guard.
+- No environment variables are needed for demo mode. A configured failing database
+  must produce a visible error. Never put credentials in client code or committed files.
+
+
+## Source: DESIGN.md
+
+---
+name: tenboards
+description: Refined product UI for a complete admin dashboard starter
+colors:
+  primary: "#000000"
+  primary-dark: "#ffffff"
+  bg: "#ffffff"
+  surface: "#ffffff"
+  surface-raised: "#e9e9e9"
+  text: "#171717"
+  text-muted: "#666666"
+  border: "#c8c8c8"
+  border-strong: "#5a5a5a"
+  bg-dark: "#111111"
+  surface-dark: "#171717"
+  surface-raised-dark: "#262626"
+  text-dark: "#fafafa"
+  text-muted-dark: "#a3a3a3"
+  success: "#007338"
+  success-dark: "#00ba5a"
+  warning: "#854d0e"
+  danger: "#cc0001"
+  danger-dark: "#e37373"
+  info: "#5a5a5a"
+typography:
+  body:
+    fontFamily: "Geist Variable, sans-serif"
+    fontSize: "13px"
+  mono:
+    fontFamily: "Geist Mono Variable, monospace"
+  title:
+    fontFamily: "Geist Variable, sans-serif"
+    fontSize: "14px"
+    fontWeight: 500
+    letterSpacing: "-0.025em"
+rounded:
+  sm: "4px"
+  md: "6px"
+  lg: "8px"
+  xl: "12px"
+spacing:
+  compact: "12px"
+  card: "14px"
+components:
+  button-primary:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.surface}"
+    rounded: "{rounded.lg}"
+    height: "28px"
+  button-primary-hover:
+    backgroundColor: "var(--primary-hover)"
+    textColor: "var(--primary-foreground)"
+---
+
+# Design System: tenboards
+
+## Overview
+
+**Creative North Star: "Refined product UI"** — the approved Linear/Vercel register in PLAN §7. Precision, scanability, and restraint serve dense administrative work. PLAN and its Decisions log win every conflict.
+
+The frontmatter records the v0.6.2 compact desktop defaults (mobile controls and spacing retain the larger rhythm). The default is the Shirtat palette: white surfaces, ink text, and a black action accent in light mode. Dark mode uses a near-black background and a white action accent with black foreground. Graphite, Pine, and Iris remain token-only alternatives. The shell and dashboard usages apply these tokens at usage sites.
+
+**Key Characteristics:** neutral-first surfaces, one action accent, crisp borders, compact data, restrained depth, and consistent control states.
+
+## Colors
+
+src/styles/styles.css owns normative light and dark roles. Shadcn background/card/popover map to bg/surface, their foregrounds map to text, and muted/secondary/accent hover surfaces map to surface-raised. Because shadcn uses “accent” for hover fill, action-accent names the saturated primary action color. Border is a decorative separator; border-strong is the accessible input/control edge. Ring is the accessible action color. Recipe controls use a single opaque edge with a soft halo; other elements retain the global outline.
+
+Supported AA text pairs: text, text-muted (including placeholders), action-accent, success, warning, danger, and info on each of bg/surface/surface-raised; primary-foreground on primary (including the highlight and darker hover); each semantic foreground on its matching semantic surface. All require 4.5:1, even for large text. Ring and border-strong require 3:1 against all three neutral surfaces. No claim is made for arbitrary cross-role combinations or inherited hard-coded chart/page colors. Low-contrast decorative border is never the sole control boundary.
+
+Run `node --experimental-strip-types scripts/check-contrast.ts` against the dev server; `--presets` and `--base-url` support later preset/version checks. It resolves rendered CSS values, converts to sRGB, and checks WCAG relative luminance. Disabled controls retain native disabled semantics, pointer suppression, opacity, and cursor treatment; inactive controls are contrast-exempt, and their treatment must not be used for enabled explanatory text. Text selection and input carets use the primary pair.
+
+Presets use only palette primitives from `src/styles/styles.css`. Shirtat is the default preset and matches the base tokens: black primary in light mode, white primary in dark mode. Graphite uses charcoal/silver, Pine uses deep teal/mint, and Iris uses violet/lavender. Each preset changes only primary; semantic colors, foreground pairings, focus, type, spacing, radii, and shadows inherit the shared contract. Success and danger stay Shirtat green and red. Light success is `#007338`, the storefront `#00ba5a` on the same hue darkened until text clears 4.5:1; dark success uses `#00ba5a`. Light danger is the storefront `#cc0001`; dark danger is `#e37373`, that red lightened until it clears the near-black surfaces. Chart series are primary, muted, danger, success, and warning so the five marks stay distinct. The generator resolves each swatch from its referenced root primitive and rejects unresolvable values. No literal palette values live in preset files.
+
+Persisted Tangerine, Brutalist/Neo Brutalism, and Soft Pop selections migrate to Default during boot, before hydration, and their cookie is rewritten. The parser and preference store retain their existing allowed-value fallback; the provider reads the sanitized DOM. Valid new selections and the font registry remain intact. Verify all presets with `node --experimental-strip-types scripts/check-contrast.ts --presets default,shirtat,graphite,pine,iris`.
+
+Verified contrast floor (43 supported checks per mode, 2026-11-11):
+
+| Preset | Light text / hover | Dark text / hover | Light control / focus | Dark control / focus |
+| --- | --- | --- | --- | --- |
+| Default | 4.73:1 | 5.02:1 | 5.68:1 | 3.83:1 |
+| Shirtat | 4.73:1 | 5.02:1 | 5.68:1 | 3.83:1 |
+| Graphite | 4.73:1 | 5.02:1 | 4.48:1 | 3.83:1 |
+| Pine | 4.73:1 | 5.02:1 | 3.42:1 | 3.83:1 |
+| Iris | 4.73:1 | 5.02:1 | 4.08:1 | 3.61:1 |
+
+
+## Typography
+
+Geist Sans and Geist Mono are self-hosted through the approved Fontsource packages. The font registry retains every previous choice; default Geist stylesheets use local assets. Arabic text uses El Messiri, also self-hosted, ahead of Geist. Mono is loaded for code/data regardless of the chosen body face. The fixed scale is 12/13/14/16/18/21/26/32px; heading tracking is -0.025em. Tabular numerals are inherited globally so every metric aligns without per-widget edits.
+
+## Layout
+
+Existing screens use responsive grids, compact controls, and route-local components. Compact is the single default, with no density preference. Desktop uses a 3.5px Tailwind spacing unit (formerly 4px): standard cards have 14px internal spacing, small cards retain 12px, default controls are 28px, and page gutters/grid gaps formerly 24px become 21px. Mobile retains the 4px spacing unit, 16px standard card padding and 32px default controls. Interactive button targets have a 24px minimum on both; checkbox/radio/switch hit areas retain the protected primitives’ pseudo-element expansion. Mobile text entry remains 16px to avoid input-focus zoom.
+
+The app surfaces use **Operate** mode. Data density, scanability, native expectations, and consistency outrank expressive decoration. Mobile changes are structural, including the existing sidebar sheet and collapsing grids.
+
+## Elevation & Depth
+
+Cards preserve their inherited thin border/ring structure. Low elevation uses two subtle offset layers; overlays use wider layered shadows. Shared durations are 150ms and 200ms with standard ease-out; Tailwind transitions default to 150ms. Reduced-motion media rules reduce all animations/transitions to near-instant and disable smooth scrolling. Dashboard composition and JS chart behavior are handled by the shared presentation layer and route-local motion subscriptions.
+
+## Shapes
+
+Default control radius is 8px; shadcn aliases use 4/6/8/12/16/20/24px. Cards use the 12px step. Desktop named spacing primitives are 3.5/7/12/14/21/28px; mobile keeps 4/8/12/16/24/32px. The small-card 12px floor is independent of the 3.5px desktop utility rhythm. The floating sidebar uses the 24px radius step, larger than dense controls.
+
+## Components
+
+Shirtat uses the storefront calligraphy mark and the SHIRTAT wordmark. In the app, both inherit currentColor and are decorative beside a named link; the favicon SVG carries its own accessible name. Favicons use the storefront white S on a black tile. Vector masters live in `public/brand/`.
+
+Use local Base UI-backed shadcn wrappers after inspecting their source. Button variants include primary, outline, secondary, ghost, destructive, and link; focus uses a border plus ring. Inputs have focus, invalid, disabled, and placeholder states. Cards use semantic card foreground/background with header/content/footer slots. Chips and navigation should share the semantic palette.
+
+The locked sidebar reference is [docs/design-refs/sidebar-reference.png](docs/design-refs/sidebar-reference.png), inspected for this document. The implemented shell uses its inset floating rounded panel, workspace avatar/name and collapse control, search pill with ⌘K, regular-weight primary items with outline icons, soft gray active pills, secondary collapsible sections, pinned status card, and footer actions. Expanded navigation is 18rem wide; icon-collapse is 4.5rem. The panel sits 12px from desktop viewport edges; on mobile the sheet panel itself is inset 8px from the viewport, with 40px mobile rows and 18px icons (36px rows and 16px icons on desktop), 12px active pills, and a sticky viewport-height wrapper. Home, Projects, Email and Chat precede the project disclosures and Dashboards, Pages and Misc sections; AI Assistant follows Chat. The demo card counts visited enabled concrete dashboard destinations, including project views and excluding aliases, since the sidebar mounted; footer actions are Settings, Help, Documentation, and Feedback.
+
+The header is 48px tall on desktop and 56px on mobile, with linked Projects/project ancestor breadcrumbs and a current-view label on project pages, a truncating current-page label elsewhere, theme/settings/account controls, and a link to the Shirtat repository. The Workspace prefix and repository link are hidden below 640px. The header sidebar trigger appears on mobile and when desktop off-canvas navigation is hidden. Desktop icon rails retain only their own sidebar toggle; the breadcrumb starts at the normal header padding. Expanded desktop navigation keeps its sidebar toggle. If a focused header opener becomes hidden, focus transfers to the sidebar toggle. Desktop search lives in the sidebar; below 768px the header gets a compact search trigger. The account menu uses clearly labeled demo identities with initials avatars.
+
+The root command palette uses the existing cmdk and dialog wrappers and the shared retained-route catalog. Search rows are at least 35px tall on desktop and 40px on mobile; the result list scrolls within a bounded viewport. The dialog has a title, description, explicit search label, empty state, and a touch close button. ⌘K/Ctrl+K toggles the palette, including inside text fields. Alt/Shift, key repeat, IME composition, already-handled events, and another visible dialog/menu/listbox suppress the shortcut (the mobile navigation sheet excepted). The search input group uses one opaque 2px focus outline with 2px offset and 8px corners; the inner input outline is suppressed. Keyboard selection, Escape, and focus return are part of the component contract.
+
+Layout settings is a right-hand sheet capped at 28rem on desktop and full width on mobile. Appearance and Layout sections group native labeled selects and fieldset radio choices. Controls are at least 35px tall on desktop and 40px on mobile; the body scrolls independently of its heading and reset footer. Selected choices use a neutral fill and 1px primary border; keyboard focus adds an opaque 2px outline with 2px offset. The Defaults footer derives all seven labels from the registry. Existing seven-day preference cookies and the separate sidebar-state cookie remain the layout persistence contract; Reset also re-expands the sidebar. The visible variant/mobile explanations describe the supported sidebar adaptations.
+
+## Do's and Don'ts
+
+- Do use Impeccable and read its craft floor immediately before UI edits.
+- Do preserve semantic shadcn compatibility, font choices, SSR, and preference behavior.
+- Do verify rendered light/dark desktop/mobile states and contrast with evidence.
+- Don't redesign dashboard or app-page content in v0.1.
+- Don't treat documentation of a future design as proof it is implemented.
+- Don't remove screens or copy third-party logos into the Shirtat identity.
+
+
+## Dashboard presentation foundation
+
+`@/components/blocks` exports the public `DashboardCard`, `SectionHeader`, and `StatCard` APIs from `src/components/blocks/cards.tsx`. Compact/standard density maps to 12/14px desktop card spacing (12/16px on mobile); headings are semantic h2/h3, labels wrap and metric values use tabular numerals. Optional help, trend and action slots retain route-owned data and behavior. The completed v0.2 implementation reuses these primitives across all 14 current/legacy dashboard routes; domain values and interactions stay local.
+
+`src/components/blocks/charts.tsx` composes protected chart exports, available through `@/components/blocks`. Use `DashboardChart` for bounded responsive height and visible keyboard focus, `chartAxis` for 12px muted ticks, `chartGrid` for decorative dashed separators, `chartCursor`, `DashboardTooltip`, and wrapping `DashboardLegend`. `seriesConfig` deliberately selects chart-1/2/4/5 (primary, text-muted, success, warning) rather than duplicate Default chart-3. Every line also needs a distinct dash/marker or labeled form; multi-series charts use solid/dashed/dotted series with matching line samples, direct labels or accessible data tables. Marks use opaque token strokes, with area fills only as supplementary cues. Numeric formatters use explicit en-US locale; route code owns time ranges and units.
+
+Pass `useChartMotion()` to every animated series and tooltip. Its server snapshot and initial hydration disable animation, then a guarded media-query subscription observes changes and permits 200ms animation only when reduced motion is off. No global tokens, font/preset registry or protected wrappers change.
+
+
+The integrated dashboard layout uses equal-height cards within a common comparison row; stacked auxiliary columns align their outer bounds where they share that row. Independent work streams such as Productivity's main work and calendar/notes sidebar keep their content-driven heights. Tables scroll locally or reflow to labelled mobile fields; no data is hidden to fit.
+
+Patient Monitoring retains local simulation and signal identity: labelled ECG/success, Pleth/info, Resp/warning and ART/danger traces. Continuous subscriptions pause under reduced motion, while numeric readings and a post-hydration live UTC clock remain available. Static date-based dashboards explicitly identify their deterministic demo reporting dates; no hydration warning suppression or page SSR removal is used.
+
+
+The public `DataTable` accepts a caller-owned TanStack Table v9 instance configured with `dataTableFeatures`. Shared sort buttons, Previous/Next controls, row counts and an empty slot compose the protected table/button primitives. Labelled mobile fields retain all visible columns; the optional scroll mode preserves tabular layout. Column definitions and server/client state remain outside the block. Specialized route tables retain their existing layouts.
+
+`/dashboard/kit` uses Operate mode and the established compact tokens. A single PageHeader, fragment-link navigation and separated example sections expose the blocks, their variants and static source. Examples use the live compiled modules as their copyable source. No tokens, presets or protected primitives change.
+
+## App-page headings
+
+`src/components/blocks/page-header.tsx`, exported through `@/components/blocks`, owns the small `PageHeader` presentation API: required string `title`, optional string `description`, React `actions`, and optional layout `className`. The h1 uses the 21px scale with medium weight and tight tracking; descriptive text uses the muted 13px role. A wrapping flex row, shrinkable title column and wrapping action slot support narrow screens and long titles. File Manager and Products consume it first; Tasks and Invoice follow in their owned tasks. It owns no route, state or data. Continue using `SectionHeader` for card h2/h3 semantics and the existing dashboard primitives for cards.
+
+## Compact density contract (v0.6.2)
+
+The browser rem root remains 16px. Body content and tables use 13px/18px; the previously unstyled body fallback was 16px/24px while normal content was 14px/20px. Metadata/labels never go below 12px. SectionHeader uses 14px/20px; page headings use 21px/28px; StatCard values use 21px, rising to 26px on wide desktops (formerly 24/30px). The inherited 18px `text-lg` step is now explicitly 16px, and 36px `text-4xl` is 32px. Heading tracking, weights, colors, focus outlines and reduced-motion behavior are unchanged.
+
+This targets about 8–12% overall desktop compaction, rather than scaling every pixel uniformly: normal text shrinks 7%, most spacing 12.5%, KPI values 13%, sidebar rows 10%, and the desktop header 14%. Floors and intentional exceptions take precedence. Chart containers, FullCalendar and date-picker geometry keep their original spacing context and rem-based sizing; chart ticks stay 12px. Sidebar widths and breakpoints stay unchanged to protect long labels. Mobile adopts the type hierarchy but keeps larger control/card spacing and its 56px header.
+
+Toolbar selects and tabs keep a content-based minimum width, including their icons and gaps, instead of clipping wider font choices into fixed compact widths. Full-width form selects retain their responsive wrapping layout; Calendar switches to intrinsic width on desktop. The 24px control floor lives in the base layer so larger minimums at usage sites remain effective.
+
+
+## Assistant
+
+The Assistant uses Operate mode at compact density. A full-height page holds a centered 752px conversation with an independently scrolling message area. User messages are compact right-aligned muted bubbles; assistant replies have a small Bot icon and left-aligned generative UI. A centered welcome block offers three suggestion cards in a two-column grid. Illustrative replies are identified in one short line.
+
+The composer stays below the scroll area, with mobile safe-area spacing. Its textarea grows from one to eight rows, keeps a hidden Message label, and supports Enter to send and Shift+Enter for a newline. A compact provider/model select (or subtle Recorded demo badge) shares the bottom toolbar with the icon Send/Stop button. Focus returns to the composer on send, stop, regeneration and clear. Session expiration focuses Sign in to continue.
+
+The read-only registry uses DashboardCard/StatCard, compact Table rows and the existing chart components. Table/chart groups have card frames; nested frames are flattened at the usage site. Charts retain keyboard access, tabular alternatives and reduced-motion handling. Supported semantic token pairs are reused, with no new tokens, fonts or presets.
+
+The message log is polite and marked busy during streaming; a separate status announces lifecycle changes. The initial streaming placeholder has reduced-motion-aware dots. Scrolling follows only within 160px of the bottom and pauses when reading older messages; Jump to latest resumes following. Regenerate and Copy reply are small, named icon controls with tooltips under the latest assistant turn. Clipboard failures provide inline recovery. New conversation explains transient retention in a tooltip.
+
+Recovery remains inline: bounded-context notices in the transcript; input errors and Retry-After near the composer; explicit provider recovery and session-expiration focus. No request, auth, limiter, stream validation or provider behavior changes in the visual refinement.
+
+## Projects workspace usage (v0.8)
+
+The workspace uses Operate mode at the v0.6.2 compact scale. Shared StatCards present Home/Overview metrics; existing Select and segmented ToggleGroup controls serve filters, Timeline modes/scales and Files display. No token, preset, font or density registry changes accompany Projects. Semantic status dots and priority icons pair color with text, short task keys aid scanning, and initials use the existing Avatar circles. Empty counters are omitted from Board cards; task details retain a focused dialog and keyboard return.
+
+The project header has one project-qualified shell breadcrumb, a compact selector, status, member avatars and progress. Overview uses member rows and request-relative due labels. Timeline preserves visible text/date cues alongside semantic bars, today marker, bounded scrolling range and collapsible unscheduled work; mobile defaults to Table after safe hydration. Calendar geometry and protected adapters are unchanged. File metadata uses local file-type/star/share icons without mutation affordances.
+
+Primary Home/Projects precede Email/Chat and Assistant when present; Default remains under Dashboards. Project disclosures contain indented route links with an exact active child. Rail popovers expose the project name and all five links, dismiss on route resolution including same-path navigation, and return focus on Escape. Expansion state lives above the mobile sheet lifetime. The bounded `tenboards:project-nav:v1` localStorage preference restores after hydration and respects manual collapse within a project. Existing keyboard focus, reduced motion, supported semantic token pairs and sidebar layout preferences are preserved.
+
+## Control recipe (v0.10.1)
+
+`control-recipe` in styles.css owns the 1px border-strong hairline, surface fill, low 1px shadow (dark inset highlight), text-muted hover boundary, and one opaque focus edge with a 20% halo. InputGroup owns its boundary and focus; its inner input has neither. Invalid fields use a destructive edge/halo and FieldError pairs an icon with its message. The opaque edge is the accessible focus indicator, not the translucent halo.
+
+Shirtat stays the default primary: black in light mode and white in dark mode. The upstream saturated Default dark primary is not applied, so Default and Shirtat do not pick up `#3464db`. Dark hover only mixes the existing primary toward the background. Graphite, Pine and Iris still change only primary. Menus use 10px corners, a border and overlay shadow, 5px padding, 30px desktop / 32px mobile minimum rows, left checks, muted group labels and optional tabular counts.
+
+## Filter rows
+
+Use one size step and `items-end` for labelled controls and their action button. Default is 28px desktop / 32px mobile; sm/lg steps remain unchanged. Use flex-column gaps for label/field stacks: Select includes a hidden form input, so space-y can create a trailing gap. Use NativeSelect or Select, never raw `<select>`; date fields use Input. Chevrons use a fixed 16px slot 10px from the edge. `/dashboard/kit` includes the measured regression row.
+
+`FilterSelect` from `@/components/blocks` accepts label, value, options, onValueChange, optional allValue (default All), and searchable. Options accept an optional count. Unset filters show the label; set filters add a tinted value and a separate named clear button which restores trigger focus. Searchable mode uses Combobox. The Users and Products demo routes are not mounted here; the kit example carries the clearable filter.
+
+
+## Source: docs/data-layer.md
+
+# Optional local data layer
+
+v0.4 is released. Production and version previews remain demonstration Workers;
+Neon hosting and Hyperdrive belong to v0.6. v0.5 adds optional local authentication
+on this database source; see [the auth guide](auth.md). Business-data forms,
+selection, drag/reorder, alarm acknowledgement, invoice edits and message controls
+remain local demonstrations. Auth forms and account/session controls persist real
+auth records when a private secret enables local auth. No read function writes data, authorizes a
+user, establishes a session, sends a message or connects a medical feed.
+
+## Start without a database
+
+Use Node 22+ and npm in a clean checkout:
+
+```sh
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000/dashboard/default`. With no `.env`, `DATABASE_URL` or
+`DATA_SOURCE`, this works with Docker stopped. `npm run build` also needs no DB.
+The dev script uses Node's `--env-file-if-exists=.env`; inherited shell variables
+still take precedence. To return to demo after setting up a DB, set
+`DATA_SOURCE=demo` in the shell or local `.env`, or remove the DB configuration.
+Also unset `BETTER_AUTH_SECRET`: a nonempty secret requires the real DB source and
+intentionally rejects forced demo or a missing DB.
+
+## Opt into Postgres 17
+
+Docker Compose is optional. From the repository root:
+
+```sh
+docker compose up -d
+cp .env.example .env
+npm run db:migrate
+npm run db:seed
+npm run data:parity
+npm run dev
+```
+
+Copy the example only when creating a new local `.env`; preserve an existing file.
+It contains only local development credentials. The Compose service binds to
+loopback port 54329 and uses database/user `tenboards`, password `tenboards_local`.
+Never commit `.env` or production credentials. There is no hosted DB provisioning.
+Migrate and seed are explicit commands; development startup never performs either.
+Wait for `docker compose ps` to show the database healthy if starting from a cold
+image. A failed read is visible and can be retried after repairing configuration.
+
+Stop the container with `docker compose stop`; resume with `docker compose up -d`.
+The named volume preserves local records. This guide intentionally provides no
+volume-deletion/reset command. Review and back up local data before any manual
+cleanup. Reseeding is not an arbitrary database reset.
+
+## Selection and errors
+
+| Configuration | Result |
+| --- | --- |
+| `DATABASE_URL` absent, `DATA_SOURCE` absent | Demo, without constructing a DB client |
+| Valid `DATABASE_URL`, `DATA_SOURCE` absent | Actual Postgres reads |
+| `DATA_SOURCE=demo` | Demo, even with an invalid/unreachable configured URL |
+| Any other configured `DATA_SOURCE`, including empty | Explicit unsupported-source error |
+| Empty/malformed `DATABASE_URL` | Safe visible DB load error; no fallback |
+| Connection refused, invalid password, missing migrations | Safe visible DB load error; no fallback |
+| Corrected DB configuration/schema | Reads recover on retry/reload |
+
+The selector is `src/server/data/source.ts`. Driver errors, SQL and credentials are
+discarded before reaching the browser. The local DB command scripts additionally
+reject non-localhost targets. They fail nonzero with a redacted error. Do not infer
+that a page is using Postgres merely because a URL exists: forced demo wins.
+
+## Read boundary and ownership
+
+Each route calls a GET TanStack Start server function from its loader. Server
+handlers independently require the actual session in auth mode before importing
+`src/server/data/<domain>.ts`; components receive serializable
+loader data through typed props or a route-local context. Domain modules expose
+`readX`, `demoX` and `dbX`; the selector chooses the actual implementation. DB client
+construction and queries are lazy and server-only. Components/state stores never
+import runtime seed fixtures. Types, pure arithmetic, icons, styling, navigation,
+form choices, chart geometry and preference registries remain UI code.
+
+| Module / exported read | Consumers and records |
+| --- | --- |
+| `accounts` / `readAccounts` | Demo shell accounts; auth-on header uses the real session identity instead |
+| `users` / `readUsers` | Directory, workspaces and memberships |
+| `roles` / `readRoles` | Informational roles and ordered permissions |
+| `profile` / `readProfile` | Six Profile tabs, contact/employment/documents/time off |
+| `products` / `readProducts` | Product catalog, categories and status options |
+| `invoices` / `readInvoices` | Parties, taxes, items and request-relative draft dates |
+| `ecommerce` / `readEcommerce` | Store orders, reviews, products, inventory and metrics |
+| `kanban` / `readKanban` | Board/list/table records, columns, owners and summaries |
+| `tasks` / `readTasks` | Separate task ledger |
+| `files` / `readFiles` | Folders/files, owners/shares and summaries |
+| `calendar` / `readCalendar` | Typed relative event definitions |
+| `mail` / `readMail` | Standalone Mail and dashboard iframe; accounts/messages/attachments |
+| `chat` / `readChat` | Standalone Chat and dashboard iframe; contacts/messages/reactions |
+| `default` / `readDefault` | Customer dashboard |
+| `crm` / `readCrm` | Opportunities dashboard |
+| `finance` / `readFinance` | Accounts/cards/transactions and metrics |
+| `analytics` / `readAnalytics` | Visitor/page/source/campaign models |
+| `productivity` / `readProductivity` | Tasks/projects/notes/goals/focus/quote and civil day |
+| `academy` / `readAcademy` | Classes/rooms/schedules/assignments/events/achievements |
+| `logistics` / `readLogistics` | Customers/shipments/cargo/tracking/handling/locations |
+| `infrastructure` / `readInfrastructure` | Organizations/projects/environments/resources |
+| `patients` / `readPatients` | Beds/identities/clinical baselines/alarms/events/settings |
+
+There are 22 registered reads and 104 parity scenarios. v0.6.1 removes 26 V1-only scenarios: Default 8, CRM 6, Finance 6 and Analytics 6. Retained screen coverage is unchanged. Auth/system/error
+routes and redirects have no persisted app-domain data. Mail/Chat dashboard aliases
+load their standalone source through iframes. The shared dashboard account loader
+also covers non-data dashboard states.
+
+## Schema, fixtures and seed
+
+Plain modules under `src/server/db/fixtures/` are the single canonical seed source.
+Natural entities and ordered relations have domain tables and foreign keys. Similar
+names never imply a shared identity: shell accounts, directory users, profile,
+commerce customers, proposals/leads and workspace tasks are distinct universes.
+No whole-fixture JSON payload table is used.
+
+Aggregates use `metric_points`: domain, series, point key, position, decimal value,
+unit and optional currency. Ordered dimensions preserve labels and exact display
+format metadata; they are not hidden copies of entire business objects. Numeric
+parts of formatted KPIs stay numeric, including grouped currency, percentages,
+ratios and durations. Short illustrative lists deliberately need not reconcile to
+aggregate totals. Infrastructure's header totals, for example, are independent of
+its small visible environment sample.
+
+The transactional seed upserts known stable keys, refreshes owned ordered children
+and metric dimensions, and preserves unrelated parent records. Repeating it is
+stable. Editing a seeded record locally is temporary: reseeding restores the
+canonical value for that key. Removing a fixture from source does not authorize a
+global delete; add an explicit, reviewed migration/cleanup policy if needed.
+
+All reads specify deterministic ordering, with stable keys as tie breakers where
+applicable. Postgres numeric values convert deliberately at DTO boundaries;
+coordinates retain ten fractional digits in storage, and parity checks the exact
+original JavaScript numbers. Money/metric formatting is explicit, not dependent on
+the server locale. Optional fields remain absent where the original contract used
+absence; missing lookups return the domain's documented null/empty result. Missing
+required related records are errors, never silently replaced by fixture values.
+
+## Dates and live simulation
+
+Civil dates use ISO `YYYY-MM-DD`; fixed labels explicitly format UTC. Calendar,
+Invoice and Mail store typed offsets/definitions and resolve one serialized
+request reference on each read. Seeding never bakes today's rendered dates into
+those definitions. Calendar adopts browser-local month/wall time after hydration;
+Today and its now marker keep the real clock. Month-end CRM labels preserve
+clamped month subtraction.
+
+Patient Monitoring alone retains client-simulated waveform/trend/tick computation
+in `waveform-data.ts`, `realtime-utils.ts`, `use-patient-vital-series.ts` and
+`use-realtime-tick.ts`. Their geometry, calibration/axis labels, deterministic
+initial samples and live tick mechanics are presentation/simulation. Patient
+identity, diagnosis, baseline vitals, signal amplitude/phase/rhythm, alarms,
+thresholds and settings still come from the read. Reduced motion pauses traces;
+it does not freeze the real clock or hide numeric readings. No ordinary chart
+series or “realtime visitors” snapshot is exempt.
+
+## Migrations and validation
+
+`npm run db:generate` generates SQL and journal metadata from the schema.
+Review generated SQL, commit it, and apply `npm run db:migrate`; never regenerate
+an older migration to change history. The stack journal is linear and cumulative.
+
+| Layer | Cumulative SQL migrations |
+| --- | --- |
+| 001 | `0000_cynical_solo.sql`, `0001_flaky_the_santerians.sql` |
+| 002 | `0002_nice_gideon.sql`, `0003_smiling_tombstone.sql` |
+| 003 | `0004_easy_la_nuit.sql` |
+| 004 | `0005_abandoned_red_ghost.sql` |
+| 005 | `0006_useful_quentin_quire.sql` |
+| 006 | `0007_even_the_santerians.sql`, `0008_cultured_praxagora.sql`, `0009_large_katie_power.sql` |
+| 007 | `0010_plain_thunderball.sql` |
+| 008 | `0011_blushing_siren.sql` |
+
+For an existing checkout, update code, run migrate, then seed. A second generate on
+unchanged schema must report no changes.
+
+`npm run data:parity` invokes separate demo and actual DB implementations with
+identical inputs/context, compares exact results/types/order and verifies caller
+mutation cannot contaminate subsequent reads. Its inventory matches every exported
+`readX` function; omissions, DB failures and mismatches fail nonzero. It covers
+missing IDs, filters, later request times after seed, leap days,
+year/month rollover and date ranges. Negative controls:
+
+```sh
+npm run data:parity -- --inject-mismatch
+npm run data:parity -- --omit-registration
+```
+
+Both intentionally fail. `node --env-file=.env --experimental-strip-types scripts/data-source-check.ts` checks selection/faults and a TCP sentinel with every
+read in forced demo. Its missing-schema test expects a separate empty local
+`tenboards_missing_schema` database. `scripts/data-source-browser.ts <output>`
+checks visible refused/password/schema errors, forced demo and recovery. Test
+credentials and expected errors belong in local evidence, never production config.
+
+Run build, check and typecheck for each change. The capture harness uses the route
+manifest and exact downloaded font assets; `--reference <ISO>` sends
+`x-tenboards-qa-reference` only to the app origin. Date-relative GET handlers validate
+this read-only input and serialize it through the normal DTO. Missing or malformed
+headers use real request time. It does not replace Date, pause ticks or change
+Today. The incumbent comparison worktree receives the same narrow capture seam;
+its business code remains at layer 006 (`474a29e`). Layer 007 separately proved
+all 40 operational before/demo/DB image pairs identical, and the final full-catalog
+comparison includes those routes in every preset. `--mask-live-clocks` covers only
+Patient Monitoring's `[data-monitoring-clock]`. `--hydration-delay-ms 1500 --reload`
+and `--timezone` exercise real hydration and refresh in opposite zones.
+
+`node --experimental-strip-types scripts/report-route-coverage.ts --root <evidence> --environments dev,db,workers --retries <manifest.json>` verifies all 608 cases per
+source without discarding original failures. `scripts/audit-data-layer.ts` checks
+all 22 canonical fixture owners and the transitive runtime import boundary;
+companion literal/array inspection classifies UI configuration and client signals.
+Chat's final audit correction owns its previously inline three tab counts and
+thread date, extending the original communication domain through migration 0011.
+
+For capture reports, failures are retained alongside explicit
+reruns. Evidence is committed only to `pr-assets`, never application branches.
+
+## Add a domain
+
+1. Inspect the incumbent records and consumers; separate UI config/types first.
+2. Define normalized entity/child tables or typed aggregate metrics. Preserve the
+   original keys, relationships, ordering, precision and null semantics.
+3. Move canonical plain records to one fixture module; extend the transactional
+   seed without deleting unrelated data. Generate the next migration.
+4. Implement typed demo/DB/read functions with equivalent inputs, validation and
+   output. Queries must actually load the owned tables.
+5. Register every read and supported variant/filter/date/missing scenario; prove
+   parity against fresh and cumulatively upgraded Postgres.
+6. Connect GET server functions/loaders and typed UI data; preserve local actions.
+7. Run zero-env/fault/Workers gates and inspect before/demo/DB four-state captures.
+   Update README, ownership documentation and review status.
+
+## Hosted database boundary
+
+The only Worker binding remains ASSETS. Demo never constructs a Postgres client,
+and browser bundles exclude the driver and credentials. v0.4 adds no Cloudflare
+DB secret, binding, Neon instance, Hyperdrive pool or production persistence. A
+future hosted integration must separately define credentials, pooling, deployment,
+authentication/authorization and operational safeguards. Do not treat local seed
+commands or the public demo UI as production administration tools.
+
+## Auth tables and preserved domain ownership
+
+Migration `0012_watery_sugar_man.sql` appends four isolated auth tables after v0.4's
+unchanged `0011`. Auth is optional: DB without a secret remains open; a secret adds
+route and callable-function session enforcement. Domain reads still have no writes
+or identity selection and CLI parity calls them without an HTTP session. All 22
+reads remain; v0.6.1 reduces 130 baseline scenarios to 104 by removing only retired V1 coverage. Sample directory roles and
+Profile employment data are not authorization or account records. Seeds never
+create passwords/auth users and preserve existing auth records. Auth mutations go
+through Better Auth and never update these business tables.
+
+## Workers connection lifetime (v0.6 task 001)
+
+Data reads use the same effective request environment as authentication. A valid
+`HYPERDRIVE.connectionString` takes precedence over `DATABASE_URL`; an invalid
+binding cannot fall through to a valid URL. `DATA_SOURCE=demo` remains connection
+free. Workers reuse a client only within one request (max 1); Node retains its
+lazy pool (max 4) and explicit CLI shutdown. Worker request cleanup closes sockets,
+while Hyperdrive owns hosted pooling. Do not infer hosted TLS or cache correctness
+from the local emulator. See [local runtime and tests](auth.md#local-workers-runtime-v06-task-001).
+
+Nitro defaults `cloudflare.nodeCompat` to true and already emitted `nodejs_compat`
+before v0.6. The root Wrangler source now states that intent explicitly. Nitro
+merges overrides, configured Wrangler values, source config and defaults using
+`defu` (arrays can survive/merge); generated output retains date `2026-10-23`,
+`index.mjs`, ASSETS and ESModule rules. Never edit generated output. The local
+test config explicitly selects `local`; the independent preview source config
+selects `tenboards-preview` and cannot inherit root production bindings.
+
+## Direct operational targets
+
+Migration/seed keep their explicit local-only default. Reviewer Neon operations
+require `npm run db:migrate -- --allow-remote` and `npm run db:seed -- --allow-remote`,
+with a direct TLS DATABASE_URL supplied privately. The target validator rejects
+missing/duplicate TLS settings, known pooler endpoints and Hyperdrive binding input.
+Parity/auth suites remain local-only. These commands apply additive migrations and
+idempotent fixture upserts; they do not reset schemas or create default auth users.
+See [the deployment runbook](deploy.md) for ordering, backup/recovery and cutover.
+
+## v0.6.1 legacy cleanup
+
+`0014_remove_legacy.sql` is a new migration after the unchanged shipped journal. It drops 13 tables used exclusively by V1 screens: four CRM tables, two Finance tables, three Analytics V1 tables, two Default V1 tables, `default_proposal_reviewers` and `analytics_coverage_assignments`. It deletes `v1.%` series only for the four core dashboard domains, removing dependent metric dimensions before points. Shared metric tables and all current-screen data remain.
+
+The four core reads no longer accept a variant or return/load V1 payloads. V1 fixtures, seed statements, route server functions and range-specific projectors are deleted. Shared civil-date helpers used by Academy and Productivity remain.
+
+`node --experimental-strip-types scripts/auth-migration-check.ts` creates and drops test-owned databases for fresh and populated upgrade paths from `f45e813`. It compares retained rows, verifies all 13 tables and V1 metric rows are gone, repeats migrations/seed, and runs 22-read/104-scenario parity on each. This migration intentionally deletes retired template data; take a backup before upgrading an adopted installation that may contain customized V1 data.
+
+
+## Source: docs/deploy.md
+
+# Deploy Shirtat admin on Vercel
+
+This app is the `apps/admin` directory of the Shirtat shop repo. Create a **separate** Vercel project with its root directory set to `apps/admin`. Do not deploy it as part of the storefront project. The storefront theme and the admin theme stay in different projects.
+
+The app is TanStack Start on Vite. Production builds use Nitro's `vercel` preset, which writes `.vercel/output`. `vercel.json` sets `"framework": null` so Vercel does not treat the directory as Next.js.
+
+## Project settings
+
+| Setting | Value |
+| --- | --- |
+| Root Directory | `apps/admin` |
+| Framework Preset | Other (`vercel.json` sets `framework` to `null`) |
+| Install Command | `npm ci` |
+| Build Command | `npm run build` |
+| Output Directory | Leave empty. Nitro writes `.vercel/output`. |
+| Node.js | 22 or newer |
+
+Do not add a Wrangler build, a Cloudflare target, or an Output Directory that points at `dist`.
+
+## Environment variables
+
+Set these on the Vercel project. Do not commit them. None of the auth or database values use a `NEXT_PUBLIC_` or `VITE_` prefix.
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes, for auth | Neon Postgres **pooled** URL (`-pooler` in the host, `sslmode=require`). The app sets `prepare: false` for pooler hosts. |
+| `BETTER_AUTH_SECRET` | Yes, in production | `openssl rand -base64 32`. At least 32 characters. Production (`VERCEL_ENV=production`) refuses to boot without it. |
+| `BETTER_AUTH_URL` | Yes, for auth | Exact `https` origin of this admin app, path `/` only. Example: `https://admin.shirtat.co`. |
+| `OWNER_EMAIL` | For the owner script | Defaults to `moe@10claws.com` when unset. |
+| `OWNER_PASSWORD` | For the owner script | Used only by `npm run auth:ensure-owner`. Never printed and never committed. |
+| `NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN` | For catalog and sitemap counts | Same name the storefront uses, for example `shirtatco.myshopify.com`. Read on the server. |
+| `NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN` | For catalog and sitemap counts | Storefront API token. Read on the server. Unset shows Not connected. |
+| `GSC_CLIENT_ID` | Optional | Search Console OAuth client. Unset shows Not connected. |
+| `GSC_CLIENT_SECRET` | Optional | Search Console OAuth secret. |
+| `GSC_REFRESH_TOKEN` | Optional | Search Console refresh token for `sc-domain:shirtat.co`. |
+
+`DATA_SOURCE=db` is invalid. Leave `DATA_SOURCE` unset. A missing `BETTER_AUTH_SECRET` outside production is demo mode: the SEO page renders without a database. Do not rely on that in production.
+
+## Database
+
+Provision Neon from the Vercel Marketplace. You need two URLs:
+
+1. **Pooled** URL as `DATABASE_URL` on the Vercel project (the running app).
+2. **Direct** (non-pooler) URL for migrations. From a private shell, with that direct URL exported as `DATABASE_URL`:
+
+```sh
+cd apps/admin
+npm ci
+npm run db:migrate -- --allow-remote
+```
+
+That command applies every migration in `src/server/db/migrations`, including `seo_task_check`. Until that table exists, `/dashboard/seo` stays read-only and shows the plan statuses.
+
+Then create the owner. Export the pooled or direct URL, the auth secret, `BETTER_AUTH_URL`, `OWNER_EMAIL` and `OWNER_PASSWORD` in the same private shell:
+
+```sh
+npm run auth:ensure-owner
+```
+
+The command prints the email and whether the account was created. It does not print the password. Public sign-up is closed. The owner invites designers from the Designers page; that page shows the generated password once.
+
+There is no email provider. Share the one-time password through a channel you already trust.
+
+## Storefront handoff
+
+The shop route `/admin/seo` stays in place. Set `SHIRTAT_ADMIN_URL` on the **storefront** project to this app's origin when you want owners to be redirected. Leave it unset until this project is live.
+
+## Local demo
+
+```sh
+cd apps/admin
+npm ci
+npm run dev
+```
+
+Open `http://localhost:3000/`. With no `BETTER_AUTH_SECRET`, `/` redirects to the SEO plan and `/auth/v2/login` shows the invite-only sign-in form without creating a session.
+
+
+## Source: docs/assistant.md
+
+# AI Assistant
+
+`/dashboard/assistant` is separate from person-to-person Chat. It renders bounded summaries, cards, statistics, badges, lists, tables and bar/line/area charts using the existing components. Charts include data tables. It can read five audited dashboard series through guarded tools; it cannot browse or change data. Output is untrusted: a restricted literal-language gate and independent Zod validation reject unsupported expressions, components and props before rendering. No generated HTML, script, iframe, links, styles, forms or actions are supported.
+
+## Public blocks library (v0.10 task 002)
+
+Send **Show sample blocks** in recorded mode for an illustrative grid containing every new wrapper. Existing launch/plan/week replies and their literal syntax remain supported. Public wrappers are `DashboardCard`, `StatCard`, `DashboardChart`, read-only `DataTable` and `PageHeader` (a section h2, preserving the page's only h1). `DashboardGrid` contains `Panel(id, [block])` children under the existing `Stack` root. Panel IDs are unique ASCII document identifiers, never database IDs. The grid collapses on mobile; charts keep labeled series, a data table and reduced-motion support.
+
+The shared contract for task 003 is **`src/lib/assistant/data-contract.ts`**. It exports `dashboardReadArgsSchema`, `dataRefSchema`, `blockDataSchema`, stat/series/table data schemas, `dataResultSchema`, `dataResultMapSchema`, their types, and `dataRefKey`. Data props are strict `{kind:"literal",value:...}` or `{kind:"data-ref",version:1,tool:"dashboard_read",args:...}` objects. Domain/metric pairs are default/performance, analytics/traffic-quality, finance/transaction-overview, crm/pipeline and ecommerce/revenue; range is `available`, segment is `all`, and limit is 10, 25 or 50. Initial refs yield series only, so stat/table reference use fails closed until an audited capability is added.
+
+Results are `{ref,kind,data,source,asOf,periodLabel,truncated}` with `kind` stat/series/table, source demo/db, ISO datetime `asOf`, and fixed-order canonical keys from `dataRefKey`. Stat data contains label/value/detail; series data contains labels and labeled finite value arrays; table data contains columns and matching rows. Limits are eight panels, four distinct references, 8 KiB per result and 24 KiB per result map, in addition to all existing language limits and the 12,000-work guard.
+
+`inspectLanguage` exposes the validated `tree`; `validateTree` and `serializeTree` provide the application seam for task 004 without exposing the OpenUI evaluator. Supplying a result map requires every referenced result to exist and match its block kind. `AssistantDataProvider` accepts validated host snapshots; changing them updates chart data without parsing or network I/O. A missing snapshot renders an explicit unavailable state. This layer does not fetch: native Query/Mutation, bindings, functions and actions remain disabled. Task 003 supplies server tools, v2 transport and the refresh resolver; the mounted canvas supplies refresh and targeted edits.
+
+Regression coverage: `npm run assistant:test` includes the block/ref/result/partial/unreachable/legacy gate checks. Run `node --experimental-strip-types scripts/assistant-blocks-browser-check.ts` against `ASSISTANT_TEST_URL` (default port 3170) for four-state recorded block and axe evidence under gitignored `verify/blocks`.
+
+## Recorded and configured modes
+
+No keys means recorded replies. Legacy examples use illustrative data; recorded dashboards use guarded fixture or DB projections. Unmatched legacy prompts receive a labelled fallback. Both use POST `/api/assistant`, with v1 for legacy replies and v2 data/text/terminal events for dashboards. The repository live demo and every `tenboards-preview` version stay recorded-only.
+
+Adopters can set any subset of these **server-only** variables. Only a nonblank key enables a provider, in this order; model variables alone enable none. The selector shows enabled names and effective models. It sends only the provider ID; the server resolves the key and model on each request. Invalid configuration, removed/revoked keys and upstream errors fail explicitly, with no provider or recorded fallback.
+
+| Provider | Key | Override | Default |
+| --- | --- | --- | --- |
+| Anthropic | `ANTHROPIC_API_KEY` | `ANTHROPIC_MODEL` | `claude-sonnet-5-5` |
+| OpenAI | `OPENAI_API_KEY` | `OPENAI_MODEL` | `gpt-6.1-sol` |
+| xAI | `XAI_API_KEY` | `XAI_MODEL` | `grok-4.7` |
+| Meta | `META_API_KEY` | `META_MODEL` | `muse-spark-1.3` |
+| Google | `GOOGLE_GENERATIVE_AI_API_KEY` | `GOOGLE_GENERATIVE_AI_MODEL` | `gemini-3.8-flash` |
+
+Use private Node environment variables or adopter-owned Worker secret bindings. Worker bindings take precedence without merging process environment; Hyperdrive/DB/session resources are request scoped. Browser metadata contains names, IDs and models only. Never use `VITE_` keys, put keys in source/config vars, or supply real credentials to tests. The client has no key input. Exact SDK pins are recorded in the milestone README and lockfile.
+
+For local Node, the actual loopback origin is accepted. Hosted live auth-off deployments require `ASSISTANT_ORIGIN=https://your-own-dashboard.example`. Auth-on uses validated `BETTER_AUTH_URL`; an additional `ASSISTANT_ORIGIN` must agree. Recorded mode without an explicit origin uses the request URL's origin. POST requires an exact non-null Origin and JSON content type; forwarded origin/host headers are ignored. These checks mitigate CSRF; open auth-off access remains open. With auth enabled, config and POST independently require a valid session. All responses are private/no-store and nosniff.
+
+## Conversation controls
+
+Enter sends, Shift+Enter adds a newline, and IME composition does not submit. One generation runs at a time. The provider picker is disabled while streaming; changing it afterward affects only the next explicit request. Each reply retains its original provider and effective model. Selection lasts only in the mounted view.
+
+Stop aborts and marks the partial reply incomplete. Regenerate replaces only the latest attempt, using its original question, preceding completed exchanges and the current selection. Stopped or failed replies are excluded from future context. Nothing retries automatically. Errors preserve the editable draft without overwriting text entered while waiting. A rate-limit countdown honors Retry-After and requires an explicit Send or Regenerate afterward.
+
+History drops the oldest complete user/reply pairs to fit message and encoded-body limits, with a visible notice; their display stays intact. It never truncates output language or splits an exchange. If the latest necessary reply alone exceeds the 32 KiB replay cap, or the latest exchange plus draft cannot fit, it stays visible and the UI asks you to shorten the draft or choose New conversation. Regenerate can replace an oversized latest reply without replaying that reply.
+
+Provider/config failures refresh enabled metadata. A removed provider leaves an explicit selection prompt, even if no providers remain: choose Use recorded demo before sending again. A session-expired response cancels and clears history and presents a sign-in link. Focus returns to the composer after explicit actions; new content follows the bottom only while you are already there, preserving older-output reading. Streaming announcements report state changes rather than every token.
+
+## Limits and request lifetime
+
+| Boundary | Limit |
+| --- | --- |
+| Request body | 64 KiB counted while reading; 10-second input deadline |
+| Messages | 20; user 8 KiB and assistant 32 KiB UTF-8 each; aggregate within body cap |
+| Server instructions | 32 KiB; registry specification and deterministic examples only |
+| Reply | 64 KiB visible text; 4,096 requested output tokens |
+| Deadlines | 20 seconds to first visible content, 15 seconds idle, 60 seconds total |
+| Render | 200 nodes, 12 levels, 50 table rows × 8 columns, 4 series × 50 points |
+| Provider wire | 2 MiB cap, including metadata; bounded independently of visible output |
+
+Only user/assistant text is accepted. Client system/developer/tool roles, arbitrary destinations, headers, models and unknown fields are rejected. Requests contain entered text and library instructions; dashboard final requests additionally contain minimal selected projections, never profile/session/Chat records or whole domain objects. SDK retries are disabled. Stop, disconnect, timeout and overflow cancel upstream. Truncated, empty, refused or invalid replies never receive a completed marker. Exactly one terminal event closes a response; safe HTTP errors before streaming are distinct from error events after headers. DB and session work finishes before the stream returns.
+
+Admission uses fixed 60-second windows: 10 per authenticated user plus 30 per trusted IP, or 10 per IP with auth off. 429 includes Retry-After; aborts are not refunded. DB mode uses atomic conditional upserts in existing `auth_rate_limit`, hashed identifiers and `assistant:v1:` keys; cleanup touches only Assistant keys. Storage errors return 503 without memory fallback. Workers trust only `cf-connecting-ip` on their actual request path. Node ignores forwarding headers and uses one conservative unknown-IP bucket (30 across authenticated users). Fixed-window boundaries can admit twice the stated limit in a short burst; each IPv6 /128 has its own bucket.
+
+No-DB mode uses a maximum 10,000-bucket TTL map, rejecting new buckets at capacity. Its scope is one Node process or Worker isolate and it resets on restart: **it is not a global spend quota**. Public paid deployments across isolates need adopter-owned shared ingress/provider budgets; that infrastructure is outside this template.
+
+## Privacy and provider access
+
+Conversation UI is mounted-view state only, cleared on navigation or reload. There is no transcript database, localStorage, cookie, URL or provider conversation ID. Send, Stop, Regenerate and New conversation use no persistent store. Session loss clears the view; navigation, page exit and unmount cancel the active generation. No prompts, keys, output, provider errors or authorization headers are logged/traced. SDK telemetry and provider-warning logging are disabled. OpenUI devtools and observability are disabled.
+
+OpenAI and xAI explicitly use Responses with `store: false`. Meta uses `https://api.meta.ai/v1/chat/completions`, its own key and a developer instruction message. Google uses streamed generateContent, Anthropic Messages. Application storage choices do not promise zero provider retention: account terms, abuse monitoring and regional policies still apply. Check entitlement/billing and availability with your provider before enabling it; mocks prove integration, not account access.
+
+Official model/protocol references rechecked 2026-10-24: [Anthropic catalog](https://platform.claude.com/docs/en/models/overview), [OpenAI Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol), [OpenAI storage](https://developers.openai.com/api/docs/guides/conversation-state), [xAI 4.7](https://docs.x.ai/developers/models/grok-4.7), [Meta catalog](https://dev.meta.ai/docs/models), [Meta protocol](https://dev.meta.ai/docs/protocols/chat-completions), [Google 3.8 Flash](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash). Meta's standard `muse-spark-1.3` is used, never its contributor variant by default. The [current supported-countries help](https://dev.meta.ai/help/accounts-and-login/supported-countries), rechecked 2026-10-24, describes availability across most regions with Meta AI and supported billing, with its Geographic Use Policy authoritative. This is neither a universal US-only restriction nor guaranteed worldwide access. The current [product page](https://dev.meta.ai/products/meta-model-api) lists standard 1.3 separately from the contributor variant. Geographic access, account entitlement and retention policies must be verified by each adopter.
+
+## Validation and deployment
+
+`npm run assistant:test` checks the registry/language/decoder. `npm run assistant:server` runs synthetic direct-adapter wires and pure bounds. `npm run assistant:worker` exercises the actual Node route and compiled workerd behind a test-only provider egress barrier, plus isolated local Postgres admission/auth checks. Use `TEST_PORT_OFFSET` and a dedicated test DB; no real provider call is required or permitted in these tests. Local workerd evidence is not hosted provider or Hyperdrive acceptance.
+
+`npm run assistant:browser` targets `ASSISTANT_TEST_URL`; set `ASSISTANT_ENDPOINT_TEST=1` to space each visual mode into a fresh rate-limit window when using the real endpoint. Evidence is written to `ASSISTANT_EVIDENCE_ROOT`. The reusable preview guard rejects all key/model/origin variables, dotenv/dev-vars contamination and any remote binding except ASSETS. See [deployment](deploy.md) for private adopter setup. Contributors use only `npm run preview:deploy -- --preview-alias pr-NNN`; never deploy PR builds to the production Worker.
+
+`npm run assistant:conversation` verifies stale-generation handling and whole-pair context bounds. `assistant:lifecycle` uses compiled workerd with synthetic upstreams for picker/history/recovery; `assistant:context` targets `ASSISTANT_TEST_URL` for controlled UI boundary and scrolling fixtures. `assistant:modes` exercises the actual Node and workerd routes in no-env, configured, forced-demo, DB-open, authenticated and invalid-auth modes. Node invalid auth is rejected at startup; workerd rejects the request. Test-only mocks and probes under scripts are never application routes or production configuration.
+
+## Troubleshooting
+
+- No picker: check whether any nonblank server key is configured. A model override alone does not enable a provider; OAuth Google settings are unrelated.
+- Provider/configuration error: check key validity, model entitlement and canonical origin in your private server settings. Review refreshed picker choices; no alternate provider is called automatically.
+- Unsupported/refused output: simplify or rephrase, then explicitly Send or Regenerate. The renderer never weakens validation to display a failed reply.
+- Timeout/size limit: shorten the request; a truncated reply is incomplete. For context limits, start a new conversation.
+- 429: wait for Retry-After. New conversation does not reset the server budget; public adopters need appropriate shared ingress budgets.
+- Session ended/service unavailable: sign in again when prompted, or restore configured auth/DB service. The app never downgrades an auth failure to open demo access.
+
+### Conversation controls
+
+The bottom composer grows from one to eight rows. Enter sends; Shift+Enter inserts a newline. Its toolbar contains the enabled provider/model selector (or Recorded demo badge) and Send, which becomes Stop during a reply. Copy reply and Regenerate sit below the latest assistant turn. Scrolling up pauses following; Jump to latest returns to new output. New conversation clears the view, and its tooltip explains that leaving or reloading also clears it.
+
+## Read-only dashboard data (v0.10 task 003)
+
+Send **Show revenue dashboard** (or **Show dashboard**) for a recorded dashboard with real fixture values and server-authored data references. The API also accepts `operation: "dashboard"`. Ordinary illustrative replies retain v1 SSE; dashboards use v2 with one validated `data` event followed by text-delta and a terminal finish/error. Snapshots live only in the mounted conversation. They never authorize subsequent reads, and renderer components never fetch.
+
+`dashboard_read` independently checks the session and charges admission on every invocation. Its sole schema is `src/lib/assistant/data-contract.ts`: five discriminated domain/metric pairs, `range: "available"`, `segment: "all"`, and limit 10, 25 or 50. Unsupported dates, channels, identifiers, SQL and URLs are rejected. Ordered projections expose only:
+
+| Domain / metric | Projection |
+| --- | --- |
+| default / performance | New customers, active accounts, returning users; available observation dates |
+| analytics / traffic-quality | Actual and baseline quality indices; fixed source dates |
+| finance / transaction-overview | Expense observations only; sparse income is not replaced with invented zeroes |
+| crm / pipeline | Qualified opportunities, labelled by reporting month |
+| ecommerce / revenue | Revenue and profit in USD, source reporting periods |
+
+The source selector is unchanged: no configured DB uses fixtures; configured DB uses DB and errors visibly. Recorded mode replaces only the model. Results carry source, server clock, period and explicit truncation metadata. No raw customers, email addresses, account records or entire domain objects leave the projection boundary.
+
+Live providers perform one native planning request with no execute callback. The whole batch is validated before sequential guarded execution inside the request scope; the second request streams final language with tools disabled. Tool labels/results are untrusted tool-message data, never system instructions. Prompt injection cannot grant authorization, add tools, change schemas or bypass the literal-language gate. The selected provider receives user text plus these minimal selected projections. Session credentials, raw database records and provider secrets are never included; prompts/results are not logged.
+
+POST `/api/assistant-refresh` accepts only `{refs:[...]}`. It applies method, Origin, content/body, session and rate checks, deduplicates validated refs, resolves them sequentially with one clock and returns `{v:2,results}`. It constructs no provider. The canvas uses this endpoint directly without a model call; no background polling or persistence.
+
+Additional budgets: four invocations (duplicates still count in model batches), two model requests, 1,024 planning + 3,072 final requested tokens, 2 MiB aggregate provider wire, 2 KiB tool args, 8 KiB per result and 24 KiB aggregate, 96 KiB dashboard SSE and 32 KiB refresh JSON. One admission is charged for the request plus one per invocation. The existing 20s first-visible/15s idle/60s total deadlines include preflight; a data event does not extend first-visible time. Eight panels, four refs and existing language/render budgets remain enforced.
+
+Each tool has one deadline at most five seconds away. Database reads use a short transaction, re-arming `SET LOCAL statement_timeout` before each statement to remaining time minus 250 ms; no statement starts with under 500 ms left. PostgreSQL 17+ additionally receives `transaction_timeout` for the remaining call budget; older versions skip that setting. Pending queries are cancelled on abort/deadline and settled before request cleanup. A cancelled/failed read is a visible error, never a fixture fallback or late result.
+
+Verification commands: `npm run assistant:test`, `node --experimental-strip-types scripts/assistant-data-adapters-check.ts`, and `DATABASE_URL=<disposable-local-db> node --experimental-strip-types scripts/assistant-data-endpoint-check.ts` after `npm run build`. The endpoint suite uses synthetic provider wires on Node and compiled workerd; it also compares all five guarded projections, rejects missing sessions and checks visible DB failure. No real provider entitlement or hosted Hyperdrive test is implied.
+
+## Dashboard canvas (v0.10 task 004)
+
+Try **Show revenue dashboard**, **Show analytics dashboard**, or **Show finance dashboard**. Each uses the real guarded refs and normal demo/DB selector with no model in recorded mode. Completed dashboard replies occupy the full available width. Panel error boundaries use stable IDs; definitions and snapshots are separate mounted state.
+
+**Refresh data** sends refs only and atomically replaces snapshots after generation/revision checks. Failure keeps visibly stale values; session loss clears the conversation. Range is **Available**, segment **All**: the capability catalog supports no other reporting filters, so these are displayed as read-only labels rather than misleading controls.
+
+Use **Edit a panel** to select an explicit target, or **Add panel** to append. Enter **Make this a bar chart** (also line/area), or **Add analytics chart** (also revenue, finance, crm, performance). Recorded mode rejects unsupported requests such as refunds; it never invents a series. Selecting a panel resolves ambiguous “this” references. Configured providers receive the instruction and current bounded definition, never client snapshots as trusted results.
+
+Edits submit `operation: "edit"` plus `{definition,baseRevision,op,targetId}`. Output is exactly one Panel wrapped in Stack/DashboardGrid. Application code builds a v1 patch, preserves replacement IDs, allocates addition IDs locally, validates the whole resulting tree, and commits atomically. Unchanged panel objects and snapshots are reused; only new references execute tools. Stop, errors and stale revisions discard pending work. No removal, reordering, saving or sharing. Conversation history byte limits remain unchanged; oversized edit definitions fail visibly without truncation.
+
+Canvas verification: `npm run assistant:canvas` checks patch identity, snapshots, stale revisions and whole-tree bounds. `npm run assistant:canvas-browser` runs recorded flows and five synthetic edit adapters against compiled workerd, asserts no recorded provider egress, and captures four-state evidence with axe/keyboard/Stop/session checks.
+
+
+## Source: .agents/skills/tenboards-build-ui/SKILL.md
+
+---
+name: tenboards-build-ui
+description: Build tenboards dashboards and app pages with generators and public blocks. Use when adding or changing a dashboard, page, KPI, chart, revenue summary, or data table.
+license: MIT
+metadata:
+  version: "1.0"
+---
+# Build tenboards UI
+
+Default to the existing compact system and read-only demo data unless the user asks
+for live data. Use the generator, then adapt its domain; do not offer a new design system.
+Read root AGENTS.md and DESIGN.md. Inspect `/dashboard/kit` and the local component
+before composing. If Impeccable is installed, use Operate mode and its craft floor.
+
+## External projects
+
+Inside a tenboards clone, keep using `@/components/blocks`. Only when installing
+blocks into another initialized React 19 + Tailwind v4 + shadcn project, use the
+kit's registry links and current-host `npx shadcn add` commands. Items install
+under `components/tenboards`, include chart helpers and apply the default global
+theme/compact CSS. Review that CSS change; retain accessible chart data alternatives.
+`/llms.txt` indexes the registry and guidance; resolve its root-relative URLs
+against the host from which you fetched it before passing a URL to shadcn.
+
+## Progress checklist
+
+- [ ] Run `npm run new:dashboard <slug>` for metrics/charts or `npm run new:page <slug>`
+  for a listing. Both live at `/dashboard/<slug>`; optional `-- --title "Title"` sets the title.
+  Generators register sidebar, route catalog and parity reads and reject occupied slugs.
+- [ ] Read [block contracts](references/blocks.md) for the blocks you need. Adapt
+  generated `-components/`, server types and canonical fixtures together; use realistic
+  neutral sample records. Update table headings, accessible labels, empty copy and KPI
+  units to match the requested domain. Do not leave generic requests in a Vendors page.
+- [ ] Preserve the generated guarded loader and `readSource` boundary. Components
+  import types only from the server layer, never fixtures. For a real DB query, use
+  `tenboards-connect-data`; clearly retain the illustrative DB TODO until implemented.
+- [ ] Run `npm run build`, `npm run check`, `npm run typecheck`.
+- [ ] Run `npm run check:design` and `npm run verify:page -- /dashboard/<slug>`.
+  Use an isolated demo server/port for scratch work, e.g. `--base-url http://127.0.0.1:3404`.
+  Read `verify/report.json` and route reports; fix violations/runtime errors and rerun.
+- [ ] Inspect the four light/dark × desktop/mobile captures, empty state, keyboard
+  controls and reduced motion. Report actual results and any remaining blocker.
+
+## Gotchas
+
+- SSR clocks must share an initial value; live clocks start after hydration. Delayed
+  hydration evidence must actually delay scripts, not expire during server startup
+  ([review #24](https://github.com/moeghashim/tenboards/pull/24#discussion_r4359849605)).
+- A tooltip `formatter` replaces the whole row: preserve series labels as well as
+  values ([review #24](https://github.com/moeghashim/tenboards/pull/24#discussion_r4359849593)).
+- Compact desktop sizing must not shrink mobile grouped inputs into focus zoom
+  ([review #65](https://github.com/moeghashim/tenboards/pull/65#discussion_r4368113744)).
+  Keep body/table ≥13px, metadata ≥12px and targets ≥24px per DESIGN.md.
+- A login redirect is not a verified dashboard. Check the final route and use the
+  intended demo server ([review #78](https://github.com/moeghashim/tenboards/pull/78#discussion_r4375549966)).
+- Tokens, not literals or arbitrary typography escapes; new pages get no exception
+  ([review #78](https://github.com/moeghashim/tenboards/pull/78#discussion_r4375549973)).
+- Framework/API invariants (not invented review findings): route groups add no URL
+  segment; never hand-edit `routeTree.gen.ts`; spread `useChartMotion()` on animated
+  series/tooltips so SSR and reduced motion stay stable. Use the local Table v9 API,
+  not v8 `useReactTable` examples.
+
+### Scratch evaluation corrections (v0.9 / 004)
+
+- The Sales eval initially assumed a third options argument to `formatCurrency`
+  and a Table `sortFn: "basic"`. The agent corrected both: the helper accepts only
+  `(value, currency?)`; numeric columns use a numeric comparator. Wrap it for chart
+  tick callbacks so an index is not passed as the currency argument. Read installed
+  signatures before borrowing examples.
+- Scratch evaluations with a symlinked `node_modules` hit Nitro dev-runner module
+  resolution errors and HTTP 503 before page rendering. Install dependencies inside
+  each scratch clone; alternatively build and run `npm run preview -- --port <port>`
+  and pass that origin to `verify:page`. This is a harness setup failure, not an
+  accessibility pass; preserve the failed report alongside the successful rerun.
+- Gitignored scratch TSX probes can still enter `tsc` through tsconfig's include
+  patterns. The Sales empty-state probe introduced an unused React import; remove
+  temporary probes after verification and rerun typecheck. Gitignore is not a
+  TypeScript exclusion.
+
+## Controls and filter rows
+
+Use one size step, align end (`items-end`), and use NativeSelect/Select, never raw `<select>`. Date fields use Input. Label/field stacks use flex-column gaps, not space-y around Select's hidden input. Default controls are 28px desktop / 32px mobile. Secondary toolbar actions use ghost; keep one primary action. Use FilterSelect for clearable filters and its searchable mode for long lists; counts are optional option metadata. See the kit regression row and measure control heights/bottom edges before shipping.
+
+
+## Source: .agents/skills/tenboards-build-ui/references/blocks.md
+
+# Public block contracts
+
+Import from `@/components/blocks`; inspect the TSDoc/source for the exact installed API.
+Chart primitives also export from `@/components/blocks/charts`, never import `recharts`
+directly in routes. The executable kit is `src/routes/(main)/dashboard/kit/-components/`.
+
+| Block | Contract |
+| --- | --- |
+| PageHeader | `title: string`, optional `description: string`, `actions`, `className`; one h1 per page |
+| DashboardCard | Native Card props plus `density: "compact" | "standard"`; default standard already follows compact responsive tokens |
+| SectionHeader | `title`, optional `description`, `actions`, `level: 2 | 3`, `id`; compose inside DashboardCard |
+| StatCard | `label: string`, `value: ReactNode`; optional `help`, `trend`, `actions`, `icon`, `density`, `level`, `className` |
+| CardContent | Public re-export of the existing card content slot |
+| DataTable | Caller-owned `table`, required accessible `label`; optional `empty`, `pagination`, `mobile: "reflow" | "scroll"`, `columnLabels`, `className` |
+| DashboardChart | ChartContainer props, including `config` and `children`; default responsive height |
+| DashboardTooltip | ChartTooltipContent props; custom formatter replaces the entire row |
+| DashboardLegend | Required named-series `config`, optional payload and className |
+
+For tables copy the generator's `./scripts/templates/records-table.tsx.template`:
+`ColumnDef<DataTableFeatures, Row>[]`, `useTable({ features: dataTableFeatures, data,
+columns, getRowId, initialState })`. Headers are plain labels: DataTable supplies
+sorting buttons. `mobile="reflow"` is the default. Use an informative empty state.
+
+Charts use `seriesConfig({ revenue: "Revenue" })`, `chartAxis`, `chartGrid`,
+`chartCursor` and `useChartMotion()`. Spread motion onto each mark and Tooltip;
+use `config.revenue.color` for marks and preserve labels in custom tooltips.
+Copy the generated activity chart's accessible table alternative when changing series.
+Use `formatCurrency(value, currency?)`, `formatNumber(value)` and `formatPercent(value)`
+for explicit en-US formatting. For chart ticks use `(value) => formatCurrency(value)`;
+a chart callback may pass an index as its second argument. Numeric Table columns
+use `(a, b, id) => a.getValue<number>(id) - b.getValue<number>(id)`, not a v8 sort name.
+
+Use named layout classes such as `min-w-0 space-y-5`, `grid gap-4 sm:grid-cols-3`.
+Do not copy raw primitive Card/Table markup to imitate blocks or add raw colors,
+arbitrary sizing, new density overrides or exceptions to pass a new page.
+
+
+## Source: .agents/skills/tenboards-connect-data/SKILL.md
+
+---
+name: tenboards-connect-data
+description: Connect tenboards typed reads to demo fixtures and Postgres with Drizzle. Use when adding a data source, database query, schema migration, seed, parity scenario, or auth-guarded server loader.
+license: MIT
+metadata:
+  version: "1.0"
+---
+# Connect tenboards data
+
+Preserve the zero-config demo and one typed contract across demo and database reads.
+Read [data workflow](references/data-workflow.md) before changing schema, seeds or
+server functions. Keep presentation in blocks and route-local components.
+
+## Progress checklist
+
+- [ ] Inspect the owning domain read and generated types/fixture. Define validated
+  inputs and one serializable output contract; choose stable IDs and deterministic order.
+- [ ] Implement separate demo and DB functions behind `readSource`. Keep fixtures
+  server-side. Replace generated DB TODOs with real ordered queries before claiming
+  database integration; comparing two fixture clones does not prove DB parity.
+- [ ] Add an additive migration and repeatable fixture seed if persistence is needed.
+  Never rewrite shipped migration SQL/journal history or overwrite adopter records.
+- [ ] Keep `requireSession()` inside each app-data server function before reading data,
+  even when its parent route is guarded. Validate inputs at the server boundary.
+- [ ] Register all reads/scenarios and run migrations, seed and `npm run data:parity`
+  against an explicitly selected disposable local database. Check missing/filter/empty
+  cases, deterministic ordering, repeat seeds and date boundaries where relevant.
+- [ ] Run build/check/typecheck; verify any affected page with `verify:page` and
+  report demo and DB evidence separately. No database access means DB acceptance
+  remains unverified; finish independent demo work and report the missing prerequisite.
+
+## Gotchas
+
+- Apply SQL filters before result limits; filtering the first 100 rows in memory
+  loses matching records ([review #67](https://github.com/moeghashim/tenboards/pull/67#discussion_r4368227630)).
+- Verify the requested page, not a login redirect ([review #78](https://github.com/moeghashim/tenboards/pull/78#discussion_r4375549966)).
+- Existing source/auth contracts: configured DB errors remain visible, never fall
+  back to fixtures; demo identities are not authenticated users or ownership checks.
+  No CRUD, RBAC or authentication changes are implied by adding a typed read.
+
+
+## Source: .agents/skills/tenboards-connect-data/references/data-workflow.md
+
+# Typed reads, schema and parity
+
+Read `docs/data-layer.md` and the nearest domain before editing. Small example:
+`src/server/data/users.ts`; complex filtering/date examples: `projects.ts`.
+
+1. Put serializable types in `src/server/data/<domain>.types.ts`; validate inputs with
+   the installed Zod. Preserve numbers, nulls, ordering and date semantics across sources.
+2. Canonical fixtures belong in `src/server/db/fixtures/`. Demo functions return fresh
+   data (`structuredClone` for static fixtures), so caller mutation cannot leak across requests.
+3. DB functions dynamically import `getDatabase` from `client.server.ts` and schema;
+   use normalized entity tables and ordered queries. Workers clients are request-scoped.
+   Apply validated filters before limits, then project exactly the same output shape.
+4. Export `read<Domain>` using `readSource(() => demo(input), () => db(input))`.
+   No DATABASE_URL means demo; DATA_SOURCE=demo explicitly forces demo. Configured
+   unreachable/unmigrated databases produce a sanitized visible error, not demo fallback.
+5. Follow `./scripts/templates/load.ts.template`: `createServerFn({ method: "GET" })`,
+   dynamic server imports, `await requireSession()` before the read. Route loaders
+   call this function; components receive loader data and type-only imports.
+6. Extend `src/server/db/schema.ts` and generate an additive migration with
+   `npm run db:generate`. Inspect SQL before applying it. Keep shipped migrations intact.
+   Seed from canonical fixtures with stable keys; preserve unrelated and adopter rows.
+7. Register distinct demo/DB implementations in `src/server/data/registry.ts` with
+   all/existing/missing/filter/empty scenarios as applicable. Date-relative records use
+   one serialized request reference; test later requests without reseeding.
+
+For a disposable local Postgres database, explicitly set its DATABASE_URL outside
+committed files, then run `npm run db:migrate`, `npm run db:seed`, and
+`npm run data:parity`. The parity runner checks every exported read is registered,
+compares actual outputs and verifies caller mutation isolation. Repeated seed and
+populated upgrades must retain unrelated records. Do not run remote migrations/seeds
+without explicit authorization; never print credentials in evidence.
+
+The generator intentionally emits an illustrative DB stub. It is useful for a demo
+page, but is not evidence of a schema, query or seed. For demo-only work keep its TODO
+and describe that limitation rather than inventing persistence.
+
+
+## Source: src/components/blocks/cards.tsx
+
+```tsx
+import { type ComponentProps, type ReactNode, useId } from "react";
+
+import { cn } from "cn";
+
+import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card";
+
+/** Card surface using the shared compact or standard spacing; compose with UI card slots. */
+export type DashboardCardProps = ComponentProps<typeof Card> & {
+  /** Compact uses 12px spacing; standard follows responsive card tokens. Defaults to standard. */
+  density?: "compact" | "standard";
+};
+
+/** Shared dashboard card. All native Card props, children and accessible names pass through. */
+export function DashboardCard({ density = "standard", className, ...props }: DashboardCardProps) {
+  return <Card {...props} size={density === "compact" ? "sm" : "default"} className={cn("min-w-0", className)} />;
+}
+
+/** Props for a card-level semantic heading. */
+export interface SectionHeaderProps {
+  /** Visible section heading. */
+  title: ReactNode;
+  /** Supporting content below the heading. */
+  description?: ReactNode;
+  /** Route-owned controls, wrapping beside the heading. */
+  actions?: ReactNode;
+  /** Heading hierarchy; defaults to h2. */
+  level?: 2 | 3;
+  /** Heading ID for aria-labelledby and fragment links. */
+  id?: string;
+}
+
+/** Wrapping h2/h3 header for DashboardCard, with optional description and actions. */
+export function SectionHeader({ title, description, actions, level = 2, id }: SectionHeaderProps) {
+  const Heading = level === 2 ? "h2" : "h3";
+  return (
+    <CardHeader className="flex flex-wrap items-start justify-between gap-3">
+      <div className="min-w-0 flex-1 basis-40">
+        <Heading id={id} className="text-base font-medium tracking-tight wrap-break-word">
+          {title}
+        </Heading>
+        {description && <div className="text-muted-foreground mt-1 text-sm">{description}</div>}
+      </div>
+      {actions && <div className="flex max-w-full flex-wrap items-center gap-2">{actions}</div>}
+    </CardHeader>
+  );
+}
+
+/** Props for an accessibly labelled metric card. */
+export interface StatCardProps {
+  /** Heading hierarchy; defaults to h2. */
+  level?: 2 | 3;
+  /** Accessible metric name and visible heading. */
+  label: string;
+  /** Route-formatted metric; units and locale belong to the caller. */
+  value: ReactNode;
+  /** Supporting explanation below the value. */
+  help?: ReactNode;
+  /** Text or indicator alongside the value; pair color with a label. */
+  trend?: ReactNode;
+  /** Route-owned controls in the card header. */
+  actions?: ReactNode;
+  /** Optional decorative or accessibly named icon. */
+  icon?: ReactNode;
+  /** Card spacing; defaults to standard. */
+  density?: "compact" | "standard";
+  /** Additional layout classes. */
+  className?: string;
+}
+
+/** Metric card with tabular values and optional help, trend, icon and action slots. */
+export function StatCard({
+  label,
+  value,
+  help,
+  trend,
+  actions,
+  icon,
+  density = "standard",
+  level = 2,
+  className,
+}: StatCardProps) {
+  const id = useId();
+  const Heading = level === 2 ? "h2" : "h3";
+  return (
+    <DashboardCard density={density} className={className} role="group" aria-labelledby={id}>
+      <CardHeader>
+        {icon}
+        <Heading id={id} className="text-muted-foreground text-sm font-medium wrap-break-word">
+          {label}
+        </Heading>
+        {actions && <CardAction>{actions}</CardAction>}
+      </CardHeader>
+      <CardContent className="flex min-w-0 flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="min-w-0 text-2xl leading-tight font-medium tracking-tight wrap-break-word tabular-nums xl:text-3xl">
+            {value}
+          </div>
+          {trend}
+        </div>
+        {help && <div className="text-muted-foreground text-sm">{help}</div>}
+      </CardContent>
+    </DashboardCard>
+  );
+}
+
+```
+
+## Source: src/components/blocks/charts.tsx
+
+```tsx
+import { type ComponentProps, useSyncExternalStore } from "react";
+
+import { cn } from "cn";
+
+import { ChartContainer, type ChartLegendContent, ChartTooltipContent } from "@/components/ui/chart";
+
+/** Opaque chart colors and distinct line patterns. chart-3 is danger red, kept off the default four-series set. */
+export const chartSeries = [
+  { color: "var(--chart-1)", strokeDasharray: undefined },
+  { color: "var(--chart-2)", strokeDasharray: "6 3" },
+  { color: "var(--chart-4)", strokeDasharray: "2 3" },
+  { color: "var(--chart-5)", strokeDasharray: "8 3 2 3" },
+] as const;
+
+/** Accessible series identity shared by marks, tooltip and legend. */
+export interface SeriesStyle {
+  /** Human-readable series name. */
+  label: string;
+  /** CSS token color for marks and legend samples. */
+  color: string;
+  /** Supplementary line pattern so color is not the only distinction. */
+  strokeDasharray?: string;
+}
+
+/** Assign shared colors/patterns to named series in insertion order; styles repeat after four series. */
+export function seriesConfig<T extends string>(labels: Record<T, string>): Record<T, SeriesStyle> {
+  return Object.fromEntries(
+    Object.entries<string>(labels).map(([key, label], index) => [
+      key,
+      { label, ...chartSeries[index % chartSeries.length] },
+    ]),
+  ) as Record<T, SeriesStyle>;
+}
+
+/** Recharts axis props: muted 12px ticks without decorative axis lines. */
+export const chartAxis = {
+  axisLine: false,
+  tickLine: false,
+  tickMargin: 8,
+  tick: { fill: "var(--text-muted)", fontSize: 12 },
+} as const;
+/** Recharts CartesianGrid props for decorative dashed horizontal separators. */
+export const chartGrid = { vertical: false, stroke: "var(--border)", strokeDasharray: "3 3" } as const;
+/** Recharts tooltip cursor props using a dashed muted stroke. */
+export const chartCursor = { stroke: "var(--text-muted)", strokeDasharray: "3 3" } as const;
+
+/** Format a number using the explicit en-US locale. */
+export const formatNumber = (value: number) => new Intl.NumberFormat("en-US").format(value);
+/** Format an amount using en-US and the supplied ISO currency (USD by default). */
+export const formatCurrency = (value: number, currency = "USD") =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: 2 }).format(value);
+/** Format a ratio as an en-US percentage with at most one decimal place. */
+export const formatPercent = (value: number) =>
+  new Intl.NumberFormat("en-US", { style: "percent", maximumFractionDigits: 1 }).format(value);
+
+function subscribeMotion(onChange: () => void) {
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+}
+// Static SSR and first client paint; enable short animations only after hydration.
+/** SSR-safe reduced-motion subscription. Spread onto every animated series and tooltip. */
+export function useChartMotion() {
+  const reduced = useSyncExternalStore(
+    subscribeMotion,
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => true,
+  );
+  return { isAnimationActive: !reduced, animationDuration: 200 } as const;
+}
+
+/** ChartContainer props, including required config/children and optional height/layout className. */
+export type DashboardChartProps = ComponentProps<typeof ChartContainer>;
+/** ChartTooltipContent props; Recharts supplies payload/active and callers own value/label formatters. */
+export type DashboardTooltipProps = ComponentProps<typeof ChartTooltipContent>;
+/** Legend content props with the same named series config used by the marks. */
+export type DashboardLegendProps = ComponentProps<typeof ChartLegendContent> & {
+  /** Series labels, token colors and line patterns, keyed by dataKey. */
+  config: Record<string, SeriesStyle>;
+};
+
+/** Bounded responsive chart container with keyboard focus treatment; provide an accessible data alternative. */
+export function DashboardChart({ className, ...props }: DashboardChartProps) {
+  return (
+    <ChartContainer
+      className={cn(
+        "[&_.recharts-surface:focus-visible]:outline-ring aspect-auto h-64 w-full min-w-0 tabular-nums sm:h-80 [&_.recharts-surface:focus-visible]:outline-2 [&_.recharts-surface:focus-visible]:outline-offset-2 [&_.recharts-surface:focus-visible]:outline-solid",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** Token-colored tooltip content for a Recharts Tooltip. */
+export function DashboardTooltip(props: DashboardTooltipProps) {
+  return (
+    <ChartTooltipContent
+      {...props}
+      className={cn("border-border bg-popover text-popover-foreground tabular-nums", props.className)}
+    />
+  );
+}
+
+/** Wrapping legend with bar or distinct line samples matched to the marks. */
+export function DashboardLegend({ config, payload, className }: DashboardLegendProps) {
+  return (
+    <div className={cn("text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-2 py-3 text-xs", className)}>
+      {payload
+        ?.filter((entry) => entry.type !== "none")
+        .map((entry) => {
+          const key = String(entry.dataKey ?? entry.value);
+          const series = config[key];
+          if (!series) return null;
+          return (
+            <span key={key} className="flex items-center gap-1.5">
+              <svg width="24" height="12" viewBox="0 0 24 12" aria-hidden="true" className="shrink-0">
+                {entry.type === "rect" ? (
+                  <rect x="6" y="0" width="12" height="12" fill={series.color} />
+                ) : (
+                  <line
+                    x1="0"
+                    y1="6"
+                    x2="24"
+                    y2="6"
+                    stroke={series.color}
+                    strokeWidth="2"
+                    strokeDasharray={series.strokeDasharray}
+                  />
+                )}
+              </svg>
+              {series.label}
+            </span>
+          );
+        })}
+    </div>
+  );
+}
+
+/** Recharts primitives share this public boundary; callers retain data and composition. */
+export {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  type BarShapeProps,
+  CartesianGrid,
+  ComposedChart,
+  Label,
+  LabelList,
+  type LabelProps,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+```
+
+## Source: src/components/blocks/data-table.tsx
+
+```tsx
+import type { ReactNode } from "react";
+
+import type { ReactTable, RowData } from "@tanstack/react-table";
+
+import { cn } from "cn";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import type { DataTableFeatures } from "@/lib/data-table-features";
+
+/** Presentation contract for a caller-owned TanStack Table v9 instance. */
+export interface DataTableProps<T extends RowData> {
+  /** Create with dataTableFeatures. The caller owns data, columns, sorting and pagination state. */
+  table: ReactTable<DataTableFeatures, T>;
+  /** Accessible table name and pagination landmark prefix. */
+  label: string;
+  /** Empty content, including any route-owned recovery action. Defaults to “No results.” */
+  empty?: ReactNode;
+  /** Show Previous/Next controls and row counts. Disable for caller-owned pagination. Defaults to true. */
+  pagination?: boolean;
+  /** Reflow into labelled fields below md, or retain a locally scrolling table. Defaults to reflow. */
+  mobile?: "reflow" | "scroll";
+  /** Plain labels keyed by column ID for mobile fields and sorting. Falls back to string header, then ID. */
+  columnLabels?: Record<string, string>;
+  /** Additional layout classes on the outer container. */
+  className?: string;
+}
+
+/**
+ * Shared sortable table with pagination, an empty state and labelled mobile fields.
+ * Derived from the existing TaskRows renderer, Products pagination and Infrastructure reflow.
+ * Use non-interactive column headers: this block supplies sort buttons for sortable leaf columns.
+ * Configure server sorting/pagination on the supplied instance; no fetching or route behavior lives here.
+ */
+export function DataTable<T extends RowData>({
+  table,
+  label,
+  empty = "No results.",
+  pagination = true,
+  mobile = "reflow",
+  columnLabels,
+  className,
+}: DataTableProps<T>) {
+  const reflow = mobile === "reflow";
+  const rows = table.getRowModel().rows;
+  const { pageIndex, pageSize } = table.state.pagination;
+  const total = table.getRowCount();
+  const columnLabel = (id: string) => {
+    const header = table.getColumn(id)?.columnDef.header;
+    return columnLabels?.[id] ?? (typeof header === "string" ? header : id);
+  };
+
+  return (
+    <div className={cn("min-w-0 space-y-3", className)}>
+      <div className="bg-card overflow-hidden rounded-xl border">
+        <Table aria-label={label} role="table" className={cn(reflow && "block md:table")}>
+          <TableHeader role="rowgroup" className={cn(reflow && "block md:table-header-group")}>
+            {table.getHeaderGroups().map((group) => (
+              <TableRow
+                key={group.id}
+                role="row"
+                className={cn("hover:bg-transparent", reflow && "flex flex-wrap md:table-row")}
+              >
+                {group.headers.map((header) => {
+                  const sorted = header.column.getIsSorted();
+                  const sortable = !header.isPlaceholder && !header.subHeaders.length && header.column.getCanSort();
+                  const sortPresentation = {
+                    asc: { Icon: ArrowUp, ariaSort: "ascending" as const },
+                    desc: { Icon: ArrowDown, ariaSort: "descending" as const },
+                    none: { Icon: ArrowUpDown, ariaSort: "none" as const },
+                  }[sorted || "none"];
+                  const { Icon } = sortPresentation;
+                  return (
+                    <TableHead
+                      key={header.id}
+                      role="columnheader"
+                      scope={header.colSpan > 1 ? "colgroup" : "col"}
+                      colSpan={header.colSpan}
+                      aria-sort={sortable ? sortPresentation.ariaSort : undefined}
+                      className={cn(
+                        "text-muted-foreground px-4 font-medium",
+                        reflow && "flex items-center md:table-cell",
+                      )}
+                    >
+                      {!header.isPlaceholder &&
+                        (sortable ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="-mx-2"
+                            aria-label={`Sort by ${columnLabel(header.column.id)}`}
+                            onClick={() => header.column.toggleSorting()}
+                          >
+                            <table.FlexRender header={header} />
+                            <Icon className="size-3.5" aria-hidden="true" />
+                          </Button>
+                        ) : (
+                          <table.FlexRender header={header} />
+                        ))}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody role="rowgroup" className={cn(reflow && "block md:table-row-group")}>
+            {rows.length ? (
+              rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  role="row"
+                  data-state={table.state.rowSelection[row.id] ? "selected" : undefined}
+                  className={cn("border-border", reflow && "grid grid-cols-2 gap-y-1 py-3 md:table-row md:py-0")}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      role="cell"
+                      className={cn(
+                        "px-4 py-2 align-middle",
+                        reflow && "block min-w-0 wrap-anywhere whitespace-normal md:table-cell",
+                      )}
+                    >
+                      {reflow && (
+                        <span aria-hidden="true" className="text-muted-foreground mb-1 block text-xs md:hidden">
+                          {columnLabel(cell.column.id)}
+                        </span>
+                      )}
+                      <table.FlexRender cell={cell} />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow role="row" className={cn(reflow && "block md:table-row")}>
+                <TableCell
+                  role="cell"
+                  colSpan={Math.max(1, table.getVisibleLeafColumns().length)}
+                  className={cn(
+                    "text-muted-foreground h-24 p-4 text-center whitespace-normal",
+                    reflow && "block content-center md:table-cell",
+                  )}
+                >
+                  {empty}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      {pagination && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-muted-foreground text-sm tabular-nums" role="status">
+            {rows.length ? pageIndex * pageSize + 1 : 0}–{rows.length ? pageIndex * pageSize + rows.length : 0} of{" "}
+            {total} rows
+          </p>
+          <nav aria-label={`${label} pages`} className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
+            >
+              Previous
+            </Button>
+            <Button variant="outline" size="sm" disabled={!table.getCanNextPage()} onClick={() => table.nextPage()}>
+              Next
+            </Button>
+          </nav>
+        </div>
+      )}
+    </div>
+  );
+}
+
+```
+
+## Source: src/components/blocks/page-header.tsx
+
+```tsx
+import type { ReactNode } from "react";
+
+import { cn } from "cn";
+
+/** Props for the shared app-page heading. */
+export interface PageHeaderProps {
+  /** Page name, rendered as h1. Use once per page. */
+  title: string;
+  /** Optional supporting sentence below the title. */
+  description?: string;
+  /** Route-owned controls in a wrapping action row. */
+  actions?: ReactNode;
+  /** Additional layout classes on the outer row. */
+  className?: string;
+}
+
+/** Responsive app-page h1, description and actions; owns no data or navigation. */
+export function PageHeader({ title, description, actions, className }: PageHeaderProps) {
+  return (
+    <div className={cn("flex min-w-0 shrink-0 flex-wrap items-end justify-between gap-4", className)}>
+      <div className="min-w-0 flex-1 basis-64">
+        <h1 className="text-2xl leading-tight font-medium tracking-tight wrap-break-word">{title}</h1>
+        {description && <p className="text-muted-foreground mt-1 text-sm wrap-break-word">{description}</p>}
+      </div>
+      {actions && <div className="flex max-w-full flex-wrap items-center gap-2">{actions}</div>}
+    </div>
+  );
+}
+
+```
+
+## Source: src/components/ui/button.tsx
+
+```tsx
+import { Button as ButtonPrimitive } from "@base-ui/react/button"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "cn"
+
+const buttonVariants = cva(
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  {
+    variants: {
+      variant: {
+        default: "control-primary bg-primary text-primary-foreground",
+        outline:
+          "control-recipe",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+        ghost:
+          "text-muted-foreground hover:bg-surface-raised hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+        destructive:
+          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default:
+          "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+        lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        icon: "size-8",
+        "icon-xs":
+          "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm":
+          "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
+        "icon-lg": "size-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+function Button({
+  className,
+  variant = "default",
+  size = "default",
+  ...props
+}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+  return (
+    <ButtonPrimitive
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  )
+}
+
+export { Button, buttonVariants }
+
+```
+
+## Source: src/components/ui/card.tsx
+
+```tsx
+import * as React from "react"
+import { cn } from "cn"
+
+function Card({
+  className,
+  size = "default",
+  ...props
+}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+  return (
+    <div
+      data-slot="card"
+      data-size={size}
+      className={cn(
+        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground ring-1 ring-foreground/10 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-header"
+      className={cn(
+        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-title"
+      className={cn(
+        "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-description"
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  )
+}
+
+function CardAction({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-action"
+      className={cn(
+        "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardContent({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-content"
+      className={cn("px-(--card-spacing)", className)}
+      {...props}
+    />
+  )
+}
+
+function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-footer"
+      className={cn(
+        "flex items-center rounded-b-xl border-t bg-muted/50 p-(--card-spacing)",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardAction,
+  CardDescription,
+  CardContent,
+}
+
+```
+
+## Source: src/components/ui/chart.tsx
+
+```tsx
+import * as React from "react"
+import { cn } from "cn"
+import * as RechartsPrimitive from "recharts"
+import type { TooltipValueType } from "recharts"
+
+// Format: { THEME_NAME: CSS_SELECTOR }
+const THEMES = { light: "", dark: ".dark" } as const
+
+const INITIAL_DIMENSION = { width: 320, height: 200 } as const
+type TooltipNameType = number | string
+
+export type ChartConfig = Record<
+  string,
+  {
+    label?: React.ReactNode
+    icon?: React.ComponentType
+  } & (
+    | { color?: string; theme?: never }
+    | { color?: never; theme: Record<keyof typeof THEMES, string> }
+  )
+>
+
+type ChartContextProps = {
+  config: ChartConfig
+}
+
+const ChartContext = React.createContext<ChartContextProps | null>(null)
+
+function useChart() {
+  const context = React.useContext(ChartContext)
+
+  if (!context) {
+    throw new Error("useChart must be used within a <ChartContainer />")
+  }
+
+  return context
+}
+
+function ChartContainer({
+  id,
+  className,
+  children,
+  config,
+  initialDimension = INITIAL_DIMENSION,
+  ...props
+}: React.ComponentProps<"div"> & {
+  config: ChartConfig
+  children: React.ComponentProps<
+    typeof RechartsPrimitive.ResponsiveContainer
+  >["children"]
+  initialDimension?: {
+    width: number
+    height: number
+  }
+}) {
+  const uniqueId = React.useId()
+  const chartId = `chart-${id ?? uniqueId.replace(/:/g, "")}`
+
+  return (
+    <ChartContext.Provider value={{ config }}>
+      <div
+        data-slot="chart"
+        data-chart={chartId}
+        className={cn(
+          "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
+          className
+        )}
+        {...props}
+      >
+        <ChartStyle id={chartId} config={config} />
+        <RechartsPrimitive.ResponsiveContainer
+          initialDimension={initialDimension}
+        >
+          {children}
+        </RechartsPrimitive.ResponsiveContainer>
+      </div>
+    </ChartContext.Provider>
+  )
+}
+
+const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
+  const colorConfig = Object.entries(config).filter(
+    ([, config]) => config.theme ?? config.color
+  )
+
+  if (!colorConfig.length) {
+    return null
+  }
+
+  return (
+    <style
+      dangerouslySetInnerHTML={{
+        __html: Object.entries(THEMES)
+          .map(
+            ([theme, prefix]) => `
+${prefix} [data-chart=${id}] {
+${colorConfig
+  .map(([key, itemConfig]) => {
+    const color =
+      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ??
+      itemConfig.color
+    return color ? `  --color-${key}: ${color};` : null
+  })
+  .join("\n")}
+}
+`
+          )
+          .join("\n"),
+      }}
+    />
+  )
+}
+
+const ChartTooltip = RechartsPrimitive.Tooltip
+
+function ChartTooltipContent({
+  active,
+  payload,
+  className,
+  indicator = "dot",
+  hideLabel = false,
+  hideIndicator = false,
+  label,
+  labelFormatter,
+  labelClassName,
+  formatter,
+  color,
+  nameKey,
+  labelKey,
+}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+  React.ComponentProps<"div"> & {
+    hideLabel?: boolean
+    hideIndicator?: boolean
+    indicator?: "line" | "dot" | "dashed"
+    nameKey?: string
+    labelKey?: string
+  } & Omit<
+    RechartsPrimitive.DefaultTooltipContentProps<
+      TooltipValueType,
+      TooltipNameType
+    >,
+    "accessibilityLayer"
+  >) {
+  const { config } = useChart()
+
+  const tooltipLabel = React.useMemo(() => {
+    if (hideLabel || !payload?.length) {
+      return null
+    }
+
+    const [item] = payload
+    const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`
+    const itemConfig = getPayloadConfigFromPayload(config, item, key)
+    const value =
+      !labelKey && typeof label === "string"
+        ? (config[label]?.label ?? label)
+        : itemConfig?.label
+
+    if (labelFormatter) {
+      return (
+        <div className={cn("font-medium", labelClassName)}>
+          {labelFormatter(value, payload)}
+        </div>
+      )
+    }
+
+    if (!value) {
+      return null
+    }
+
+    return <div className={cn("font-medium", labelClassName)}>{value}</div>
+  }, [
+    label,
+    labelFormatter,
+    payload,
+    hideLabel,
+    labelClassName,
+    config,
+    labelKey,
+  ])
+
+  if (!active || !payload?.length) {
+    return null
+  }
+
+  const nestLabel = payload.length === 1 && indicator !== "dot"
+
+  return (
+    <div
+      className={cn(
+        "grid min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+        className
+      )}
+    >
+      {!nestLabel ? tooltipLabel : null}
+      <div className="grid gap-1.5">
+        {payload
+          .filter((item) => item.type !== "none")
+          .map((item, index) => {
+            const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`
+            const itemConfig = getPayloadConfigFromPayload(config, item, key)
+            const indicatorColor = color ?? item.payload?.fill ?? item.color
+
+            return (
+              <div
+                key={index}
+                className={cn(
+                  "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
+                  indicator === "dot" && "items-center"
+                )}
+              >
+                {formatter && item?.value !== undefined && item.name ? (
+                  formatter(item.value, item.name, item, index, item.payload)
+                ) : (
+                  <>
+                    {itemConfig?.icon ? (
+                      <itemConfig.icon />
+                    ) : (
+                      !hideIndicator && (
+                        <div
+                          className={cn(
+                            "shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)",
+                            {
+                              "h-2.5 w-2.5": indicator === "dot",
+                              "w-1": indicator === "line",
+                              "w-0 border-[1.5px] border-dashed bg-transparent":
+                                indicator === "dashed",
+                              "my-0.5": nestLabel && indicator === "dashed",
+                            }
+                          )}
+                          style={
+                            {
+                              "--color-bg": indicatorColor,
+                              "--color-border": indicatorColor,
+                            } as React.CSSProperties
+                          }
+                        />
+                      )
+                    )}
+                    <div
+                      className={cn(
+                        "flex flex-1 justify-between leading-none",
+                        nestLabel ? "items-end" : "items-center"
+                      )}
+                    >
+                      <div className="grid gap-1.5">
+                        {nestLabel ? tooltipLabel : null}
+                        <span className="text-muted-foreground">
+                          {itemConfig?.label ?? item.name}
+                        </span>
+                      </div>
+                      {item.value != null && (
+                        <span className="font-mono font-medium text-foreground tabular-nums">
+                          {typeof item.value === "number"
+                            ? item.value.toLocaleString()
+                            : String(item.value)}
+                        </span>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          })}
+      </div>
+    </div>
+  )
+}
+
+const ChartLegend = RechartsPrimitive.Legend
+
+function ChartLegendContent({
+  className,
+  hideIcon = false,
+  payload,
+  verticalAlign = "bottom",
+  nameKey,
+}: React.ComponentProps<"div"> & {
+  hideIcon?: boolean
+  nameKey?: string
+} & RechartsPrimitive.DefaultLegendContentProps) {
+  const { config } = useChart()
+
+  if (!payload?.length) {
+    return null
+  }
+
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-center gap-4",
+        verticalAlign === "top" ? "pb-3" : "pt-3",
+        className
+      )}
+    >
+      {payload
+        .filter((item) => item.type !== "none")
+        .map((item, index) => {
+          const key = `${nameKey ?? item.dataKey ?? "value"}`
+          const itemConfig = getPayloadConfigFromPayload(config, item, key)
+
+          return (
+            <div
+              key={index}
+              className={cn(
+                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
+              )}
+            >
+              {itemConfig?.icon && !hideIcon ? (
+                <itemConfig.icon />
+              ) : (
+                <div
+                  className="h-2 w-2 shrink-0 rounded-[2px]"
+                  style={{
+                    backgroundColor: item.color,
+                  }}
+                />
+              )}
+              {itemConfig?.label}
+            </div>
+          )
+        })}
+    </div>
+  )
+}
+
+function getPayloadConfigFromPayload(
+  config: ChartConfig,
+  payload: unknown,
+  key: string
+) {
+  if (typeof payload !== "object" || payload === null) {
+    return undefined
+  }
+
+  const payloadPayload =
+    "payload" in payload &&
+    typeof payload.payload === "object" &&
+    payload.payload !== null
+      ? payload.payload
+      : undefined
+
+  let configLabelKey: string = key
+
+  if (
+    key in payload &&
+    typeof payload[key as keyof typeof payload] === "string"
+  ) {
+    configLabelKey = payload[key as keyof typeof payload] as string
+  } else if (
+    payloadPayload &&
+    key in payloadPayload &&
+    typeof payloadPayload[key as keyof typeof payloadPayload] === "string"
+  ) {
+    configLabelKey = payloadPayload[
+      key as keyof typeof payloadPayload
+    ] as string
+  }
+
+  return configLabelKey in config ? config[configLabelKey] : config[key]
+}
+
+export {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartStyle,
+}
+
+```
+
+## Source: src/components/ui/table.tsx
+
+```tsx
+import * as React from "react"
+import { cn } from "cn"
+
+function Table({ className, ...props }: React.ComponentProps<"table">) {
+  return (
+    <div
+      data-slot="table-container"
+      className="relative w-full overflow-x-auto"
+    >
+      <table
+        data-slot="table"
+        className={cn("w-full caption-bottom text-sm", className)}
+        {...props}
+      />
+    </div>
+  )
+}
+
+function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
+  return (
+    <thead
+      data-slot="table-header"
+      className={cn("[&_tr]:border-b", className)}
+      {...props}
+    />
+  )
+}
+
+function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
+  return (
+    <tbody
+      data-slot="table-body"
+      className={cn("[&_tr:last-child]:border-0", className)}
+      {...props}
+    />
+  )
+}
+
+function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
+  return (
+    <tfoot
+      data-slot="table-footer"
+      className={cn(
+        "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
+  return (
+    <tr
+      data-slot="table-row"
+      className={cn(
+        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+  return (
+    <th
+      data-slot="table-head"
+      className={cn(
+        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+  return (
+    <td
+      data-slot="table-cell"
+      className={cn(
+        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function TableCaption({
+  className,
+  ...props
+}: React.ComponentProps<"caption">) {
+  return (
+    <caption
+      data-slot="table-caption"
+      className={cn("mt-4 text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  )
+}
+
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
+}
+
+```
+
+## Source: src/lib/data-table-features.ts
+
+```tsx
+import {
+  columnFacetingFeature,
+  columnFilteringFeature,
+  columnSizingFeature,
+  columnVisibilityFeature,
+  createFacetedRowModel,
+  createFacetedUniqueValues,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
+  filterFn_arrIncludes,
+  filterFn_equalsString,
+  filterFn_includesString,
+  globalFilteringFeature,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  sortFn_alphanumeric,
+  sortFn_datetime,
+  sortFn_text,
+  tableFeatures,
+} from "@tanstack/react-table";
+
+/**
+ * Central TanStack Table v9 feature registry for every dashboard data table.
+ * V9 requires features and built-in functions to be registered explicitly; sharing this registry and its inferred type
+ * keeps useTable instances, ColumnDef declarations, and reusable table helpers on the same feature contract. Explicit
+ * registration also lets the bundler tree-shake features, row models, and filter/sort functions unused by the dashboard.
+ */
+export const dataTableFeatures = tableFeatures({
+  columnFacetingFeature,
+  columnFilteringFeature,
+  columnSizingFeature,
+  columnVisibilityFeature,
+  globalFilteringFeature,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  facetedRowModel: createFacetedRowModel(),
+  facetedUniqueValues: createFacetedUniqueValues(),
+  filteredRowModel: createFilteredRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+  sortedRowModel: createSortedRowModel(),
+  filterFns: {
+    arrIncludes: filterFn_arrIncludes,
+    equalsString: filterFn_equalsString,
+    includesString: filterFn_includesString,
+  },
+  sortFns: {
+    alphanumeric: sortFn_alphanumeric,
+    datetime: sortFn_datetime,
+    text: sortFn_text,
+  },
+});
+
+export type DataTableFeatures = typeof dataTableFeatures;
+
+```

@@ -5,16 +5,7 @@ import { defaultLocale, type Locale, locales, localizePath } from "@/lib/i18n";
 
 import type { SearchParamsInput } from "./types";
 
-export const SITEMAP_STATIC_PATHS = [
-  "/",
-  "/collections",
-  "/creators",
-  "/design",
-  "/designers",
-  "/making-of",
-  "/roadmap",
-  "/sales",
-] as const;
+export { SITEMAP_LOCALES, SITEMAP_STATIC_PATHS } from "./paths";
 
 function normalizePath(pathname: string): string {
   if (!pathname) return "/";
