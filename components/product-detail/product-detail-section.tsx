@@ -38,7 +38,7 @@ import { Label } from "@/components/ui/label";
 import { Link } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { breadcrumbCollectionId, getCategory } from "@/lib/collections/categories";
+import { breadcrumbCollectionId, collectionLabel } from "@/lib/collections/categories";
 import { shopConfig } from "@/lib/config";
 import { commerceLocale, type Locale } from "@/lib/i18n";
 import { getLocale, getT } from "@/lib/i18n/server";
@@ -164,14 +164,14 @@ async function ProductInfoArea({
   const locale = await getLocale();
   const isArabic = locale === "ar";
   const collectionId = breadcrumbCollectionId(product.handle, product.tags ?? []);
-  const category = collectionId ? getCategory(collectionId) : undefined;
+  const category = collectionId ? collectionLabel(collectionId) : undefined;
   const crumbs = [
     { name: t("Home"), path: "/" },
-    ...(category
+    ...(collectionId && category
       ? [
           {
             name: isArabic ? category.labelAr : category.labelEn,
-            path: `/collections/${category.id}`,
+            path: `/collections/${collectionId}`,
           },
         ]
       : []),

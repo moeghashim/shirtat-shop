@@ -115,7 +115,10 @@ test("organization alternateName is the Arabic brand", () => {
 test("related collections only include collections the shop publishes", () => {
   assert.deepEqual(relatedCollectionIds("tafakkar-t-shirt", ["category:poetry", "category:tees"]), [
     "poetry",
+    "t-shirts",
   ]);
+  assert.equal(breadcrumbCollectionId("tafakkar-t-shirt", ["category:poetry"]), "poetry");
+  assert.equal(breadcrumbCollectionId("tafakkar-t-shirt", []), "t-shirts");
   assert.deepEqual(
     breadcrumbCollectionId("tafakkar-kids-t-shirt", ["category:poetry", "category:kids"]),
     "poetry",
@@ -125,4 +128,12 @@ test("related collections only include collections the shop publishes", () => {
     "kids",
   ]);
   assert.equal(breadcrumbCollectionId("example-baby-bodysuit", []), "baby");
+  assert.deepEqual(relatedCollectionIds("habibi-dad-cap", []), ["caps-beanies"]);
+  assert.deepEqual(relatedCollectionIds("habibi-cuffed-beanie", []), ["caps-beanies"]);
+  assert.deepEqual(relatedCollectionIds("bayni-wa-baynak-print", []), ["posters-prints"]);
+  assert.equal(
+    breadcrumbCollectionId("habibi-call-me-senator-mug", ["category:politics"]),
+    "politics",
+  );
+  assert.equal(relatedCollectionIds("custom-track-jacket", []).length, 0);
 });

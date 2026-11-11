@@ -2,7 +2,7 @@ import { ChevronDownIcon, GlobeIcon, PrinterIcon, RotateCcwIcon } from "lucide-r
 
 import { ProductCard } from "@/components/product-card/product-card";
 import { Link } from "@/components/ui/link";
-import { getCategory, relatedCollectionIds } from "@/lib/collections/categories";
+import { collectionLabel, getCategory, relatedCollectionIds } from "@/lib/collections/categories";
 import type { CommerceLocale } from "@/lib/config/types";
 import { detectProductScript } from "@/lib/i18n/product";
 import { getAlsoLike, getMoreFromDesign, getPdpExtras } from "@/lib/product/pdp-extras";
@@ -589,15 +589,15 @@ export function RelatedCollections({
       </h2>
       <ul className="flex flex-wrap gap-2">
         {ids.map((id) => {
-          const category = getCategory(id);
-          if (!category) return null;
+          const label = collectionLabel(id);
+          if (!label) return null;
           return (
             <li key={id}>
               <Link
                 className="inline-flex min-h-11 items-center rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted"
                 href={`/collections/${id}`}
               >
-                {isArabic ? category.labelAr : category.labelEn}
+                {isArabic ? label.labelAr : label.labelEn}
               </Link>
             </li>
           );
