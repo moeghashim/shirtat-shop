@@ -1,6 +1,7 @@
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { Page } from "@/components/ui/page";
+import { Skeleton } from "@/components/ui/skeleton";
 import { guideRails } from "@/lib/guides/select";
 import { loadGuideSources } from "@/lib/guides/server";
 import type { Guide } from "@/lib/guides/types";
@@ -9,6 +10,37 @@ import { commerceLocale } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n";
 
 import { GuideRails } from "./product-rail";
+
+export function GuideArticleSkeleton() {
+  return (
+    <Page aria-busy="true">
+      <Container>
+        <div className="grid gap-10">
+          <div className="grid gap-3">
+            <Skeleton className="h-10 w-2/3 max-w-xl sm:h-12" />
+            <Skeleton className="h-5 w-full max-w-3xl" />
+            <Skeleton className="h-5 w-full max-w-3xl" />
+            <Skeleton className="h-5 w-4/5 max-w-2xl" />
+          </div>
+          <div className="grid gap-3">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-5 w-full max-w-3xl" />
+            <Skeleton className="h-5 w-5/6 max-w-3xl" />
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {["a", "b", "c", "d"].map((slot) => (
+              <div className="grid gap-2" key={slot}>
+                <Skeleton className="aspect-square w-full rounded-2xl" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/3" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </Container>
+    </Page>
+  );
+}
 
 function RichText({ text }: { text: string }) {
   const parts = text.split(/(https:\/\/\S+)/);
