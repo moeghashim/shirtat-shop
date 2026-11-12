@@ -39,8 +39,16 @@ export async function dbProfile(input: Input = {}): Promise<ProfileRecord | null
   return { ...identity, ...row.profile_contacts, ...row.profile_employment, ...row.profile_leave, manager, documents };
 }
 export async function readProfile(input: Input = {}) {
-  return readSource(
-    () => demoProfile(input),
-    () => dbProfile(input),
-  );
+  try {
+    const record = await readSource(
+      () => demoProfile(input),
+      () => dbProfile(input),
+    );
+    if (record) return record;
+  } catch {
+    // Production uses a real Neon database for auth, so readSource will not
+    // fall back on its own. The people profile is still a tenboards sample
+    // record, and the tables may be unmigrated or unseeded.
+  }
+  return demoProfile(input);
 }
