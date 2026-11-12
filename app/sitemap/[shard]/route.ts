@@ -5,6 +5,7 @@ import { GUIDE_PATHS } from "@/lib/guides/copy";
 import { locales, localizePath, type Locale } from "@/lib/i18n";
 import { LEGAL } from "@/lib/legal/content";
 import { getShopPolicies } from "@/lib/policies/server";
+import { PRINT_METHOD_LASTMOD, PRINT_METHOD_PATHS } from "@/lib/print-methods";
 import {
   SITEMAP_LOCALIZED_MARKDOWN_PATHS,
   SITEMAP_SHARED_MARKDOWN_PATHS,
@@ -72,6 +73,7 @@ function staticLastmod(pathname: string): string {
     return LEGAL_LASTMOD;
   }
   if ((GUIDE_PATHS as readonly string[]).includes(pathname)) return GUIDE_LASTMOD;
+  if ((PRINT_METHOD_PATHS as readonly string[]).includes(pathname)) return PRINT_METHOD_LASTMOD;
   return STATIC_LASTMOD;
 }
 

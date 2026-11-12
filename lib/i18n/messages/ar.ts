@@ -60,8 +60,6 @@ export const ar = {
     "مفهوم توضيحي. ليست صورة منتج وليست للبيع.",
   "In the shop": "في المتجر",
   "Increase quantity": "زيادة الكمية",
-  "Ink goes straight onto the fabric. Tees, hoodies and sweatshirts in the shop are printed this way.":
-    "يصل الحبر إلى القماش مباشرة. التيشيرتات والهوديز والسويتشيرتات في المتجر تُطبع بهذه الطريقة.",
   Inspiration: "الإلهام",
   "Inspired by the art of the pen": "مستوحاة من فن القلم",
   "Item quantity": "الكمية",
@@ -203,12 +201,7 @@ export const ar = {
     "نموذج تجريبي. هذه المعاينة لا تغيّر سلتك.",
   "The assistant is unavailable. Try again, or clear an expired conversation.":
     "المساعد غير متاح. حاول مجددًا، أو امسح محادثة منتهية.",
-  "The design is stitched into the knit. The beanies in the shop are embroidered.":
-    "يُخاط التصميم في النسيج. قبعات البيني في المتجر مطرّزة.",
-  "The print covers the garment, rather than sitting in one spot. No all-over-print piece is in the shop yet.":
-    "تغطي الطباعة القطعة، ولا تجلس في موضع واحد. لا توجد في المتجر قطعة بطباعة شاملة بعد.",
   "These four pieces are not in the shop yet.": "هذه القطع الأربع ليست في المتجر بعد.",
-  "Three print methods": "ثلاث طرق للطباعة",
   "Thinking…": "جارٍ التفكير…",
   "This cart updates as you change it.": "تتحدّث هذه السلة مع تغييراتك.",
   "This conversation has reached its limit. Clear chat to start a new conversation.":
