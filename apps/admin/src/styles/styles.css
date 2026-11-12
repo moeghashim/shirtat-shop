@@ -352,8 +352,24 @@
 }
 .control-primary:hover { background: var(--primary-hover); }
 .control-primary:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 20%, transparent); outline: 1px solid var(--ring); outline-offset: 0; }
-[data-slot="select-trigger"], [data-slot="native-select"] { position: relative; padding: 0 36px 0 10px; }
-[data-slot="select-trigger"] > svg, [data-slot="native-select-icon"] { position: absolute; right: 10px; top: 50%; translate: none; transform: translateY(-50%); width: 16px; height: 16px; }
+[data-slot="native-select-wrapper"] { position: relative; display: inline-flex; align-items: center; }
+/* Logical padding so the chevron gutter flips in RTL. Do not use transform
+   here: Tailwind already translates some icons, and a second translateY(-50%)
+   pinned the chevron to the top-right corner. */
+[data-slot="select-trigger"], [data-slot="native-select"] { position: relative; padding-block: 0; padding-inline: 10px 36px; }
+[data-slot="select-trigger"] > svg, [data-slot="native-select-icon"] {
+  position: absolute;
+  inset-inline-end: 10px;
+  inset-inline-start: auto;
+  inset-block: 0;
+  top: auto;
+  right: auto;
+  margin-block: auto;
+  translate: none;
+  transform: none;
+  width: 16px;
+  height: 16px;
+}
 [data-slot="input"]:is([type="date"], [type="time"], [type="datetime-local"], [type="month"]) { position: relative; padding-inline: 10px; height: calc(var(--spacing) * 8); }
 [data-slot="input"]::-webkit-calendar-picker-indicator { width: 16px; height: 16px; margin: 0; padding: 0; }
 .dark [data-slot="input"]::-webkit-calendar-picker-indicator { filter: invert(1); }

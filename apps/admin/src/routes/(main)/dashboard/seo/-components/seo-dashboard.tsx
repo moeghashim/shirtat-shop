@@ -76,9 +76,17 @@ const OWNERS = [
 
 const phaseChart = seriesConfig({ done: "Done", remaining: "Remaining" });
 
-function Table({ "aria-label": label, children }: { "aria-label": string; children: ReactNode }) {
+function Table({
+  "aria-label": label,
+  className,
+  children,
+}: {
+  "aria-label": string;
+  className?: string;
+  children: ReactNode;
+}) {
   return (
-    <table aria-label={label} className="w-full text-sm">
+    <table aria-label={label} className={["w-full text-sm", className].filter(Boolean).join(" ")}>
       {children}
     </table>
   );
@@ -92,18 +100,87 @@ function TableBody({ children }: { children: ReactNode }) {
 function TableRow({ children }: { children: ReactNode }) {
   return <tr className="border-b">{children}</tr>;
 }
-function TableHead({ children, scope = "col" }: { children: ReactNode; scope?: "col" }) {
+function TableHead({
+  children,
+  scope = "col",
+  numeric = false,
+}: {
+  children: ReactNode;
+  scope?: "col";
+  numeric?: boolean;
+}) {
   return (
-    <th className="p-2 text-left align-top font-medium" scope={scope}>
+    <th
+      className={["p-2 align-middle font-medium", numeric ? "text-end tabular-nums" : "text-start"].join(" ")}
+      scope={scope}
+    >
       {children}
     </th>
   );
 }
-function TableCell({ children, colSpan }: { children: ReactNode; colSpan?: number }) {
+function TableCell({
+  children,
+  colSpan,
+  numeric = false,
+}: {
+  children: ReactNode;
+  colSpan?: number;
+  numeric?: boolean;
+}) {
   return (
-    <td className="p-2 align-top" colSpan={colSpan}>
+    <td className={["p-2 align-middle", numeric ? "text-end tabular-nums" : "text-start"].join(" ")} colSpan={colSpan}>
       {children}
     </td>
+  );
+}
+
+function ProgressSummaryTable({
+  "aria-label": label,
+  firstColumn,
+  rows,
+}: {
+  "aria-label": string;
+  firstColumn: string;
+  rows: ProgressSlice[];
+}) {
+  return (
+    <Table aria-label={label} className="table-fixed">
+      <colgroup>
+        <col className="w-[40%]" />
+        <col className="w-[15%]" />
+        <col className="w-[15%]" />
+        <col className="w-[15%]" />
+        <col className="w-[15%]" />
+      </colgroup>
+      <TableHeader>
+        <TableRow>
+          <TableHead scope="col">{firstColumn}</TableHead>
+          <TableHead numeric scope="col">
+            Done
+          </TableHead>
+          <TableHead numeric scope="col">
+            Remaining
+          </TableHead>
+          <TableHead numeric scope="col">
+            Total
+          </TableHead>
+          <TableHead numeric scope="col">
+            Percent
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row) => (
+          <TableRow key={row.id}>
+            <TableCell>{row.label}</TableCell>
+            <TableCell numeric>{row.done}</TableCell>
+            <TableCell numeric>{row.total - row.done}</TableCell>
+            <TableCell numeric>{row.total}</TableCell>
+            <TableCell numeric>{row.percent}%</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 
@@ -204,28 +281,7 @@ function PhaseChart({ phases }: { phases: ProgressSlice[] }) {
           <Bar dataKey="remaining" fill={phaseChart.remaining.color} {...motion} />
         </BarChart>
       </DashboardChart>
-      <Table aria-label="Tasks done and remaining by phase">
-        <TableHeader>
-          <TableRow>
-            <TableHead scope="col">Phase</TableHead>
-            <TableHead scope="col">Done</TableHead>
-            <TableHead scope="col">Remaining</TableHead>
-            <TableHead scope="col">Total</TableHead>
-            <TableHead scope="col">Percent</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {phases.map((phase) => (
-            <TableRow key={phase.id}>
-              <TableCell>{phase.label}</TableCell>
-              <TableCell>{phase.done}</TableCell>
-              <TableCell>{phase.total - phase.done}</TableCell>
-              <TableCell>{phase.total}</TableCell>
-              <TableCell>{phase.percent}%</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <ProgressSummaryTable aria-label="Tasks done and remaining by phase" firstColumn="Phase" rows={phases} />
     </div>
   );
 }
@@ -331,26 +387,7 @@ export function SeoDashboard({ data, search }: { data: SeoDashboardData; search:
             <ProgressValue />
           </Progress>
           <PhaseChart phases={data.progress.phases} />
-          <Table aria-label="Progress by area">
-            <TableHeader>
-              <TableRow>
-                <TableHead scope="col">Area</TableHead>
-                <TableHead scope="col">Done</TableHead>
-                <TableHead scope="col">Total</TableHead>
-                <TableHead scope="col">Percent</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.progress.areas.map((area) => (
-                <TableRow key={area.id}>
-                  <TableCell>{area.label}</TableCell>
-                  <TableCell>{area.done}</TableCell>
-                  <TableCell>{area.total}</TableCell>
-                  <TableCell>{area.percent}%</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <ProgressSummaryTable aria-label="Progress by area" firstColumn="Area" rows={data.progress.areas} />
         </CardContent>
       </DashboardCard>
       <div className="grid gap-4 sm:grid-cols-3">
