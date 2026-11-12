@@ -9,7 +9,7 @@ export async function DesignBand() {
       <div className="relative isolate flex flex-col items-start gap-5 overflow-hidden rounded-3xl bg-gradient-to-br from-stone-950 via-stone-900 to-emerald-950 px-6 py-10 text-white sm:flex-row sm:items-center sm:justify-between sm:px-12 sm:py-12">
         <span
           aria-hidden
-          className="pointer-events-none absolute -bottom-6 end-4 -z-10 select-none font-serif text-[9rem] leading-none text-white/10 sm:text-[12rem]"
+          className="pointer-events-none absolute -bottom-6 end-4 -z-10 select-none font-arabic text-[9rem] leading-none text-white/10 sm:text-[12rem]"
           dir="rtl"
           lang="ar"
         >

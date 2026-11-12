@@ -98,7 +98,7 @@ export async function CategoryTiles() {
               >
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute -top-2 end-3 font-serif text-5xl leading-none opacity-25 transition-transform duration-500 group-hover:scale-110 sm:text-8xl"
+                  className="pointer-events-none absolute -top-2 end-3 font-arabic text-5xl leading-none opacity-25 transition-transform duration-500 group-hover:scale-110 sm:text-8xl"
                   dir="rtl"
                 >
                   {style.glyph}
@@ -212,7 +212,7 @@ export async function DesignSpotlight() {
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
             {t("Design spotlight")}
           </p>
-          <p className="font-serif text-5xl md:text-7xl" dir="rtl" lang="ar">
+          <p className="font-arabic text-5xl md:text-7xl" dir="rtl" lang="ar">
             {SPOTLIGHT.quoteAr}
           </p>
           <h2 className="text-2xl font-semibold md:text-3xl">
