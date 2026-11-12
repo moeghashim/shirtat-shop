@@ -359,11 +359,10 @@
 [data-slot="select-trigger"], [data-slot="native-select"] { position: relative; padding-block: 0; padding-inline: 10px 36px; }
 [data-slot="select-trigger"] > svg, [data-slot="native-select-icon"] {
   position: absolute;
-  inset-inline-end: 10px;
-  inset-inline-start: auto;
   inset-block: 0;
+  inset-inline-start: auto;
+  inset-inline-end: 10px;
   top: auto;
-  right: auto;
   margin-block: auto;
   translate: none;
   transform: none;
