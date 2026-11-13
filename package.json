@@ -11,7 +11,7 @@
     "format": "oxfmt",
     "lint": "oxlint . && oxfmt --check",
     "start": "next start",
-    "test": "node --experimental-strip-types --import ./scripts/register-ts.mjs --test lib/seo-plan/plan.test.ts lib/chat-review/review.test.ts lib/agent/openui/cards.test.ts lib/agent/voice/voice.test.ts lib/i18n/product.test.ts lib/seo/product.test.ts lib/content/mentions.test.ts lib/markdown/markdown.test.ts",
+    "test": "node --experimental-strip-types --import ./scripts/register-ts.mjs --test lib/seo-plan/plan.test.ts lib/chat-review/review.test.ts lib/agent/openui/cards.test.ts lib/agent/voice/voice.test.ts lib/i18n/product.test.ts lib/seo/product.test.ts lib/content/mentions.test.ts lib/markdown/markdown.test.ts lib/product/specs-parse.test.ts",
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
