@@ -42,6 +42,35 @@ export const arCreators = {
   "Your calligraphy, worn around the world": "خطّك العربي، يرتديه الناس حول العالم",
   "Submit your Arabic calligraphy designs. We print, sell and ship them, and you earn a share of every sale.":
     "قدّم تصاميمك بالخط العربي، ونحن نتولى طباعتها وبيعها وشحنها، وتحصل أنت على حصة من كل عملية بيع.",
+  "Submit your Arabic calligraphy. It is sold worldwide on the Shirtat website and Etsy, with TikTok Shop and Amazon coming soon. You earn 15–20% of every sale.":
+    "قدّم خطوطك العربية. تُباع حول العالم على موقع شيرتات وعلى Etsy، وTikTok Shop وAmazon قريبًا. وتحصل على ‎15–20%‎ من كل عملية بيع.",
+  "Your design, sold worldwide": "تصميمك، يُباع حول العالم",
+  "Submit your Arabic calligraphy. Shirtat prints it on demand, ships it around the world, and lists it on the Shirtat website and Etsy — with TikTok Shop and Amazon coming soon. You earn a royalty on every sale, and you never hold inventory.":
+    "قدّم خطوطك العربية. تطبعها شيرتات حسب الطلب، وتشحنها حول العالم، وتعرضها على موقع شيرتات وعلى Etsy — وTikTok Shop وAmazon قريبًا. وتحصل أنت على حصة من كل عملية بيع، دون أن تحتفظ بأي مخزون.",
+  "Where your design sells": "أين يُباع تصميمك",
+  "Approved designs are sold today on the Shirtat website and on Etsy. TikTok Shop and Amazon are coming soon.":
+    "تُباع التصاميم المقبولة اليوم على موقع شيرتات وعلى Etsy، وTikTok Shop وAmazon قريبًا.",
+  "The Shirtat website": "موقع شيرتات",
+  "Live on Etsy": "يُباع الآن على Etsy",
+  "Coming soon": "قريبًا",
+  Apply: "قدّم طلبك",
+  "We review": "نراجع الطلب",
+  "Sold worldwide": "يُباع حول العالم",
+  "Once approved, your designs go on Shirtat products and are listed on our sales channels. Shirtat covers printing, inventory, payments, shipping and customer service, and you earn a share of every sale.":
+    "بعد القبول، تُطبع تصاميمك على منتجات شيرتات وتُعرض على قنوات البيع لدينا. وتتكفّل شيرتات بالطباعة والمخزون والمدفوعات والشحن وخدمة العملاء، وتحصل أنت على حصة من كل عملية بيع.",
+  "Why designers sell on Shirtat": "لماذا يبيع المصممون على شيرتات",
+  "Worldwide shipping": "شحن حول العالم",
+  "Print-on-demand partners print each order and ship to the countries they cover. Your design can be worn around the world, and you do not run a warehouse.":
+    "يطبع شركاء الطباعة حسب الطلب كل طلب ويشحنونه إلى الدول التي يغطونها. يمكن أن يُرتدى تصميمك حول العالم، دون أن تدير مستودعًا.",
+  "No inventory": "بدون مخزون",
+  "You do not buy stock or pack orders. Shirtat prints each piece as the order comes in.":
+    "لا تشتري بضاعة ولا تغلف الطلبات. تطبع شيرتات كل قطعة عند ورود الطلب.",
+  "A royalty on every sale": "حصة من كل عملية بيع",
+  "You earn 15% of the net item price, or 20% if you sell 50 or more units in a calendar quarter. The rate never falls below 15%.":
+    "تربح ‎15%‎ من صافي سعر المنتج، أو ‎20%‎ إذا بعت 50 قطعة أو أكثر خلال ربع سنة تقويمي. ولن تقل النسبة أبدًا عن ‎15%‎.",
+  "Ready to sell your design worldwide?": "هل أنت مستعد لبيع تصميمك حول العالم؟",
+  "Apply with a few designs. If you are approved, Shirtat prints, lists and ships them, and you earn a royalty on every sale.":
+    "قدّم طلبك مع بعض التصاميم. إذا قُبلت، تطبعها شيرتات وتعرضها وتشحنها، وتحصل أنت على حصة من كل عملية بيع.",
   "Apply now": "قدّم الآن",
   "Designer sign in": "دخول المصممين",
   "Standard rate": "النسبة الأساسية",

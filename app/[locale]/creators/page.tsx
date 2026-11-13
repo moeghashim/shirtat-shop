@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
@@ -12,10 +13,81 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   return {
     title: t("Sell on Shirtat"),
-    description: t("Submit your Arabic calligraphy designs and earn 15–20% of every sale."),
+    description: t(
+      "Submit your Arabic calligraphy. It is sold worldwide on the Shirtat website and Etsy, with TikTok Shop and Amazon coming soon. You earn 15–20% of every sale.",
+    ),
     alternates: buildAlternates({ locale, pathname: "/creators" }),
   };
 }
+
+const CHANNELS = [
+  {
+    name: "Shirtat",
+    src: "/shirtat-logo.svg",
+    width: 554,
+    height: 461,
+    alt: "Shirtat",
+    status: "The Shirtat website",
+    comingSoon: false,
+  },
+  {
+    name: "Etsy",
+    src: "/logos/etsy.svg",
+    width: 120,
+    height: 120,
+    alt: "Etsy",
+    status: "Live on Etsy",
+    comingSoon: false,
+  },
+  {
+    name: "TikTok Shop",
+    src: "/logos/tiktok.svg",
+    width: 1000,
+    height: 291,
+    alt: "TikTok Shop",
+    status: "Coming soon",
+    comingSoon: true,
+  },
+  {
+    name: "Amazon",
+    src: "/logos/amazon.svg",
+    width: 603,
+    height: 182,
+    alt: "Amazon",
+    status: "Coming soon",
+    comingSoon: true,
+  },
+] as const;
+
+const STEPS = [
+  {
+    title: "Apply",
+    body: "Apply with a few sample designs and links to your work.",
+  },
+  {
+    title: "We review",
+    body: "We review every application by hand and reply within a few days.",
+  },
+  {
+    title: "Sold worldwide",
+    body: "Once approved, your designs go on Shirtat products and are listed on our sales channels. Shirtat covers printing, inventory, payments, shipping and customer service, and you earn a share of every sale.",
+  },
+] as const;
+
+const BENEFITS = [
+  {
+    title: "Worldwide shipping",
+    body: "Print-on-demand partners print each order and ship to the countries they cover. Your design can be worn around the world, and you do not run a warehouse.",
+  },
+  {
+    title: "No inventory",
+    body: "You do not buy stock or pack orders. Shirtat prints each piece as the order comes in.",
+  },
+  {
+    title: "A royalty on every sale",
+    body: "You earn 15% of the net item price, or 20% if you sell 50 or more units in a calendar quarter. The rate never falls below 15%.",
+  },
+] as const;
 
 const FAQ = [
   [
@@ -66,22 +138,20 @@ export default async function CreatorsPage() {
   ];
   return (
     <Page>
-      <Container className="max-w-3xl">
-        <section className="flex flex-col gap-5">
+      <Container className="max-w-5xl">
+        <section className="flex flex-col gap-6 md:max-w-3xl">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">
             {t("Sell on Shirtat")}
           </p>
-          <h1 className="text-4xl md:text-6xl font-semibold">
-            {t("Your calligraphy, worn around the world")}
-          </h1>
+          <h1 className="text-4xl font-semibold md:text-6xl">{t("Your design, sold worldwide")}</h1>
           <p className="text-lg text-muted-foreground">
             {t(
-              "Submit your Arabic calligraphy designs. We print, sell and ship them, and you earn a share of every sale.",
+              "Submit your Arabic calligraphy. Shirtat prints it on demand, ships it around the world, and lists it on the Shirtat website and Etsy — with TikTok Shop and Amazon coming soon. You earn a royalty on every sale, and you never hold inventory.",
             )}
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              className="rounded-full bg-foreground px-6 py-3 text-background font-medium"
+              className="rounded-full bg-foreground px-6 py-3 font-medium text-background"
               href="/creators/apply"
             >
               {t("Apply now")}
@@ -93,6 +163,81 @@ export default async function CreatorsPage() {
               {t("Designer sign in")}
             </Link>
           </div>
+        </section>
+
+        <section className="mt-20 flex flex-col gap-6">
+          <div className="md:max-w-3xl">
+            <h2 className="text-2xl font-semibold md:text-3xl">{t("Where your design sells")}</h2>
+            <p className="mt-3 text-muted-foreground">
+              {t(
+                "Approved designs are sold today on the Shirtat website and on Etsy. TikTok Shop and Amazon are coming soon.",
+              )}
+            </p>
+          </div>
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {CHANNELS.map((channel) => (
+              <li key={channel.name}>
+                <article className="flex h-full flex-col gap-4 rounded-2xl border border-border p-5">
+                  <div className="flex h-16 items-center justify-center rounded-xl bg-[#f6f1e8] px-4">
+                    <Image
+                      alt={t(channel.alt)}
+                      className="h-9 w-auto max-w-[8.5rem] object-contain"
+                      height={channel.height}
+                      src={channel.src}
+                      unoptimized
+                      width={channel.width}
+                    />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-semibold">{t(channel.name)}</h3>
+                    {channel.comingSoon ? (
+                      <span className="inline-flex items-center rounded-full border border-border bg-muted/60 px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                        {t("Coming soon")}
+                      </span>
+                    ) : null}
+                  </div>
+                  {channel.comingSoon ? null : (
+                    <p className="text-sm text-muted-foreground">{t(channel.status)}</p>
+                  )}
+                </article>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="mt-20 flex flex-col gap-6">
+          <h2 className="text-2xl font-semibold md:text-3xl">{t("How it works")}</h2>
+          <ol className="grid gap-3 md:grid-cols-3">
+            {STEPS.map((step, index) => (
+              <li
+                className="flex h-full flex-col gap-3 rounded-2xl border border-border p-6"
+                key={step.title}
+              >
+                <p className="flex size-9 items-center justify-center rounded-full bg-foreground text-sm font-semibold text-background">
+                  {index + 1}
+                </p>
+                <h3 className="text-lg font-semibold">{t(step.title)}</h3>
+                <p className="text-sm leading-6 text-muted-foreground">{t(step.body)}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="mt-20 flex flex-col gap-6">
+          <h2 className="text-2xl font-semibold md:text-3xl">
+            {t("Why designers sell on Shirtat")}
+          </h2>
+          <ul className="grid gap-3 md:grid-cols-3">
+            {BENEFITS.map((benefit) => (
+              <li
+                className="flex h-full flex-col gap-2 rounded-2xl border border-border p-6"
+                key={benefit.title}
+              >
+                <h3 className="text-lg font-semibold">{t(benefit.title)}</h3>
+                <p className="text-sm leading-6 text-muted-foreground">{t(benefit.body)}</p>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="mt-16 grid gap-5 sm:grid-cols-2">
@@ -114,22 +259,8 @@ export default async function CreatorsPage() {
           </div>
         </section>
 
-        <section className="mt-16 flex flex-col gap-4">
-          <h2 className="text-2xl md:text-3xl font-semibold">{t("How it works")}</h2>
-          <ol className="flex flex-col gap-3 list-decimal ps-5">
-            <li>{t("Apply with a few sample designs and links to your work.")}</li>
-            <li>{t("We review every application by hand and reply within a few days.")}</li>
-            <li>
-              {t(
-                "Once approved, your designs go on Shirtat products. Shirtat covers printing, stock, payments, shipping and customer service.",
-              )}
-            </li>
-            <li>{t("Track your sales and earnings in your designer dashboard.")}</li>
-          </ol>
-        </section>
-
-        <section className="mt-16 flex flex-col gap-4">
-          <h2 className="text-2xl md:text-3xl font-semibold">{t("Terms at a glance")}</h2>
+        <section className="mt-20 flex flex-col gap-4 md:max-w-3xl">
+          <h2 className="text-2xl font-semibold md:text-3xl">{t("Terms at a glance")}</h2>
           <ul className="flex flex-col gap-2 list-disc ps-5">
             {terms.map((term) => (
               <li key={term}>{term}</li>
@@ -147,24 +278,39 @@ export default async function CreatorsPage() {
           </p>
         </section>
 
-        <section className="mt-16 flex flex-col gap-6">
-          <h2 className="text-2xl md:text-3xl font-semibold">{t("FAQ")}</h2>
+        <section className="mt-20 flex flex-col gap-6 md:max-w-3xl">
+          <h2 className="text-2xl font-semibold md:text-3xl">{t("FAQ")}</h2>
           {FAQ.map(([q, a]) => (
-            <div key={q} className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1" key={q}>
               <h3 className="font-semibold">{t(q)}</h3>
               <p className="text-muted-foreground">{t(a)}</p>
             </div>
           ))}
         </section>
 
-        <section className="mt-16 rounded-2xl bg-muted/60 p-8 text-center">
-          <h2 className="text-2xl font-semibold">{t("Ready to share your work?")}</h2>
-          <Link
-            className="mt-5 inline-block rounded-full bg-foreground px-6 py-3 text-background font-medium"
-            href="/creators/apply"
-          >
-            {t("Apply now")}
-          </Link>
+        <section className="mt-20 mb-8 rounded-2xl bg-muted/60 px-8 py-12 text-center">
+          <h2 className="text-2xl font-semibold md:text-3xl">
+            {t("Ready to sell your design worldwide?")}
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+            {t(
+              "Apply with a few designs. If you are approved, Shirtat prints, lists and ships them, and you earn a royalty on every sale.",
+            )}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              className="inline-block rounded-full bg-foreground px-6 py-3 font-medium text-background"
+              href="/creators/apply"
+            >
+              {t("Apply now")}
+            </Link>
+            <Link
+              className="inline-block rounded-full border border-border px-6 py-3 font-medium"
+              href="/creators/signin"
+            >
+              {t("Designer sign in")}
+            </Link>
+          </div>
         </section>
       </Container>
     </Page>
