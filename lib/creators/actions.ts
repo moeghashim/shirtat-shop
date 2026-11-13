@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 
 import { redirect } from "next/navigation";
 
+import { adminDesignersUrl } from "@/lib/admin-api/urls";
 import { getCategory } from "@/lib/collections/categories";
 import { isLocale, localizePath, type Locale } from "@/lib/i18n";
 
@@ -199,7 +200,8 @@ export async function signInAction(_prev: FormState, form: FormData): Promise<Fo
     const creator = await getCreator(session.uid);
     if (creator) await saveCreator({ ...creator, lastSignInAt: new Date().toISOString() });
   }
-  redirect(session.isAdmin ? "/admin/creators" : localizePath(locale, "/creators/dashboard"));
+  // The owner's admin moved to admin.shirtat.co (better-auth); designers stay on the storefront.
+  redirect(session.isAdmin ? adminDesignersUrl() : localizePath(locale, "/creators/dashboard"));
 }
 
 export async function signOutAction(form: FormData): Promise<void> {
@@ -226,68 +228,6 @@ export async function submitDesignAction(_prev: FormState, form: FormData): Prom
   });
   await saveCreator(creator);
   return { ok: "Design submitted. We will review it soon." };
-}
-
-async function requireAdmin() {
-  const session = await getSession();
-  if (!session?.isAdmin) redirect("/creators/signin");
-  return session;
-}
-
-export async function adminUpdateAction(form: FormData): Promise<void> {
-  await requireAdmin();
-  const creator = await getCreator(str(form, "id", 80));
-  if (!creator) redirect("/admin/creators?error=notfound");
-  const status = str(form, "status", 20);
-  const tier = str(form, "tierOverride", 20) as TierOverride;
-  const handle = str(form, "handle", 40).toLowerCase();
-  if (handle && !/^[a-z0-9][a-z0-9-]{1,38}$/.test(handle)) redirect("/admin/creators?error=handle");
-  if (handle === "shirtat") redirect("/admin/creators?error=taken");
-  if (handle && handle !== creator.handle) {
-    const taken = (await listCreators()).some((c) => c.id !== creator.id && c.handle === handle);
-    if (taken) redirect("/admin/creators?error=taken");
-  }
-  if (status === "approved" && !handle && !creator.handle)
-    redirect("/admin/creators?error=needhandle");
-  if (status === "pending" || status === "approved" || status === "rejected") {
-    if (status !== creator.status) creator.reviewedAt = new Date().toISOString();
-    creator.status = status;
-  }
-  if (tier === "auto" || tier === "standard" || tier === "top") creator.tierOverride = tier;
-  if (handle) creator.handle = handle;
-  creator.hiddenFromDirectory = form.get("hidden") === "on";
-  const newlyApproved = creator.status === "approved" && !creator.detailsEmail && !creator.details;
-  if (newlyApproved) await sendDetailsLink(creator);
-  await saveCreator(creator);
-  redirect("/admin/creators?saved=1");
-}
-
-export async function adminDeleteAction(form: FormData): Promise<void> {
-  await requireAdmin();
-  const creator = await getCreator(str(form, "id", 80));
-  if (creator && form.get("confirm") === "delete") {
-    await deleteQueuedEmails(creator.id);
-    await deleteCreatorAndUser(creator);
-  }
-  redirect("/admin/creators?deleted=1");
-}
-
-/** Issues a fresh details link, emails it (when a provider is configured) and records the result. */
-async function sendDetailsLink(creator: CreatorRecord): Promise<string> {
-  const link = issueDetailsToken(creator);
-  const result = await sendApprovalEmail(creator, link);
-  creator.detailsEmail = { ...result, sentAt: new Date().toISOString() };
-  creator.detailsLink = link;
-  return link;
-}
-
-export async function adminResendDetailsAction(form: FormData): Promise<void> {
-  await requireAdmin();
-  const creator = await getCreator(str(form, "id", 80));
-  if (!creator || creator.status !== "approved") redirect("/admin/creators?error=notfound");
-  await sendDetailsLink(creator);
-  await saveCreator(creator);
-  redirect(`/admin/creators?email=${creator.detailsEmail?.status ?? "failed"}`);
 }
 
 export async function detailsAction(_prev: FormState, form: FormData): Promise<FormState> {
@@ -402,68 +342,6 @@ export async function uploadDesignAction(_prev: FormState, form: FormData): Prom
   return { ok: "Design submitted. We will review it soon." };
 }
 
-async function createDraft(creator: CreatorRecord, design: DesignRecord): Promise<void> {
-  try {
-    const product = await createDraftProduct(creator, design);
-    design.shopifyProductId = product.id;
-    design.shopifyProductHandle = product.handle;
-    design.status = "draft";
-    design.error = undefined;
-  } catch (e) {
-    design.error = e instanceof Error ? e.message : "Could not create the Shopify draft";
-  }
-  design.updatedAt = new Date().toISOString();
-}
-
-async function findDesign(form: FormData) {
-  await requireAdmin();
-  const creator = await getCreator(str(form, "id", 80));
-  const design = creator?.designs?.find((d) => d.id === str(form, "designId", 80));
-  if (!creator || !design) redirect("/admin/creators?error=notfound");
-  return { creator, design };
-}
-
-export async function adminDesignAction(form: FormData): Promise<void> {
-  const { creator, design } = await findDesign(form);
-  const op = str(form, "op", 20);
-  let result = "saved";
-  try {
-    if (op === "draft" && !design.shopifyProductId) {
-      await createDraft(creator, design);
-      if (design.error) result = "shopify";
-    } else if (op === "publish" && design.applied?.some((a) => a.shopifyProductId)) {
-      for (const a of design.applied) {
-        if (a.shopifyProductId && a.status === "draft") {
-          await publishProduct(a.shopifyProductId);
-          a.status = "published";
-        }
-      }
-      design.status = "published";
-      design.error = undefined;
-    } else if (op === "publish" && design.shopifyProductId) {
-      await publishProduct(design.shopifyProductId);
-      design.status = "published";
-      design.error = undefined;
-    } else if (op === "reject") {
-      if (design.shopifyProductId) await archiveProduct(design.shopifyProductId);
-      for (const a of design.applied ?? []) {
-        if (a.shopifyProductId && a.status !== "published") {
-          await archiveProduct(a.shopifyProductId);
-          a.status = "rejected";
-        }
-      }
-      design.status = "rejected";
-      design.error = undefined;
-    }
-  } catch (e) {
-    design.error = e instanceof Error ? e.message : "Shopify request failed";
-    result = "shopify";
-  }
-  design.updatedAt = new Date().toISOString();
-  await saveCreator(creator);
-  redirect(result === "saved" ? "/admin/creators?saved=1" : "/admin/creators?error=shopify");
-}
-
 const PASSWORD_MIN = 10;
 
 /** Always answers the same way so it never reveals whether an account exists. */
@@ -531,126 +409,4 @@ export async function changePasswordAction(_prev: FormState, form: FormData): Pr
     await saveUser({ ...user, passwordHash: await hashPassword(password) });
   }
   return { ok: "Your password has been changed." };
-}
-
-/** Reads the admin's product picks: checked `types` plus `colors:<typeId>` per type. */
-function readPicks(form: FormData): { colors: string[]; typeId: string }[] {
-  return form
-    .getAll("types")
-    .filter((t): t is string => typeof t === "string")
-    .map((typeId) => getProductType(typeId))
-    .filter((t): t is NonNullable<typeof t> => Boolean(t))
-    .map((t) => {
-      const allowed = new Set(t.colors.map((c) => c.en));
-      const colors = form
-        .getAll(`colors:${t.id}`)
-        .filter((c): c is string => typeof c === "string" && allowed.has(c));
-      return { colors: colors.length ? colors : [t.colors[0]!.en], typeId: t.id };
-    });
-}
-
-/** Workflow C: the admin applies a designer's submitted design to chosen products (drafts via workflow B). */
-export async function adminApplyDesignAction(form: FormData): Promise<void> {
-  const { creator, design } = await findDesign(form);
-  const picks = readPicks(form);
-  const category = getCategory(str(form, "category", 40));
-  if (!picks.length || !category || !creator.handle) redirect("/admin/creators?error=picks");
-  design.title = str(form, "title", 120) || design.title;
-  design.categoryId = category.id;
-  const { applyDesign } = await import("@/lib/catalog/workflow");
-  const results = await applyDesign(
-    {
-      categoryId: category.id,
-      descriptionAr: design.descriptionAr,
-      descriptionEn: design.descriptionEn,
-      designerHandle: creator.handle,
-      designerName: creator.details?.displayName || creator.name,
-      extraTags: design.tags,
-      file: design.file,
-      title: design.title,
-    },
-    picks,
-  );
-  design.applied = [...(design.applied ?? []), ...results];
-  design.status = results.some((r) => r.status === "draft") ? "draft" : design.status;
-  design.error = results.find((r) => r.error)?.error;
-  design.updatedAt = new Date().toISOString();
-  await saveCreator(creator);
-  redirect(design.error ? "/admin/creators?error=shopify" : "/admin/creators?applied=1");
-}
-
-/** Workflow B for our own (studio) designs or any approved designer, uploaded by the admin. */
-export async function adminCreateFromDesignAction(form: FormData): Promise<void> {
-  await requireAdmin();
-  const picks = readPicks(form);
-  const title = str(form, "title", 120);
-  const { suggestCategory } = await import("@/lib/catalog/categorize");
-  const category = getCategory(
-    form.get("autoCategory") === "on"
-      ? suggestCategory(
-          [title, str(form, "descriptionEn", 2000), str(form, "descriptionAr", 2000)].join(" "),
-        ).categoryId
-      : str(form, "category", 40),
-  );
-  const file = form.get("design");
-  if (!picks.length || !category || !title) redirect("/admin/creators?error=picks");
-  if (!file || typeof file !== "object" || !("size" in file) || file.size === 0)
-    redirect("/admin/creators?error=picks");
-  if (!["image/png", "image/jpeg"].includes(file.type) || file.size > DESIGN_MAX_BYTES)
-    redirect("/admin/creators?error=file");
-  const { applyDesign, STUDIO_HANDLE } = await import("@/lib/catalog/workflow");
-  const handle = str(form, "designer", 40) || STUDIO_HANDLE;
-  const designer =
-    handle === STUDIO_HANDLE
-      ? null
-      : (await listCreators()).find((c) => c.handle === handle && c.status === "approved");
-  if (handle !== STUDIO_HANDLE && !designer) redirect("/admin/creators?error=notfound");
-  const stored = await uploadDesignFile(designer?.id ?? "studio", file);
-  const poster = form.get("posterFile");
-  const fileByType =
-    poster && typeof poster === "object" && "size" in poster && poster.size > 0 &&
-    ["image/png", "image/jpeg"].includes(poster.type) && poster.size <= DESIGN_MAX_BYTES
-      ? { print: await uploadDesignFile(designer?.id ?? "studio", poster) }
-      : undefined;
-  const results = await applyDesign(
-    {
-      categoryId: category.id,
-      descriptionAr: str(form, "descriptionAr", 2000),
-      descriptionEn: str(form, "descriptionEn", 2000),
-      designerHandle: handle,
-      designerName: designer ? designer.details?.displayName || designer.name : "Shirtat",
-      file: stored,
-      fileByType,
-      title,
-    },
-    picks,
-  );
-  if (designer) {
-    const now = new Date().toISOString();
-    designer.designs = [
-      {
-        applied: results,
-        categoryId: category.id,
-        colors: [],
-        createdAt: now,
-        descriptionAr: str(form, "descriptionAr", 2000),
-        descriptionEn: str(form, "descriptionEn", 2000),
-        file: stored,
-        id: newId(),
-        productTypeId: "",
-        status: results.some((r) => r.status === "draft") ? "draft" : "submitted",
-        tags: [],
-        title,
-        updatedAt: now,
-      },
-      ...(designer.designs ?? []),
-    ];
-    await saveCreator(designer);
-  }
-  const failed = results.find((r) => r.error);
-  redirect(
-    failed
-      ? `/admin/creators?error=shopify&detail=${encodeURIComponent(failed.error!.slice(0, 300))}`
-      : `/admin/creators?created=${results.length}`,
-  );
 }

@@ -1,4 +1,4 @@
-import { Blocks, LayoutDashboard, type LucideIcon, Palette, UserRound } from "lucide-react";
+import { Blocks, LayoutDashboard, type LucideIcon, MessagesSquare, Palette, UserRound } from "lucide-react";
 
 import type { FileRoutesByTo } from "@/routeTree.gen";
 
@@ -41,22 +41,31 @@ export interface NavGroup {
   items: NavMainItem[];
 }
 
+/** Sidebar items only owners see; designers keep Designers and Pages. */
+export const OWNER_ONLY_ITEMS: ReadonlySet<string> = new Set(["chats", "seo"]);
+
 export const sidebarItems: NavGroup[] = [
   {
     id: 1,
     label: "Dashboards",
     items: [
       {
-        id: "seo",
-        title: "SEO",
-        url: "/dashboard/seo",
-        icon: LayoutDashboard,
-      },
-      {
         id: "designers",
         title: "Designers",
         url: "/dashboard/designers",
         icon: Palette,
+      },
+      {
+        id: "chats",
+        title: "Chat review",
+        url: "/dashboard/chats",
+        icon: MessagesSquare,
+      },
+      {
+        id: "seo",
+        title: "SEO",
+        url: "/dashboard/seo",
+        icon: LayoutDashboard,
       },
     ],
   },

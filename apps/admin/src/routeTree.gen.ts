@@ -19,10 +19,14 @@ import { Route as mainDashboardDesignersRouteRouteImport } from './routes/(main)
 import { Route as mainDashboardProfileRouteRouteImport } from './routes/(main)/dashboard/profile/route'
 import { Route as mainDashboardSeoRouteRouteImport } from './routes/(main)/dashboard/seo/route'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiChatsExportRouteImport } from './routes/api/chats/export'
+import { Route as ApiDesignersFileRouteImport } from './routes/api/designers/file'
 import { Route as mainAuthV1LoginRouteRouteImport } from './routes/(main)/auth/v1/login/route'
 import { Route as mainAuthV1RegisterRouteRouteImport } from './routes/(main)/auth/v1/register/route'
 import { Route as mainAuthV2LoginRouteRouteImport } from './routes/(main)/auth/v2/login/route'
 import { Route as mainAuthV2RegisterRouteRouteImport } from './routes/(main)/auth/v2/register/route'
+import { Route as mainDashboardChatsIndexRouteImport } from './routes/(main)/dashboard/chats/index'
+import { Route as mainDashboardChatsSessionIdRouteImport } from './routes/(main)/dashboard/chats/$sessionId'
 import { Route as mainDashboardKitIndexRouteImport } from './routes/(main)/dashboard/kit/index'
 
 const externalIndexRoute = externalIndexRouteImport.update({
@@ -77,6 +81,16 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatsExportRoute = ApiChatsExportRouteImport.update({
+  id: '/api/chats/export',
+  path: '/api/chats/export',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDesignersFileRoute = ApiDesignersFileRouteImport.update({
+  id: '/api/designers/file',
+  path: '/api/designers/file',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const mainAuthV1LoginRouteRoute = mainAuthV1LoginRouteRouteImport.update({
   id: '/(main)/auth/v1/login',
   path: '/auth/v1/login',
@@ -97,6 +111,17 @@ const mainAuthV2RegisterRouteRoute = mainAuthV2RegisterRouteRouteImport.update({
   path: '/register',
   getParentRoute: () => mainAuthV2RouteRoute,
 } as any)
+const mainDashboardChatsIndexRoute = mainDashboardChatsIndexRouteImport.update({
+  id: '/chats/',
+  path: '/chats/',
+  getParentRoute: () => mainDashboardRouteRoute,
+} as any)
+const mainDashboardChatsSessionIdRoute =
+  mainDashboardChatsSessionIdRouteImport.update({
+    id: '/chats/$sessionId',
+    path: '/chats/$sessionId',
+    getParentRoute: () => mainDashboardRouteRoute,
+  } as any)
 const mainDashboardKitIndexRoute = mainDashboardKitIndexRouteImport.update({
   id: '/kit/',
   path: '/kit/',
@@ -113,11 +138,15 @@ export interface FileRoutesByFullPath {
   '/dashboard/seo': typeof mainDashboardSeoRouteRoute
   '/dashboard/$': typeof mainDashboardSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/chats/export': typeof ApiChatsExportRoute
+  '/api/designers/file': typeof ApiDesignersFileRoute
   '/dashboard/': typeof mainDashboardIndexRoute
   '/auth/v1/login': typeof mainAuthV1LoginRouteRoute
   '/auth/v1/register': typeof mainAuthV1RegisterRouteRoute
   '/auth/v2/login': typeof mainAuthV2LoginRouteRoute
   '/auth/v2/register': typeof mainAuthV2RegisterRouteRoute
+  '/dashboard/chats/$sessionId': typeof mainDashboardChatsSessionIdRoute
+  '/dashboard/chats/': typeof mainDashboardChatsIndexRoute
   '/dashboard/kit/': typeof mainDashboardKitIndexRoute
 }
 export interface FileRoutesByTo {
@@ -129,11 +158,15 @@ export interface FileRoutesByTo {
   '/dashboard/seo': typeof mainDashboardSeoRouteRoute
   '/dashboard/$': typeof mainDashboardSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/chats/export': typeof ApiChatsExportRoute
+  '/api/designers/file': typeof ApiDesignersFileRoute
   '/dashboard': typeof mainDashboardIndexRoute
   '/auth/v1/login': typeof mainAuthV1LoginRouteRoute
   '/auth/v1/register': typeof mainAuthV1RegisterRouteRoute
   '/auth/v2/login': typeof mainAuthV2LoginRouteRoute
   '/auth/v2/register': typeof mainAuthV2RegisterRouteRoute
+  '/dashboard/chats/$sessionId': typeof mainDashboardChatsSessionIdRoute
+  '/dashboard/chats': typeof mainDashboardChatsIndexRoute
   '/dashboard/kit': typeof mainDashboardKitIndexRoute
 }
 export interface FileRoutesById {
@@ -147,11 +180,15 @@ export interface FileRoutesById {
   '/(main)/dashboard/seo': typeof mainDashboardSeoRouteRoute
   '/(main)/dashboard/$': typeof mainDashboardSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/chats/export': typeof ApiChatsExportRoute
+  '/api/designers/file': typeof ApiDesignersFileRoute
   '/(main)/dashboard/': typeof mainDashboardIndexRoute
   '/(main)/auth/v1/login': typeof mainAuthV1LoginRouteRoute
   '/(main)/auth/v1/register': typeof mainAuthV1RegisterRouteRoute
   '/(main)/auth/v2/login': typeof mainAuthV2LoginRouteRoute
   '/(main)/auth/v2/register': typeof mainAuthV2RegisterRouteRoute
+  '/(main)/dashboard/chats/$sessionId': typeof mainDashboardChatsSessionIdRoute
+  '/(main)/dashboard/chats/': typeof mainDashboardChatsIndexRoute
   '/(main)/dashboard/kit/': typeof mainDashboardKitIndexRoute
 }
 export interface FileRouteTypes {
@@ -166,11 +203,15 @@ export interface FileRouteTypes {
     | '/dashboard/seo'
     | '/dashboard/$'
     | '/api/auth/$'
+    | '/api/chats/export'
+    | '/api/designers/file'
     | '/dashboard/'
     | '/auth/v1/login'
     | '/auth/v1/register'
     | '/auth/v2/login'
     | '/auth/v2/register'
+    | '/dashboard/chats/$sessionId'
+    | '/dashboard/chats/'
     | '/dashboard/kit/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -182,11 +223,15 @@ export interface FileRouteTypes {
     | '/dashboard/seo'
     | '/dashboard/$'
     | '/api/auth/$'
+    | '/api/chats/export'
+    | '/api/designers/file'
     | '/dashboard'
     | '/auth/v1/login'
     | '/auth/v1/register'
     | '/auth/v2/login'
     | '/auth/v2/register'
+    | '/dashboard/chats/$sessionId'
+    | '/dashboard/chats'
     | '/dashboard/kit'
   id:
     | '__root__'
@@ -199,11 +244,15 @@ export interface FileRouteTypes {
     | '/(main)/dashboard/seo'
     | '/(main)/dashboard/$'
     | '/api/auth/$'
+    | '/api/chats/export'
+    | '/api/designers/file'
     | '/(main)/dashboard/'
     | '/(main)/auth/v1/login'
     | '/(main)/auth/v1/register'
     | '/(main)/auth/v2/login'
     | '/(main)/auth/v2/register'
+    | '/(main)/dashboard/chats/$sessionId'
+    | '/(main)/dashboard/chats/'
     | '/(main)/dashboard/kit/'
   fileRoutesById: FileRoutesById
 }
@@ -213,6 +262,8 @@ export interface RootRouteChildren {
   externalIndexRoute: typeof externalIndexRoute
   mainAuthV2RouteRoute: typeof mainAuthV2RouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiChatsExportRoute: typeof ApiChatsExportRoute
+  ApiDesignersFileRoute: typeof ApiDesignersFileRoute
   mainAuthV1LoginRouteRoute: typeof mainAuthV1LoginRouteRoute
   mainAuthV1RegisterRouteRoute: typeof mainAuthV1RegisterRouteRoute
 }
@@ -289,6 +340,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chats/export': {
+      id: '/api/chats/export'
+      path: '/api/chats/export'
+      fullPath: '/api/chats/export'
+      preLoaderRoute: typeof ApiChatsExportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/designers/file': {
+      id: '/api/designers/file'
+      path: '/api/designers/file'
+      fullPath: '/api/designers/file'
+      preLoaderRoute: typeof ApiDesignersFileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(main)/auth/v1/login': {
       id: '/(main)/auth/v1/login'
       path: '/auth/v1/login'
@@ -317,6 +382,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof mainAuthV2RegisterRouteRouteImport
       parentRoute: typeof mainAuthV2RouteRoute
     }
+    '/(main)/dashboard/chats/': {
+      id: '/(main)/dashboard/chats/'
+      path: '/chats'
+      fullPath: '/dashboard/chats/'
+      preLoaderRoute: typeof mainDashboardChatsIndexRouteImport
+      parentRoute: typeof mainDashboardRouteRoute
+    }
+    '/(main)/dashboard/chats/$sessionId': {
+      id: '/(main)/dashboard/chats/$sessionId'
+      path: '/chats/$sessionId'
+      fullPath: '/dashboard/chats/$sessionId'
+      preLoaderRoute: typeof mainDashboardChatsSessionIdRouteImport
+      parentRoute: typeof mainDashboardRouteRoute
+    }
     '/(main)/dashboard/kit/': {
       id: '/(main)/dashboard/kit/'
       path: '/kit'
@@ -333,6 +412,8 @@ interface mainDashboardRouteRouteChildren {
   mainDashboardSeoRouteRoute: typeof mainDashboardSeoRouteRoute
   mainDashboardSplatRoute: typeof mainDashboardSplatRoute
   mainDashboardIndexRoute: typeof mainDashboardIndexRoute
+  mainDashboardChatsSessionIdRoute: typeof mainDashboardChatsSessionIdRoute
+  mainDashboardChatsIndexRoute: typeof mainDashboardChatsIndexRoute
   mainDashboardKitIndexRoute: typeof mainDashboardKitIndexRoute
 }
 
@@ -342,6 +423,8 @@ const mainDashboardRouteRouteChildren: mainDashboardRouteRouteChildren = {
   mainDashboardSeoRouteRoute: mainDashboardSeoRouteRoute,
   mainDashboardSplatRoute: mainDashboardSplatRoute,
   mainDashboardIndexRoute: mainDashboardIndexRoute,
+  mainDashboardChatsSessionIdRoute: mainDashboardChatsSessionIdRoute,
+  mainDashboardChatsIndexRoute: mainDashboardChatsIndexRoute,
   mainDashboardKitIndexRoute: mainDashboardKitIndexRoute,
 }
 
@@ -368,6 +451,8 @@ const rootRouteChildren: RootRouteChildren = {
   externalIndexRoute: externalIndexRoute,
   mainAuthV2RouteRoute: mainAuthV2RouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiChatsExportRoute: ApiChatsExportRoute,
+  ApiDesignersFileRoute: ApiDesignersFileRoute,
   mainAuthV1LoginRouteRoute: mainAuthV1LoginRouteRoute,
   mainAuthV1RegisterRouteRoute: mainAuthV1RegisterRouteRoute,
 }

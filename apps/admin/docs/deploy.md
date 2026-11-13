@@ -61,9 +61,15 @@ The command prints the email and whether the account was created. It does not pr
 
 There is no email provider. Share the one-time password through a channel you already trust.
 
-## Storefront handoff
+## Storefront data (Designers and Chat review)
 
-The shop route `/admin/seo` stays in place. Set `SHIRTAT_ADMIN_URL` on the **storefront** project to this app's origin when you want owners to be redirected. Leave it unset until this project is live.
+Designer applications, approvals, Shopify drafts, the email queue and chat transcripts stay in the storefront (Vercel Blob, Shopify, Printify and email secrets live only there). This app reads and changes them through the storefront's owner API at `/api/internal/admin/*`:
+
+- Every call starts in a server function here that requires a signed-in owner (better-auth role `owner`).
+- The call is signed with HMAC-SHA256 over method, path, owner email, timestamp and body (`lib/admin-api/signature.ts`, shared by both apps). The storefront answers 404 to anything unsigned, tampered or older than five minutes.
+- Set the same random `SHIRTAT_ADMIN_API_SECRET` (48+ characters) on **both** Vercel projects. `SHIRTAT_STOREFRONT_URL` on this project overrides the storefront origin (default `https://shirtat.co`); storefront previews sit behind Vercel Authentication, so previews of this app read production data unless that is set.
+
+The storefront's old `/admin/*` and `/ar/admin/*` pages now redirect here (`/dashboard/designers`, `/dashboard/chats`, `/dashboard/seo`). Set `SHIRTAT_ADMIN_URL` on the storefront only to point those redirects at another origin.
 
 ## Local demo
 

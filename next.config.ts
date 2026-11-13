@@ -2,6 +2,7 @@ import { withBotId } from "botid/next/config";
 import { withEve } from "eve/next";
 import type { NextConfig } from "next";
 
+import { adminRedirects } from "./lib/admin-api/urls";
 import { shopConfig } from "./lib/config";
 import { withShopConfig } from "./lib/config/server";
 
@@ -39,6 +40,7 @@ const nextConfig: NextConfig = {
         permanent: true,
         source: "/en/collections/prints",
       },
+      ...adminRedirects(),
     ];
   },
   images: {

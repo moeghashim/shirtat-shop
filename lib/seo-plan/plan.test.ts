@@ -4,7 +4,6 @@ import test from "node:test";
 import { isUnlocalizedPath, localizePath } from "../i18n/index";
 import { resolveSearchWindow } from "../search-console/index";
 import { SITEMAP_STATIC_PATHS } from "../seo/index";
-import { seoDashboardAccess, seoDashboardHttpStatus } from "./access";
 import {
   filterTasks,
   parseSeoTool,
@@ -14,23 +13,6 @@ import {
   seoPlan,
   seoPlanSchema,
 } from "./index";
-import { seoDashboardProgramErrors } from "./openui";
-
-const owner = { email: "moe@10claws.com", isAdmin: true };
-const creator = { email: "maker@example.com", isAdmin: false };
-const forged = { email: "maker@example.com", isAdmin: true };
-
-test("the SEO dashboard allows only the owner session", () => {
-  assert.equal(seoDashboardAccess(null), false);
-  assert.equal(seoDashboardAccess(creator), false);
-  assert.equal(seoDashboardAccess(forged), false);
-  assert.equal(seoDashboardAccess({ email: "Moe@10claws.com", isAdmin: true }), true);
-  assert.equal(seoDashboardAccess(owner), true);
-  assert.equal(seoDashboardHttpStatus(null), 404);
-  assert.equal(seoDashboardHttpStatus(creator), 404);
-  assert.equal(seoDashboardHttpStatus(forged), 404);
-  assert.equal(seoDashboardHttpStatus(owner), 200);
-});
 
 test("unknown tools are rejected and known tools are kept", () => {
   assert.equal(parseSeoTool(null), null);
@@ -119,18 +101,13 @@ test("search windows are last 28 or 90 days through yesterday, or an explicit ra
   assert.equal(resolveSearchWindow("nope", now), null);
 });
 
-test("the owner SEO page is localized and stays out of the sitemap", () => {
-  assert.equal(isUnlocalizedPath("/admin/seo"), false);
+test("old owner /admin paths stay unlocalized and out of the sitemap", () => {
+  assert.equal(isUnlocalizedPath("/admin/seo"), true);
   assert.equal(isUnlocalizedPath("/admin/chats"), true);
-  assert.equal(localizePath("ar", "/admin/seo"), "/ar/admin/seo");
+  assert.equal(localizePath("ar", "/admin/seo"), "/admin/seo");
   assert.equal(localizePath("ar", "/admin/chats"), "/admin/chats");
-  assert.equal(localizePath("en", "/admin/seo"), "/admin/seo");
   assert.equal(
     SITEMAP_STATIC_PATHS.some((path) => path.startsWith("/admin")),
     false,
   );
-});
-
-test("the dashboard program parses as one OpenUI layout", () => {
-  assert.deepEqual(seoDashboardProgramErrors(), []);
 });

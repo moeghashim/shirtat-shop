@@ -1,4 +1,5 @@
-import { GUIDE_PATHS } from "@/lib/guides/copy";
+// Relative so the admin app (which maps @/ to its own src) can import this file too.
+import { GUIDE_PATHS } from "../guides/copy";
 
 /** English and Arabic, the same pair `lib/i18n` publishes. */
 export const SITEMAP_LOCALES = ["en", "ar"] as const;
