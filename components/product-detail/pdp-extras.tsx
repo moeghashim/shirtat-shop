@@ -50,6 +50,8 @@ const SIZE_AR: Record<string, string> = { "One size": "مقاس واحد" };
 const PRINT_OPTION_AR: Record<string, string> = {
   "Digital printing": "طباعة رقمية",
   Embroidery: "تطريز",
+  Sublimation: "طباعة بالتسامي الحراري",
+  "UV print": "طباعة UV",
 };
 function arPrintArea(value: string): string {
   return value
@@ -547,23 +549,25 @@ export async function ProductSpecsBlock({
                 </span>
               }
             />
-            <SpecRow
-              label={L.options}
-              value={
-                <ul className="grid gap-0.5">
-                  {print.available.map((o) => (
-                    <li key={o.method}>
-                      <span className="font-medium text-foreground">
-                        {isArabic ? (PRINT_OPTION_AR[o.method] ?? o.method) : o.method}
-                      </span>
-                      {o.areas.length
-                        ? `: ${o.areas.map((a) => (isArabic ? a.ar : a.en)).join(isArabic ? "، " : ", ")}`
-                        : ""}
-                    </li>
-                  ))}
-                </ul>
-              }
-            />
+            {print.available.length > 0 ? (
+              <SpecRow
+                label={L.options}
+                value={
+                  <ul className="grid gap-0.5">
+                    {print.available.map((o) => (
+                      <li key={o.method}>
+                        <span className="font-medium text-foreground">
+                          {isArabic ? (PRINT_OPTION_AR[o.method] ?? o.method) : o.method}
+                        </span>
+                        {o.areas.length
+                          ? `: ${o.areas.map((a) => (isArabic ? a.ar : a.en)).join(isArabic ? "، " : ", ")}`
+                          : ""}
+                      </li>
+                    ))}
+                  </ul>
+                }
+              />
+            ) : null}
           </dl>
         </Accordion>
       ) : null}
