@@ -13,6 +13,40 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-13",
+    entries: [
+      {
+        en: "All owner admin pages, including designer sign-ups and approvals, chat review and the search growth plan, now live together at admin.shirtat.co, and the old shirtat.co/admin addresses redirect there. Designers still apply, sign in and use their dashboard on shirtat.co.",
+        ar: "صارت كل صفحات الإدارة الخاصة بصاحب المتجر، ومنها طلبات انضمام المصممين واعتمادها ومراجعة المحادثات وخطة النمو في البحث، مجتمعةً على admin.shirtat.co، وتُحوَّل عناوين shirtat.co/admin القديمة إليها. ويظل المصممون يقدّمون طلباتهم ويسجّلون الدخول ويستخدمون لوحتهم على shirtat.co.",
+      },
+      {
+        en: "The Sell on Shirtat page has a new look in English and Arabic: a stronger introduction, the four places designers' work can sell (the Shirtat website and Etsy today, TikTok Shop and Amazon coming soon), a three-step how-it-works, and the same 15–20% royalty.",
+        ar: "حلّة جديدة لصفحة «بِع على Shirtat» بالإنجليزية والعربية: مقدمة أقوى، والمنصات الأربع التي تُباع فيها أعمال المصممين (موقع Shirtat وEtsy اليوم، وTikTok Shop وAmazon قريبًا)، وشرح للطريقة في ثلاث خطوات، مع نسبة العائد نفسها 15–20%.",
+      },
+      {
+        en: "The footer no longer repeats the category menu from the header; the language switch stays in the header.",
+        ar: "لم يعد تذييل الموقع يكرر قائمة الأقسام الموجودة في الترويسة، ويبقى مفتاح اللغة في الترويسة.",
+      },
+      {
+        en: "Shirtat is now connected to Amazon US through Shopify Marketplace Connect. Nothing is listed yet; products go to Amazon US first, then Amazon UK with UK print partners, once each listing is approved.",
+        ar: "صار Shirtat مرتبطًا بـ Amazon US عبر Shopify Marketplace Connect. لم يُعرض أي منتج بعد؛ وستصل المنتجات إلى Amazon US أولًا، ثم إلى Amazon UK مع شركاء طباعة في المملكة المتحدة، بعد اعتماد كل عرض.",
+      },
+    ],
+  },
+  {
+    date: "2026-11-12",
+    entries: [
+      {
+        en: "The decorative Arabic letters on the homepage now use the El Messiri typeface, so every glyph shows correctly.",
+        ar: "صارت الحروف العربية الزخرفية في الصفحة الرئيسية تستخدم خط El Messiri، لتظهر كل الحروف بشكل صحيح.",
+      },
+      {
+        en: "In the admin space, the profile page works again, drop-down arrows sit on the correct side in both languages, and the search growth tables are easier to read.",
+        ar: "في مساحة الإدارة، عادت صفحة الملف الشخصي تعمل، وصارت أسهم القوائم المنسدلة في الجهة الصحيحة باللغتين، وصارت جداول خطة النمو في البحث أسهل قراءةً.",
+      },
+    ],
+  },
+  {
     date: "2026-11-11",
     entries: [
       {

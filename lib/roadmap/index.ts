@@ -284,10 +284,10 @@ export const roadmapPhases: RoadmapPhase[] = [
   },
   {
     title: { en: "Marketplace expansion", ar: "التوسّع في الأسواق" },
-    status: "next",
+    status: "in-progress",
     summary: {
-      en: "Selling on marketplaces in Europe, the US and Asia to reach more shoppers before the end of the year.",
-      ar: "البيع في أسواق إلكترونية في أوروبا والولايات المتحدة وآسيا للوصول إلى مزيد من المتسوقين قبل نهاية العام.",
+      en: "Selling on marketplaces in Europe, the US and Asia to reach more shoppers before the end of the year. Shirtat is connected to Amazon US; products launch there first, then on Amazon UK with UK print partners.",
+      ar: "البيع في أسواق إلكترونية في أوروبا والولايات المتحدة وآسيا للوصول إلى مزيد من المتسوقين قبل نهاية العام. صار Shirtat مرتبطًا بـ Amazon US، وستُطرح المنتجات فيه أولًا ثم في Amazon UK مع شركاء طباعة في المملكة المتحدة.",
     },
   },
   {
@@ -364,10 +364,18 @@ export const roadmapPhases: RoadmapPhase[] = [
   },
   {
     title: { en: "Admin dashboard", ar: "لوحة الإدارة" },
-    status: "in-progress",
+    status: "done",
     summary: {
-      en: "A separate admin space at admin.shirtat.co in Shirtat's colours, with a dark mode. The search growth plan with task check-offs is there; designer sign-in comes next.",
-      ar: "مساحة إدارة مستقلة على admin.shirtat.co بألوان Shirtat مع وضع داكن. خطة النمو في البحث مع تأشير المهام موجودة فيها؛ ويأتي بعدها دخول المصممين.",
+      en: "A separate admin space at admin.shirtat.co in Shirtat's colours, with a dark mode. Designer sign-ups and approvals, chat review and the search growth plan with task check-offs all live there, and the old shirtat.co/admin pages redirect to it.",
+      ar: "مساحة إدارة مستقلة على admin.shirtat.co بألوان Shirtat مع وضع داكن. تجتمع فيها طلبات انضمام المصممين واعتمادها ومراجعة المحادثات وخطة النمو في البحث مع تأشير المهام، وتُحوَّل صفحات shirtat.co/admin القديمة إليها.",
+    },
+  },
+  {
+    title: { en: "Four print types", ar: "أربعة أنواع للطباعة" },
+    status: "next",
+    summary: {
+      en: "Showing four print types instead of three, each linking to its own page that explains how that print is made, so shoppers can choose with confidence.",
+      ar: "عرض أربعة أنواع للطباعة بدلًا من ثلاثة، يرتبط كل منها بصفحة خاصة تشرح طريقة تنفيذه، كي يختار المتسوقون عن معرفة.",
     },
   },
 ];
