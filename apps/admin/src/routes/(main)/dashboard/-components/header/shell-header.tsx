@@ -22,7 +22,9 @@ type ShellIdentity = { mode: "demo"; accounts: DemoAccount[] } | { mode: "auth";
 
 export function ShellHeader({ identity }: { identity: ShellIdentity }) {
   const path = useRouterState({ select: (state) => state.location.pathname });
-  const title = routeCatalog.find((item) => item.path === path)?.label ?? "Page not found";
+  const title = /^\/dashboard\/chats\/[^/]+\/?$/.test(path)
+    ? "Chat transcript"
+    : (routeCatalog.find((item) => item.path === path)?.label ?? "Page not found");
   const { open, isMobile } = useSidebar();
   const toggleRef = useRef<HTMLButtonElement>(null);
   const toggleHadFocus = useRef(false);
