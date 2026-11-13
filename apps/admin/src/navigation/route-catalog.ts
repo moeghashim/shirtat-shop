@@ -6,6 +6,7 @@ export const captureRoutes = [
   { route: "/dashboard/", path: "/dashboard/", ready: "SEO plan" },
   { route: "/dashboard/seo", path: "/dashboard/seo", ready: "SEO plan" },
   { route: "/dashboard/designers", path: "/dashboard/designers", ready: "Designers" },
+  { route: "/dashboard/chats/", path: "/dashboard/chats", ready: "Chat review" },
   { route: "/dashboard/profile", path: "/dashboard/profile", ready: "Profile" },
   { route: "/dashboard/kit/", path: "/dashboard/kit", ready: "Blocks kit" },
   { route: "/auth/v2", path: "/auth/v2" },

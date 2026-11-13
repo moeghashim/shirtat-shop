@@ -1,4 +1,5 @@
-import type { Locale } from "@/lib/i18n";
+// Same union as lib/i18n Locale, kept local so the admin app can type-check lib/seo/paths.
+type Locale = "en" | "ar";
 
 export interface LocalText {
   ar: string;

@@ -30,11 +30,10 @@ export function commerceLocale(locale: Locale): CommerceLocale {
   return { country: "US", language: locale === "ar" ? "AR" : "EN" };
 }
 
-/** Machine routes stay unprefixed. The owner SEO tracker is localized so /ar/admin/seo can mirror RTL. */
+/** Machine routes stay unprefixed. /admin/* only redirects to admin.shirtat.co. */
 const UNLOCALIZED_PREFIXES = ["/admin", "/api", "/md", "/agent"];
 
 export function isUnlocalizedPath(pathname: string): boolean {
-  if (pathname === "/admin/seo" || pathname.startsWith("/admin/seo/")) return false;
   return UNLOCALIZED_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );

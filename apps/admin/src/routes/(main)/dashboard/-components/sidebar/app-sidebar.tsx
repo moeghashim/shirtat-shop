@@ -17,7 +17,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { APP_LANDING_ROUTE } from "@/navigation/landing";
-import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
+import { OWNER_ONLY_ITEMS, sidebarItems } from "@/navigation/sidebar/sidebar-items";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
 import { LayoutControls } from "../header/layout-controls";
@@ -32,7 +32,7 @@ export function AppSidebar({
   const router = useRouter();
   const items = sidebarItems.map((group) => ({
     ...group,
-    items: group.items.filter((item) => (owner ?? false) || item.id !== "seo"),
+    items: group.items.filter((item) => (owner ?? false) || !OWNER_ONLY_ITEMS.has(item.id)),
   }));
   const { setOpenMobile } = useSidebar();
   useEffect(() => router.subscribe("onResolved", () => setOpenMobile(false)), [router, setOpenMobile]);

@@ -6,6 +6,7 @@ import { ChangePasswordForm, AvatarForm, SubmitDesignForm } from "@/components/c
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { Page } from "@/components/ui/page";
+import { adminDesignersUrl } from "@/lib/admin-api/urls";
 import { signOutAction } from "@/lib/creators/actions";
 import { getSession } from "@/lib/creators/auth";
 import { getCreatorEarnings } from "@/lib/creators/earnings";
@@ -69,7 +70,7 @@ async function DashboardContent() {
   const t = await getT();
   const session = await getSession();
   if (!session) redirect(localizePath(locale, "/creators/signin"));
-  if (session.isAdmin) redirect("/admin/creators");
+  if (session.isAdmin) redirect(adminDesignersUrl());
   const creator = await getCreator(session.uid);
   if (!creator) redirect(localizePath(locale, "/creators/apply"));
 
