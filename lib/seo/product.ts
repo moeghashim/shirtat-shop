@@ -1,6 +1,16 @@
 import { shopConfig } from "@/lib/config";
 import { type Locale, localizePath } from "@/lib/i18n";
 import { LEGAL } from "@/lib/legal/content";
+import {
+  DOMESTIC_COUNTRY,
+  RETURN_POLICY_COUNTRIES,
+  UK_COUNTRY,
+  UK_SHIPPING_RATE_GBP,
+  WORLDWIDE_SHIPPING_RATE_USD,
+  WORLDWIDE_ZONE_COUNTRIES,
+  definedRegion,
+  monetaryAmount,
+} from "@/lib/seo/shipping-destinations";
 
 export interface OfferPolicyFacts {
   returns: string;
@@ -36,34 +46,73 @@ function dayRange(min: number, max: number, unitText: string) {
     "@type": "QuantitativeValue",
     maxValue: max,
     minValue: min,
+    unitCode: "DAY",
     unitText,
   };
 }
 
-export function shippingDetailsJsonLd(locale: Locale, description: string) {
-  const unitText = locale === "ar" ? "أيام عمل" : "business days";
-  const domestic = {
+function offerShippingDetails(
+  description: string,
+  destinations: readonly string[],
+  rate: { currency: string; value: number },
+  transit: { max: number; min: number },
+  unitText: string,
+) {
+  return {
     "@type": "OfferShippingDetails",
     deliveryTime: {
       "@type": "ShippingDeliveryTime",
       handlingTime: dayRange(2, 5, unitText),
-      transitTime: dayRange(3, 7, unitText),
+      transitTime: dayRange(transit.min, transit.max, unitText),
     },
     description,
+    shippingDestination:
+      destinations.length === 1
+        ? definedRegion(destinations[0]!)
+        : destinations.map((country) => definedRegion(country)),
+    shippingRate: monetaryAmount(rate.value, rate.currency),
   };
-  const international = {
-    ...domestic,
-    deliveryTime: {
-      ...domestic.deliveryTime,
-      transitTime: dayRange(7, 20, unitText),
-    },
-  };
-  return [domestic, international];
+}
+
+export function shippingDetailsJsonLd(locale: Locale, description: string, currencyCode = "USD") {
+  const unitText = locale === "ar" ? "أيام عمل" : "business days";
+  const details = [];
+  if (currencyCode === "USD") {
+    details.push(
+      offerShippingDetails(
+        description,
+        [DOMESTIC_COUNTRY],
+        { currency: "USD", value: WORLDWIDE_SHIPPING_RATE_USD },
+        { max: 7, min: 3 },
+        unitText,
+      ),
+      offerShippingDetails(
+        description,
+        WORLDWIDE_ZONE_COUNTRIES.filter((country) => country !== DOMESTIC_COUNTRY),
+        { currency: "USD", value: WORLDWIDE_SHIPPING_RATE_USD },
+        { max: 20, min: 7 },
+        unitText,
+      ),
+    );
+  }
+  if (currencyCode === "GBP") {
+    details.push(
+      offerShippingDetails(
+        description,
+        [UK_COUNTRY],
+        { currency: "GBP", value: UK_SHIPPING_RATE_GBP },
+        { max: 7, min: 3 },
+        unitText,
+      ),
+    );
+  }
+  return details;
 }
 
 export function returnPolicyJsonLd(locale: Locale, description: string) {
   return {
     "@type": "MerchantReturnPolicy",
+    applicableCountry: [...RETURN_POLICY_COUNTRIES],
     description,
     merchantReturnLink: absoluteStoreUrl(locale, "/refunds"),
     returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
@@ -104,7 +153,7 @@ export function productJsonLd(input: ProductJsonLdInput) {
     availability,
     hasMerchantReturnPolicy: returnPolicyJsonLd(input.locale, facts.returns),
     priceCurrency: input.currencyCode,
-    shippingDetails: shippingDetailsJsonLd(input.locale, facts.shipping),
+    shippingDetails: shippingDetailsJsonLd(input.locale, facts.shipping, input.currencyCode),
     url,
     ...(input.sku ? { sku: input.sku } : {}),
   };
@@ -187,6 +236,7 @@ function dayRangeErrors(value: unknown, label: string): string[] {
   if (typeof range.minValue !== "number" || typeof range.maxValue !== "number") {
     errors.push(`${label} min/max`);
   } else if (range.minValue > range.maxValue) errors.push(`${label} inverted`);
+  if (range.unitCode !== "DAY" && range.unitCode !== "d") errors.push(`${label} unitCode`);
   if (typeof range.unitText !== "string" || range.unitText.length === 0) {
     errors.push(`${label} unit`);
   }
@@ -238,6 +288,7 @@ function auditProduct(node: Record<string, unknown>): string[] {
   if (offer.shippingRate !== undefined) errors.push("shipping rate invented");
   const details = Array.isArray(offer.shippingDetails) ? offer.shippingDetails : [];
   if (details.length === 0) errors.push("shippingDetails");
+  const offerCurrency = offer.priceCurrency;
   details.forEach((detail, index) => {
     const row = asRecord(detail);
     if (!row || row["@type"] !== "OfferShippingDetails") {
@@ -251,6 +302,34 @@ function auditProduct(node: Record<string, unknown>): string[] {
     }
     errors.push(...dayRangeErrors(time.handlingTime, `handling ${index}`));
     errors.push(...dayRangeErrors(time.transitTime, `transit ${index}`));
+    const destinations = Array.isArray(row.shippingDestination)
+      ? row.shippingDestination
+      : [row.shippingDestination];
+    if (destinations.length === 0) errors.push(`shippingDetails ${index} destination`);
+    for (const destination of destinations) {
+      const region = asRecord(destination);
+      if (
+        !region ||
+        region["@type"] !== "DefinedRegion" ||
+        typeof region.addressCountry !== "string" ||
+        region.addressCountry.length !== 2
+      ) {
+        errors.push(`shippingDetails ${index} destination`);
+        break;
+      }
+    }
+    const rate = asRecord(row.shippingRate);
+    if (
+      !rate ||
+      rate["@type"] !== "MonetaryAmount" ||
+      typeof rate.value !== "number" ||
+      typeof rate.currency !== "string" ||
+      rate.currency.length !== 3
+    ) {
+      errors.push(`shippingDetails ${index} shippingRate`);
+    } else if (typeof offerCurrency === "string" && rate.currency !== offerCurrency) {
+      errors.push(`shippingDetails ${index} shippingRate currency`);
+    }
   });
   const policy = asRecord(offer.hasMerchantReturnPolicy);
   if (!policy || policy["@type"] !== "MerchantReturnPolicy") errors.push("hasMerchantReturnPolicy");
@@ -264,6 +343,16 @@ function auditProduct(node: Record<string, unknown>): string[] {
     if (!isAbsoluteUrl(policy.merchantReturnLink)) errors.push("merchantReturnLink");
     if (typeof policy.description !== "string" || policy.description.length === 0) {
       errors.push("return description");
+    }
+    const countries = Array.isArray(policy.applicableCountry)
+      ? policy.applicableCountry
+      : [policy.applicableCountry];
+    if (
+      countries.length === 0 ||
+      countries.length > 50 ||
+      countries.some((country) => typeof country !== "string" || country.length !== 2)
+    ) {
+      errors.push("applicableCountry");
     }
   }
   if (Array.isArray(node.additionalProperty)) {
