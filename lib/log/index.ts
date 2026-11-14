@@ -13,6 +13,15 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-14",
+    entries: [
+      {
+        en: "Product pages now tell search engines our shipping cost, handling and delivery times, the countries we ship to and where returns are accepted, so Shirtat products can appear in shopping results with clear shipping details.",
+        ar: "صارت صفحات المنتجات تُخبر محركات البحث بتكلفة الشحن ومدة التجهيز والتوصيل والدول التي نشحن إليها والدول التي نقبل منها المرتجعات، لتظهر منتجات Shirtat في نتائج التسوق مع تفاصيل شحن واضحة.",
+      },
+    ],
+  },
+  {
     date: "2026-11-13",
     entries: [
       {
