@@ -9,6 +9,14 @@ import {
   offerPolicyFacts,
   productJsonLd,
 } from "./product";
+import {
+  DOMESTIC_COUNTRY,
+  RETURN_POLICY_COUNTRIES,
+  UK_COUNTRY,
+  UK_SHIPPING_RATE_GBP,
+  WORLDWIDE_SHIPPING_RATE_USD,
+  WORLDWIDE_ZONE_COUNTRIES,
+} from "./shipping-destinations";
 
 const IMAGE = {
   caption: "Tafakkar tee",
@@ -47,8 +55,16 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
     assert.deepEqual(auditJsonLd(schema), []);
     const facts = offerPolicyFacts(locale);
     const offer = schema.offers as {
-      hasMerchantReturnPolicy: { description: string };
-      shippingDetails: { description?: string }[];
+      hasMerchantReturnPolicy: { applicableCountry: string[]; description: string };
+      shippingDetails: {
+        deliveryTime: {
+          handlingTime: { unitCode: string };
+          transitTime: { maxValue: number; minValue: number; unitCode: string };
+        };
+        description?: string;
+        shippingDestination: { addressCountry: string } | { addressCountry: string }[];
+        shippingRate: { currency: string; value: number };
+      }[];
     };
     assert.equal(offer.shippingDetails[0]?.description, facts.shipping);
     assert.equal(offer.hasMerchantReturnPolicy.description, facts.returns);
@@ -58,8 +74,65 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
     assert.match(shipping, /2/);
     assert.match(shipping, /5/);
     assert.match(facts.shipping, locale === "ar" ? /2 إلى 5/ : /2–5/);
-    assert.equal(shipping.includes("shippingRate"), false);
+    const details = offer.shippingDetails;
+    assert.equal(details.length, 2);
+    for (const detail of details) {
+      assert.equal(detail.deliveryTime.handlingTime.unitCode, "DAY");
+      assert.equal(detail.deliveryTime.transitTime.unitCode, "DAY");
+      assert.equal(detail.shippingRate.currency, "USD");
+      assert.equal(detail.shippingRate.value, WORLDWIDE_SHIPPING_RATE_USD);
+    }
+    const domesticDestination = details[0]?.shippingDestination;
+    assert.ok(!Array.isArray(domesticDestination));
+    assert.equal(domesticDestination?.addressCountry, DOMESTIC_COUNTRY);
+    assert.equal(details[0]?.deliveryTime.transitTime.minValue, 3);
+    assert.equal(details[0]?.deliveryTime.transitTime.maxValue, 7);
+    const internationalDestinations = details[1]?.shippingDestination;
+    assert.ok(Array.isArray(internationalDestinations));
+    const internationalCountries = internationalDestinations.map((region) => region.addressCountry);
+    assert.deepEqual(
+      internationalCountries,
+      WORLDWIDE_ZONE_COUNTRIES.filter((country) => country !== DOMESTIC_COUNTRY),
+    );
+    assert.equal(details[1]?.deliveryTime.transitTime.minValue, 7);
+    assert.equal(details[1]?.deliveryTime.transitTime.maxValue, 20);
+    const policy = offer.hasMerchantReturnPolicy;
+    assert.deepEqual(policy.applicableCountry, [...RETURN_POLICY_COUNTRIES]);
+    assert.equal(policy.applicableCountry.length, 50);
+    assert.equal(policy.applicableCountry.includes("US"), true);
+    assert.equal(policy.applicableCountry.includes("GB"), true);
+    assert.equal("shippingRate" in (schema.offers as object), false);
   }
+});
+
+test("a GBP offer only includes the United Kingdom shipping rate from the shop profile", () => {
+  const schema = productJsonLd({
+    availableForSale: true,
+    currencyCode: "GBP",
+    description: "One price.",
+    handle: "tafakkar-t-shirt",
+    highPrice: "32.99",
+    images: [IMAGE],
+    locale: "en",
+    lowPrice: "32.99",
+    name: "Tafakkar t-shirt",
+    offerCount: 1,
+    properties: [],
+    sku: "TEE-1",
+  });
+  assert.deepEqual(auditJsonLd(schema), []);
+  const details = (
+    schema.offers as {
+      shippingDetails: {
+        shippingDestination: { addressCountry: string };
+        shippingRate: { currency: string; value: number };
+      }[];
+    }
+  ).shippingDetails;
+  assert.equal(details.length, 1);
+  assert.equal(details[0]?.shippingDestination.addressCountry, UK_COUNTRY);
+  assert.equal(details[0]?.shippingRate.currency, "GBP");
+  assert.equal(details[0]?.shippingRate.value, UK_SHIPPING_RATE_GBP);
 });
 
 test("a single price is an Offer and the breadcrumb includes the collection", () => {
