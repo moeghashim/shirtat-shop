@@ -13,6 +13,15 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-15",
+    entries: [
+      {
+        en: "The Shop by designer page now uses the full storefront width, the same as the home page and collections, so designer cards have more room on larger screens.",
+        ar: "صارت صفحة التسوق حسب المصمم تمتد بعرض المتجر الكامل، مثل الصفحة الرئيسية والمجموعات، فتحصل بطاقات المصممين على مساحة أكبر على الشاشات الكبيرة.",
+      },
+    ],
+  },
+  {
     date: "2026-11-14",
     entries: [
       {
