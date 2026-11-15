@@ -23,7 +23,7 @@ export default async function DesignersPage() {
   const t = await getT();
   return (
     <Page>
-      <Container className="max-w-5xl">
+      <Container>
         <h1 className="text-4xl md:text-5xl font-semibold">{t("Shop by designer")}</h1>
         <p className="mt-3 text-lg text-muted-foreground">
           {t("Browse Shirtat designs by the designers who made them.")}
