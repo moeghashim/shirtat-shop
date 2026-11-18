@@ -13,6 +13,19 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-18",
+    entries: [
+      {
+        en: "The homepage now presents four print methods instead of three: direct-to-garment, direct-to-film, embroidery and all-over sublimation. Each one opens its own page at shirtat.co/print-methods, in English and Arabic, explaining how it works, how to care for it and linking to the pieces made that way.",
+        ar: "صارت الصفحة الرئيسية تعرض أربع طرق للطباعة بدلًا من ثلاث: الطباعة المباشرة على القماش، والطباعة عبر فيلم، والتطريز، والطباعة على كامل القطعة بالتسامي. وتفتح كل طريقة صفحة خاصة بها على shirtat.co/print-methods، بالإنجليزية والعربية، تشرح طريقة عملها وكيفية العناية بالقطعة، مع روابط إلى القطع المصنوعة بها.",
+      },
+      {
+        en: "Fixed product pages that could show an error when a product was missing some of its details or printing information, such as the al-jamal pieces; those pages now load and simply leave out what is missing.",
+        ar: "أصلحنا صفحات المنتجات التي كانت قد تعرض خطأً عندما تنقص منتجًا بعضُ تفاصيله أو معلومات طباعته، مثل قطع «الجمال»؛ فصارت هذه الصفحات تُفتح وتُغفل ببساطة ما هو ناقص.",
+      },
+    ],
+  },
+  {
     date: "2026-11-15",
     entries: [
       {
