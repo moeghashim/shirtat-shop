@@ -1,5 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 
+import { parsePrintMethod, parseProductSpecs } from "./specs-parse";
+
 const API_VERSION = "2025-01";
 
 export type Bilingual = { ar: string; en: string };
@@ -34,15 +36,6 @@ export interface PrintMethod {
   vendor: string;
 }
 
-function parse<T>(value: string | undefined): T | null {
-  if (!value) return null;
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return null;
-  }
-}
-
 export async function getProductSpecs(
   handle: string,
 ): Promise<{ print: PrintMethod | null; specs: ProductSpecs | null }> {
@@ -69,8 +62,8 @@ export async function getProductSpecs(
     };
     const p = json.data?.product;
     return {
-      print: parse<PrintMethod>(p?.print?.value),
-      specs: parse<ProductSpecs>(p?.specs?.value),
+      print: parsePrintMethod(p?.print?.value),
+      specs: parseProductSpecs(p?.specs?.value),
     };
   } catch {
     return { print: null, specs: null };
