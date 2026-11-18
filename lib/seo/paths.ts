@@ -1,5 +1,6 @@
 // Relative so the admin app (which maps @/ to its own src) can import this file too.
 import { GUIDE_PATHS } from "../guides/copy";
+import { PRINT_METHOD_PATHS } from "../print-methods/paths";
 
 /** English and Arabic, the same pair `lib/i18n` publishes. */
 export const SITEMAP_LOCALES = ["en", "ar"] as const;
@@ -11,6 +12,7 @@ export const SITEMAP_STATIC_PATHS = [
   "/design",
   "/designers",
   "/making-of",
+  ...PRINT_METHOD_PATHS,
   "/roadmap",
   "/sales",
   ...GUIDE_PATHS,
