@@ -1,5 +1,16 @@
+import { cacheLife, cacheTag } from "next/cache";
+
 import { listCreators } from "@/lib/creators/store";
 import type { CreatorRecord } from "@/lib/creators/types";
+import {
+  type DesignerCredit,
+  designerDisplayName,
+  designerHandleFromTags,
+  isPublicDesigner,
+  publicDesignerCredits,
+  resolveDesignerCredit,
+  SHIRTAT_DESIGNER,
+} from "@/lib/designers";
 
 const API_VERSION = "2025-01";
 
@@ -15,19 +26,15 @@ export interface PublicDesigner {
 }
 
 /** Shirtat's in-house studio; its products carry designer:shirtat. */
-const HOUSE_HANDLE = "shirtat";
 const HOUSE = {
   avatarUrl: "/android-chrome-512x512.png",
   bio: "Original designs from the Shirtat studio: Arabic calligraphy, poetry and wisdom, made to wear.",
   bioAr: "تصاميم أصلية من استوديو شِرتات: خط عربي وشعر وحكمة، صُنعت لتُلبس.",
-  handle: HOUSE_HANDLE,
+  handle: SHIRTAT_DESIGNER.handle,
   initials: "S",
-  name: "Shirtat",
-  nameAr: "شِرتات",
+  name: SHIRTAT_DESIGNER.name,
+  nameAr: SHIRTAT_DESIGNER.nameAr,
 };
-
-const listed = (c: CreatorRecord) =>
-  c.status === "approved" && Boolean(c.handle) && c.handle !== HOUSE_HANDLE && !c.hiddenFromDirectory;
 
 export interface DesignerProduct {
   handle: string;
@@ -95,7 +102,7 @@ export async function fetchDesignerProducts(handle: string): Promise<DesignerPro
 }
 
 function toPublic(c: CreatorRecord, count: number): PublicDesigner {
-  const name = c.details?.displayName || c.name;
+  const name = designerDisplayName(c);
   return {
     avatarUrl: avatarOf(c) ? `/api/designers/avatar/${c.handle}` : null,
     bio: c.details?.bio || c.bio,
@@ -107,9 +114,12 @@ function toPublic(c: CreatorRecord, count: number): PublicDesigner {
 }
 
 export async function listPublicDesigners(): Promise<PublicDesigner[]> {
-  const approved = (await listCreators()).filter(listed);
+  const approved = (await listCreators()).filter(isPublicDesigner);
   const [house, ...others] = await Promise.all([
-    fetchDesignerProducts(HOUSE_HANDLE).then((p) => ({ ...HOUSE, designCount: p.length })),
+    fetchDesignerProducts(SHIRTAT_DESIGNER.handle).then((p) => ({
+      ...HOUSE,
+      designCount: p.length,
+    })),
     ...approved.map(async (c) => toPublic(c, (await fetchDesignerProducts(c.handle!)).length)),
   ]);
   return [house, ...others];
@@ -118,12 +128,32 @@ export async function listPublicDesigners(): Promise<PublicDesigner[]> {
 export async function getPublicDesigner(
   handle: string,
 ): Promise<{ designer: PublicDesigner; products: DesignerProduct[] } | null> {
-  if (handle.toLowerCase() === HOUSE_HANDLE) {
-    const products = await fetchDesignerProducts(HOUSE_HANDLE);
+  if (handle.toLowerCase() === SHIRTAT_DESIGNER.handle) {
+    const products = await fetchDesignerProducts(SHIRTAT_DESIGNER.handle);
     return { designer: { ...HOUSE, designCount: products.length }, products };
   }
-  const c = (await listCreators()).find((x) => listed(x) && x.handle === handle.toLowerCase());
+  const c = (await listCreators()).find(
+    (x) => isPublicDesigner(x) && x.handle === handle.toLowerCase(),
+  );
   if (!c) return null;
   const products = await fetchDesignerProducts(c.handle!);
   return { designer: toPublic(c, products.length), products };
+}
+
+async function loadPublicDesignerCredits(): Promise<DesignerCredit[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("designers");
+  return publicDesignerCredits(await listCreators());
+}
+
+/** Name and handle for the product-page credit. Shirtat when the tag is missing or not a public designer. */
+export async function getDesignerCredit(tags: readonly string[]): Promise<DesignerCredit> {
+  const handle = designerHandleFromTags(tags);
+  if (!handle || handle === SHIRTAT_DESIGNER.handle) return SHIRTAT_DESIGNER;
+  try {
+    return resolveDesignerCredit(tags, await loadPublicDesignerCredits());
+  } catch {
+    return SHIRTAT_DESIGNER;
+  }
 }
