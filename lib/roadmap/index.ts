@@ -126,8 +126,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Order monitoring", ar: "مراقبة الطلبات" },
     status: "done",
     summary: {
-      en: "An hourly check that every paid order reaches Printify, with alerts for orders stuck on hold or unfulfilled.",
-      ar: "فحص كل ساعة يتأكد من وصول كل طلب مدفوع إلى Printify، مع تنبيهات للطلبات العالقة قيد الانتظار أو غير المنفَّذة.",
+      en: "An hourly check that every item in a paid order reaches the right print partner, Printify or Tapstitch, with alerts for orders waiting on payment, stuck, cancelled or unfulfilled, plus a daily check of Etsy orders.",
+      ar: "فحص كل ساعة يتأكد من وصول كل قطعة في الطلب المدفوع إلى شريك الطباعة الصحيح، Printify أو Tapstitch، مع تنبيهات للطلبات التي تنتظر الدفع أو العالقة أو الملغاة أو غير المنفَّذة، وفحص يومي لطلبات Etsy.",
     },
   },
   {
@@ -172,10 +172,10 @@ export const roadmapPhases: RoadmapPhase[] = [
   },
   {
     title: { en: "More print partners", ar: "شركاء طباعة إضافيون" },
-    status: "next",
+    status: "in-progress",
     summary: {
-      en: "Adding Wearform and Tapstitch as print-on-demand options and comparing their prices to pick the best partner for each product.",
-      ar: "إضافة Wearform وTapstitch خيارين للطباعة عند الطلب ومقارنة أسعارهما لاختيار أفضل شريك لكل منتج.",
+      en: "Tapstitch is live alongside Printify, starting with the Ya Kulla pieces; next is comparing Wearform's prices to pick the best partner for each product.",
+      ar: "صارت Tapstitch تعمل إلى جانب Printify، بدءًا بقطع «يا كلّ كلّي»؛ والخطوة التالية مقارنة أسعار Wearform لاختيار أفضل شريك لكل منتج.",
     },
   },
   {
@@ -350,8 +350,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Etsy shop", ar: "متجر Etsy" },
     status: "in-progress",
     summary: {
-      en: "A Shirtat shop on Etsy, with its page designed and products printed in the US so they reach US buyers faster.",
-      ar: "متجر لـ Shirtat على Etsy، بصفحة مصمَّمة ومنتجات تُطبع في الولايات المتحدة لتصل إلى المشترين هناك أسرع.",
+      en: "Our Etsy shop, ShirtatStdio, has its first listings: the five Ya Kulla pieces at shirtat.co prices. Next come more designs, with products printed in the US so they reach US buyers faster.",
+      ar: "صارت في متجرنا على Etsy، ShirtatStdio، أولى القوائم: قطع «يا كلّ كلّي» الخمس بأسعار shirtat.co. وتأتي بعدها تصاميم أخرى بمنتجات تُطبع في الولايات المتحدة لتصل إلى المشترين هناك أسرع.",
     },
   },
   {
@@ -376,6 +376,14 @@ export const roadmapPhases: RoadmapPhase[] = [
     summary: {
       en: "Showing four print types instead of three, each linking to its own page that explains how that print is made, so shoppers can choose with confidence.",
       ar: "عرض أربعة أنواع للطباعة بدلًا من ثلاثة، يرتبط كل منها بصفحة خاصة تشرح طريقة تنفيذه، كي يختار المتسوقون عن معرفة.",
+    },
+  },
+  {
+    title: { en: "Real model photos", ar: "صور عارضين حقيقيين" },
+    status: "in-progress",
+    summary: {
+      en: "Every product shown worn by real models, a man and a woman for adult pieces and a boy and a girl for kids' pieces, using the print partner's own photos with only our design added. Next is adding a model in hijab and keeping every look modest, with no shorts.",
+      ar: "عرض كل منتج على عارضين حقيقيين، رجل وامرأة للقطع البالغة وولد وبنت لقطع الأطفال، باستخدام صور شريك الطباعة نفسها مع إضافة تصميمنا فقط. والخطوة التالية إضافة عارضة محجبة والحفاظ على إطلالات محتشمة دون سراويل قصيرة.",
     },
   },
 ];

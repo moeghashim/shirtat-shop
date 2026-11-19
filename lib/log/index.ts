@@ -16,6 +16,30 @@ export const logDays: LogDay[] = [
     date: "2026-11-19",
     entries: [
       {
+        en: "Ya Kulla, a new design by Nihad Taisir, is live: the line «يا كلّ كلّي، فكن لي، إن لم تكن لي فمن لي» in square Kufic, on five pieces including a T-shirt and hoodies in dark colours, with titles and descriptions in English and Arabic. Each piece credits Nihad and appears on her designer page.",
+        ar: "صار تصميم «يا كلّ كلّي» الجديد للمصممة نهاد تيسير متاحًا: بيت «يا كلّ كلّي، فكن لي، إن لم تكن لي فمن لي» بالخط الكوفي المربّع، على خمس قطع منها تيشيرت وهوديز بألوان داكنة، بعناوين وأوصاف بالإنجليزية والعربية. وتنسب كل قطعة التصميم إلى نهاد وتظهر في صفحتها كمصممة.",
+      },
+      {
+        en: "Tapstitch is now a second print partner alongside Printify. The Ya Kulla pieces are made by Tapstitch, and the first Ya Kulla order has already been paid and sent into production.",
+        ar: "صارت Tapstitch شريك طباعة ثانيًا إلى جانب Printify. تُصنع قطع «يا كلّ كلّي» لدى Tapstitch، ودُفع أول طلب لها وأُرسل إلى الإنتاج.",
+      },
+      {
+        en: "The five Ya Kulla pieces are also published on our Etsy shop, ShirtatStdio, at the same prices as shirtat.co, with plain English titles because Etsy does not accept Arabic letters in titles; the Arabic line stays in the description.",
+        ar: "نُشرت قطع «يا كلّ كلّي» الخمس أيضًا في متجرنا على Etsy باسم ShirtatStdio بأسعار shirtat.co نفسها، بعناوين إنجليزية بسيطة لأن Etsy لا يقبل الحروف العربية في العناوين، ويبقى البيت العربي في الوصف.",
+      },
+      {
+        en: "Product photos now show real models wearing the pieces, a man and a woman for adult items and a boy and a girl for kids' items, using the print partner's own photos with only our design added. No drawn people.",
+        ar: "صارت صور المنتجات تُظهر عارضين حقيقيين يرتدون القطع، رجلًا وامرأة للقطع البالغة وولدًا وبنتًا لقطع الأطفال، باستخدام صور شريك الطباعة نفسها مع إضافة تصميمنا فقط، دون أشخاص مرسومين.",
+      },
+      {
+        en: "The order monitor now covers every print partner: each hour it checks that every item reached the right partner, Printify or Tapstitch, and flags orders waiting on payment, stuck, cancelled or unfulfilled. Once a day it also checks Etsy orders.",
+        ar: "صار مراقب الطلبات يغطي كل شركاء الطباعة: يتحقق كل ساعة من وصول كل قطعة إلى الشريك الصحيح، Printify أو Tapstitch، وينبّه إلى الطلبات التي تنتظر الدفع أو العالقة أو الملغاة أو غير المنفَّذة. كما يفحص طلبات Etsy مرة كل يوم.",
+      },
+      {
+        en: "We found 16 more independent Arabic lettering designers in Europe, Asia and the Americas, and Moe began inviting designers personally to join Shirtat.",
+        ar: "وجدنا 16 مصممًا مستقلًا آخر للحروف العربية في أوروبا وآسيا والأمريكيتين، وبدأ Moe دعوة المصممين شخصيًا للانضمام إلى Shirtat.",
+      },
+      {
         en: "On a product page, colour, size and add to cart sit directly under the title and price, so a variant can be chosen without scrolling past the offer details. The designer credit, print information, description and design story follow below, in English and Arabic.",
         ar: "في صفحة المنتج، صار اللون والمقاس وزر الإضافة إلى السلة مباشرة تحت العنوان والسعر، فيُختار المقاس دون التمرير عبر تفاصيل العرض. ويأتي بعد ذلك اسم المصمم ومعلومات الطباعة والوصف وقصة التصميم، بالإنجليزية والعربية.",
       },
