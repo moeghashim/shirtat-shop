@@ -21,12 +21,16 @@ export function MetaViewContent({
 
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_META_PIXEL_ID || !variantId) return;
+    const eventTime = Math.floor(Date.now() / 1000);
+    const sourceUrl = window.location.href;
     enqueueMeta(`view:${variantId}`, () => {
       void import("@/lib/meta/client").then((mod) => {
         mod.trackViewContent({
           currency,
+          eventTime,
           price: amount,
           productId,
+          sourceUrl,
           title,
           variantId,
         });

@@ -10,8 +10,10 @@ const ENGAGE = ["keydown", "pointerdown", "touchstart"] as const;
 
 interface PendingAdd {
   currency?: string;
+  eventTime: number;
   price?: string;
   quantity: number;
+  sourceUrl: string;
   title?: string;
   variantId?: string;
 }
@@ -61,6 +63,8 @@ export function MetaPixel() {
 
   useEffect(() => {
     if (loading) return;
+    const eventTime = Math.floor(Date.now() / 1000);
+    const sourceUrl = window.location.href;
     const next = new Map<string, number>();
     const adds: PendingAdd[] = [];
     for (const line of cart.lines.nodes) {
@@ -70,8 +74,10 @@ export function MetaPixel() {
       if (!quantities.current || delta <= 0 || pendingLines > 0) continue;
       adds.push({
         currency: line.cost.amountPerQuantity.currencyCode,
+        eventTime,
         price: line.cost.amountPerQuantity.amount,
         quantity: delta,
+        sourceUrl,
         title: line.merchandise?.product.title,
         variantId: line.merchandise?.id,
       });

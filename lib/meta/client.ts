@@ -79,8 +79,10 @@ export function trackPageView(sourceUrl: string): void {
 
 export function trackViewContent(input: {
   currency?: string;
+  eventTime?: number;
   price?: string;
   productId?: string;
+  sourceUrl?: string;
   title?: string;
   variantId?: string;
 }): void {
@@ -89,10 +91,10 @@ export function trackViewContent(input: {
   const event = viewContentEvent({
     currency: input.currency,
     eventId,
-    eventTime: eventTimeNow(),
+    eventTime: input.eventTime ?? eventTimeNow(),
     price: input.price,
     productId: input.productId,
-    sourceUrl: window.location.href,
+    sourceUrl: input.sourceUrl ?? window.location.href,
     title: input.title,
     variantId: input.variantId,
   });
@@ -101,8 +103,10 @@ export function trackViewContent(input: {
 
 export function trackAddToCart(input: {
   currency?: string;
+  eventTime?: number;
   price?: string;
   quantity: number;
+  sourceUrl?: string;
   title?: string;
   variantId?: string;
 }): void {
@@ -111,10 +115,10 @@ export function trackAddToCart(input: {
   const event = addToCartEvent({
     currency: input.currency,
     eventId,
-    eventTime: eventTimeNow(),
+    eventTime: input.eventTime ?? eventTimeNow(),
     price: input.price,
     quantity: input.quantity,
-    sourceUrl: window.location.href,
+    sourceUrl: input.sourceUrl ?? window.location.href,
     title: input.title,
     variantId: input.variantId,
   });
