@@ -176,7 +176,32 @@ export function BuyButtons({
               event.preventDefault();
               return;
             }
+            if (!process.env.NEXT_PUBLIC_META_PIXEL_ID) {
+              setIsBuyingNow(true);
+              return;
+            }
+            event.preventDefault();
             setIsBuyingNow(true);
+            const checkoutUrl = buyNowUrl;
+            void import("@/lib/meta/client")
+              .then(async (mod) => {
+                mod.beginMeta();
+                await mod.whenConsentKnown(800);
+                mod.trackInitiateCheckout({
+                  currency: selectedVariant.price.currencyCode,
+                  lines: [
+                    {
+                      price: selectedVariant.price.amount,
+                      quantity,
+                      variantId: selectedVariant.id,
+                    },
+                  ],
+                  value: Number(selectedVariant.price.amount) * quantity,
+                });
+              })
+              .finally(() => {
+                window.location.href = checkoutUrl;
+              });
           }}
           rel="nofollow"
         >

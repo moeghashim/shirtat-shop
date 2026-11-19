@@ -5,6 +5,7 @@ import { revalidateTag } from "next/cache";
 import { autoCategorizeProduct } from "@/lib/catalog/auto-categorize";
 import { approvePodOrder, routeOrderToPods } from "@/lib/catalog/pod";
 import { handleCustomOrder } from "@/lib/custom/order";
+import { notifyMetaPurchase } from "@/lib/meta/server";
 import { getNumericShopifyId } from "@/lib/shopify/id/server";
 
 // Webhooks registered by the site's own Admin app are signed with that app's client secret.
@@ -44,12 +45,16 @@ export async function POST(request: Request) {
   if (topic === "orders/paid") {
     try {
       const order = JSON.parse(body);
+      const metaPromise = notifyMetaPurchase(order).catch((error) => {
+        console.error("[meta] purchase", error instanceof Error ? error.name : "error");
+        return "failed" as const;
+      });
       const custom = await handleCustomOrder(order).catch((e) => {
         console.error("[CUSTOM] handling failed", e);
         return 0;
       });
-      const pod = await routeOrderToPods(order);
-      return Response.json({ custom, pod });
+      const [meta, pod] = await Promise.all([metaPromise, routeOrderToPods(order)]);
+      return Response.json({ custom, meta, pod });
     } catch (e) {
       console.error("POD routing failed", e);
       return Response.json({ error: "POD routing failed" }, { status: 500 });
