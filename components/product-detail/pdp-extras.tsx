@@ -1,10 +1,11 @@
 import { ChevronDownIcon, GlobeIcon, PrinterIcon, RotateCcwIcon } from "lucide-react";
 
+import { DesignerAvatar } from "@/components/designers/avatar";
 import { ProductCard } from "@/components/product-card/product-card";
 import { Link } from "@/components/ui/link";
 import { collectionLabel, getCategory, relatedCollectionIds } from "@/lib/collections/categories";
 import type { CommerceLocale } from "@/lib/config/types";
-import { getDesignerCredit } from "@/lib/designers/server";
+import { getDesignerCreditCard } from "@/lib/designers/server";
 import { detectProductScript } from "@/lib/i18n/product";
 import { getAlsoLike, getMoreFromDesign, getPdpExtras } from "@/lib/product/pdp-extras";
 import { type Bilingual, getProductSpecs } from "@/lib/product/specs";
@@ -185,13 +186,11 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
 }
 
 export function PdpTrustAndDetails({
-  designerSlot,
   handle,
   isArabic,
   specsSlot,
   storySlot,
 }: {
-  designerSlot: React.ReactNode;
   handle: string;
   isArabic: boolean;
   specsSlot?: React.ReactNode;
@@ -229,7 +228,6 @@ export function PdpTrustAndDetails({
           );
         })}
       </ul>
-      {designerSlot}
       {storySlot}
       <div className="border-t border-border">
         {specsSlot ?? <LegacySizeAndFabric kind={kind} rows={rows} isArabic={isArabic} />}
@@ -291,11 +289,19 @@ function Row({
   );
 }
 
+const DESIGNER_AVATAR = 96;
+
 export function DesignerCreditFallback({ isArabic }: { isArabic: boolean }) {
   return (
-    <p aria-busy="true" className="min-h-11 text-sm" data-slot="designer-credit">
-      <span className="inline-flex min-h-11 items-center">{t("designer", isArabic)}</span>
-    </p>
+    <div
+      aria-busy="true"
+      className="flex min-h-32 items-center gap-4 rounded-2xl border border-border p-4"
+      data-slot="designer-credit"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
+      <span className="size-24 shrink-0 rounded-2xl bg-muted" />
+      <span className="text-sm text-muted-foreground">{t("designer", isArabic)}</span>
+    </div>
   );
 }
 
@@ -306,18 +312,28 @@ export async function DesignerCreditLine({
   isArabic: boolean;
   tags: readonly string[];
 }) {
-  const credit = await getDesignerCredit(tags);
+  const credit = await getDesignerCreditCard(tags);
   const name = isArabic && credit.nameAr ? credit.nameAr : credit.name;
   return (
-    <p className="text-sm" data-slot="designer-credit">
-      {t("designer", isArabic)}{" "}
-      <Link
-        href={`/designers/${credit.handle}`}
-        className="inline-flex min-h-11 items-center font-medium underline underline-offset-4"
-      >
-        {name}
-      </Link>
-    </p>
+    <Link
+      className="flex cursor-pointer items-center gap-4 rounded-2xl border border-border p-4 transition-colors hover:bg-muted/50"
+      data-slot="designer-credit"
+      dir={isArabic ? "rtl" : "ltr"}
+      href={`/designers/${credit.handle}`}
+    >
+      <DesignerAvatar
+        decorative
+        initials={credit.initials}
+        name={name}
+        shape="tile"
+        size={DESIGNER_AVATAR}
+        url={credit.avatarUrl}
+      />
+      <span className="flex min-w-0 flex-col gap-0.5">
+        <span className="text-sm text-muted-foreground">{t("designer", isArabic)}</span>
+        <span className="text-lg font-semibold leading-tight">{name}</span>
+      </span>
+    </Link>
   );
 }
 

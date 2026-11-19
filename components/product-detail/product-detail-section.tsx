@@ -226,10 +226,6 @@ async function ProductInfoArea({
           ) : null}
         </div>
 
-        <Suspense fallback={<OfferFactsFallback />}>
-          <ProductOfferFacts locale={locale} product={product} />
-        </Suspense>
-
         {singleVariant ? (
           <ProductInfoContent
             priceSlot={
@@ -257,6 +253,9 @@ async function ProductInfoArea({
             <ResolvedProductInfo product={product} variantPromise={variantPromise} />
           </Suspense>
         )}
+        <Suspense fallback={<DesignerCreditFallback isArabic={isArabic} />}>
+          <DesignerCreditLine isArabic={isArabic} tags={product.tags ?? []} />
+        </Suspense>
       </div>
 
       {!product.isGiftCard && shopConfig.pdp.bundles.isEnabled ? (
@@ -268,11 +267,6 @@ async function ProductInfoArea({
       ) : null}
 
       <PdpTrustAndDetails
-        designerSlot={
-          <Suspense fallback={<DesignerCreditFallback isArabic={isArabic} />}>
-            <DesignerCreditLine isArabic={isArabic} tags={product.tags ?? []} />
-          </Suspense>
-        }
         handle={handle}
         isArabic={isArabic}
         specsSlot={
@@ -288,6 +282,9 @@ async function ProductInfoArea({
       />
 
       <ProductInfoDescription descriptionHtml={descriptionHtml} />
+      <Suspense fallback={<OfferFactsFallback />}>
+        <ProductOfferFacts locale={locale} product={product} />
+      </Suspense>
       <RelatedCollections handle={handle} isArabic={isArabic} tags={product.tags ?? []} />
       <Suspense fallback={null}>
         <ShopThisScript

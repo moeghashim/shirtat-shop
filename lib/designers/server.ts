@@ -138,14 +138,44 @@ export async function getPublicDesigner(
   return { designer: toPublic(c, products.length), products };
 }
 
-/** Name and handle for the product-page credit. Shirtat when the tag is missing or not a public designer. */
-export async function getDesignerCredit(tags: readonly string[]): Promise<DesignerCredit> {
+export interface DesignerCreditCard extends DesignerCredit {
+  avatarUrl: string | null;
+  initials: string;
+}
+
+const SHIRTAT_CARD: DesignerCreditCard = {
+  avatarUrl: HOUSE.avatarUrl,
+  handle: SHIRTAT_DESIGNER.handle,
+  initials: HOUSE.initials,
+  name: SHIRTAT_DESIGNER.name,
+  nameAr: SHIRTAT_DESIGNER.nameAr,
+};
+
+/** Name, handle, and logo for the product-page credit. Shirtat when the tag is missing or not a public designer. */
+export async function getDesignerCreditCard(tags: readonly string[]): Promise<DesignerCreditCard> {
   const handle = designerHandleFromTags(tags);
-  if (!handle || handle === SHIRTAT_DESIGNER.handle) return SHIRTAT_DESIGNER;
+  if (!handle || handle === SHIRTAT_DESIGNER.handle) return SHIRTAT_CARD;
   try {
     // Read the directory live, the same way a designer page does, so a hidden or removed designer stops being credited immediately.
-    return resolveDesignerCredit(tags, publicDesignerCredits(await listCreators()));
+    const creators = await listCreators();
+    const credit = resolveDesignerCredit(tags, publicDesignerCredits(creators));
+    if (credit.handle === SHIRTAT_DESIGNER.handle) return SHIRTAT_CARD;
+    const creator = creators.find(
+      (item) => isPublicDesigner(item) && item.handle === credit.handle,
+    );
+    return {
+      avatarUrl: creator && avatarOf(creator) ? `/api/designers/avatar/${credit.handle}` : null,
+      handle: credit.handle,
+      initials: initialsOf(credit.name),
+      name: credit.name,
+    };
   } catch {
-    return SHIRTAT_DESIGNER;
+    return SHIRTAT_CARD;
   }
+}
+
+/** Name and handle for the product-page credit. Shirtat when the tag is missing or not a public designer. */
+export async function getDesignerCredit(tags: readonly string[]): Promise<DesignerCredit> {
+  const { handle, name, nameAr } = await getDesignerCreditCard(tags);
+  return { handle, name, nameAr };
 }
