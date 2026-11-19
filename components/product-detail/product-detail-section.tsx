@@ -12,6 +12,8 @@ import { OfferFactsFallback, ProductOfferFacts } from "@/components/product-deta
 import { ProductOpenGraph } from "@/components/product-detail/open-graph";
 import {
   DesignStoryBlock,
+  DesignerCreditFallback,
+  DesignerCreditLine,
   PdpTrustAndDetails,
   ProductSpecsBlock,
   RelatedCollections,
@@ -266,6 +268,11 @@ async function ProductInfoArea({
       ) : null}
 
       <PdpTrustAndDetails
+        designerSlot={
+          <Suspense fallback={<DesignerCreditFallback isArabic={isArabic} />}>
+            <DesignerCreditLine isArabic={isArabic} tags={product.tags ?? []} />
+          </Suspense>
+        }
         handle={handle}
         isArabic={isArabic}
         specsSlot={

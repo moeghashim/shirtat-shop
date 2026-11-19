@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/product-card/product-card";
 import { Link } from "@/components/ui/link";
 import { collectionLabel, getCategory, relatedCollectionIds } from "@/lib/collections/categories";
 import type { CommerceLocale } from "@/lib/config/types";
+import { getDesignerCredit } from "@/lib/designers/server";
 import { detectProductScript } from "@/lib/i18n/product";
 import { getAlsoLike, getMoreFromDesign, getPdpExtras } from "@/lib/product/pdp-extras";
 import { type Bilingual, getProductSpecs } from "@/lib/product/specs";
@@ -184,11 +185,13 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
 }
 
 export function PdpTrustAndDetails({
+  designerSlot,
   handle,
   isArabic,
   specsSlot,
   storySlot,
 }: {
+  designerSlot: React.ReactNode;
   handle: string;
   isArabic: boolean;
   specsSlot?: React.ReactNode;
@@ -226,15 +229,7 @@ export function PdpTrustAndDetails({
           );
         })}
       </ul>
-      <p className="text-sm">
-        {t("designer", isArabic)}{" "}
-        <Link
-          href="/designers/shirtat"
-          className="inline-flex min-h-11 items-center font-medium underline underline-offset-4"
-        >
-          {isArabic ? "شيرتات" : "Shirtat"}
-        </Link>
-      </p>
+      {designerSlot}
       {storySlot}
       <div className="border-t border-border">
         {specsSlot ?? <LegacySizeAndFabric kind={kind} rows={rows} isArabic={isArabic} />}
@@ -293,6 +288,36 @@ function Row({
         </div>
       ) : null}
     </section>
+  );
+}
+
+export function DesignerCreditFallback({ isArabic }: { isArabic: boolean }) {
+  return (
+    <p aria-busy="true" className="min-h-11 text-sm" data-slot="designer-credit">
+      <span className="inline-flex min-h-11 items-center">{t("designer", isArabic)}</span>
+    </p>
+  );
+}
+
+export async function DesignerCreditLine({
+  isArabic,
+  tags,
+}: {
+  isArabic: boolean;
+  tags: readonly string[];
+}) {
+  const credit = await getDesignerCredit(tags);
+  const name = isArabic && credit.nameAr ? credit.nameAr : credit.name;
+  return (
+    <p className="text-sm" data-slot="designer-credit">
+      {t("designer", isArabic)}{" "}
+      <Link
+        href={`/designers/${credit.handle}`}
+        className="inline-flex min-h-11 items-center font-medium underline underline-offset-4"
+      >
+        {name}
+      </Link>
+    </p>
   );
 }
 
