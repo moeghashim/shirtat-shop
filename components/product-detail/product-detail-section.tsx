@@ -226,10 +226,6 @@ async function ProductInfoArea({
           ) : null}
         </div>
 
-        <Suspense fallback={<OfferFactsFallback />}>
-          <ProductOfferFacts locale={locale} product={product} />
-        </Suspense>
-
         {singleVariant ? (
           <ProductInfoContent
             priceSlot={
@@ -288,6 +284,9 @@ async function ProductInfoArea({
       />
 
       <ProductInfoDescription descriptionHtml={descriptionHtml} />
+      <Suspense fallback={<OfferFactsFallback />}>
+        <ProductOfferFacts locale={locale} product={product} />
+      </Suspense>
       <RelatedCollections handle={handle} isArabic={isArabic} tags={product.tags ?? []} />
       <Suspense fallback={null}>
         <ShopThisScript

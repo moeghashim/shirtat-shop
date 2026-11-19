@@ -13,6 +13,15 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-19",
+    entries: [
+      {
+        en: "On a product page, colour, size and add to cart sit directly under the title and price, so a variant can be chosen without scrolling past the offer details. The designer credit, print information, description and design story follow below, in English and Arabic.",
+        ar: "في صفحة المنتج، صار اللون والمقاس وزر الإضافة إلى السلة مباشرة تحت العنوان والسعر، فيُختار المقاس دون التمرير عبر تفاصيل العرض. ويأتي بعد ذلك اسم المصمم ومعلومات الطباعة والوصف وقصة التصميم، بالإنجليزية والعربية.",
+      },
+    ],
+  },
+  {
     date: "2026-11-18",
     entries: [
       {
