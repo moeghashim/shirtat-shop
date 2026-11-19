@@ -253,6 +253,9 @@ async function ProductInfoArea({
             <ResolvedProductInfo product={product} variantPromise={variantPromise} />
           </Suspense>
         )}
+        <Suspense fallback={<DesignerCreditFallback isArabic={isArabic} />}>
+          <DesignerCreditLine isArabic={isArabic} tags={product.tags ?? []} />
+        </Suspense>
       </div>
 
       {!product.isGiftCard && shopConfig.pdp.bundles.isEnabled ? (
@@ -264,11 +267,6 @@ async function ProductInfoArea({
       ) : null}
 
       <PdpTrustAndDetails
-        designerSlot={
-          <Suspense fallback={<DesignerCreditFallback isArabic={isArabic} />}>
-            <DesignerCreditLine isArabic={isArabic} tags={product.tags ?? []} />
-          </Suspense>
-        }
         handle={handle}
         isArabic={isArabic}
         specsSlot={

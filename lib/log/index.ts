@@ -19,6 +19,10 @@ export const logDays: LogDay[] = [
         en: "On a product page, colour, size and add to cart sit directly under the title and price, so a variant can be chosen without scrolling past the offer details. The designer credit, print information, description and design story follow below, in English and Arabic.",
         ar: "في صفحة المنتج، صار اللون والمقاس وزر الإضافة إلى السلة مباشرة تحت العنوان والسعر، فيُختار المقاس دون التمرير عبر تفاصيل العرض. ويأتي بعد ذلك اسم المصمم ومعلومات الطباعة والوصف وقصة التصميم، بالإنجليزية والعربية.",
       },
+      {
+        en: "Each product page shows the designer's logo beside Designed by, in a card that opens their designer page. A product without a designer, or a designer without a logo, shows the Shirtat mark or their initials.",
+        ar: "تعرض كل صفحة منتج شعار المصمم إلى جانب «تصميم»، في بطاقة تفتح صفحته. والمنتج الذي بلا مصمم، أو المصمم الذي بلا شعار، يُظهر علامة شِرتات أو الأحرف الأولى من الاسم.",
+      },
     ],
   },
   {
