@@ -1,5 +1,3 @@
-import { cacheLife, cacheTag } from "next/cache";
-
 import { listCreators } from "@/lib/creators/store";
 import type { CreatorRecord } from "@/lib/creators/types";
 import {
@@ -140,19 +138,13 @@ export async function getPublicDesigner(
   return { designer: toPublic(c, products.length), products };
 }
 
-async function loadPublicDesignerCredits(): Promise<DesignerCredit[]> {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("designers");
-  return publicDesignerCredits(await listCreators());
-}
-
 /** Name and handle for the product-page credit. Shirtat when the tag is missing or not a public designer. */
 export async function getDesignerCredit(tags: readonly string[]): Promise<DesignerCredit> {
   const handle = designerHandleFromTags(tags);
   if (!handle || handle === SHIRTAT_DESIGNER.handle) return SHIRTAT_DESIGNER;
   try {
-    return resolveDesignerCredit(tags, await loadPublicDesignerCredits());
+    // Read the directory live, the same way a designer page does, so a hidden or removed designer stops being credited immediately.
+    return resolveDesignerCredit(tags, publicDesignerCredits(await listCreators()));
   } catch {
     return SHIRTAT_DESIGNER;
   }
