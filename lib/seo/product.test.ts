@@ -1,12 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { shopConfig } from "@/lib/config";
+
 import { breadcrumbCollectionId, relatedCollectionIds } from "../collections/categories";
 import {
   auditJsonLd,
   breadcrumbJsonLd,
   itemListJsonLd,
   offerPolicyFacts,
+  organizationJsonLd,
   productJsonLd,
 } from "./product";
 import {
@@ -29,7 +32,6 @@ function product(locale: "ar" | "en") {
   const facts = offerPolicyFacts(locale);
   return productJsonLd({
     availableForSale: true,
-    brand: "Shirtat",
     currencyCode: "USD",
     description: locale === "ar" ? "«تفكّر» بالخط الكوفي الهندسي العريض." : "Bold geometric Kufic.",
     handle: "tafakkar-t-shirt",
@@ -55,7 +57,16 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
     assert.deepEqual(auditJsonLd(schema), []);
     const facts = offerPolicyFacts(locale);
     const offer = schema.offers as {
-      hasMerchantReturnPolicy: { applicableCountry: string[]; description: string };
+      hasMerchantReturnPolicy: {
+        applicableCountry: string[];
+        description: string;
+        itemDefectReturnFees: string;
+        merchantReturnDays: number;
+        merchantReturnLink: string;
+        refundType: string[];
+        returnPolicyCategory: string;
+      };
+      mpn?: string;
       shippingDetails: {
         deliveryTime: {
           handlingTime: { unitCode: string };
@@ -68,7 +79,14 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
     };
     assert.equal(offer.shippingDetails[0]?.description, facts.shipping);
     assert.equal(offer.hasMerchantReturnPolicy.description, facts.returns);
+    assert.equal(schema.brand["@type"], "Brand");
+    assert.equal(schema.brand.name, "Shirtat");
+    assert.equal(JSON.stringify(schema).includes("ODMPOD"), false);
+    assert.equal(JSON.stringify(schema).includes("Printify"), false);
     assert.equal(schema.sku, "TEE-1");
+    assert.equal(schema.mpn, "TEE-1");
+    assert.equal(offer.mpn, "TEE-1");
+    assert.equal("gtin" in schema, false);
     assert.equal(schema.description.includes("تفكّر«تفكّر»"), false);
     const shipping = JSON.stringify(offer.shippingDetails);
     assert.match(shipping, /2/);
@@ -97,6 +115,25 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
     assert.equal(details[1]?.deliveryTime.transitTime.minValue, 7);
     assert.equal(details[1]?.deliveryTime.transitTime.maxValue, 20);
     const policy = offer.hasMerchantReturnPolicy;
+    assert.equal(
+      policy.returnPolicyCategory,
+      "https://schema.org/MerchantReturnFiniteReturnWindow",
+    );
+    assert.equal(policy.merchantReturnDays, 30);
+    assert.equal(policy.itemDefectReturnFees, "https://schema.org/FreeReturn");
+    assert.deepEqual(policy.refundType, [
+      "https://schema.org/ExchangeRefund",
+      "https://schema.org/FullRefund",
+    ]);
+    assert.equal("returnFees" in policy, false);
+    assert.equal("returnMethod" in policy, false);
+    assert.equal(
+      policy.merchantReturnLink,
+      `${shopConfig.site.url}${locale === "ar" ? "/ar" : ""}/refunds`,
+    );
+    assert.match(policy.description, locale === "ar" ? /30/ : /30 days/);
+    assert.match(policy.description, locale === "ar" ? /تغيّر الرأي/ : /change of mind/);
+    assert.match(policy.description, locale === "ar" ? /عيب/ : /defective/);
     assert.deepEqual(policy.applicableCountry, [...RETURN_POLICY_COUNTRIES]);
     assert.equal(policy.applicableCountry.length, 50);
     assert.equal(policy.applicableCountry.includes("US"), true);
@@ -171,6 +208,42 @@ test("collection ItemList names the products on the page", () => {
   ]);
   assert.deepEqual(auditJsonLd(list), []);
   assert.match(list.itemListElement[0]?.url ?? "", /\/ar\/products\/tafakkar-t-shirt$/);
+});
+
+test("a product without a variant SKU omits mpn and sku and still names Shirtat", () => {
+  const schema = productJsonLd({
+    availableForSale: true,
+    currencyCode: "USD",
+    description: "No code from the supplier.",
+    handle: "ya-kulla-full-zip-boxy-hoodie",
+    highPrice: "83.99",
+    images: [IMAGE],
+    locale: "en",
+    lowPrice: "83.99",
+    name: "Ya Kulla hoodie",
+    offerCount: 1,
+    properties: [],
+  });
+  assert.deepEqual(auditJsonLd(schema), []);
+  assert.equal(schema.brand.name, "Shirtat");
+  assert.equal("sku" in schema, false);
+  assert.equal("mpn" in schema, false);
+  assert.equal("sku" in schema.offers, false);
+  assert.equal("mpn" in schema.offers, false);
+  assert.equal("gtin" in schema, false);
+});
+
+test("the organization return policy matches the product offer", () => {
+  for (const locale of ["en", "ar"] as const) {
+    const org = organizationJsonLd(locale);
+    assert.deepEqual(auditJsonLd(org), []);
+    const offer = product(locale).offers as {
+      hasMerchantReturnPolicy: unknown;
+    };
+    assert.deepEqual(org.hasMerchantReturnPolicy, offer.hasMerchantReturnPolicy);
+    assert.equal(org.name, "Shirtat");
+    assert.equal(org.alternateName, "شيرتات");
+  }
 });
 
 test("organization alternateName is the Arabic brand", () => {

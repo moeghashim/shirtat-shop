@@ -75,7 +75,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
         >
           {t("Skip to content")}
         </a>
-        <SiteSchema />
+        <SiteSchema locale={locale} />
 
         <LocaleProvider locale={locale}>
           <CartProviderWrapper cartData={cartData}>

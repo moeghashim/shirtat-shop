@@ -1,4 +1,5 @@
 import { shopConfig } from "@/lib/config";
+import { socialLinks } from "@/lib/config/social";
 import { type Locale, localizePath } from "@/lib/i18n";
 import { LEGAL } from "@/lib/legal/content";
 import {
@@ -110,12 +111,16 @@ export function shippingDetailsJsonLd(locale: Locale, description: string, curre
 }
 
 export function returnPolicyJsonLd(locale: Locale, description: string) {
+  // MerchantReturnEnumeration has no defects-only value. The 30-day window is the defect remedy; description quotes /refunds.
   return {
     "@type": "MerchantReturnPolicy",
     applicableCountry: [...RETURN_POLICY_COUNTRIES],
     description,
+    itemDefectReturnFees: "https://schema.org/FreeReturn",
+    merchantReturnDays: 30,
     merchantReturnLink: absoluteStoreUrl(locale, "/refunds"),
-    returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+    refundType: ["https://schema.org/ExchangeRefund", "https://schema.org/FullRefund"],
+    returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
   };
 }
 
@@ -128,7 +133,6 @@ export interface ProductJsonLdImage {
 
 export interface ProductJsonLdInput {
   availableForSale: boolean;
-  brand?: string;
   currencyCode: string;
   description: string;
   handle: string;
@@ -155,7 +159,7 @@ export function productJsonLd(input: ProductJsonLdInput) {
     priceCurrency: input.currencyCode,
     shippingDetails: shippingDetailsJsonLd(input.locale, facts.shipping, input.currencyCode),
     url,
-    ...(input.sku ? { sku: input.sku } : {}),
+    ...(input.sku ? { mpn: input.sku, sku: input.sku } : {}),
   };
   return {
     "@context": "https://schema.org",
@@ -167,8 +171,9 @@ export function productJsonLd(input: ProductJsonLdInput) {
           value: property.value,
         }))
       : undefined,
-    brand: input.brand ? { "@type": "Brand", name: input.brand } : undefined,
+    brand: { "@type": "Brand", name: shopConfig.site.name },
     description: input.description,
+    ...(input.sku ? { mpn: input.sku, sku: input.sku } : {}),
     image: input.images.map((image) => ({
       "@type": "ImageObject",
       caption: image.caption,
@@ -187,7 +192,20 @@ export function productJsonLd(input: ProductJsonLdInput) {
           lowPrice: input.lowPrice,
           offerCount: input.offerCount,
         },
-    sku: input.sku,
+  };
+}
+
+export function organizationJsonLd(locale: Locale) {
+  const facts = offerPolicyFacts(locale);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    alternateName: "شيرتات",
+    hasMerchantReturnPolicy: returnPolicyJsonLd(locale, facts.returns),
+    logo: `${shopConfig.site.url}/icons/icon-512.png`,
+    name: shopConfig.site.name,
+    sameAs: socialLinks.map((link) => link.url),
+    url: shopConfig.site.url,
   };
 }
 
@@ -255,13 +273,65 @@ export function auditJsonLd(schema: unknown): string[] {
   return [`unsupported @type ${String(type)}`];
 }
 
+function auditIdentifier(node: Record<string, unknown>, label: string): string[] {
+  const errors: string[] = [];
+  if (node.sku !== undefined && typeof node.sku !== "string") errors.push(`${label} sku`);
+  if (node.mpn !== undefined && typeof node.mpn !== "string") errors.push(`${label} mpn`);
+  if ((node.sku === undefined) !== (node.mpn === undefined) || node.mpn !== node.sku) {
+    errors.push(`${label} mpn`);
+  }
+  for (const key of ["gtin", "gtin8", "gtin12", "gtin13", "gtin14"]) {
+    if (node[key] !== undefined) errors.push(`${label} ${key}`);
+  }
+  return errors;
+}
+
+function auditReturnPolicy(value: unknown): string[] {
+  const policy = asRecord(value);
+  if (!policy || policy["@type"] !== "MerchantReturnPolicy") return ["hasMerchantReturnPolicy"];
+  const errors: string[] = [];
+  if (policy.returnPolicyCategory !== "https://schema.org/MerchantReturnFiniteReturnWindow") {
+    errors.push("returnPolicyCategory");
+  }
+  if (policy.merchantReturnDays !== 30) errors.push("merchantReturnDays");
+  if (policy.itemDefectReturnFees !== "https://schema.org/FreeReturn") {
+    errors.push("itemDefectReturnFees");
+  }
+  const refunds = Array.isArray(policy.refundType) ? policy.refundType : [policy.refundType];
+  if (
+    !refunds.includes("https://schema.org/ExchangeRefund") ||
+    !refunds.includes("https://schema.org/FullRefund")
+  ) {
+    errors.push("refundType");
+  }
+  if (!isAbsoluteUrl(policy.merchantReturnLink)) errors.push("merchantReturnLink");
+  if (typeof policy.description !== "string" || policy.description.length === 0) {
+    errors.push("return description");
+  }
+  const countries = Array.isArray(policy.applicableCountry)
+    ? policy.applicableCountry
+    : [policy.applicableCountry];
+  if (
+    countries.length === 0 ||
+    countries.length > 50 ||
+    countries.some((country) => typeof country !== "string" || country.length !== 2)
+  ) {
+    errors.push("applicableCountry");
+  }
+  return errors;
+}
+
 function auditProduct(node: Record<string, unknown>): string[] {
   const errors: string[] = [];
   if (node["@context"] !== "https://schema.org") errors.push("Product context");
   if (typeof node.name !== "string" || node.name.length === 0) errors.push("Product name");
   if (typeof node.description !== "string") errors.push("Product description");
   if (!Array.isArray(node.image) || node.image.length === 0) errors.push("Product image");
-  if (node.sku !== undefined && typeof node.sku !== "string") errors.push("Product sku");
+  const brand = asRecord(node.brand);
+  if (!brand || brand["@type"] !== "Brand" || brand.name !== shopConfig.site.name) {
+    errors.push("Product brand");
+  }
+  errors.push(...auditIdentifier(node, "Product"));
   const offer = asRecord(node.offers);
   if (!offer) return [...errors, "Product offers"];
   const offerType = offer["@type"];
@@ -285,6 +355,7 @@ function auditProduct(node: Record<string, unknown>): string[] {
     errors.push("Offer availability");
   }
   if (!isAbsoluteUrl(offer.url)) errors.push("Offer url");
+  errors.push(...auditIdentifier(offer, "Offer"));
   if (offer.shippingRate !== undefined) errors.push("shipping rate invented");
   const details = Array.isArray(offer.shippingDetails) ? offer.shippingDetails : [];
   if (details.length === 0) errors.push("shippingDetails");
@@ -331,30 +402,7 @@ function auditProduct(node: Record<string, unknown>): string[] {
       errors.push(`shippingDetails ${index} shippingRate currency`);
     }
   });
-  const policy = asRecord(offer.hasMerchantReturnPolicy);
-  if (!policy || policy["@type"] !== "MerchantReturnPolicy") errors.push("hasMerchantReturnPolicy");
-  else {
-    if (
-      typeof policy.returnPolicyCategory !== "string" ||
-      !policy.returnPolicyCategory.startsWith("https://schema.org/")
-    ) {
-      errors.push("returnPolicyCategory");
-    }
-    if (!isAbsoluteUrl(policy.merchantReturnLink)) errors.push("merchantReturnLink");
-    if (typeof policy.description !== "string" || policy.description.length === 0) {
-      errors.push("return description");
-    }
-    const countries = Array.isArray(policy.applicableCountry)
-      ? policy.applicableCountry
-      : [policy.applicableCountry];
-    if (
-      countries.length === 0 ||
-      countries.length > 50 ||
-      countries.some((country) => typeof country !== "string" || country.length !== 2)
-    ) {
-      errors.push("applicableCountry");
-    }
-  }
+  errors.push(...auditReturnPolicy(offer.hasMerchantReturnPolicy));
   if (Array.isArray(node.additionalProperty)) {
     for (const property of node.additionalProperty) {
       const row = asRecord(property);
@@ -411,5 +459,8 @@ function auditOrganization(node: Record<string, unknown>): string[] {
   if (typeof node.name !== "string" || node.name.length === 0) errors.push("Organization name");
   if (node.alternateName !== "شيرتات") errors.push("Organization alternateName");
   if (!isAbsoluteUrl(node.url)) errors.push("Organization url");
+  if (node.hasMerchantReturnPolicy !== undefined) {
+    errors.push(...auditReturnPolicy(node.hasMerchantReturnPolicy));
+  }
   return errors;
 }

@@ -17,7 +17,6 @@ interface ProductSchemaProps {
   offerCount: number;
   properties: { name: string; value: string }[];
   sku?: string;
-  vendor?: string;
 }
 
 export function ProductSchema({
@@ -34,11 +33,9 @@ export function ProductSchema({
   offerCount,
   properties,
   sku,
-  vendor,
 }: ProductSchemaProps) {
   const schema = productJsonLd({
     availableForSale,
-    brand: vendor,
     currencyCode,
     description,
     handle,
