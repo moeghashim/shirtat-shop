@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Suspense } from "react";
 
+import { MetaViewContent } from "@/components/analytics/meta-view";
 import { ProductViewedTracker } from "@/components/analytics/trackers";
 import { AlsoLikeRow, MoreFromDesignRow } from "@/components/product-detail/pdp-extras";
 import {
@@ -170,6 +171,12 @@ async function ProductPageContent({
           }}
           variantPromise={variantPromise}
         />
+        {process.env.NEXT_PUBLIC_META_PIXEL_ID ? (
+          <MetaViewContent
+            product={{ id: product.id, title: product.title }}
+            variantPromise={variantPromise}
+          />
+        ) : null}
       </Suspense>
       <RecentlyViewedRecorder
         product={{

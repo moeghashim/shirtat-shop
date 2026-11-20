@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { isShopifyScriptsEnabled, shopConfig } from "@/lib/config";
 
+import { MetaPixel } from "./meta-pixel";
 import { ShopifyScriptsTracker } from "./shopify-client";
 
 export function AnalyticsComponents() {
@@ -22,6 +23,7 @@ export function AnalyticsComponents() {
       {shopConfig.analytics.vercel.isEnabled && <Analytics />}
       {shopConfig.analytics.speedInsights.isEnabled && <SpeedInsights />}
       {isShopifyScriptsEnabled && <ShopifyScriptsTracker i18n={i18n} shop={shop} />}
+      {process.env.NEXT_PUBLIC_META_PIXEL_ID ? <MetaPixel /> : null}
     </>
   );
 }

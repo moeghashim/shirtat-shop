@@ -71,6 +71,28 @@ export function useCheckout() {
       } else if (!checkoutUrl) {
         setCheckoutError("Checkout is unavailable. Refresh your cart and try again.");
       } else {
+        if (process.env.NEXT_PUBLIC_META_PIXEL_ID) {
+          try {
+            const { beginMeta, trackInitiateCheckout, whenConsentKnown } =
+              await import("@/lib/meta/client");
+            if (attempt.current !== currentAttempt) return;
+            beginMeta();
+            await whenConsentKnown(1000);
+            if (attempt.current !== currentAttempt) return;
+            trackInitiateCheckout({
+              currency: cart.cost.totalAmount.currencyCode,
+              lines: cart.lines.nodes.map((line) => ({
+                price: line.cost.amountPerQuantity.amount,
+                quantity: line.quantity,
+                variantId: line.merchandise?.id,
+              })),
+              value: cart.cost.totalAmount.amount,
+            });
+          } catch {
+            if (attempt.current !== currentAttempt) return;
+          }
+        }
+        if (attempt.current !== currentAttempt) return;
         window.location.href = checkoutUrl;
         return;
       }
