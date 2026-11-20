@@ -13,6 +13,23 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-20",
+    entries: [
+      {
+        en: "Shirtat now measures its ads with Meta while respecting shoppers' privacy choices. The site and our server both report page views, product views, add to cart, checkout and purchase with a shared event id, so Meta counts each action once. The purchase signal at checkout only runs when a shopper allows marketing and analytics cookies, and if a shopper opts out of the sale or sharing of their data, through the Shopify cookie banner or their browser's Global Privacy Control, their purchase is not sent to Meta.",
+        ar: "صار Shirtat يقيس إعلاناته مع Meta مع احترام خيارات الخصوصية لدى المتسوقين. يُبلغ الموقع وخادمنا معًا عن مشاهدات الصفحات والمنتجات والإضافة إلى السلة وبدء الدفع والشراء بمعرّف حدث مشترك، فيحتسب Meta كل إجراء مرة واحدة. ولا تعمل إشارة الشراء عند الدفع إلا إذا سمح المتسوق بملفات تعريف الارتباط الخاصة بالتسويق والتحليلات، وإذا اختار المتسوق عدم بيع بياناته أو مشاركتها، عبر شريط ملفات تعريف الارتباط في Shopify أو خاصية Global Privacy Control في متصفحه، فلا تُرسل عملية شرائه إلى Meta.",
+      },
+      {
+        en: "Our first Meta ad campaign is live, featuring the Ya Kulla design by Nihad Taisir for shoppers in the United States and Canada.",
+        ar: "انطلقت أول حملة إعلانية لنا على Meta، تعرض تصميم «يا كلّ كلّي» للمصممة نهاد تيسير للمتسوقين في الولايات المتحدة وكندا.",
+      },
+      {
+        en: "The first order made by Tapstitch was printed and shipped, with tracking, on the same day it went into production.",
+        ar: "طُبع أول طلب تصنعه Tapstitch وشُحن، مع رقم تتبّع، في اليوم نفسه الذي دخل فيه الإنتاج.",
+      },
+    ],
+  },
+  {
     date: "2026-11-19",
     entries: [
       {

@@ -166,8 +166,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Analytics", ar: "التحليلات" },
     status: "done",
     summary: {
-      en: "Google Tag Manager and Ahrefs Web Analytics on every page, loaded on first interaction so speed scores hold.",
-      ar: "Google Tag Manager وAhrefs Web Analytics على كل صفحة، يُحمَّلان عند أول تفاعل لتبقى درجات السرعة.",
+      en: "Google Tag Manager and Ahrefs Web Analytics on every page, loaded on first interaction so speed scores hold, plus the Meta pixel and Conversions API with shared event ids so each action counts once.",
+      ar: "Google Tag Manager وAhrefs Web Analytics على كل صفحة، يُحمَّلان عند أول تفاعل لتبقى درجات السرعة، إضافة إلى بكسل Meta وواجهة Conversions API بمعرّفات أحداث مشتركة ليُحتسب كل إجراء مرة واحدة.",
     },
   },
   {
@@ -292,10 +292,10 @@ export const roadmapPhases: RoadmapPhase[] = [
   },
   {
     title: { en: "Ads", ar: "الإعلانات" },
-    status: "next",
+    status: "in-progress",
     summary: {
-      en: "Paid ads toward the end-of-year sales goal, tracked daily and weekly and adjusted based on results.",
-      ar: "إعلانات مدفوعة نحو هدف مبيعات نهاية العام، تُتابَع يوميًا وأسبوعيًا وتُعدَّل وفق النتائج.",
+      en: "Paid ads toward the end-of-year sales goal, tracked daily and weekly and adjusted based on results. Meta ad measurement is live on the site and at checkout, respecting cookie and opt-out choices, and the first Meta campaign, for Ya Kulla in the US and Canada, is running.",
+      ar: "إعلانات مدفوعة نحو هدف مبيعات نهاية العام، تُتابَع يوميًا وأسبوعيًا وتُعدَّل وفق النتائج. صار قياس إعلانات Meta يعمل على الموقع وعند الدفع مع احترام خيارات ملفات تعريف الارتباط وطلبات عدم المشاركة، وتعمل أول حملة على Meta لتصميم «يا كلّ كلّي» في الولايات المتحدة وكندا.",
     },
   },
   {
