@@ -176,7 +176,10 @@ export function BuyButtons({
               event.preventDefault();
               return;
             }
-            if (!process.env.NEXT_PUBLIC_META_PIXEL_ID) {
+            const privacyControl =
+              (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl ===
+              true;
+            if (!process.env.NEXT_PUBLIC_META_PIXEL_ID && !privacyControl) {
               setIsBuyingNow(true);
               return;
             }
@@ -185,21 +188,31 @@ export function BuyButtons({
             const checkoutUrl = buyNowUrl;
             void import("@/lib/meta/client")
               .then(async (mod) => {
-                mod.beginMeta();
-                await mod.whenConsentKnown(800);
-                mod.trackInitiateCheckout({
-                  currency: selectedVariant.price.currencyCode,
-                  lines: [
-                    {
-                      price: selectedVariant.price.amount,
-                      quantity,
-                      variantId: selectedVariant.id,
-                    },
-                  ],
-                  value: Number(selectedVariant.price.amount) * quantity,
-                });
+                try {
+                  if (process.env.NEXT_PUBLIC_META_PIXEL_ID) {
+                    mod.beginMeta();
+                    await mod.whenConsentKnown(800);
+                    mod.trackInitiateCheckout({
+                      currency: selectedVariant.price.currencyCode,
+                      lines: [
+                        {
+                          price: selectedVariant.price.amount,
+                          quantity,
+                          variantId: selectedVariant.id,
+                        },
+                      ],
+                      value: Number(selectedVariant.price.amount) * quantity,
+                    });
+                  }
+                } catch {
+                  // The permalink still has to carry consent when InitiateCheckout fails.
+                }
+                window.location.href = mod.checkoutUrlWithMetaConsent(
+                  checkoutUrl,
+                  mod.readStorefrontMetaConsent(),
+                );
               })
-              .finally(() => {
+              .catch(() => {
                 window.location.href = checkoutUrl;
               });
           }}

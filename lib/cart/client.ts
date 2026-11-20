@@ -64,33 +64,41 @@ export function useCheckout() {
     setIsCheckingOut(true);
 
     try {
-      const { checkoutUrl } = await prepareCheckoutAction();
+      const checkoutPromise = prepareCheckoutAction();
+      void checkoutPromise.catch(() => undefined);
+      let trackCheckout: (() => void) | null = null;
+      try {
+        const meta = await import("@/lib/meta/client");
+        if (attempt.current !== currentAttempt) return;
+        // Refreshing the cart store here cancels checkout.
+        await meta.recordCheckoutConsent(latestCartState.current.data.attributes);
+        if (process.env.NEXT_PUBLIC_META_PIXEL_ID) {
+          const lines = cart.lines.nodes.map((line) => ({
+            price: line.cost.amountPerQuantity.amount,
+            quantity: line.quantity,
+            variantId: line.merchandise?.id,
+          }));
+          const currency = cart.cost.totalAmount.currencyCode;
+          const value = cart.cost.totalAmount.amount;
+          trackCheckout = () => {
+            meta.trackInitiateCheckout({ currency, lines, value });
+          };
+        }
+      } catch {
+        if (attempt.current !== currentAttempt) return;
+      }
+      if (attempt.current !== currentAttempt) return;
+      const { checkoutUrl } = await checkoutPromise;
       if (attempt.current !== currentAttempt) return;
       if (latestCartState.current.data !== cart) {
         setCheckoutError("Your cart changed. Please try checkout again.");
       } else if (!checkoutUrl) {
         setCheckoutError("Checkout is unavailable. Refresh your cart and try again.");
       } else {
-        if (process.env.NEXT_PUBLIC_META_PIXEL_ID) {
-          try {
-            const { beginMeta, trackInitiateCheckout, whenConsentKnown } =
-              await import("@/lib/meta/client");
-            if (attempt.current !== currentAttempt) return;
-            beginMeta();
-            await whenConsentKnown(1000);
-            if (attempt.current !== currentAttempt) return;
-            trackInitiateCheckout({
-              currency: cart.cost.totalAmount.currencyCode,
-              lines: cart.lines.nodes.map((line) => ({
-                price: line.cost.amountPerQuantity.amount,
-                quantity: line.quantity,
-                variantId: line.merchandise?.id,
-              })),
-              value: cart.cost.totalAmount.amount,
-            });
-          } catch {
-            if (attempt.current !== currentAttempt) return;
-          }
+        try {
+          trackCheckout?.();
+        } catch {
+          if (attempt.current !== currentAttempt) return;
         }
         if (attempt.current !== currentAttempt) return;
         window.location.href = checkoutUrl;

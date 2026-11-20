@@ -4,11 +4,15 @@ import test from "node:test";
 
 import {
   capiEventData,
+  checkoutUrlWithMetaConsent,
+  metaConsentFromFlags,
   pixelCustomData,
   purchaseEventId,
   purchaseFromOrder,
   shopifyContentId,
+  storedMetaConsent,
   trackingAllowed,
+  withMetaConsentAttribute,
 } from "./index";
 import {
   capiUserData,
@@ -131,6 +135,86 @@ test("consent allows a grant, blocks a decline, and defaults by region", () => {
   const stale = paidOrder("US");
   stale.processed_at = new Date(NOW - 8 * 24 * 60 * 60 * 1000).toISOString();
   assert.equal(purchaseFromOrder(stale, NOW).status, "skip");
+});
+
+test("a paid order skips Purchase when sale of data is refused and still sends when it is allowed", () => {
+  const optedOut = metaConsentFromFlags({
+    analyticsAllowed: true,
+    marketingAllowed: true,
+    saleOfDataAllowed: false,
+  });
+  assert.equal(optedOut, "denied");
+  assert.equal(
+    metaConsentFromFlags({
+      analyticsAllowed: true,
+      globalPrivacyControl: true,
+      marketingAllowed: true,
+      saleOfDataAllowed: true,
+    }),
+    "denied",
+  );
+  const usOptedOut = paidOrder("US");
+  usOptedOut.note_attributes = [{ name: "_meta_consent", value: optedOut ?? "denied" }];
+  assert.equal(purchaseFromOrder(usOptedOut, NOW).status, "skip");
+  assert.equal(purchaseFromOrder(paidOrder("US", "denied"), NOW).status, "skip");
+
+  const allowed = metaConsentFromFlags({
+    analyticsAllowed: true,
+    marketingAllowed: true,
+    saleOfDataAllowed: true,
+  });
+  assert.equal(allowed, "granted");
+  const usAllowed = paidOrder("US");
+  usAllowed.note_attributes = [{ name: "_meta_consent", value: "granted" }];
+  assert.equal(purchaseFromOrder(usAllowed, NOW).status, "ok");
+  assert.equal(purchaseFromOrder(paidOrder("US"), NOW).status, "ok");
+
+  assert.equal(
+    metaConsentFromFlags({
+      analyticsAllowed: null,
+      marketingAllowed: null,
+      saleOfDataAllowed: null,
+    }),
+    null,
+  );
+  assert.equal(purchaseFromOrder(paidOrder("DE"), NOW).status, "skip");
+  assert.equal(purchaseFromOrder(paidOrder("DE", "denied"), NOW).status, "skip");
+  assert.equal(purchaseFromOrder(paidOrder("FR"), NOW).status, "skip");
+  assert.equal(purchaseFromOrder(paidOrder("DE", "granted"), NOW).status, "ok");
+
+  const conflict = paidOrder("US", "granted");
+  conflict.note_attributes.push({ name: "_meta_consent", value: "denied" });
+  assert.equal(purchaseFromOrder(conflict, NOW).status, "skip");
+
+  assert.deepEqual(
+    withMetaConsentAttribute(
+      [
+        { key: "gift", value: "yes" },
+        { key: "meta_consent", value: "granted" },
+        { key: "blank", value: null },
+      ],
+      "denied",
+    ),
+    [
+      { key: "gift", value: "yes" },
+      { key: "_meta_consent", value: "denied" },
+    ],
+  );
+  assert.equal(
+    storedMetaConsent([
+      { key: "meta_consent", value: "granted" },
+      { key: "_meta_consent", value: "denied" },
+    ]),
+    "denied",
+  );
+  assert.equal(
+    checkoutUrlWithMetaConsent("/cart/555:1?payment=shop_pay&source=hydrogen", "denied"),
+    "/cart/555:1?payment=shop_pay&source=hydrogen&attributes%5B_meta_consent%5D=denied",
+  );
+  assert.equal(
+    checkoutUrlWithMetaConsent("/cart/555:1?payment=shop_pay", null),
+    "/cart/555:1?payment=shop_pay",
+  );
 });
 
 test("a declined Shopify consent cookie blocks Conversions API", () => {
