@@ -118,6 +118,83 @@ export function countryCode(value: string | null | undefined): string | null {
   return /^[A-Z]{2}$/.test(code) ? code : null;
 }
 
+export type MetaConsentValue = "denied" | "granted";
+
+const META_CONSENT_ATTRIBUTE = "_meta_consent";
+
+export function metaConsentFromFlags(input: {
+  analyticsAllowed: boolean | null;
+  globalPrivacyControl?: boolean;
+  marketingAllowed: boolean | null;
+  saleOfDataAllowed: boolean | null;
+}): MetaConsentValue | null {
+  if (input.globalPrivacyControl === true) return "denied";
+  if (
+    input.analyticsAllowed === false ||
+    input.marketingAllowed === false ||
+    input.saleOfDataAllowed === false
+  ) {
+    return "denied";
+  }
+  if (
+    input.analyticsAllowed === true &&
+    input.marketingAllowed === true &&
+    input.saleOfDataAllowed === true
+  ) {
+    return "granted";
+  }
+  return null;
+}
+
+export function normalizeConsentAttribute(
+  value: string | null | undefined,
+): MetaConsentValue | null {
+  const token = value?.trim().toLowerCase() ?? "";
+  if (token === "0" || token === "denied" || token === "no") return "denied";
+  if (token === "1" || token === "granted" || token === "yes") return "granted";
+  return null;
+}
+
+export function withMetaConsentAttribute(
+  attributes: ReadonlyArray<{ key: string; value?: string | null }>,
+  consent: MetaConsentValue,
+): Array<{ key: string; value: string }> {
+  const next: Array<{ key: string; value: string }> = [];
+  for (const attribute of attributes) {
+    if (!attribute.key || isMetaConsentKey(attribute.key) || attribute.value == null) continue;
+    next.push({ key: attribute.key, value: attribute.value });
+  }
+  next.push({ key: META_CONSENT_ATTRIBUTE, value: consent });
+  return next;
+}
+
+export function storedMetaConsent(
+  attributes: ReadonlyArray<{ key: string; value?: string | null }>,
+): MetaConsentValue | null {
+  let granted = false;
+  for (const attribute of attributes) {
+    if (!isMetaConsentKey(attribute.key)) continue;
+    const value = normalizeConsentAttribute(attribute.value);
+    if (value === "denied") return "denied";
+    if (value === "granted") granted = true;
+  }
+  return granted ? "granted" : null;
+}
+
+export function checkoutUrlWithMetaConsent(url: string, consent: MetaConsentValue | null): string {
+  if (!consent) return url;
+  const absolute = /^[a-z][a-z\d+\-.]*:/i.test(url);
+  let parsed: URL;
+  try {
+    parsed = new URL(url, "https://shirtat.co");
+  } catch {
+    return url;
+  }
+  parsed.searchParams.set(`attributes[${META_CONSENT_ATTRIBUTE}]`, consent);
+  if (absolute) return parsed.toString();
+  return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+}
+
 export function trackingAllowed(input: ConsentFlags & { country: string | null }): boolean {
   if (
     input.analyticsAllowed === false ||
@@ -147,9 +224,9 @@ export function purchaseAllowed(input: {
   consentAttribute: string | null;
   country: string | null;
 }): boolean {
-  const attribute = input.consentAttribute?.trim().toLowerCase() ?? "";
-  if (attribute === "0" || attribute === "denied" || attribute === "no") return false;
-  if (attribute === "1" || attribute === "granted" || attribute === "yes") return true;
+  const attribute = normalizeConsentAttribute(input.consentAttribute);
+  if (attribute === "denied") return false;
+  if (attribute === "granted") return true;
   return trackingAllowed({
     analyticsAllowed: null,
     country: input.country,
@@ -388,7 +465,7 @@ export function purchaseFromOrder(order: unknown, nowMs = Date.now()): PurchaseR
   const country = orderCountry(order);
   if (
     !purchaseAllowed({
-      consentAttribute: noteAttribute(order, "meta_consent"),
+      consentAttribute: orderConsentAttribute(order),
       country,
     })
   ) {
@@ -570,6 +647,19 @@ function orderUserAgent(order: Record<string, unknown>): string | null {
   const details = isRecord(order.client_details) ? order.client_details : null;
   const agent = typeof details?.user_agent === "string" ? details.user_agent.trim() : "";
   return agent ? agent.slice(0, 512) : null;
+}
+
+function orderConsentAttribute(order: Record<string, unknown>): string | null {
+  const hidden = normalizeConsentAttribute(noteAttribute(order, "_meta_consent"));
+  const visible = normalizeConsentAttribute(noteAttribute(order, "meta_consent"));
+  if (hidden === "denied" || visible === "denied") return "denied";
+  if (hidden === "granted" || visible === "granted") return "granted";
+  return null;
+}
+
+function isMetaConsentKey(key: string): boolean {
+  const name = key.toLowerCase();
+  return name === "_meta_consent" || name === "meta_consent";
 }
 
 function noteAttribute(order: Record<string, unknown>, name: string): string | null {

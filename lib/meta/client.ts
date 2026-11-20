@@ -6,12 +6,17 @@ import { shopConfig } from "@/lib/config";
 import {
   addToCartEvent,
   initiateCheckoutEvent,
+  metaConsentFromFlags,
   pageViewEvent,
   pixelCustomData,
+  storedMetaConsent,
   storefrontEventId,
   viewContentEvent,
+  withMetaConsentAttribute,
   type MetaEventDraft,
 } from "@/lib/meta";
+
+export { checkoutUrlWithMetaConsent } from "@/lib/meta";
 import { drainMeta, metaIsLive } from "@/lib/meta/queue";
 import { SHOPIFY_ROUTE_TEMPLATES } from "@/lib/shopify/routing";
 
@@ -144,19 +149,30 @@ export function trackInitiateCheckout(input: {
 }
 
 export function metaConsentGranted(): boolean {
+  return readStorefrontMetaConsent() === "granted";
+}
+
+export function readStorefrontMetaConsent() {
   const privacy = privacyApi();
-  if (
-    !privacy?.marketingAllowed ||
-    !privacy.saleOfDataAllowed ||
-    !privacy.analyticsProcessingAllowed
-  ) {
-    return false;
+  return metaConsentFromFlags({
+    analyticsAllowed: consentMethod(privacy?.analyticsProcessingAllowed),
+    globalPrivacyControl: globalPrivacyControl(),
+    marketingAllowed: consentMethod(privacy?.marketingAllowed),
+    saleOfDataAllowed: consentMethod(privacy?.saleOfDataAllowed),
+  });
+}
+
+export async function recordCheckoutConsent(
+  attributes: ReadonlyArray<{ key: string; value?: string | null }>,
+): Promise<void> {
+  await whenConsentKnown(1000);
+  const consent = readStorefrontMetaConsent();
+  if (!consent || storedMetaConsent(attributes) === consent) return;
+  const next = withMetaConsentAttribute(attributes, consent);
+  const attempts = consent === "denied" ? 2 : 1;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    if (await postCartAttributes(next)) return;
   }
-  return (
-    privacy.marketingAllowed() &&
-    privacy.saleOfDataAllowed() &&
-    privacy.analyticsProcessingAllowed()
-  );
 }
 
 function sendMetaEvent(event: MetaEventDraft): void {
@@ -259,6 +275,43 @@ function mountConsentScripts(navigate?: (url: string) => void): void {
     routes: SHOPIFY_ROUTE_TEMPLATES,
     webMcp: false,
   });
+}
+
+function consentMethod(method: (() => boolean) | undefined): boolean | null {
+  if (!method) return null;
+  try {
+    const value = method();
+    return typeof value === "boolean" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function globalPrivacyControl(): boolean {
+  return (
+    (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true
+  );
+}
+
+async function postCartAttributes(
+  attributes: Array<{ key: string; value: string }>,
+): Promise<boolean> {
+  try {
+    const response = await fetch("/api/cart", {
+      body: JSON.stringify({ attributes }),
+      credentials: "same-origin",
+      headers: { accept: "application/json", "content-type": "application/json" },
+      method: "POST",
+      signal: AbortSignal.timeout(2000),
+    });
+    if (!response.ok) return false;
+    const payload: unknown = await response.json().catch(() => null);
+    if (!payload || typeof payload !== "object") return true;
+    const errors = (payload as { userErrors?: unknown }).userErrors;
+    return !Array.isArray(errors) || errors.length === 0;
+  } catch {
+    return false;
+  }
 }
 
 function privacyApi(): PrivacyApi | null {
