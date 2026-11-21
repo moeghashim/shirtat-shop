@@ -34,6 +34,7 @@ import { decodeShopifyId } from "@/lib/shopify/id/server";
 import type {
   CollectionProductsParams,
   CollectionProductsResult,
+  ProductIdsByQueryParams,
   ProductOptionValues,
   ProductVariantSelection,
   SearchFacetsParams,
@@ -739,6 +740,31 @@ export async function fetchSenatorCampaignProducts(params: {
     });
   }
   return products;
+}
+
+const PRODUCT_IDS_BY_QUERY = gql(
+  `#graphql
+  query productIdsByQuery($query: String!, $sortKey: ProductSortKeys!, $reverse: Boolean!, $country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
+    products(first: 100, query: $query, sortKey: $sortKey, reverse: $reverse) {
+      nodes {
+        id
+      }
+    }
+  }
+`,
+);
+
+// `products` accepts the collection sort keys `search` does not. The page size matches the designer directory query.
+export async function fetchProductIdsByQuery(params: ProductIdsByQueryParams): Promise<string[]> {
+  const response = await storefront.request(PRODUCT_IDS_BY_QUERY, {
+    variables: {
+      query: params.query,
+      reverse: params.reverse ?? false,
+      sortKey: params.sortKey,
+    },
+  });
+  assertStorefrontOk(response, "productIdsByQuery");
+  return response.data.products.nodes.map((node) => node.id);
 }
 
 const GUIDE_CATALOG_QUERY = gql(
