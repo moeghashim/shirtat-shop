@@ -16,6 +16,10 @@ import type { SearchIndexProductsParams } from "@/lib/shopify/operations/product
 const CATALOG_PAGE_CAP = 20;
 const CATALOG_PAGE_SIZE = 50;
 
+export function productDetailsCacheLife(found: boolean): "max" | "minutes" {
+  return found ? "max" : "minutes";
+}
+
 // Only valid inside a cache directive scope.
 export function tagProducts(products: Array<{ id: string }>): void {
   for (const product of products) {
@@ -29,10 +33,12 @@ export async function getProduct(params: {
   locale?: CommerceLocale;
 }): Promise<ProductDetails | undefined> {
   "use cache: remote";
-  cacheLife("max");
   cacheTag("products", `product-${params.handle}`);
 
   const product = await fetchProduct(params);
+  // cacheLife accepts one profile literal per call, not a union of profile names.
+  if (productDetailsCacheLife(Boolean(product)) === "max") cacheLife("max");
+  else cacheLife("minutes");
   if (product) tagProducts([product]);
   return product;
 }

@@ -1,6 +1,7 @@
 import type { ProductSortKeys } from "@shopify/hydrogen/storefront-api-types";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import { connection } from "next/server";
 import { cache } from "react";
 
 import { PRODUCTS_PER_PAGE } from "@/lib/collections";
@@ -296,7 +297,8 @@ export async function getDesignerCreditCard(tags: readonly string[]): Promise<De
   const handle = designerHandleFromTags(tags);
   if (!handle || handle === SHIRTAT_DESIGNER.handle) return SHIRTAT_CARD;
   try {
-    // Read the directory live, the same way a designer page does, so a hidden or removed designer stops being credited immediately.
+    // Live directory read. connection() first so the blob client's Date.now() does not abort prerender.
+    await connection();
     const creators = await listCreators();
     const credit = resolveDesignerCredit(tags, publicDesignerCredits(creators));
     if (credit.handle === SHIRTAT_DESIGNER.handle) return SHIRTAT_CARD;
