@@ -8,6 +8,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useCartDrawer } from "@/components/cart/context";
 import { T } from "@/components/i18n/t";
 import { Button } from "@/components/ui/button";
+import { checkoutUrlWithGaAttributes, readGaCheckoutIds } from "@/lib/analytics";
 import { useT } from "@/lib/i18n/client";
 import { formatPrice } from "@/lib/money";
 import type { Money } from "@/lib/money/types";
@@ -179,7 +180,16 @@ export function BuyButtons({
             const privacyControl =
               (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl ===
               true;
+            const withGa = (url: string) =>
+              checkoutUrlWithGaAttributes(url, readGaCheckoutIds(document.cookie));
             if (!process.env.NEXT_PUBLIC_META_PIXEL_ID && !privacyControl) {
+              const destination = withGa(buyNowUrl);
+              if (destination !== buyNowUrl) {
+                event.preventDefault();
+                setIsBuyingNow(true);
+                window.location.href = destination;
+                return;
+              }
               setIsBuyingNow(true);
               return;
             }
@@ -210,10 +220,11 @@ export function BuyButtons({
                 window.location.href = mod.checkoutUrlWithMetaConsent(
                   checkoutUrl,
                   mod.readStorefrontMetaConsent(),
+                  readGaCheckoutIds(document.cookie),
                 );
               })
               .catch(() => {
-                window.location.href = checkoutUrl;
+                window.location.href = withGa(checkoutUrl);
               });
           }}
           rel="nofollow"

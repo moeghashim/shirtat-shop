@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 
 import { revalidateTag } from "next/cache";
 
+import { notifyGa4Purchase } from "@/lib/analytics/ga4-server";
 import { autoCategorizeProduct } from "@/lib/catalog/auto-categorize";
 import { approvePodOrder, routeOrderToPods } from "@/lib/catalog/pod";
 import { handleCustomOrder } from "@/lib/custom/order";
@@ -49,12 +50,20 @@ export async function POST(request: Request) {
         console.error("[meta] purchase", error instanceof Error ? error.name : "error");
         return "failed" as const;
       });
+      const ga4Promise = notifyGa4Purchase(order).catch((error) => {
+        console.error("[ga4] purchase", error instanceof Error ? error.name : "error");
+        return "failed" as const;
+      });
       const custom = await handleCustomOrder(order).catch((e) => {
         console.error("[CUSTOM] handling failed", e);
         return 0;
       });
-      const [meta, pod] = await Promise.all([metaPromise, routeOrderToPods(order)]);
-      return Response.json({ custom, meta, pod });
+      const [ga4, meta, pod] = await Promise.all([
+        ga4Promise,
+        metaPromise,
+        routeOrderToPods(order),
+      ]);
+      return Response.json({ custom, ga4, meta, pod });
     } catch (e) {
       console.error("POD routing failed", e);
       return Response.json({ error: "POD routing failed" }, { status: 500 });

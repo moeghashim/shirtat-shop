@@ -1,3 +1,9 @@
+import {
+  checkoutUrlWithGaAttributes,
+  withGaCheckoutAttributes,
+  type GaCheckoutIds,
+} from "@/lib/analytics";
+
 // Webhook fallback when the order has no consent attribute: these countries require opt-in.
 const CONSENT_REQUIRED_COUNTRIES = new Set([
   "AT",
@@ -158,6 +164,7 @@ export function normalizeConsentAttribute(
 export function withMetaConsentAttribute(
   attributes: ReadonlyArray<{ key: string; value?: string | null }>,
   consent: MetaConsentValue,
+  gaIds?: GaCheckoutIds | null,
 ): Array<{ key: string; value: string }> {
   const next: Array<{ key: string; value: string }> = [];
   for (const attribute of attributes) {
@@ -165,7 +172,11 @@ export function withMetaConsentAttribute(
     next.push({ key: attribute.key, value: attribute.value });
   }
   next.push({ key: META_CONSENT_ATTRIBUTE, value: consent });
-  return next;
+  if (!gaIds?.clientId && !gaIds?.sessionId) return next;
+  return withGaCheckoutAttributes(next, {
+    clientId: gaIds.clientId ?? null,
+    sessionId: gaIds.sessionId ?? null,
+  });
 }
 
 export function storedMetaConsent(
@@ -181,8 +192,20 @@ export function storedMetaConsent(
   return granted ? "granted" : null;
 }
 
-export function checkoutUrlWithMetaConsent(url: string, consent: MetaConsentValue | null): string {
-  if (!consent) return url;
+export function checkoutUrlWithMetaConsent(
+  url: string,
+  consent: MetaConsentValue | null,
+  gaIds?: GaCheckoutIds | null,
+): string {
+  const withConsent = consent ? appendMetaConsentQuery(url, consent) : url;
+  if (!gaIds?.clientId && !gaIds?.sessionId) return withConsent;
+  return checkoutUrlWithGaAttributes(withConsent, {
+    clientId: gaIds.clientId ?? null,
+    sessionId: gaIds.sessionId ?? null,
+  });
+}
+
+function appendMetaConsentQuery(url: string, consent: MetaConsentValue): string {
   const absolute = /^[a-z][a-z\d+\-.]*:/i.test(url);
   let parsed: URL;
   try {

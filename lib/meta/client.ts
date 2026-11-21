@@ -2,6 +2,13 @@
 
 import { getShopifyScriptTags, initializeShopifyScripts } from "@shopify/hydrogen";
 
+import {
+  GA_CLIENT_ATTRIBUTE,
+  GA_SESSION_ATTRIBUTE,
+  readGaCheckoutIds,
+  withGaCheckoutAttributes,
+  type GaCheckoutIds,
+} from "@/lib/analytics";
 import { shopConfig } from "@/lib/config";
 import {
   addToCartEvent,
@@ -164,15 +171,39 @@ export function readStorefrontMetaConsent() {
 
 export async function recordCheckoutConsent(
   attributes: ReadonlyArray<{ key: string; value?: string | null }>,
+  gaIds?: GaCheckoutIds | null,
 ): Promise<void> {
   await whenConsentKnown(1000);
   const consent = readStorefrontMetaConsent();
-  if (!consent || storedMetaConsent(attributes) === consent) return;
-  const next = withMetaConsentAttribute(attributes, consent);
-  const attempts = consent === "denied" ? 2 : 1;
+  const fresh = typeof document === "undefined" ? null : readGaCheckoutIds(document.cookie);
+  const ids: GaCheckoutIds = {
+    clientId: fresh?.clientId ?? gaIds?.clientId ?? null,
+    sessionId: fresh?.sessionId ?? gaIds?.sessionId ?? null,
+  };
+  const needsConsent = Boolean(consent) && storedMetaConsent(attributes) !== consent;
+  const needsGa =
+    (ids.clientId !== null && cartAttribute(attributes, GA_CLIENT_ATTRIBUTE) !== ids.clientId) ||
+    (ids.sessionId !== null && cartAttribute(attributes, GA_SESSION_ATTRIBUTE) !== ids.sessionId);
+  if (!needsConsent && !needsGa) return;
+  const next =
+    needsConsent && consent
+      ? withMetaConsentAttribute(attributes, consent, ids)
+      : withGaCheckoutAttributes(attributes, ids);
+  const attempts = consent === "denied" && needsConsent ? 2 : 1;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     if (await postCartAttributes(next)) return;
   }
+}
+
+function cartAttribute(
+  attributes: ReadonlyArray<{ key: string; value?: string | null }>,
+  key: string,
+): string | null {
+  for (const attribute of attributes) {
+    if (attribute.key?.toLowerCase() !== key) continue;
+    return typeof attribute.value === "string" && attribute.value ? attribute.value : null;
+  }
+  return null;
 }
 
 function sendMetaEvent(event: MetaEventDraft): void {
