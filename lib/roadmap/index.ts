@@ -54,8 +54,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Shop by designer", ar: "تسوّق حسب المصمم" },
     status: "done",
     summary: {
-      en: "Designer pages at /designers in English and Arabic, with each designer's logo or photo and products.",
-      ar: "صفحات المصممين في /designers بالإنجليزية والعربية، مع شعار كل مصمم أو صورته ومنتجاته.",
+      en: "Designer pages at /designers in English and Arabic, with each designer's logo or photo, bio and products, laid out like a collection page with filters and sorting.",
+      ar: "صفحات المصممين في /designers بالإنجليزية والعربية، مع شعار كل مصمم أو صورته ونبذته ومنتجاته، بتخطيط يشبه صفحة المجموعة مع عوامل التصفية والترتيب.",
     },
   },
   {
@@ -166,8 +166,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Analytics", ar: "التحليلات" },
     status: "done",
     summary: {
-      en: "Google Tag Manager and Ahrefs Web Analytics on every page, loaded on first interaction so speed scores hold, plus the Meta pixel and Conversions API with shared event ids so each action counts once.",
-      ar: "Google Tag Manager وAhrefs Web Analytics على كل صفحة، يُحمَّلان عند أول تفاعل لتبقى درجات السرعة، إضافة إلى بكسل Meta وواجهة Conversions API بمعرّفات أحداث مشتركة ليُحتسب كل إجراء مرة واحدة.",
+      en: "Google Tag Manager and Ahrefs Web Analytics on every page, loaded on first interaction so speed scores hold, plus the Meta pixel and Conversions API with shared event ids so each action counts once. Google Analytics counts every purchase, including Buy with Shop Pay.",
+      ar: "Google Tag Manager وAhrefs Web Analytics على كل صفحة، يُحمَّلان عند أول تفاعل لتبقى درجات السرعة، إضافة إلى بكسل Meta وواجهة Conversions API بمعرّفات أحداث مشتركة ليُحتسب كل إجراء مرة واحدة. ويحتسب Google Analytics كل عملية شراء، بما فيها الشراء عبر Buy with Shop Pay.",
     },
   },
   {
@@ -238,8 +238,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Search visibility", ar: "الظهور في البحث" },
     status: "in-progress",
     summary: {
-      en: "Google Search Console is connected, the sitemap lists every real page in English and Arabic with one clean address per product, and product photos have bilingual descriptions. Product pages carry clear design, script and garment titles, and shopper guides, Arabic collection pages and Markdown versions for AI shopping agents are live; next is watching search results and growing search traffic.",
-      ar: "ربطنا Google Search Console، وتُدرج خريطة الموقع كل صفحة حقيقية بالإنجليزية والعربية بعنوان واحد واضح لكل منتج، وصارت لصور المنتجات أوصاف بلغتين. وتحمل صفحات المنتجات عناوين واضحة بالتصميم ونوع الخط والقطعة، وصارت أدلة المتسوقين وصفحات المجموعات العربية ونسخ Markdown لوكلاء التسوق الذكية حيّة؛ والخطوة التالية متابعة نتائج البحث وزيادة الزيارات منه.",
+      en: "Google Search Console is connected, the sitemap lists every real page in English and Arabic with one clean address per product, and product photos have bilingual descriptions. Product pages carry clear design, script and garment titles, name Shirtat as the brand with each variant's product code and the return rules, and shopper guides, Arabic collection pages and Markdown versions for AI shopping agents are live; next is watching search results and growing search traffic.",
+      ar: "ربطنا Google Search Console، وتُدرج خريطة الموقع كل صفحة حقيقية بالإنجليزية والعربية بعنوان واحد واضح لكل منتج، وصارت لصور المنتجات أوصاف بلغتين. وتحمل صفحات المنتجات عناوين واضحة بالتصميم ونوع الخط والقطعة، وتذكر Shirtat علامةً تجارية مع رمز كل نوع وقواعد الإرجاع، وصارت أدلة المتسوقين وصفحات المجموعات العربية ونسخ Markdown لوكلاء التسوق الذكية حيّة؛ والخطوة التالية متابعة نتائج البحث وزيادة الزيارات منه.",
     },
   },
   {

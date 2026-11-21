@@ -13,6 +13,27 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-21",
+    entries: [
+      {
+        en: "Google now sees Shirtat as the brand on every product, along with each size and colour's own product code. Search results also show our return rules clearly: printed pieces are made to order, so they can't be returned for a change of mind, but we replace or refund any piece that arrives faulty, misprinted, damaged or wrong within 30 days. Blank items without a print can be sent back within 30 days.",
+        ar: "صار Google يرى Shirtat علامةً تجارية لكل منتج، مع رمز المنتج الخاص بكل مقاس ولون. كما تُظهر نتائج البحث قواعد الإرجاع بوضوح: القطع المطبوعة تُصنع حسب الطلب، فلا يمكن إرجاعها لتغيّر الرأي، لكننا نستبدل أو نسترد ثمن أي قطعة تصل معيبة أو بطباعة خاطئة أو تالفة أو غير المطلوبة خلال 30 يومًا. أما القطع السادة بلا طباعة فيمكن إعادتها خلال 30 يومًا.",
+      },
+      {
+        en: "Each designer's page now looks like a collection page: the designer's name, bio and logo sit at the top, followed by filters, sorting and the full product grid, in English and Arabic. Designers without a logo show the Shirtat mark.",
+        ar: "صارت صفحة كل مصمم تشبه صفحة المجموعة: يظهر اسم المصمم ونبذته وشعاره في الأعلى، تليها عوامل التصفية والترتيب وشبكة المنتجات كاملة، بالإنجليزية والعربية. ويظهر شعار Shirtat للمصممين الذين ليس لديهم شعار.",
+      },
+      {
+        en: "Product pages now update soon after a product is published or its photos change in our store, so new pieces and fresh photos appear on the site without waiting.",
+        ar: "صارت صفحات المنتجات تتحدّث بعد وقت قصير من نشر منتج أو تغيير صوره في متجرنا، فتظهر القطع الجديدة والصور المحدّثة على الموقع دون انتظار.",
+      },
+      {
+        en: "Purchases made with Buy with Shop Pay are now counted in Google Analytics too, so we can see every sale, with the order value counted without shipping or tax.",
+        ar: "صارت عمليات الشراء عبر زر Buy with Shop Pay تُحتسب أيضًا في Google Analytics، فنرى كل عملية بيع، وتُحتسب قيمة الطلب دون الشحن والضرائب.",
+      },
+    ],
+  },
+  {
     date: "2026-11-20",
     entries: [
       {
