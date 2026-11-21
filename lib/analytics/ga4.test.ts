@@ -15,6 +15,7 @@ import {
 function shopPayOrder(overrides: Record<string, unknown> = {}) {
   return {
     currency: "USD",
+    current_subtotal_price: "58.48",
     current_total_price: "67.98",
     current_total_tax: "4.50",
     id: 1009,
@@ -112,7 +113,7 @@ test("purchase payload uses the order name, totals, and sku", () => {
           shipping: 5,
           tax: 4.5,
           transaction_id: "A-1009",
-          value: 67.98,
+          value: 58.48,
         },
       },
     ],
@@ -133,6 +134,15 @@ test("purchase payload uses the order name, totals, and sku", () => {
     }),
   );
   assert.equal(shipped?.events[0]?.params.shipping, 6.5);
+  assert.equal(shipped?.events[0]?.params.value, 58.48);
+  const discounted = ga4PurchasePayload(
+    shopPayOrder({ current_subtotal_price: "50.00", current_total_price: "59.50" }),
+  );
+  assert.equal(discounted?.events[0]?.params.value, 50);
+  const derived = ga4PurchasePayload(
+    shopPayOrder({ current_subtotal_price: undefined, subtotal_price: undefined }),
+  );
+  assert.equal(derived?.events[0]?.params.value, 58.48);
 });
 
 test("a missing measurement protocol secret does not send", async () => {

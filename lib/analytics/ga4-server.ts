@@ -52,7 +52,7 @@ export function ga4PurchasePayload(order: unknown): Ga4PurchasePayload | null {
   const sessionId = sessionNumber(noteAttribute(order, "_ga_sid"));
   const shipping = shippingAmount(order);
   const tax = money(order.current_total_tax ?? order.total_tax);
-  const value = money(order.current_total_price ?? order.total_price);
+  const value = purchaseValue(order, shipping, tax);
   if (currency) params.currency = currency;
   if (sessionId !== undefined) params.session_id = sessionId;
   if (shipping !== undefined) params.shipping = shipping;
@@ -95,6 +95,19 @@ export async function notifyGa4Purchase(
     console.error("[ga4] purchase", error instanceof Error ? error.name : "error");
     return "failed";
   }
+}
+
+// GA4 purchase value is merchandise revenue after discounts. Shipping and tax stay in their own fields.
+function purchaseValue(
+  order: Record<string, unknown>,
+  shipping: number | undefined,
+  tax: number | undefined,
+): number | undefined {
+  const subtotal = money(order.current_subtotal_price ?? order.subtotal_price);
+  if (subtotal !== undefined) return subtotal;
+  const total = money(order.current_total_price ?? order.total_price);
+  if (total === undefined) return undefined;
+  return money(Math.max(0, total - (tax ?? 0) - (shipping ?? 0)));
 }
 
 function orderLandingSite(order: unknown): string | null {
