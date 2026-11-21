@@ -220,8 +220,14 @@ export const LEGAL: Record<
     en: {
       title: "Refund & Returns Policy",
       intro:
-        "Every Shirtat item is printed to order for you. Because of that, we can't accept returns for change of mind or wrong size, but we will always put things right if something is wrong with your order.",
+        "Blank items have no print or embroidery. Every other Shirtat piece is printed or embroidered to order. We will always put things right if something is wrong with your order.",
       sections: [
+        {
+          heading: "Blank items",
+          body: [
+            "A blank item, with no print or embroidery, can be returned within 30 days of delivery if it is unworn and still has its tags. You pay the return shipping. The refund goes back to your original payment method.",
+          ],
+        },
         {
           heading: "Defects, misprints and damage",
           body: [
@@ -231,7 +237,7 @@ export const LEGAL: Record<
         {
           heading: "Change of mind and sizing",
           body: [
-            "Made-to-order items can't be returned or exchanged for change of mind or wrong size. Please check the size guide before ordering. If you're unsure, email us before you order and we'll help.",
+            "Printed or embroidered items can't be returned or exchanged for change of mind or wrong size. Please check the size guide before ordering. If you're unsure, email us before you order and we'll help.",
           ],
         },
         {
@@ -258,8 +264,14 @@ export const LEGAL: Record<
     ar: {
       title: "سياسة الاسترداد والإرجاع",
       intro:
-        "تُطبع كل قطعة من شيرتات خصيصًا لك حسب الطلب، لذا لا نقبل الإرجاع بسبب تغيّر الرأي أو المقاس، لكننا نصحح الأمر دائمًا إذا كان هناك خطأ في طلبك.",
+        "القطع السادة بلا طباعة أو تطريز، وكل قطعة أخرى من شيرتات تُطبع أو تُطرَّز حسب الطلب. ونصحح الأمر دائمًا إذا كان هناك خطأ في طلبك.",
       sections: [
+        {
+          heading: "القطع السادة",
+          body: [
+            "يمكن إرجاع القطعة السادة، التي بلا طباعة أو تطريز، خلال 30 يومًا من التسليم إذا كانت غير ملبوسة وما زالت بطاقات السعر عليها. تدفع تكلفة شحن الإرجاع، ويُرد المبلغ إلى وسيلة الدفع الأصلية.",
+          ],
+        },
         {
           heading: "العيوب وأخطاء الطباعة والتلف",
           body: [
@@ -269,7 +281,7 @@ export const LEGAL: Record<
         {
           heading: "تغيّر الرأي والمقاسات",
           body: [
-            "لا يمكن إرجاع القطع المصنوعة حسب الطلب أو استبدالها بسبب تغيّر الرأي أو المقاس الخاطئ. يُرجى مراجعة دليل المقاسات قبل الطلب، وإن لم تكن متأكدًا فراسلنا قبل الطلب وسنساعدك.",
+            "لا يمكن إرجاع القطع المطبوعة أو المطرّزة أو استبدالها بسبب تغيّر الرأي أو المقاس الخاطئ. يُرجى مراجعة دليل المقاسات قبل الطلب، وإن لم تكن متأكدًا فراسلنا قبل الطلب وسنساعدك.",
           ],
         },
         {

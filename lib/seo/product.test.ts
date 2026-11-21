@@ -7,6 +7,7 @@ import { breadcrumbCollectionId, relatedCollectionIds } from "../collections/cat
 import {
   auditJsonLd,
   breadcrumbJsonLd,
+  isReturnableBlank,
   itemListJsonLd,
   offerPolicyFacts,
   organizationJsonLd,
@@ -78,8 +79,8 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
     assert.equal(
       offer.hasMerchantReturnPolicy.description,
       locale === "ar"
-        ? "لا يمكن إرجاع القطع المطبوعة أو المطرّزة المصنوعة حسب الطلب بسبب تغيّر الرأي أو المقاس. القطع المعيبة أو ذات الطباعة الخاطئة أو التالفة أو غير المطابقة للطلب: استبدال مجاني أو استرداد كامل خلال 30 يومًا من التسليم."
-        : "Made-to-order printed/embroidered items can't be returned for change of mind or size. Defective, misprinted, damaged or wrong items: free replacement or full refund within 30 days of delivery.",
+        ? "يمكن إرجاع القطع السادة التي بلا طباعة أو تطريز خلال 30 يومًا من التسليم إذا كانت غير ملبوسة ومعها بطاقات السعر. يدفع المشتري تكلفة شحن الإرجاع، ويُرد المبلغ إلى وسيلة الدفع الأصلية. لا يمكن إرجاع القطع المطبوعة أو المطرّزة بسبب تغيّر الرأي أو المقاس. القطع المعيبة أو ذات الطباعة الخاطئة أو التالفة أو غير المطابقة للطلب: استبدال مجاني أو استرداد كامل خلال 30 يومًا من التسليم."
+        : "Blank items with no print or embroidery can be returned within 30 days of delivery, unworn with tags. The customer pays return shipping, and the refund goes to the original payment method. Printed or embroidered items can't be returned for change of mind or size. Defective, misprinted, damaged or wrong items: free replacement or full refund within 30 days of delivery.",
     );
     assert.equal(schema.brand["@type"], "Brand");
     assert.equal(schema.brand.name, "Shirtat");
@@ -129,6 +130,7 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
     );
     assert.match(policy.description, locale === "ar" ? /30/ : /30 days/);
     assert.match(policy.description, locale === "ar" ? /تغيّر الرأي/ : /change of mind/);
+    assert.match(policy.description, locale === "ar" ? /سادة/ : /Blank items/);
     assert.match(policy.description, locale === "ar" ? /عيب/ : /Defective/);
     assert.deepEqual(policy.applicableCountry, [...RETURN_POLICY_COUNTRIES]);
     assert.equal(policy.applicableCountry.length, 50);
@@ -227,6 +229,61 @@ test("a product without a variant SKU omits mpn and sku and still names Shirtat"
   assert.equal("sku" in schema.offers, false);
   assert.equal("mpn" in schema.offers, false);
   assert.equal("gtin" in schema, false);
+});
+
+test("a blank tag is a 30-day mail return the customer pays for", () => {
+  const schema = productJsonLd({
+    availableForSale: true,
+    currencyCode: "USD",
+    description: "Unprinted tee.",
+    handle: "blank-t-shirt",
+    highPrice: "18.99",
+    images: [IMAGE],
+    locale: "en",
+    lowPrice: "18.99",
+    name: "Blank t-shirt",
+    offerCount: 1,
+    properties: [],
+    sku: "BLANK-1",
+    tags: ["blank"],
+  });
+  assert.deepEqual(auditJsonLd(schema), []);
+  const policy = (
+    schema.offers as {
+      hasMerchantReturnPolicy: {
+        merchantReturnDays: number;
+        returnFees: string;
+        returnMethod: string;
+        returnPolicyCategory: string;
+      };
+    }
+  ).hasMerchantReturnPolicy;
+  assert.equal(policy.returnPolicyCategory, "https://schema.org/MerchantReturnFiniteReturnWindow");
+  assert.equal(policy.merchantReturnDays, 30);
+  assert.equal(policy.returnMethod, "https://schema.org/ReturnByMail");
+  assert.equal(policy.returnFees, "https://schema.org/ReturnFeesCustomerResponsibility");
+  assert.equal("refundType" in policy, false);
+});
+
+test("a print method or the embroidery tag keeps a product non-returnable", () => {
+  assert.equal(isReturnableBlank({ tags: ["blank", "designer:shirtat"] }), true);
+  assert.equal(isReturnableBlank({ printMethod: "None", tags: ["designer:shirtat"] }), true);
+  assert.equal(isReturnableBlank({ printMethod: "no print" }), true);
+  assert.equal(
+    isReturnableBlank({
+      printMethod: "DTG or DTF, both offered by Tapstitch for this blank",
+      tags: ["blank", "supplier:tapstitch"],
+    }),
+    false,
+  );
+  assert.equal(
+    isReturnableBlank({ printMethod: "DTG (direct to garment)", tags: ["supplier:printify"] }),
+    false,
+  );
+  assert.equal(isReturnableBlank({ printMethod: "Embroidery", tags: ["blank"] }), false);
+  assert.equal(isReturnableBlank({ tags: ["blank", "embroidery"] }), false);
+  assert.equal(isReturnableBlank({ tags: ["category:cultures", "designer:shirtat"] }), false);
+  assert.equal(isReturnableBlank({}), false);
 });
 
 test("the organization return policy matches the product offer", () => {

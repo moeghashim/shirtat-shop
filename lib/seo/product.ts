@@ -22,8 +22,14 @@ export interface OfferPolicyFacts {
 export function offerPolicyFacts(locale: Locale): OfferPolicyFacts {
   const refunds = LEGAL.refunds[locale];
   const shipping = LEGAL.shipping[locale];
+  // Refund sections are blank, defects, then change of mind.
   return {
-    returns: [refunds.intro, refunds.sections[1]?.body[0], refunds.sections[0]?.body[0]]
+    returns: [
+      refunds.intro,
+      refunds.sections[0]?.body[0],
+      refunds.sections[2]?.body[0],
+      refunds.sections[1]?.body[0],
+    ]
       .filter((part): part is string => Boolean(part))
       .join(" "),
     shipping: [
@@ -111,18 +117,53 @@ export function shippingDetailsJsonLd(locale: Locale, description: string, curre
 }
 
 const RETURN_POLICY_DESCRIPTION = {
-  ar: "لا يمكن إرجاع القطع المطبوعة أو المطرّزة المصنوعة حسب الطلب بسبب تغيّر الرأي أو المقاس. القطع المعيبة أو ذات الطباعة الخاطئة أو التالفة أو غير المطابقة للطلب: استبدال مجاني أو استرداد كامل خلال 30 يومًا من التسليم.",
-  en: "Made-to-order printed/embroidered items can't be returned for change of mind or size. Defective, misprinted, damaged or wrong items: free replacement or full refund within 30 days of delivery.",
+  ar: "يمكن إرجاع القطع السادة التي بلا طباعة أو تطريز خلال 30 يومًا من التسليم إذا كانت غير ملبوسة ومعها بطاقات السعر. يدفع المشتري تكلفة شحن الإرجاع، ويُرد المبلغ إلى وسيلة الدفع الأصلية. لا يمكن إرجاع القطع المطبوعة أو المطرّزة بسبب تغيّر الرأي أو المقاس. القطع المعيبة أو ذات الطباعة الخاطئة أو التالفة أو غير المطابقة للطلب: استبدال مجاني أو استرداد كامل خلال 30 يومًا من التسليم.",
+  en: "Blank items with no print or embroidery can be returned within 30 days of delivery, unworn with tags. The customer pays return shipping, and the refund goes to the original payment method. Printed or embroidered items can't be returned for change of mind or size. Defective, misprinted, damaged or wrong items: free replacement or full refund within 30 days of delivery.",
 } as const;
 
-export function returnPolicyJsonLd(locale: Locale) {
-  // Every product is printed or embroidered to order. Day and fee fields would read as general returns.
-  return {
+const NO_DECORATION_METHOD = new Set([
+  "blank",
+  "no print",
+  "no printing",
+  "none",
+  "not printed",
+  "unprinted",
+]);
+
+// specs.blank names the base garment, so a method that only mentions "this blank" stays customized.
+export function isReturnableBlank(input: {
+  printMethod?: string | null;
+  tags?: readonly string[];
+}): boolean {
+  const tags = (input.tags ?? []).map((tag) => tag.trim().toLowerCase());
+  const method = input.printMethod?.trim().toLowerCase() ?? "";
+  const taggedBlank = tags.includes("blank");
+  const undecorated = method.length > 0 && NO_DECORATION_METHOD.has(method);
+  if (!taggedBlank && !undecorated) return false;
+  if (tags.includes("embroidery")) return false;
+  if (method.length > 0 && !undecorated) return false;
+  return true;
+}
+
+export function returnPolicyJsonLd(locale: Locale, blank = false) {
+  const shared = {
     "@type": "MerchantReturnPolicy",
     applicableCountry: [...RETURN_POLICY_COUNTRIES],
     description: RETURN_POLICY_DESCRIPTION[locale],
     merchantReturnLink: absoluteStoreUrl(locale, "/refunds"),
-    returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+  };
+  if (!blank) {
+    return {
+      ...shared,
+      returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+    };
+  }
+  return {
+    ...shared,
+    merchantReturnDays: 30,
+    returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
+    returnMethod: "https://schema.org/ReturnByMail",
+    returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
   };
 }
 
@@ -144,8 +185,10 @@ export interface ProductJsonLdInput {
   lowPrice: string;
   name: string;
   offerCount: number;
+  printMethod?: string | null;
   properties: { name: string; value: string }[];
   sku?: string;
+  tags?: readonly string[];
 }
 
 export function productJsonLd(input: ProductJsonLdInput) {
@@ -157,7 +200,10 @@ export function productJsonLd(input: ProductJsonLdInput) {
   const singlePrice = input.lowPrice === input.highPrice;
   const commerce = {
     availability,
-    hasMerchantReturnPolicy: returnPolicyJsonLd(input.locale),
+    hasMerchantReturnPolicy: returnPolicyJsonLd(
+      input.locale,
+      isReturnableBlank({ printMethod: input.printMethod, tags: input.tags }),
+    ),
     priceCurrency: input.currencyCode,
     shippingDetails: shippingDetailsJsonLd(input.locale, facts.shipping, input.currencyCode),
     url,
@@ -291,19 +337,28 @@ function auditReturnPolicy(value: unknown): string[] {
   const policy = asRecord(value);
   if (!policy || policy["@type"] !== "MerchantReturnPolicy") return ["hasMerchantReturnPolicy"];
   const errors: string[] = [];
-  if (policy.returnPolicyCategory !== "https://schema.org/MerchantReturnNotPermitted") {
-    errors.push("returnPolicyCategory");
-  }
-  for (const key of [
+  const category = policy.returnPolicyCategory;
+  const absent = [
     "customerRemorseReturnFees",
     "itemDefectReturnFees",
-    "merchantReturnDays",
     "refundType",
-    "returnFees",
-    "returnMethod",
     "returnShippingFeesAmount",
-  ]) {
-    if (policy[key] !== undefined) errors.push(key);
+  ];
+  if (category === "https://schema.org/MerchantReturnNotPermitted") {
+    for (const key of [...absent, "merchantReturnDays", "returnFees", "returnMethod"]) {
+      if (policy[key] !== undefined) errors.push(key);
+    }
+  } else if (category === "https://schema.org/MerchantReturnFiniteReturnWindow") {
+    if (policy.merchantReturnDays !== 30) errors.push("merchantReturnDays");
+    if (policy.returnFees !== "https://schema.org/ReturnFeesCustomerResponsibility") {
+      errors.push("returnFees");
+    }
+    if (policy.returnMethod !== "https://schema.org/ReturnByMail") errors.push("returnMethod");
+    for (const key of absent) {
+      if (policy[key] !== undefined) errors.push(key);
+    }
+  } else {
+    errors.push("returnPolicyCategory");
   }
   if (!isAbsoluteUrl(policy.merchantReturnLink)) errors.push("merchantReturnLink");
   if (typeof policy.description !== "string" || policy.description.length === 0) {
