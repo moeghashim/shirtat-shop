@@ -24,10 +24,12 @@ interface BrowseProps {
 }
 
 interface CollectionResultsProps {
+  emptyDescription?: string;
   results: BrowseResults | Promise<BrowseResults>;
 }
 
 interface BrowseResultsGridProps {
+  emptyDescription?: string;
   results: BrowseResults;
 }
 
@@ -56,12 +58,12 @@ export function BrowseResultsFallback() {
 }
 
 // Renders a collection page's grid under the layout's CollectionBrowseFrame and hands its facets and data search to the layout's toolbar.
-export async function CollectionResults({ results }: CollectionResultsProps) {
+export async function CollectionResults({ emptyDescription, results }: CollectionResultsProps) {
   const resolved = await results;
   return (
     <>
       <BrowsePublisher dataSearch={resolved.dataSearch} facets={resolved.facets} />
-      <BrowseResultsGrid results={resolved} />
+      <BrowseResultsGrid emptyDescription={emptyDescription} results={resolved} />
     </>
   );
 }
@@ -70,21 +72,24 @@ async function StreamedResultsGrid({ results }: { results: Promise<BrowseResults
   return <BrowseResultsGrid results={await results} />;
 }
 
-async function BrowseResultsGrid({ results }: BrowseResultsGridProps) {
+async function BrowseResultsGrid({ emptyDescription, results }: BrowseResultsGridProps) {
   const t = await getT();
   const locale = await getLocale();
   const { dataSearch, pageInfo, products, source } = results;
   if (products.length === 0) {
     const query = source.type === "search" ? source.query : undefined;
+    const showQuery = Boolean(query) && !emptyDescription;
     return (
       <div className="py-10 text-center">
         <h2 className="mb-2 text-2xl">
           <T k="No products found" />
         </h2>
         <p className="text-muted-foreground">
-          {query
-            ? t('We couldn\'t find any products matching "{query}"', { query })
-            : t("No products available")}
+          {!dataSearch && emptyDescription
+            ? emptyDescription
+            : showQuery
+              ? t('We couldn\'t find any products matching "{query}"', { query: query ?? "" })
+              : t("No products available")}
         </p>
       </div>
     );

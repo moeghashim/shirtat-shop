@@ -1,3 +1,6 @@
+import { resolveBrowseParams } from "@/lib/collections";
+import type { Locale } from "@/lib/i18n";
+
 export interface DesignerCredit {
   handle: string;
   name: string;
@@ -10,6 +13,9 @@ export const SHIRTAT_DESIGNER: DesignerCredit = {
   name: "Shirtat",
   nameAr: "شِرتات",
 };
+
+/** Square Shirtat mark used when a designer has no logo of their own. */
+export const SHIRTAT_DESIGNER_LOGO = "/android-chrome-512x512.png";
 
 const DESIGNER_PREFIX = "designer:";
 const CREATOR_PREFIX = "creator:";
@@ -68,6 +74,38 @@ export function designerHandleFromTags(tags: readonly string[]): string | undefi
     if (HANDLE.test(handle)) legacy = handle;
   }
   return legacy;
+}
+
+export function designerCopy(
+  designer: { bio: string; bioAr?: string; name: string; nameAr?: string },
+  locale: Locale,
+): { bio: string; name: string } {
+  if (locale !== "ar") return { bio: designer.bio, name: designer.name };
+  return {
+    bio: designer.bioAr || designer.bio,
+    name: designer.nameAr || designer.name,
+  };
+}
+
+/** Storefront search query for products tagged to this designer, including the legacy creator tag. */
+export function designerProductQuery(handle: string): string | null {
+  const normalized = handle.trim().toLowerCase();
+  if (!HANDLE.test(normalized)) return null;
+  return `tag:"designer:${normalized}" OR tag:"creator:${normalized}"`;
+}
+
+const DESIGNER_PATH = /^\/designers\/([^/]+)\/?$/;
+const REFINED_DESIGNER_PATH = /^\/designers\/[^/]+\/refine\/?$/;
+
+// Filtered and sorted designer catalogs render from the request-time refine route, same as collections.
+export function getRefinedDesignerPath(pathname: string, search: string): string | null {
+  const handle = DESIGNER_PATH.exec(pathname)?.[1];
+  if (!handle || !resolveBrowseParams(search).dataSearch) return null;
+  return `/designers/${handle}/refine`;
+}
+
+export function isRefinedDesignerPath(pathname: string): boolean {
+  return REFINED_DESIGNER_PATH.test(pathname);
 }
 
 /** Public designer for a product's tags, or the Shirtat studio when the tag is missing or unknown. */

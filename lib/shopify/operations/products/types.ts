@@ -1,4 +1,5 @@
 import type { ProductFilter } from "@shopify/hydrogen";
+import type { ProductSortKeys } from "@shopify/hydrogen/storefront-api-types";
 
 import type { CommerceLocale } from "@/lib/config/types";
 import type { Facets } from "@/lib/filters/types";
@@ -37,6 +38,12 @@ export type SearchFacetsParams = {
   filters?: ProductFilter[];
   locale?: CommerceLocale;
   query?: string;
+};
+
+export type ProductIdsByQueryParams = {
+  query: string;
+  reverse?: boolean;
+  sortKey: ProductSortKeys;
 };
 
 export type SearchFacetsResult = { facets: Facets; total: number };
