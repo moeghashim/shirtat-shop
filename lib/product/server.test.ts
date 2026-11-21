@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { productDetailsCacheLife } from "./cache-life";
+import { productDetailsCacheLife } from "./server";
 
 test("a published product is cached for the long profile", () => {
   assert.equal(productDetailsCacheLife(true), "max");

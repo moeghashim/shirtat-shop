@@ -4,7 +4,6 @@ import { cacheLife, cacheTag } from "next/cache";
 import type { CommerceLocale } from "@/lib/config/types";
 import { isCustomDesignHandle } from "@/lib/custom/products";
 import type { PageInfo } from "@/lib/pagination/types";
-import { productDetailsCacheLife } from "@/lib/product/cache-life";
 import type { ProductCard, ProductDetails, ProductPage } from "@/lib/product/types";
 import { getNumericShopifyId } from "@/lib/shopify/id/server";
 import {
@@ -16,6 +15,10 @@ import type { SearchIndexProductsParams } from "@/lib/shopify/operations/product
 
 const CATALOG_PAGE_CAP = 20;
 const CATALOG_PAGE_SIZE = 50;
+
+export function productDetailsCacheLife(found: boolean): "max" | "minutes" {
+  return found ? "max" : "minutes";
+}
 
 // Only valid inside a cache directive scope.
 export function tagProducts(products: Array<{ id: string }>): void {
