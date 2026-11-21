@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 
-const GA_ID = "G-6DT5S4QRGT";
+import { GA_MEASUREMENT_ID } from "@/lib/analytics";
+
 const EVENTS = ["keydown", "pointerdown", "scroll", "touchstart"] as const;
 
 declare global {
@@ -28,10 +29,10 @@ export function GoogleTag() {
         window.dataLayer?.push(arguments);
       }
       gtag("js", new Date());
-      gtag("config", GA_ID);
+      gtag("config", GA_MEASUREMENT_ID);
       const script = document.createElement("script");
       script.async = true;
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
       document.head.appendChild(script);
     };
     for (const name of EVENTS) window.addEventListener(name, load, { once: true, passive: true });

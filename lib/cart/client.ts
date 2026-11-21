@@ -68,10 +68,16 @@ export function useCheckout() {
       void checkoutPromise.catch(() => undefined);
       let trackCheckout: (() => void) | null = null;
       try {
-        const meta = await import("@/lib/meta/client");
+        const [meta, analytics] = await Promise.all([
+          import("@/lib/meta/client"),
+          import("@/lib/analytics"),
+        ]);
         if (attempt.current !== currentAttempt) return;
         // Refreshing the cart store here cancels checkout.
-        await meta.recordCheckoutConsent(latestCartState.current.data.attributes);
+        await meta.recordCheckoutConsent(
+          latestCartState.current.data.attributes,
+          analytics.readGaCheckoutIds(document.cookie),
+        );
         if (process.env.NEXT_PUBLIC_META_PIXEL_ID) {
           const lines = cart.lines.nodes.map((line) => ({
             price: line.cost.amountPerQuantity.amount,
