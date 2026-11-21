@@ -36,7 +36,9 @@ export async function getProduct(params: {
   cacheTag("products", `product-${params.handle}`);
 
   const product = await fetchProduct(params);
-  cacheLife(productDetailsCacheLife(Boolean(product)));
+  // cacheLife accepts one profile literal per call, not a union of profile names.
+  if (productDetailsCacheLife(Boolean(product)) === "max") cacheLife("max");
+  else cacheLife("minutes");
   if (product) tagProducts([product]);
   return product;
 }
