@@ -4,6 +4,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import type { CommerceLocale } from "@/lib/config/types";
 import { isCustomDesignHandle } from "@/lib/custom/products";
 import type { PageInfo } from "@/lib/pagination/types";
+import { productDetailsCacheLife } from "@/lib/product/cache-life";
 import type { ProductCard, ProductDetails, ProductPage } from "@/lib/product/types";
 import { getNumericShopifyId } from "@/lib/shopify/id/server";
 import {
@@ -29,10 +30,10 @@ export async function getProduct(params: {
   locale?: CommerceLocale;
 }): Promise<ProductDetails | undefined> {
   "use cache: remote";
-  cacheLife("max");
   cacheTag("products", `product-${params.handle}`);
 
   const product = await fetchProduct(params);
+  cacheLife(productDetailsCacheLife(Boolean(product)));
   if (product) tagProducts([product]);
   return product;
 }
