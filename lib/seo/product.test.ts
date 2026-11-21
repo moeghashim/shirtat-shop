@@ -60,10 +60,7 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
       hasMerchantReturnPolicy: {
         applicableCountry: string[];
         description: string;
-        itemDefectReturnFees: string;
-        merchantReturnDays: number;
         merchantReturnLink: string;
-        refundType: string[];
         returnPolicyCategory: string;
       };
       mpn?: string;
@@ -78,7 +75,12 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
       }[];
     };
     assert.equal(offer.shippingDetails[0]?.description, facts.shipping);
-    assert.equal(offer.hasMerchantReturnPolicy.description, facts.returns);
+    assert.equal(
+      offer.hasMerchantReturnPolicy.description,
+      locale === "ar"
+        ? "لا يمكن إرجاع القطع المطبوعة أو المطرّزة المصنوعة حسب الطلب بسبب تغيّر الرأي أو المقاس. القطع المعيبة أو ذات الطباعة الخاطئة أو التالفة أو غير المطابقة للطلب: استبدال مجاني أو استرداد كامل خلال 30 يومًا من التسليم."
+        : "Made-to-order printed/embroidered items can't be returned for change of mind or size. Defective, misprinted, damaged or wrong items: free replacement or full refund within 30 days of delivery.",
+    );
     assert.equal(schema.brand["@type"], "Brand");
     assert.equal(schema.brand.name, "Shirtat");
     assert.equal(JSON.stringify(schema).includes("ODMPOD"), false);
@@ -115,25 +117,19 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
     assert.equal(details[1]?.deliveryTime.transitTime.minValue, 7);
     assert.equal(details[1]?.deliveryTime.transitTime.maxValue, 20);
     const policy = offer.hasMerchantReturnPolicy;
-    assert.equal(
-      policy.returnPolicyCategory,
-      "https://schema.org/MerchantReturnFiniteReturnWindow",
-    );
-    assert.equal(policy.merchantReturnDays, 30);
-    assert.equal(policy.itemDefectReturnFees, "https://schema.org/FreeReturn");
-    assert.deepEqual(policy.refundType, [
-      "https://schema.org/ExchangeRefund",
-      "https://schema.org/FullRefund",
-    ]);
+    assert.equal(policy.returnPolicyCategory, "https://schema.org/MerchantReturnNotPermitted");
+    assert.equal("merchantReturnDays" in policy, false);
     assert.equal("returnFees" in policy, false);
     assert.equal("returnMethod" in policy, false);
+    assert.equal("refundType" in policy, false);
+    assert.equal("itemDefectReturnFees" in policy, false);
     assert.equal(
       policy.merchantReturnLink,
       `${shopConfig.site.url}${locale === "ar" ? "/ar" : ""}/refunds`,
     );
     assert.match(policy.description, locale === "ar" ? /30/ : /30 days/);
     assert.match(policy.description, locale === "ar" ? /تغيّر الرأي/ : /change of mind/);
-    assert.match(policy.description, locale === "ar" ? /عيب/ : /defective/);
+    assert.match(policy.description, locale === "ar" ? /عيب/ : /Defective/);
     assert.deepEqual(policy.applicableCountry, [...RETURN_POLICY_COUNTRIES]);
     assert.equal(policy.applicableCountry.length, 50);
     assert.equal(policy.applicableCountry.includes("US"), true);

@@ -110,17 +110,19 @@ export function shippingDetailsJsonLd(locale: Locale, description: string, curre
   return details;
 }
 
-export function returnPolicyJsonLd(locale: Locale, description: string) {
-  // MerchantReturnEnumeration has no defects-only value. The 30-day window is the defect remedy; description quotes /refunds.
+const RETURN_POLICY_DESCRIPTION = {
+  ar: "لا يمكن إرجاع القطع المطبوعة أو المطرّزة المصنوعة حسب الطلب بسبب تغيّر الرأي أو المقاس. القطع المعيبة أو ذات الطباعة الخاطئة أو التالفة أو غير المطابقة للطلب: استبدال مجاني أو استرداد كامل خلال 30 يومًا من التسليم.",
+  en: "Made-to-order printed/embroidered items can't be returned for change of mind or size. Defective, misprinted, damaged or wrong items: free replacement or full refund within 30 days of delivery.",
+} as const;
+
+export function returnPolicyJsonLd(locale: Locale) {
+  // Every product is printed or embroidered to order. Day and fee fields would read as general returns.
   return {
     "@type": "MerchantReturnPolicy",
     applicableCountry: [...RETURN_POLICY_COUNTRIES],
-    description,
-    itemDefectReturnFees: "https://schema.org/FreeReturn",
-    merchantReturnDays: 30,
+    description: RETURN_POLICY_DESCRIPTION[locale],
     merchantReturnLink: absoluteStoreUrl(locale, "/refunds"),
-    refundType: ["https://schema.org/ExchangeRefund", "https://schema.org/FullRefund"],
-    returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+    returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
   };
 }
 
@@ -155,7 +157,7 @@ export function productJsonLd(input: ProductJsonLdInput) {
   const singlePrice = input.lowPrice === input.highPrice;
   const commerce = {
     availability,
-    hasMerchantReturnPolicy: returnPolicyJsonLd(input.locale, facts.returns),
+    hasMerchantReturnPolicy: returnPolicyJsonLd(input.locale),
     priceCurrency: input.currencyCode,
     shippingDetails: shippingDetailsJsonLd(input.locale, facts.shipping, input.currencyCode),
     url,
@@ -196,12 +198,11 @@ export function productJsonLd(input: ProductJsonLdInput) {
 }
 
 export function organizationJsonLd(locale: Locale) {
-  const facts = offerPolicyFacts(locale);
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
     alternateName: "شيرتات",
-    hasMerchantReturnPolicy: returnPolicyJsonLd(locale, facts.returns),
+    hasMerchantReturnPolicy: returnPolicyJsonLd(locale),
     logo: `${shopConfig.site.url}/icons/icon-512.png`,
     name: shopConfig.site.name,
     sameAs: socialLinks.map((link) => link.url),
@@ -290,19 +291,19 @@ function auditReturnPolicy(value: unknown): string[] {
   const policy = asRecord(value);
   if (!policy || policy["@type"] !== "MerchantReturnPolicy") return ["hasMerchantReturnPolicy"];
   const errors: string[] = [];
-  if (policy.returnPolicyCategory !== "https://schema.org/MerchantReturnFiniteReturnWindow") {
+  if (policy.returnPolicyCategory !== "https://schema.org/MerchantReturnNotPermitted") {
     errors.push("returnPolicyCategory");
   }
-  if (policy.merchantReturnDays !== 30) errors.push("merchantReturnDays");
-  if (policy.itemDefectReturnFees !== "https://schema.org/FreeReturn") {
-    errors.push("itemDefectReturnFees");
-  }
-  const refunds = Array.isArray(policy.refundType) ? policy.refundType : [policy.refundType];
-  if (
-    !refunds.includes("https://schema.org/ExchangeRefund") ||
-    !refunds.includes("https://schema.org/FullRefund")
-  ) {
-    errors.push("refundType");
+  for (const key of [
+    "customerRemorseReturnFees",
+    "itemDefectReturnFees",
+    "merchantReturnDays",
+    "refundType",
+    "returnFees",
+    "returnMethod",
+    "returnShippingFeesAmount",
+  ]) {
+    if (policy[key] !== undefined) errors.push(key);
   }
   if (!isAbsoluteUrl(policy.merchantReturnLink)) errors.push("merchantReturnLink");
   if (typeof policy.description !== "string" || policy.description.length === 0) {
