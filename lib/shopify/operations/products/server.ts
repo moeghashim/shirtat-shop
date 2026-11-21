@@ -744,8 +744,12 @@ export async function fetchSenatorCampaignProducts(params: {
 
 const PRODUCT_IDS_BY_QUERY = gql(
   `#graphql
-  query productIdsByQuery($query: String!, $sortKey: ProductSortKeys!, $reverse: Boolean!, $country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
-    products(first: 100, query: $query, sortKey: $sortKey, reverse: $reverse) {
+  query productIdsByQuery($query: String!, $sortKey: ProductSortKeys!, $reverse: Boolean!, $cursor: String, $country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
+    products(first: 100, after: $cursor, query: $query, sortKey: $sortKey, reverse: $reverse) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
       nodes {
         id
       }
@@ -754,17 +758,33 @@ const PRODUCT_IDS_BY_QUERY = gql(
 `,
 );
 
-// `products` accepts the collection sort keys `search` does not. The page size matches the designer directory query.
+// `products` accepts the collection sort keys `search` does not. Follow the connection so a product past the first page keeps that order.
+const PRODUCT_ID_PAGE_LIMIT = 10;
+
 export async function fetchProductIdsByQuery(params: ProductIdsByQueryParams): Promise<string[]> {
-  const response = await storefront.request(PRODUCT_IDS_BY_QUERY, {
-    variables: {
-      query: params.query,
-      reverse: params.reverse ?? false,
-      sortKey: params.sortKey,
-    },
-  });
-  assertStorefrontOk(response, "productIdsByQuery");
-  return response.data.products.nodes.map((node) => node.id);
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  let cursor: string | undefined;
+  for (let page = 0; page < PRODUCT_ID_PAGE_LIMIT; page += 1) {
+    const response = await storefront.request(PRODUCT_IDS_BY_QUERY, {
+      variables: {
+        cursor,
+        query: params.query,
+        reverse: params.reverse ?? false,
+        sortKey: params.sortKey,
+      },
+    });
+    assertStorefrontOk(response, "productIdsByQuery");
+    for (const node of response.data.products.nodes) {
+      if (seen.has(node.id)) continue;
+      seen.add(node.id);
+      ids.push(node.id);
+    }
+    const { endCursor, hasNextPage } = response.data.products.pageInfo;
+    if (!hasNextPage || !endCursor) break;
+    cursor = endCursor;
+  }
+  return ids;
 }
 
 const GUIDE_CATALOG_QUERY = gql(
