@@ -18,6 +18,7 @@ import {
 import { cartHandlers, createCustomerCartHandlers } from "@/lib/cart/request";
 import { getRefinedCollectionPath, isRefinedCollectionPath } from "@/lib/collections";
 import { shopConfig } from "@/lib/config";
+import { getRefinedDesignerPath, isRefinedDesignerPath } from "@/lib/designers";
 import { isUnlocalizedPath, stripLocale } from "@/lib/i18n";
 import { MARKDOWN_LOCALE_HEADER, resolveMarkdownRequest } from "@/lib/markdown/representation";
 import { predictiveSearchHandlers } from "@/lib/search/request";
@@ -84,7 +85,9 @@ export async function proxy(request: NextRequest): Promise<Response> {
     const target = new URL(`${basePath}${request.nextUrl.search}`, request.url);
     return NextResponse.redirect(target, 308);
   }
-  if (isRefinedCollectionPath(basePath)) return new Response("Not Found", { status: 404 });
+  if (isRefinedCollectionPath(basePath) || isRefinedDesignerPath(basePath)) {
+    return new Response("Not Found", { status: 404 });
+  }
 
   const markdown = resolveMarkdownRequest(request);
   if (markdown?.type === "redirect") {
@@ -95,7 +98,10 @@ export async function proxy(request: NextRequest): Promise<Response> {
   const headers = requestContext.getForwardedRequestHeaders();
   headers.delete(MARKDOWN_LOCALE_HEADER);
   if (markdown?.type === "rewrite") headers.set(MARKDOWN_LOCALE_HEADER, markdown.locale);
-  const refinedPath = pageRoute ? getRefinedCollectionPath(basePath, request.nextUrl.search) : null;
+  const refinedPath = pageRoute
+    ? (getRefinedCollectionPath(basePath, request.nextUrl.search) ??
+      getRefinedDesignerPath(basePath, request.nextUrl.search))
+    : null;
   const localizedPath = pageRoute ? `/${prefix}${basePath === "/" ? "" : basePath}` : null;
   const rewritePath =
     (markdown?.type === "rewrite" ? markdown.pathname : null) ??

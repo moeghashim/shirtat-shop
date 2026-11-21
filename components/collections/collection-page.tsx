@@ -17,6 +17,15 @@ import { collectionLeads } from "@/lib/collections/categories";
 import type { Collection, SortValue } from "@/lib/collections/types";
 import { getLocale, getT } from "@/lib/i18n/server";
 
+interface CatalogBrowseLayoutProps {
+  children: ReactNode;
+  header: ReactNode;
+  path: string;
+  sortExclude?: SortValue[];
+  storeKey: string;
+  tracker?: ReactNode;
+}
+
 interface CollectionLayoutProps {
   children: ReactNode;
   collection: Collection;
@@ -24,23 +33,23 @@ interface CollectionLayoutProps {
   sortExclude?: SortValue[];
 }
 
-// The static and refine routes share this layout, so the header, toolbar, and filter sheet stay mounted when a filter switches between them.
-export function CollectionLayout({
+// Header, toolbar, and filter sheet shared by collection and designer catalogs.
+export function CatalogBrowseLayout({
   children,
-  collection,
-  handle,
+  header,
+  path,
   sortExclude,
-}: CollectionLayoutProps) {
+  storeKey,
+  tracker,
+}: CatalogBrowseLayoutProps) {
   return (
     <>
-      {collection.id ? (
-        <CollectionViewedTracker collection={{ handle: collection.handle, id: collection.id }} />
-      ) : null}
+      {tracker}
       <Page className="pt-2.5 md:pt-10">
         <Container>
           <Sections className="gap-5">
-            <CollectionHeader collection={collection} handle={handle} />
-            <CollectionBrowseFrame handle={handle} path={`/collections/${handle}`}>
+            {header}
+            <CollectionBrowseFrame handle={storeKey} path={path}>
               <BrowseToolbar
                 filters={<PublishedCollectionFilters fallback={<CollectionFiltersSkeleton />} />}
                 sortExclude={sortExclude}
@@ -51,6 +60,30 @@ export function CollectionLayout({
         </Container>
       </Page>
     </>
+  );
+}
+
+// The static and refine routes share this layout, so the header, toolbar, and filter sheet stay mounted when a filter switches between them.
+export function CollectionLayout({
+  children,
+  collection,
+  handle,
+  sortExclude,
+}: CollectionLayoutProps) {
+  return (
+    <CatalogBrowseLayout
+      header={<CollectionHeader collection={collection} handle={handle} />}
+      path={`/collections/${handle}`}
+      sortExclude={sortExclude}
+      storeKey={handle}
+      tracker={
+        collection.id ? (
+          <CollectionViewedTracker collection={{ handle: collection.handle, id: collection.id }} />
+        ) : null
+      }
+    >
+      {children}
+    </CatalogBrowseLayout>
   );
 }
 
