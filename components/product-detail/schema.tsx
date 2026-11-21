@@ -15,9 +15,10 @@ interface ProductSchemaProps {
   lowPrice: string;
   name: string;
   offerCount: number;
+  printMethod?: string | null;
   properties: { name: string; value: string }[];
   sku?: string;
-  vendor?: string;
+  tags?: readonly string[];
 }
 
 export function ProductSchema({
@@ -32,13 +33,13 @@ export function ProductSchema({
   lowPrice,
   name,
   offerCount,
+  printMethod,
   properties,
   sku,
-  vendor,
+  tags,
 }: ProductSchemaProps) {
   const schema = productJsonLd({
     availableForSale,
-    brand: vendor,
     currencyCode,
     description,
     handle,
@@ -58,8 +59,10 @@ export function ProductSchema({
     lowPrice,
     name,
     offerCount,
+    printMethod,
     properties,
     sku,
+    tags,
   });
 
   return <script type="application/ld+json">{JSON.stringify(schema)}</script>;

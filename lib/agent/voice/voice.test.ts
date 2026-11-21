@@ -96,6 +96,8 @@ test("shopper transcript deltas append and the final transcript replaces them", 
 
 test("voice instructions follow the page language and the realtime model stays fixed", () => {
   assert.match(voiceInstructions("ar"), /Arabic/);
+  assert.match(voiceInstructions("en"), /change of mind/);
+  assert.match(voiceInstructions("en"), /unworn/);
   assert.match(voiceInstructions("en", true), /partial transcript/);
   assert.equal(VOICE_REALTIME_MODEL, "gpt-realtime-2.1");
   const request = liveCardsRequest("blue hoodie", "en");

@@ -1,17 +1,10 @@
 import { shopConfig } from "@/lib/config";
-import { socialLinks } from "@/lib/config/social";
+import type { Locale } from "@/lib/i18n";
+import { organizationJsonLd } from "@/lib/seo/product";
 
-function buildSiteSchema() {
+function buildSiteSchema(locale: Locale) {
   return [
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      name: shopConfig.site.name,
-      alternateName: "شيرتات",
-      url: shopConfig.site.url,
-      logo: `${shopConfig.site.url}/icons/icon-512.png`,
-      sameAs: socialLinks.map((link) => link.url),
-    },
+    organizationJsonLd(locale),
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
@@ -27,8 +20,8 @@ function buildSiteSchema() {
   ];
 }
 
-export function SiteSchema() {
-  const schemas = buildSiteSchema();
+export function SiteSchema({ locale }: { locale: Locale }) {
+  const schemas = buildSiteSchema(locale);
   return (
     <>
       {schemas.map((schema) => (

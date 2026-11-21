@@ -96,9 +96,10 @@ export async function ProductOfferFacts({ locale, product }: OfferFactsProps) {
         lowPrice={low.amount}
         name={product.title}
         offerCount={product.variantsCount}
+        printMethod={print?.method?.en}
         properties={properties}
         sku={product.defaultVariantSku}
-        vendor={product.vendor}
+        tags={product.tags}
       />
       <h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
         {isArabic ? "تفاصيل العرض" : "Offer"}

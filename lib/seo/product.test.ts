@@ -1,12 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { shopConfig } from "@/lib/config";
+
 import { breadcrumbCollectionId, relatedCollectionIds } from "../collections/categories";
 import {
   auditJsonLd,
   breadcrumbJsonLd,
+  isReturnableBlank,
   itemListJsonLd,
   offerPolicyFacts,
+  organizationJsonLd,
   productJsonLd,
 } from "./product";
 import {
@@ -29,7 +33,6 @@ function product(locale: "ar" | "en") {
   const facts = offerPolicyFacts(locale);
   return productJsonLd({
     availableForSale: true,
-    brand: "Shirtat",
     currencyCode: "USD",
     description: locale === "ar" ? "«تفكّر» بالخط الكوفي الهندسي العريض." : "Bold geometric Kufic.",
     handle: "tafakkar-t-shirt",
@@ -55,7 +58,13 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
     assert.deepEqual(auditJsonLd(schema), []);
     const facts = offerPolicyFacts(locale);
     const offer = schema.offers as {
-      hasMerchantReturnPolicy: { applicableCountry: string[]; description: string };
+      hasMerchantReturnPolicy: {
+        applicableCountry: string[];
+        description: string;
+        merchantReturnLink: string;
+        returnPolicyCategory: string;
+      };
+      mpn?: string;
       shippingDetails: {
         deliveryTime: {
           handlingTime: { unitCode: string };
@@ -67,8 +76,20 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
       }[];
     };
     assert.equal(offer.shippingDetails[0]?.description, facts.shipping);
-    assert.equal(offer.hasMerchantReturnPolicy.description, facts.returns);
+    assert.equal(
+      offer.hasMerchantReturnPolicy.description,
+      locale === "ar"
+        ? "يمكن إرجاع القطع السادة التي بلا طباعة أو تطريز خلال 30 يومًا من التسليم إذا كانت غير ملبوسة ومعها بطاقات السعر. يدفع المشتري تكلفة شحن الإرجاع، ويُرد المبلغ إلى وسيلة الدفع الأصلية. لا يمكن إرجاع القطع المطبوعة أو المطرّزة بسبب تغيّر الرأي أو المقاس. القطع المعيبة أو ذات الطباعة الخاطئة أو التالفة أو غير المطابقة للطلب: استبدال مجاني أو استرداد كامل خلال 30 يومًا من التسليم."
+        : "Blank items with no print or embroidery can be returned within 30 days of delivery, unworn with tags. The customer pays return shipping, and the refund goes to the original payment method. Printed or embroidered items can't be returned for change of mind or size. Defective, misprinted, damaged or wrong items: free replacement or full refund within 30 days of delivery.",
+    );
+    assert.equal(schema.brand["@type"], "Brand");
+    assert.equal(schema.brand.name, "Shirtat");
+    assert.equal(JSON.stringify(schema).includes("ODMPOD"), false);
+    assert.equal(JSON.stringify(schema).includes("Printify"), false);
     assert.equal(schema.sku, "TEE-1");
+    assert.equal(schema.mpn, "TEE-1");
+    assert.equal(offer.mpn, "TEE-1");
+    assert.equal("gtin" in schema, false);
     assert.equal(schema.description.includes("تفكّر«تفكّر»"), false);
     const shipping = JSON.stringify(offer.shippingDetails);
     assert.match(shipping, /2/);
@@ -97,6 +118,20 @@ test("product JSON-LD carries shipping, returns and sku that match the policy te
     assert.equal(details[1]?.deliveryTime.transitTime.minValue, 7);
     assert.equal(details[1]?.deliveryTime.transitTime.maxValue, 20);
     const policy = offer.hasMerchantReturnPolicy;
+    assert.equal(policy.returnPolicyCategory, "https://schema.org/MerchantReturnNotPermitted");
+    assert.equal("merchantReturnDays" in policy, false);
+    assert.equal("returnFees" in policy, false);
+    assert.equal("returnMethod" in policy, false);
+    assert.equal("refundType" in policy, false);
+    assert.equal("itemDefectReturnFees" in policy, false);
+    assert.equal(
+      policy.merchantReturnLink,
+      `${shopConfig.site.url}${locale === "ar" ? "/ar" : ""}/refunds`,
+    );
+    assert.match(policy.description, locale === "ar" ? /30/ : /30 days/);
+    assert.match(policy.description, locale === "ar" ? /تغيّر الرأي/ : /change of mind/);
+    assert.match(policy.description, locale === "ar" ? /سادة/ : /Blank items/);
+    assert.match(policy.description, locale === "ar" ? /عيب/ : /Defective/);
     assert.deepEqual(policy.applicableCountry, [...RETURN_POLICY_COUNTRIES]);
     assert.equal(policy.applicableCountry.length, 50);
     assert.equal(policy.applicableCountry.includes("US"), true);
@@ -171,6 +206,97 @@ test("collection ItemList names the products on the page", () => {
   ]);
   assert.deepEqual(auditJsonLd(list), []);
   assert.match(list.itemListElement[0]?.url ?? "", /\/ar\/products\/tafakkar-t-shirt$/);
+});
+
+test("a product without a variant SKU omits mpn and sku and still names Shirtat", () => {
+  const schema = productJsonLd({
+    availableForSale: true,
+    currencyCode: "USD",
+    description: "No code from the supplier.",
+    handle: "ya-kulla-full-zip-boxy-hoodie",
+    highPrice: "83.99",
+    images: [IMAGE],
+    locale: "en",
+    lowPrice: "83.99",
+    name: "Ya Kulla hoodie",
+    offerCount: 1,
+    properties: [],
+  });
+  assert.deepEqual(auditJsonLd(schema), []);
+  assert.equal(schema.brand.name, "Shirtat");
+  assert.equal("sku" in schema, false);
+  assert.equal("mpn" in schema, false);
+  assert.equal("sku" in schema.offers, false);
+  assert.equal("mpn" in schema.offers, false);
+  assert.equal("gtin" in schema, false);
+});
+
+test("a blank tag is a 30-day mail return the customer pays for", () => {
+  const schema = productJsonLd({
+    availableForSale: true,
+    currencyCode: "USD",
+    description: "Unprinted tee.",
+    handle: "blank-t-shirt",
+    highPrice: "18.99",
+    images: [IMAGE],
+    locale: "en",
+    lowPrice: "18.99",
+    name: "Blank t-shirt",
+    offerCount: 1,
+    properties: [],
+    sku: "BLANK-1",
+    tags: ["blank"],
+  });
+  assert.deepEqual(auditJsonLd(schema), []);
+  const policy = (
+    schema.offers as {
+      hasMerchantReturnPolicy: {
+        merchantReturnDays: number;
+        returnFees: string;
+        returnMethod: string;
+        returnPolicyCategory: string;
+      };
+    }
+  ).hasMerchantReturnPolicy;
+  assert.equal(policy.returnPolicyCategory, "https://schema.org/MerchantReturnFiniteReturnWindow");
+  assert.equal(policy.merchantReturnDays, 30);
+  assert.equal(policy.returnMethod, "https://schema.org/ReturnByMail");
+  assert.equal(policy.returnFees, "https://schema.org/ReturnFeesCustomerResponsibility");
+  assert.equal("refundType" in policy, false);
+});
+
+test("a print method or the embroidery tag keeps a product non-returnable", () => {
+  assert.equal(isReturnableBlank({ tags: ["blank", "designer:shirtat"] }), true);
+  assert.equal(isReturnableBlank({ printMethod: "None", tags: ["designer:shirtat"] }), true);
+  assert.equal(isReturnableBlank({ printMethod: "no print" }), true);
+  assert.equal(
+    isReturnableBlank({
+      printMethod: "DTG or DTF, both offered by Tapstitch for this blank",
+      tags: ["blank", "supplier:tapstitch"],
+    }),
+    false,
+  );
+  assert.equal(
+    isReturnableBlank({ printMethod: "DTG (direct to garment)", tags: ["supplier:printify"] }),
+    false,
+  );
+  assert.equal(isReturnableBlank({ printMethod: "Embroidery", tags: ["blank"] }), false);
+  assert.equal(isReturnableBlank({ tags: ["blank", "embroidery"] }), false);
+  assert.equal(isReturnableBlank({ tags: ["category:cultures", "designer:shirtat"] }), false);
+  assert.equal(isReturnableBlank({}), false);
+});
+
+test("the organization return policy matches the product offer", () => {
+  for (const locale of ["en", "ar"] as const) {
+    const org = organizationJsonLd(locale);
+    assert.deepEqual(auditJsonLd(org), []);
+    const offer = product(locale).offers as {
+      hasMerchantReturnPolicy: unknown;
+    };
+    assert.deepEqual(org.hasMerchantReturnPolicy, offer.hasMerchantReturnPolicy);
+    assert.equal(org.name, "Shirtat");
+    assert.equal(org.alternateName, "شيرتات");
+  }
 });
 
 test("organization alternateName is the Arabic brand", () => {
