@@ -74,6 +74,14 @@ const GET_PRODUCT_BY_HANDLE_QUERY = gql(
   query getProductByHandle($handle: String!, $country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
     product(handle: $handle) {
       ...ProductFields
+      # The product form resolves every colour and size from this list.
+      variants(first: 250) {
+        edges {
+          node {
+            ...ProductVariantFields
+          }
+        }
+      }
     }
   }
 `,
@@ -95,6 +103,15 @@ const GET_PRODUCT_BY_HANDLE_WITH_BUNDLES_QUERY = gql(
       options {
         optionValues {
           firstSelectableVariant {
+            ...BundleRelationshipFields
+          }
+        }
+      }
+      # The product form resolves every colour and size from this list.
+      variants(first: 250) {
+        edges {
+          node {
+            ...ProductVariantFields
             ...BundleRelationshipFields
           }
         }

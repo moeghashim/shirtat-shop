@@ -78,6 +78,15 @@ export function OptionPicker({
               onClick={
                 onSelectValue && !value.crossProduct
                   ? (event) => {
+                      if (
+                        event.metaKey ||
+                        event.ctrlKey ||
+                        event.shiftKey ||
+                        event.altKey ||
+                        event.button !== 0
+                      ) {
+                        return;
+                      }
                       event.preventDefault();
                       onSelectValue(option.name, value.name);
                     }
