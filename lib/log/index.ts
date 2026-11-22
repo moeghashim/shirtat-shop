@@ -13,6 +13,27 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-22",
+    entries: [
+      {
+        en: "On product pages, choosing a colour or size now changes the photo, price and add-to-cart choice instantly, without reloading the page. The link in the address bar still updates, so the exact colour and size can be shared, in English and Arabic.",
+        ar: "في صفحات المنتجات، صار اختيار اللون أو المقاس يغيّر الصورة والسعر والخيار المضاف إلى السلة فورًا، دون إعادة تحميل الصفحة. ويبقى الرابط في شريط العنوان يتحدّث، فيمكن مشاركة اللون والمقاس نفسيهما، بالإنجليزية والعربية.",
+      },
+      {
+        en: "Google Shopping now has our shipping rates, a flat worldwide standard rate that matches checkout, and our returns policy in Google Merchant Center, so products Google had held back for missing shipping details can be shown again.",
+        ar: "صار Google Shopping يعرف أسعار الشحن لدينا، وهي سعر شحن عادي موحّد لكل العالم يطابق ما يظهر عند الدفع، وكذلك سياسة الإرجاع في Google Merchant Center، فيمكن أن تعود للظهور المنتجات التي حجبها Google لنقص معلومات الشحن.",
+      },
+      {
+        en: "Our Google Merchant Center account now lists shirtat.co as the shop's website, verified and claimed, instead of the checkout address.",
+        ar: "صار حسابنا في Google Merchant Center يعتمد shirtat.co موقعًا للمتجر، بعد التحقق منه وتثبيت ملكيته، بدلًا من عنوان صفحة الدفع.",
+      },
+      {
+        en: "Some products from one of our print partners were showing the partner's internal label as their brand. They now show Shirtat as the brand, so Google lists them under Shirtat too.",
+        ar: "كانت بعض المنتجات من أحد شركاء الطباعة تُظهر تسمية داخلية خاصة بالشريك علامةً تجارية لها. وصارت الآن تُظهر Shirtat علامةً تجارية، فيدرجها Google تحت اسم Shirtat أيضًا.",
+      },
+    ],
+  },
+  {
     date: "2026-11-21",
     entries: [
       {

@@ -38,8 +38,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Products", ar: "المنتجات" },
     status: "done",
     summary: {
-      en: "Arabic calligraphy and poetry shirts, hoodies, sweatshirts, tote bags, prints and mugs are live, with redesigned product pages, solid fabric-colour swatches and new designs like Ana Ibn Jala.",
-      ar: "تيشيرتات وهوديز وسويتشيرتات وحقائب قماشية ولوحات وأكواب بالخط العربي والشعر متاحة الآن، مع صفحات منتجات مُعاد تصميمها وعيّنات ألوان مصمتة بلون القماش الحقيقي وتصاميم جديدة مثل «أنا ابن جلا».",
+      en: "Arabic calligraphy and poetry shirts, hoodies, sweatshirts, tote bags, prints and mugs are live, with redesigned product pages where colour and size switch instantly, solid fabric-colour swatches and new designs like Ana Ibn Jala.",
+      ar: "تيشيرتات وهوديز وسويتشيرتات وحقائب قماشية ولوحات وأكواب بالخط العربي والشعر متاحة الآن، مع صفحات منتجات مُعاد تصميمها يتبدّل فيها اللون والمقاس فورًا، وعيّنات ألوان مصمتة بلون القماش الحقيقي وتصاميم جديدة مثل «أنا ابن جلا».",
     },
   },
   {
@@ -238,8 +238,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Search visibility", ar: "الظهور في البحث" },
     status: "in-progress",
     summary: {
-      en: "Google Search Console is connected, the sitemap lists every real page in English and Arabic with one clean address per product, and product photos have bilingual descriptions. Product pages carry clear design, script and garment titles, name Shirtat as the brand with each variant's product code and the return rules, and shopper guides, Arabic collection pages and Markdown versions for AI shopping agents are live; next is watching search results and growing search traffic.",
-      ar: "ربطنا Google Search Console، وتُدرج خريطة الموقع كل صفحة حقيقية بالإنجليزية والعربية بعنوان واحد واضح لكل منتج، وصارت لصور المنتجات أوصاف بلغتين. وتحمل صفحات المنتجات عناوين واضحة بالتصميم ونوع الخط والقطعة، وتذكر Shirtat علامةً تجارية مع رمز كل نوع وقواعد الإرجاع، وصارت أدلة المتسوقين وصفحات المجموعات العربية ونسخ Markdown لوكلاء التسوق الذكية حيّة؛ والخطوة التالية متابعة نتائج البحث وزيادة الزيارات منه.",
+      en: "Google Search Console is connected, the sitemap lists every real page in English and Arabic with one clean address per product, and product photos have bilingual descriptions. Product pages carry clear design, script and garment titles, name Shirtat as the brand with each variant's product code and the return rules, and shopper guides, Arabic collection pages and Markdown versions for AI shopping agents are live. Google Merchant Center now uses shirtat.co as the website, with shipping rates and a returns policy set for Google Shopping; next is watching search results and growing search traffic.",
+      ar: "ربطنا Google Search Console، وتُدرج خريطة الموقع كل صفحة حقيقية بالإنجليزية والعربية بعنوان واحد واضح لكل منتج، وصارت لصور المنتجات أوصاف بلغتين. وتحمل صفحات المنتجات عناوين واضحة بالتصميم ونوع الخط والقطعة، وتذكر Shirtat علامةً تجارية مع رمز كل نوع وقواعد الإرجاع، وصارت أدلة المتسوقين وصفحات المجموعات العربية ونسخ Markdown لوكلاء التسوق الذكية حيّة. وصار Google Merchant Center يعتمد shirtat.co موقعًا للمتجر، مع ضبط أسعار الشحن وسياسة الإرجاع في Google Shopping؛ والخطوة التالية متابعة نتائج البحث وزيادة الزيارات منه.",
     },
   },
   {
