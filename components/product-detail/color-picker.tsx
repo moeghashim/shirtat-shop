@@ -1,12 +1,13 @@
 import { cn } from "cn";
 import type { ComponentProps } from "react";
 
-import { Link } from "@/components/ui/link";
 import { Swatch } from "@/components/ui/swatch";
 import { type Locale, defaultLocale } from "@/lib/i18n";
 import { localizeOptionName, localizeOptionValue } from "@/lib/i18n/product";
 import { colorFromName } from "@/lib/product/color-names";
 import type { OptionGroupState } from "@/lib/product/types";
+
+import { ColorOptionLink } from "./color-picker-client";
 
 interface ColorPickerProps extends ComponentProps<"div"> {
   hideImages?: boolean;
@@ -71,9 +72,10 @@ export function ColorPicker({
             );
           }
           return (
-            <Link
+            <ColorOptionLink
               key={value.name}
               href={value.href}
+              image={value.image}
               scroll={false}
               className="block cursor-pointer rounded-full transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 focus-visible:ring-offset-2"
               aria-label={
@@ -84,17 +86,14 @@ export function ColorPicker({
               role="radio"
               aria-checked={value.selected}
               title={valueName}
-              onClick={
+              onSelect={
                 onSelectValue && !value.crossProduct
-                  ? (event) => {
-                      event.preventDefault();
-                      onSelectValue(option.name, value.name);
-                    }
+                  ? () => onSelectValue(option.name, value.name)
                   : undefined
               }
             >
               {swatch}
-            </Link>
+            </ColorOptionLink>
           );
         })}
       </div>

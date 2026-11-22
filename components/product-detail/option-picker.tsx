@@ -68,6 +68,7 @@ export function OptionPicker({
               key={value.name}
               href={value.href}
               scroll={false}
+              prefetch={onSelectValue && !value.crossProduct ? false : undefined}
               className={classes}
               aria-current={value.selected ? "true" : undefined}
               aria-label={
@@ -78,6 +79,15 @@ export function OptionPicker({
               onClick={
                 onSelectValue && !value.crossProduct
                   ? (event) => {
+                      if (
+                        event.metaKey ||
+                        event.ctrlKey ||
+                        event.shiftKey ||
+                        event.altKey ||
+                        event.button !== 0
+                      ) {
+                        return;
+                      }
                       event.preventDefault();
                       onSelectValue(option.name, value.name);
                     }

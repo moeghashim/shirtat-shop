@@ -2,7 +2,7 @@
 
 import { cn } from "cn";
 import Image, { getImageProps } from "next/image";
-import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { preload } from "react-dom";
 
 import { AutoPlayVideo } from "@/components/ui/auto-play-video";
@@ -10,6 +10,21 @@ import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { describeProductImage } from "@/lib/i18n/product";
 import type { Image as ImageType, Video } from "@/lib/media/types";
+import {
+  type ColorGalleryProduct,
+  getColorImagesOrdered,
+  getSelectedColorImage,
+  isColorOption,
+} from "@/lib/product";
+import {
+  PRODUCT_DESKTOP_HERO_SIZES,
+  PRODUCT_MOBILE_HERO_SIZES,
+  prefetchProductImage,
+  preloadProductHero,
+  rememberProductImages,
+  useProductSelection,
+} from "@/lib/product/client";
+import type { SelectedOptions } from "@/lib/product/types";
 
 import { Lightbox, LightboxTrigger } from "./lightbox";
 
@@ -41,8 +56,6 @@ function mediaKey(item: MediaItem) {
 }
 
 // The hidden breakpoint's copy uses a 32px slot so it does not download a second hero.
-const MOBILE_HERO_SIZES = "(min-width: 1024px) 32px, 100vw";
-const DESKTOP_HERO_SIZES = "(max-width: 1023px) 32px, (min-width: 1536px) 858px, 55vw";
 
 const LCP_IMAGE_PROPS = { fetchPriority: "high", loading: "eager" } as const;
 
@@ -54,25 +67,11 @@ const DESKTOP_MEDIA = "(min-width: 1024px)";
 const DESKTOP_GRID_PRELOAD_COUNT = 4;
 
 function heroSizes(slot: "desktop" | "mobile"): string {
-  return slot === "mobile" ? MOBILE_HERO_SIZES : DESKTOP_HERO_SIZES;
+  return slot === "mobile" ? PRODUCT_MOBILE_HERO_SIZES : PRODUCT_DESKTOP_HERO_SIZES;
 }
 
-// The preload must share the <img>'s srcset and sizes, or the browser downloads the tile twice.
 function preloadHero(image: ImageType, slot: "desktop" | "mobile") {
-  const { props } = getImageProps({
-    alt: "",
-    height: image.height,
-    sizes: heroSizes(slot),
-    src: image.url,
-    width: image.width,
-  });
-  preload(props.src, {
-    as: "image",
-    fetchPriority: "high",
-    imageSizes: props.sizes,
-    imageSrcSet: props.srcSet,
-    media: slot === "mobile" ? "(max-width: 1023px)" : DESKTOP_MEDIA,
-  });
+  preloadProductHero(image, slot, "high");
 }
 
 function preloadDesktopGridImage(image: ImageType) {
@@ -384,11 +383,66 @@ function CaptionedCarouselImage({ idx, image }: { idx: number; image: ImageType 
       height={image.height}
       width={image.width}
       className="absolute inset-0 size-full object-cover"
-      sizes={idx === 0 ? MOBILE_HERO_SIZES : "100vw"}
+      sizes={idx === 0 ? PRODUCT_MOBILE_HERO_SIZES : "100vw"}
       {...(idx === 0 ? LCP_IMAGE_PROPS : LAZY_IMAGE_PROPS)}
       decoding={idx === 0 ? "sync" : "async"}
       draggable={false}
     />
+  );
+}
+
+function colorMockupUrls(product: ColorGalleryProduct): string[] {
+  const color = product.options.find((option) => isColorOption(option));
+  if (!color) return [];
+  const urls: string[] = [];
+  const seen = new Set<string>();
+  for (const value of color.values) {
+    if (!value.image || seen.has(value.image)) continue;
+    seen.add(value.image);
+    urls.push(value.image);
+  }
+  return urls;
+}
+
+export function SelectedColorImages({
+  presentation,
+  product,
+  serverSelected,
+}: {
+  presentation: "carousel" | "grid";
+  product: ColorGalleryProduct;
+  serverSelected: SelectedOptions;
+}) {
+  const live = useProductSelection();
+  const selected = live?.selected ?? serverSelected;
+  const ordered = useMemo(() => getColorImagesOrdered(product, selected), [product, selected]);
+  const hero = ordered[0]?.url;
+
+  useEffect(() => {
+    rememberProductImages(product.images);
+    const current = ordered[0];
+    const serverHero = getSelectedColorImage(product, serverSelected)?.url;
+    if (current && current.url !== serverHero && current.width > 0 && current.height > 0) {
+      preloadProductHero(current, "mobile", "high");
+      preloadProductHero(current, "desktop", "high");
+    }
+    const urls = colorMockupUrls(product).filter((url) => url !== hero);
+    const run = () => {
+      for (const url of urls) prefetchProductImage(url);
+    };
+    if (typeof requestIdleCallback !== "function") {
+      const id = window.setTimeout(run, 1500);
+      return () => window.clearTimeout(id);
+    }
+    const id = requestIdleCallback(run, { timeout: 2000 });
+    return () => cancelIdleCallback(id);
+  }, [hero, ordered, product, serverSelected]);
+
+  if (ordered.length === 0) return null;
+  return presentation === "grid" ? (
+    <ColorImageGrid images={ordered} title={product.title} />
+  ) : (
+    <ColorImageCarouselItems images={ordered} title={product.title} />
   );
 }
 

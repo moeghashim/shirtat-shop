@@ -97,7 +97,7 @@ export function toProductFormInput(
   selectedVariant: ProductVariant | undefined,
 ): ProductFormInput {
   return {
-    adjacentVariants: product.adjacentVariants.map(toProductFormVariant),
+    adjacentVariants: collectFormVariants(product, selectedVariant).map(toProductFormVariant),
     encodedVariantAvailability: product.encodedVariantAvailability ?? null,
     encodedVariantExistence: product.encodedVariantExistence ?? null,
     handle: product.handle,
@@ -147,6 +147,42 @@ export function buildProductUrl(
   return searchParams.size > 0 ? `/products/${handle}?${searchParams}` : `/products/${handle}`;
 }
 
+// Hydrogen only resolves a variant object that was loaded with the product. Adjacent variants omit combinations that differ by two options, such as a new colour and a new size.
+function collectFormVariants(
+  product: Pick<ProductDetails, "adjacentVariants" | "defaultVariant" | "options" | "variants">,
+  selectedVariant: ProductVariant | undefined,
+): ProductVariant[] {
+  const byId = new Map<string, ProductVariant>();
+  const add = (variant: ProductVariant | undefined) => {
+    if (variant) byId.set(variant.id, variant);
+  };
+  for (const variant of product.variants ?? []) add(variant);
+  for (const variant of product.adjacentVariants) add(variant);
+  add(product.defaultVariant);
+  for (const option of product.options) {
+    for (const value of option.values) add(value.firstSelectableVariant);
+  }
+  add(selectedVariant);
+  return [...byId.values()];
+}
+
+interface SelectionHistory {
+  replaceState: (data: unknown, unused: string, url?: string | null) => void;
+  state: unknown;
+}
+
+// Next patches `history.replaceState` and restores the router, which refetches this page's searchParams. The prototype write updates the address bar only.
+export function replaceProductSelectionUrl(href: string, history?: SelectionHistory): void {
+  const target = (history ?? (typeof window === "undefined" ? undefined : window.history)) as
+    | SelectionHistory
+    | undefined;
+  if (!target) return;
+  const replace = (
+    typeof History === "function" ? History.prototype.replaceState : target.replaceState
+  ) as SelectionHistory["replaceState"];
+  replace.call(target, target.state, "", href);
+}
+
 // Inbound URLs may carry lowercased option names; strip them case-insensitively so they don't linger next to the new selection.
 function isOptionParam(key: string, selectedOptions: readonly SelectedOption[]): boolean {
   const lower = key.toLowerCase();
@@ -182,8 +218,19 @@ export function getDiscountPercent(
   return percent >= 1 ? percent : null;
 }
 
-function findColorOption(options: ProductOption[]): ProductOption | undefined {
-  return options.find(isColorOption);
+export interface ColorGalleryProduct {
+  images: Image[];
+  options: ReadonlyArray<{
+    name: string;
+    values: ReadonlyArray<{ image?: string; name: string; swatch?: OptionValueSwatch }>;
+  }>;
+  title: string;
+}
+
+function findColorOption<
+  T extends { name: string; values: ReadonlyArray<{ image?: string; swatch?: OptionValueSwatch }> },
+>(options: readonly T[]): T | undefined {
+  return options.find((option) => isColorOption(option));
 }
 
 /** Colour option value keyed by the mockup URL Shopify attaches to that value. */
@@ -233,7 +280,7 @@ export function getNonColorImages(images: Image[], options: ProductOption[]): Im
 
 /** Selected colour's image first, then the other colours' images. */
 export function getColorImagesOrdered(
-  product: ProductDetails,
+  product: ColorGalleryProduct,
   selectedOptions: SelectedOptions,
 ): Image[] {
   const color = findColorOption(product.options);
@@ -253,7 +300,7 @@ export function getColorImagesOrdered(
 }
 
 export function getSelectedColorImage(
-  product: ProductDetails,
+  product: ColorGalleryProduct,
   selectedOptions: SelectedOptions,
 ): Image | undefined {
   const color = findColorOption(product.options);

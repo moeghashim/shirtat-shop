@@ -32,6 +32,7 @@ import {
   ColorImageCarouselItems,
   ColorImageGrid,
   ProductMedia,
+  SelectedColorImages,
 } from "@/components/product-detail/product-media";
 import { ProductPrice } from "@/components/product-detail/product-price";
 import { BreadcrumbSchema } from "@/components/schema/breadcrumb-schema";
@@ -53,7 +54,9 @@ import {
   imageColorNames,
   toProductFormInput,
   toStaticOptionGroups,
+  type ColorGalleryProduct,
 } from "@/lib/product";
+import { ProductSelectionProvider } from "@/lib/product/client";
 import { type SelectedOptions } from "@/lib/product/types";
 import type { ProductDetails, ProductVariant } from "@/lib/product/types";
 
@@ -72,10 +75,12 @@ export function ProductDetailSection({
         availableForSale={product.availableForSale}
         price={product.priceRange.minVariantPrice}
       />
-      <div className="grid min-w-0 gap-8 lg:grid-cols-10 lg:items-start lg:gap-10">
-        <ProductMediaArea product={product} selectedOptionsPromise={selectedOptionsPromise} />
-        <ProductInfoArea product={product} variantPromise={variantPromise} />
-      </div>
+      <ProductSelectionProvider>
+        <div className="grid min-w-0 gap-8 lg:grid-cols-10 lg:items-start lg:gap-10">
+          <ProductMediaArea product={product} selectedOptionsPromise={selectedOptionsPromise} />
+          <ProductInfoArea product={product} variantPromise={variantPromise} />
+        </div>
+      </ProductSelectionProvider>
     </>
   );
 }
@@ -131,6 +136,21 @@ function ProductMediaArea({
   );
 }
 
+function galleryProduct(product: ProductDetails): ColorGalleryProduct {
+  return {
+    images: product.images,
+    options: product.options.map((option) => ({
+      name: option.name,
+      values: option.values.map((value) => ({
+        image: value.image,
+        name: value.name,
+        swatch: value.swatch,
+      })),
+    })),
+    title: product.title,
+  };
+}
+
 async function ResolvedColorImageGrid({
   product,
   selectedOptionsPromise,
@@ -138,9 +158,13 @@ async function ResolvedColorImageGrid({
   product: ProductDetails;
   selectedOptionsPromise: Promise<SelectedOptions>;
 }) {
-  const images = getColorImagesOrdered(product, await selectedOptionsPromise);
-  if (images.length === 0) return null;
-  return <ColorImageGrid images={images} title={product.title} />;
+  return (
+    <SelectedColorImages
+      presentation="grid"
+      product={galleryProduct(product)}
+      serverSelected={await selectedOptionsPromise}
+    />
+  );
 }
 
 async function ResolvedColorImageCarousel({
@@ -150,9 +174,13 @@ async function ResolvedColorImageCarousel({
   product: ProductDetails;
   selectedOptionsPromise: Promise<SelectedOptions>;
 }) {
-  const images = getColorImagesOrdered(product, await selectedOptionsPromise);
-  if (images.length === 0) return null;
-  return <ColorImageCarouselItems images={images} title={product.title} />;
+  return (
+    <SelectedColorImages
+      presentation="carousel"
+      product={galleryProduct(product)}
+      serverSelected={await selectedOptionsPromise}
+    />
+  );
 }
 
 async function ProductInfoArea({

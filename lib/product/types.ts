@@ -118,7 +118,7 @@ export interface ProductDetails extends ProductCard {
   seo: SEO;
   tags: string[];
   updatedAt: string;
-  /** Only populated by fetchProductWithVariants for Eve; the PDP and Markdown omit it. */
+  /** Every variant loaded with the product, so a colour or size click can resolve price, stock, and the cart id without another request. */
   variants?: ProductVariant[];
   variantsCount: number;
   videos: Video[];
