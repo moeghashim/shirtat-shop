@@ -16,6 +16,7 @@ export function ColorOptionLink({ href, image, onSelect, ...props }: ColorOption
     <Link
       {...props}
       href={href}
+      prefetch={onSelect ? false : props.prefetch}
       onClick={(event: MouseEvent<HTMLAnchorElement>) => {
         if (
           !onSelect ||
