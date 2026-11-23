@@ -364,7 +364,7 @@ async function catalogSearch(args: {
         jsonrpc: "2.0",
         method: "tools/call",
         params: {
-          _meta: { "ucp-agent": { profile: agentProfileUrl() } },
+          _meta: { "ucp-agent": { profile: agentProfileUrl("catalog") } },
           arguments: {
             context: {
               address_country: shopConfig.localization.country,

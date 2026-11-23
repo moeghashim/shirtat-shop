@@ -13,7 +13,7 @@ const toolLabels = {
   "list-collections": "Looking at collections…",
   navigate: "Finding the page…",
   "present-products": "Preparing product cards…",
-  policies__search_shop_policies_and_faqs: "Checking store policies…",
+  "search-policies": "Checking store policies…",
   shopify__search_catalog: "Searching products…",
   "update-cart-item": "Updating your cart…",
   "update-discount-code": "Updating your discount codes…",

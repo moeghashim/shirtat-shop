@@ -137,7 +137,7 @@ function guide(catalog: LlmsCatalog): string[] {
     "- Cart: `create_cart`, `get_cart`, `update_cart`, `cancel_cart`",
     "- Checkout: `create_checkout`, `get_checkout`, `update_checkout`, `complete_checkout`, `cancel_checkout`",
     "- Orders: `get_order`",
-    "- Questions: `ask_business` for what the store sells, its policies, or its services",
+    "- Questions: `ask_business` on that endpoint, for what the store sells, its policies, or its services. The calling profile must declare `dev.ucp.common.ask`.",
     "",
     "1. Find products with `search_catalog`. Prices in tool results are integers in ISO 4217 minor units. Get exact variants and real-time availability with `get_product`, or resolve several ids with `lookup_catalog`.",
     "2. Build a cart with `create_cart`. Read it with `get_cart`, replace it with `update_cart`, or discard it with `cancel_cart`. `update_cart` replaces the cart you send; read the cart first and send the full next state.",
