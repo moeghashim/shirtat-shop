@@ -22,8 +22,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Storefront", ar: "الواجهة" },
     status: "done",
     summary: {
-      en: "Built the site from Vercel's Shop template and deployed it live on Vercel.",
-      ar: "بنينا الموقع من قالب Shop من Vercel ونشرناه مباشرةً على Vercel.",
+      en: "Built the site from Vercel's Shop template and deployed it live on Vercel, kept current with security updates (now Next.js 16.4.6).",
+      ar: "بنينا الموقع من قالب Shop من Vercel ونشرناه مباشرةً على Vercel، ونحدّثه بإصلاحات الأمان أولًا بأول (الإصدار الحالي Next.js 16.4.6).",
     },
   },
   {
@@ -198,8 +198,8 @@ export const roadmapPhases: RoadmapPhase[] = [
     title: { en: "Shopping assistant", ar: "مساعد التسوق" },
     status: "in-progress",
     summary: {
-      en: "A shopping chat in English and Arabic is live, with product cards (including compact cards that stay on screen after the reply), the cart, and Shopify checkout. It calls OpenAI directly as gpt-6-luna with medium reasoning. A voice option is built and stays off until we switch it on.",
-      ar: "دردشة تسوّق بالإنجليزية والعربية حيّة، مع بطاقات المنتجات (بما فيها البطاقات المدمجة التي تبقى ظاهرة بعد الرد)، والسلة، وإتمام الشراء على Shopify. تنادي OpenAI مباشرة بالنموذج gpt-6-luna وبجهد تفكير متوسط. وخيار الحديث الصوتي جاهز ويبقى متوقفًا حتى نفعّله.",
+      en: "A shopping chat in English and Arabic is live, with product cards (including compact cards that stay on screen after the reply), the cart, and Shopify checkout. It calls OpenAI directly as gpt-6-luna with medium reasoning. Questions about shipping, returns and policies are answered through Shopify's newer store-answers service. A voice option is built and stays off until we switch it on.",
+      ar: "دردشة تسوّق بالإنجليزية والعربية حيّة، مع بطاقات المنتجات (بما فيها البطاقات المدمجة التي تبقى ظاهرة بعد الرد)، والسلة، وإتمام الشراء على Shopify. تنادي OpenAI مباشرة بالنموذج gpt-6-luna وبجهد تفكير متوسط. وتُجاب أسئلة الشحن والإرجاع والسياسات عبر خدمة Shopify الأحدث للإجابة عن أسئلة المتجر. وخيار الحديث الصوتي جاهز ويبقى متوقفًا حتى نفعّله.",
     },
   },
   {

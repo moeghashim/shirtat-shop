@@ -13,6 +13,19 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-23",
+    entries: [
+      {
+        en: "The storefront now runs Next.js 16.4.6, which brings in November's security fixes. We checked the English and Arabic home and product pages after the update, and accessibility, best practices and SEO still score 100 in Lighthouse.",
+        ar: "صارت واجهة المتجر تعمل بإصدار Next.js 16.4.6، الذي يضيف إصلاحات الأمان الصادرة في نوفمبر. وفحصنا الصفحة الرئيسية وصفحات المنتجات بالإنجليزية والعربية بعد التحديث، وما زالت نتائج إمكانية الوصول وأفضل الممارسات وتحسين محركات البحث 100 في Lighthouse.",
+      },
+      {
+        en: "The shopping assistant now answers questions about shipping, returns and shop policies through Shopify's newer store-answers service, ahead of the old one being retired in January. We tested a returns question in English and Arabic and both answers were correct.",
+        ar: "صار مساعد التسوق يجيب عن أسئلة الشحن والإرجاع وسياسات المتجر عبر خدمة Shopify الأحدث للإجابة عن أسئلة المتجر، قبل إيقاف الخدمة القديمة في يناير. واختبرنا سؤالًا عن الإرجاع بالإنجليزية والعربية، فجاءت الإجابتان صحيحتين.",
+      },
+    ],
+  },
+  {
     date: "2026-11-22",
     entries: [
       {
