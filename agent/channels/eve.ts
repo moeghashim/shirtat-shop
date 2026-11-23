@@ -8,6 +8,11 @@ import { shopConfig } from "../../lib/config";
 
 const anonymous = none<Request>();
 
+function shopperLocale(value: unknown): "ar" | "en" {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "en";
+  return "locale" in value && value.locale === "ar" ? "ar" : "en";
+}
+
 // Eve's router decodes the path and ignores a trailing slash, so match the normalized path.
 function isAgentInfoRequest(request: Request) {
   try {
@@ -43,8 +48,13 @@ export default shopConfig.agent.isEnabled
         const caller = eve.caller;
         if (!caller) return { auth: null };
         const cartId = getCartId({ cookie: eve.request.headers.get("cookie") ?? undefined });
+        // Page language for search-policies. The model does not pass it.
+        const locale = shopperLocale(eve.clientContext);
         return {
-          auth: { ...caller, attributes: { ...caller.attributes, ...(cartId ? { cartId } : {}) } },
+          auth: {
+            ...caller,
+            attributes: { ...caller.attributes, ...(cartId ? { cartId } : {}), locale },
+          },
         };
       },
       turnPolicy: "queue",
