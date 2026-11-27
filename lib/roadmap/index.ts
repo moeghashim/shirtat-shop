@@ -299,6 +299,14 @@ export const roadmapPhases: RoadmapPhase[] = [
     },
   },
   {
+    title: { en: "Local currencies", ar: "العملات المحلية" },
+    status: "in-progress",
+    summary: {
+      en: "Prices in UAE dirhams, Saudi riyals and euros for shoppers in those countries, with everyone else on US dollars. The store side is set up; next is showing each shopper their currency on the site, with a currency switch in English and Arabic.",
+      ar: "أسعار بالدرهم الإماراتي والريال السعودي واليورو للمتسوقين في تلك الدول، مع بقاء الآخرين على الدولار الأمريكي. اكتمل الإعداد في المتجر، والخطوة التالية عرض عملة كل متسوق على الموقع مع زر لتبديل العملة بالإنجليزية والعربية.",
+    },
+  },
+  {
     title: { en: "Affiliates and influencers", ar: "الشركاء والمؤثرون" },
     status: "next",
     summary: {

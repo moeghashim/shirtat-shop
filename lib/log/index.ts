@@ -13,6 +13,15 @@ export interface LogDay {
 /** Newest day first. Add new days to the top, each entry with both languages. */
 export const logDays: LogDay[] = [
   {
+    date: "2026-11-27",
+    entries: [
+      {
+        en: "Our store is now set up to sell in local currencies: UAE dirhams (AED) for the United Arab Emirates, Saudi riyals (SAR) for Saudi Arabia, and euros (EUR) across 20 eurozone countries, using automatic exchange rates. US and other shoppers stay on US dollars. Next, the site will pick each shopper's currency from their country and add a currency switch beside the language switch, in English and Arabic; that change is being tested now.",
+        ar: "صار متجرنا مُعدًّا للبيع بالعملات المحلية: الدرهم الإماراتي (AED) لدولة الإمارات العربية المتحدة، والريال السعودي (SAR) للمملكة العربية السعودية، واليورو (EUR) في 20 دولة من منطقة اليورو، بأسعار صرف تلقائية. ويبقى المتسوقون في الولايات المتحدة وسائر الدول على الدولار الأمريكي. والخطوة التالية أن يختار الموقع عملة كل متسوق بحسب بلده، وأن يضيف زرًّا لتبديل العملة بجانب زر تبديل اللغة، بالإنجليزية والعربية؛ ويجري اختبار هذا التغيير حاليًا.",
+      },
+    ],
+  },
+  {
     date: "2026-11-23",
     entries: [
       {
