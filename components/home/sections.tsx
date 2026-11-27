@@ -7,7 +7,7 @@ import { CATEGORIES } from "@/lib/collections/categories";
 import { isCustomDesignHandle } from "@/lib/custom/products";
 import { type HomeProduct, getHomeProducts } from "@/lib/home/server";
 import { describeProductImage } from "@/lib/i18n/product";
-import { getLocale, getT } from "@/lib/i18n/server";
+import { getCommerceLocale, getLocale, getT } from "@/lib/i18n/server";
 
 type Translate = Awaited<ReturnType<typeof getT>>;
 
@@ -129,7 +129,7 @@ function productTypeLabel(product: HomeProduct): string {
 export async function ProductTypeRow() {
   const t = await getT();
   const locale = await getLocale();
-  const products = await getHomeProducts();
+  const products = await getHomeProducts(await getCommerceLocale());
   return (
     <Container>
       <SectionHeader eyebrow={t("Products")} title={t("Shop by product")} />
@@ -181,7 +181,7 @@ const SPOTLIGHT = {
 export async function DesignSpotlight() {
   const t = await getT();
   const locale = await getLocale();
-  const products = (await getHomeProducts()).filter((p) =>
+  const products = (await getHomeProducts(await getCommerceLocale())).filter((p) =>
     p.handle.startsWith(`${SPOTLIGHT.handle}-`),
   );
   if (products.length === 0) return null;
@@ -331,7 +331,7 @@ export async function DesignersAndSell() {
 export async function NewArrivals() {
   const t = await getT();
   const locale = await getLocale();
-  const all = (await getHomeProducts()).filter((p) => p.image);
+  const all = (await getHomeProducts(await getCommerceLocale())).filter((p) => p.image);
   // Interleave designs so the grid shows variety rather than five of one design.
   const byDesign = new Map<string, HomeProduct[]>();
   for (const p of all) {

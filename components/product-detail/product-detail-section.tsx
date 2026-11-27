@@ -43,8 +43,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { breadcrumbCollectionId, collectionLabel } from "@/lib/collections/categories";
 import { shopConfig } from "@/lib/config";
-import { commerceLocale, type Locale } from "@/lib/i18n";
-import { getLocale, getT } from "@/lib/i18n/server";
+import { type Locale } from "@/lib/i18n";
+import { getCommerceLocale, getLocale, getT } from "@/lib/i18n/server";
 import {
   defaultSelectedOptions,
   getProductPurchaseOptions,
@@ -319,7 +319,7 @@ async function ProductInfoArea({
           description={`${product.title} ${product.description}`}
           handle={handle}
           isArabic={isArabic}
-          locale={commerceLocale(locale)}
+          locale={await getCommerceLocale()}
         />
       </Suspense>
     </div>

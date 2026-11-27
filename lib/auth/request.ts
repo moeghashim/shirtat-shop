@@ -8,6 +8,7 @@ import {
 } from "@shopify/hydrogen/customer-account";
 
 import { shopConfig } from "@/lib/config";
+import type { CommerceLocale } from "@/lib/config/types";
 
 import type { SessionData } from "./types";
 
@@ -222,11 +223,14 @@ export function createCustomerSessionManager(request: Request): WritableCustomer
   );
 }
 
-export function createCustomerRequestContext(request: Request): ShopifyRequestContext {
+export function createCustomerRequestContext(
+  request: Request,
+  locale: CommerceLocale = shopConfig.localization,
+): ShopifyRequestContext {
   return createShopifyRequestContext({
     i18n: {
-      country: shopConfig.localization.country,
-      language: shopConfig.localization.language,
+      country: locale.country,
+      language: locale.language,
     },
     request,
   });

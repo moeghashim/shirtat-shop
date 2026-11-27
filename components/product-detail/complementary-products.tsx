@@ -4,7 +4,7 @@ import { Price } from "@/components/product/price";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { Link } from "@/components/ui/link";
 import { describeProductImage } from "@/lib/i18n/product";
-import { getLocale } from "@/lib/i18n/server";
+import { getCommerceLocale, getLocale } from "@/lib/i18n/server";
 import { getProductRecommendations } from "@/lib/product/server";
 import type { ProductCard } from "@/lib/product/types";
 
@@ -17,7 +17,11 @@ export async function ComplementaryProducts({
   limit: number;
   title: string;
 }) {
-  const complementary = await getProductRecommendations({ handle, intent: "COMPLEMENTARY" });
+  const complementary = await getProductRecommendations({
+    handle,
+    intent: "COMPLEMENTARY",
+    locale: await getCommerceLocale(),
+  });
   if (complementary.length === 0) return null;
   const locale = await getLocale();
   return (

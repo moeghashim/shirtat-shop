@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
+import { commerceFromRequest } from "@/lib/commerce";
 import { shopConfig } from "@/lib/config";
 
 import {
@@ -25,11 +26,8 @@ export const getReadonlyCustomerSessionManager = cache(
 const getReadonlyRequestContext = cache(async (): Promise<ShopifyRequestContext> => {
   await io();
   const requestHeaders = await headers();
-  return createCustomerRequestContext(
-    new Request(shopConfig.site.url, {
-      headers: requestHeaders,
-    }),
-  );
+  const request = new Request(shopConfig.site.url, { headers: requestHeaders });
+  return createCustomerRequestContext(request, commerceFromRequest(request));
 });
 
 export const isCustomerLoggedIn = cache(async (): Promise<boolean> => {

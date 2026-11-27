@@ -9,6 +9,7 @@ import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { Link } from "@/components/ui/link";
 import { useCart } from "@/lib/cart/client";
 import type { CartLine } from "@/lib/cart/types";
+import { formatLocale } from "@/lib/i18n";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { localizeAnyOptionValue, localizeProductTitle } from "@/lib/i18n/product";
 import { formatPrice } from "@/lib/money";
@@ -104,7 +105,8 @@ function CartLineItem({ item }: CartLineItemProps) {
   ) : (
     <ImagePlaceholder className="size-full" />
   );
-  const price = (amount: number) => formatPrice({ amount: String(amount), currencyCode });
+  const price = (amount: number) =>
+    formatPrice({ amount: String(amount), currencyCode }, formatLocale(locale));
 
   return (
     <li className="flex gap-2.5" aria-busy={isPending || undefined} aria-label={title}>

@@ -6,11 +6,12 @@ import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { CATEGORIES } from "@/lib/collections/categories";
 import { shopConfig } from "@/lib/config";
-import { getLocale, getT } from "@/lib/i18n/server";
+import { getCommerceCountry, getLocale, getT } from "@/lib/i18n/server";
 import type { MenuItem } from "@/lib/menu/types";
 
 import { NavAccount, NavAccountFallback } from "./account";
 import { CartIcon, CartIconFallback } from "./cart";
+import { CountrySwitcher } from "./country-switcher";
 import { LanguageSwitcher } from "./language-switcher";
 import { MobileMenu } from "./mobile-menu";
 import { QuickLinks } from "./quick-links";
@@ -19,6 +20,7 @@ import { SearchModal } from "./search-modal";
 export async function Nav() {
   const t = await getT();
   const locale = await getLocale();
+  const country = await getCommerceCountry();
   const items: MenuItem[] = [
     ...CATEGORIES.map((c) => ({
       id: `nav-category-${c.id}`,
@@ -52,6 +54,7 @@ export async function Nav() {
         </Link>
 
         <div className="flex items-center gap-0 sm:gap-2 md:gap-5 justify-self-end -me-2.5 md:me-0">
+          <CountrySwitcher country={country} />
           <LanguageSwitcher />
           {shopConfig.search.isEnabled && (
             <PredictiveSearchProvider

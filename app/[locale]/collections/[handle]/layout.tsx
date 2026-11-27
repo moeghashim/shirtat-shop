@@ -7,8 +7,7 @@ import {
 } from "@/components/collections/collection-page";
 import { categoryCollection } from "@/lib/collections/categories";
 import { getCollection, getCollections } from "@/lib/collections/server";
-import { commerceLocale } from "@/lib/i18n";
-import { getLocale } from "@/lib/i18n/server";
+import { getCommerceLocale, getLocale } from "@/lib/i18n/server";
 import { PLACEHOLDER_HANDLE } from "@/lib/static-params";
 
 export async function generateStaticParams() {
@@ -43,7 +42,7 @@ async function CollectionHandleLayoutContent({
   const collection =
     (await getCollection({
       handle,
-      locale: commerceLocale(locale),
+      locale: await getCommerceLocale(),
     })) ?? categoryCollection(handle, locale);
   if (!collection) notFound();
 

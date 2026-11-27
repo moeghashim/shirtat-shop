@@ -41,6 +41,7 @@ export type SearchFacetsParams = {
 };
 
 export type ProductIdsByQueryParams = {
+  locale?: CommerceLocale;
   query: string;
   reverse?: boolean;
   sortKey: ProductSortKeys;

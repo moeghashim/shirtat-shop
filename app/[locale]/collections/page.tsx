@@ -6,8 +6,7 @@ import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
 import { getCollectionsListing } from "@/lib/collections/server";
-import { commerceLocale } from "@/lib/i18n";
-import { getLocale, getT } from "@/lib/i18n/server";
+import { getCommerceLocale, getLocale, getT } from "@/lib/i18n/server";
 import { buildAlternates, buildOpenGraph, siteOgImages } from "@/lib/seo";
 
 const INDEX_SEO = {
@@ -64,7 +63,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function CollectionsPage() {
   const t = await getT();
   const locale = await getLocale();
-  const collections = await getCollectionsListing({ locale: commerceLocale(locale) });
+  const collections = await getCollectionsListing({ locale: await getCommerceLocale() });
   const viewCollectionLabel = t("View this collection");
   const { h1, lead } = INDEX_SEO[locale];
   return (

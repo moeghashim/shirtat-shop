@@ -4,13 +4,20 @@ import { disableRoute } from "eve/channels";
 import { type AuthFn, ForbiddenError, localDev, none, vercelOidc } from "eve/channels/auth";
 import { eveChannel } from "eve/channels/eve";
 
+import { resolveCommerceCountry } from "../../lib/commerce";
 import { shopConfig } from "../../lib/config";
 
 const anonymous = none<Request>();
 
-function shopperLocale(value: unknown): "ar" | "en" {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return "en";
-  return "locale" in value && value.locale === "ar" ? "ar" : "en";
+function shopperContext(value: unknown): { country: string; locale: "ar" | "en" } {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return { country: "US", locale: "en" };
+  }
+  const country = "country" in value && typeof value.country === "string" ? value.country : null;
+  return {
+    country: resolveCommerceCountry(country),
+    locale: "locale" in value && value.locale === "ar" ? "ar" : "en",
+  };
 }
 
 // Eve's router decodes the path and ignores a trailing slash, so match the normalized path.
@@ -49,11 +56,16 @@ export default shopConfig.agent.isEnabled
         if (!caller) return { auth: null };
         const cartId = getCartId({ cookie: eve.request.headers.get("cookie") ?? undefined });
         // Page language for search-policies. The model does not pass it.
-        const locale = shopperLocale(eve.clientContext);
+        const shopper = shopperContext(eve.clientContext);
         return {
           auth: {
             ...caller,
-            attributes: { ...caller.attributes, ...(cartId ? { cartId } : {}), locale },
+            attributes: {
+              ...caller.attributes,
+              ...(cartId ? { cartId } : {}),
+              country: shopper.country,
+              locale: shopper.locale,
+            },
           },
         };
       },

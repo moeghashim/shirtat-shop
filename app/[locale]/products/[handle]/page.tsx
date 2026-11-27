@@ -15,9 +15,9 @@ import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
 import { Sections } from "@/components/ui/sections";
 import { CUSTOM_HOODIE_HANDLE, CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE } from "@/lib/custom/products";
-import { commerceLocale, localizePath } from "@/lib/i18n";
+import { localizePath } from "@/lib/i18n";
 import { describeProductImage, productDocumentTitle } from "@/lib/i18n/product";
-import { getLocale } from "@/lib/i18n/server";
+import { getCommerceLocale, getLocale } from "@/lib/i18n/server";
 import {
   defaultSelectedOptions,
   imageColorNames,
@@ -36,7 +36,7 @@ async function buildProductMetadata(handle: string, canonicalPath: string): Prom
   const locale = await getLocale();
   const product = await getProduct({
     handle,
-    locale: commerceLocale(locale),
+    locale: await getCommerceLocale(),
   });
   if (!product) notFound();
   const images = product.featuredImage
@@ -121,6 +121,7 @@ async function ProductPageContent({
   const { handle } = await params;
   if (handle === PLACEHOLDER_HANDLE) notFound();
   const locale = await getLocale();
+  const commerce = await getCommerceLocale();
   if (
     handle === CUSTOM_TEE_HANDLE ||
     handle === CUSTOM_MUG_HANDLE ||
@@ -131,7 +132,7 @@ async function ProductPageContent({
     );
   const product = await getProduct({
     handle,
-    locale: commerceLocale(locale),
+    locale: commerce,
   });
   if (!product) notFound();
 
@@ -152,6 +153,7 @@ async function ProductPageContent({
       // Uncached: the selected variant's price and stock are read live per request, and caching per option combination multiplies entries by variant count.
       return fetchProductVariant({
         handle,
+        locale: commerce,
         selectedOptions: toSelectedOptionList({
           ...defaultSelectedOptions(product),
           ...parseSelectedOptions(product.options, resolvedSearchParams ?? {}),
@@ -200,14 +202,14 @@ async function ProductPageContent({
         <MoreFromDesignRow
           handle={handle}
           isArabic={String(locale).toLowerCase().startsWith("ar")}
-          locale={commerceLocale(locale)}
+          locale={commerce}
         />
       </Suspense>
       <Suspense fallback={null}>
         <AlsoLikeRow
           handle={handle}
           isArabic={String(locale).toLowerCase().startsWith("ar")}
-          locale={commerceLocale(locale)}
+          locale={commerce}
         />
       </Suspense>
     </>

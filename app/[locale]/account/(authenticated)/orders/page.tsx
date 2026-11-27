@@ -5,6 +5,8 @@ import { AccountPageHeader } from "@/components/account/page-header";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatLocale } from "@/lib/i18n";
+import { getLocale } from "@/lib/i18n/server";
 import { formatPrice } from "@/lib/money";
 import { fetchCustomerOrders } from "@/lib/shopify/operations/customer/server";
 
@@ -29,6 +31,7 @@ async function OrdersContent({
   searchParams: Promise<{ after?: string; before?: string }>;
 }) {
   const params = await searchParams;
+  const locale = formatLocale(await getLocale());
   const { orders, pageInfo } = await fetchCustomerOrders({
     after: params.after,
     before: params.before,
@@ -57,7 +60,9 @@ async function OrdersContent({
               </div>
               <div className="flex items-center gap-3">
                 <OrderStatusBadge status={order.fulfillmentStatus} />
-                <span className="text-sm tabular-nums">{formatPrice(order.totalPrice)}</span>
+                <span className="text-sm tabular-nums">
+                  {formatPrice(order.totalPrice, locale)}
+                </span>
               </div>
             </Link>
           </li>

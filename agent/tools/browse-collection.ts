@@ -5,6 +5,7 @@ import { toAgentProduct } from "../../lib/agent/products";
 import type { SortValue } from "../../lib/collections/types";
 import { fetchCollectionProducts } from "../../lib/shopify/operations/products/server";
 import { productHandleSchema, toModelProducts } from "../lib/catalog";
+import { shopperCommerce } from "../lib/market";
 
 export default defineTool({
   description: "Browse products by collection handle from list-collections or page context.",
@@ -20,8 +21,13 @@ export default defineTool({
       ] as const satisfies readonly SortValue[])
       .default("manual"),
   }),
-  execute: async ({ collection, sortKey }) => {
-    const { products } = await fetchCollectionProducts({ collection, limit: 12, sortKey });
+  execute: async ({ collection, sortKey }, ctx) => {
+    const { products } = await fetchCollectionProducts({
+      collection,
+      limit: 12,
+      locale: shopperCommerce(ctx),
+      sortKey,
+    });
     if (!products.length)
       return {
         error: "No products found for this collection handle. Use list-collections for handles.",

@@ -12,6 +12,7 @@ import { getHydrogenCustomerSession } from "@/lib/auth/request";
 import { getReadonlyCustomerSessionManager } from "@/lib/auth/server";
 import { cartHandlers, createCustomerCartHandlers } from "@/lib/cart/request";
 import type { Cart, CartSeedData } from "@/lib/cart/types";
+import { commerceLocaleFromHeaders } from "@/lib/commerce/server";
 import { shopConfig } from "@/lib/config";
 import { createRequestStorefrontClient } from "@/lib/shopify/storefront/server";
 
@@ -20,20 +21,17 @@ export async function getCartIdFromCookie(): Promise<string | undefined> {
   return getCartId({ cookie }) ?? undefined;
 }
 
-const getRequestContext = cache(() => {
-  const i18n = {
-    country: shopConfig.localization.country,
-    language: shopConfig.localization.language,
-  };
+const getRequestContext = cache(async () => {
+  const locale = await commerceLocaleFromHeaders();
   // An empty request ID suppresses Hydrogen's synchronous UUID fallback.
   return createShopifyRequestContext({
-    i18n,
+    i18n: locale,
     request: { headers: new Headers({ "x-request-id": "" }) },
   });
 });
 
 async function getHandlerContext() {
-  const requestContext = getRequestContext();
+  const requestContext = await getRequestContext();
   const storefrontClient = createRequestStorefrontClient(requestContext);
   if (!shopConfig.auth.isEnabled) return { handlers: cartHandlers, storefrontClient };
 
@@ -50,10 +48,11 @@ async function getHandlerContext() {
 }
 
 async function getCartData(cartId: string | undefined): Promise<CartSeedData> {
-  const { handlers, ...context } = await getHandlerContext();
+  const { handlers, storefrontClient, ...context } = await getHandlerContext();
   const url = new URL("/api/cart", shopConfig.site.url);
   if (cartId) url.searchParams.set("cartId", cartId);
-  const { data } = await handlers.get({ ...context, request: new Request(url) } as never);
+  const request = new Request(url);
+  const { data } = await handlers.get({ ...context, request, storefrontClient } as never);
   return data;
 }
 
@@ -88,7 +87,7 @@ export async function createEmptyCart(
     variables: {
       input: {
         buyerIdentity: {
-          countryCode: shopConfig.localization.country,
+          countryCode: requestContext.i18n.country,
           ...(customerAccessToken ? { customerAccessToken } : {}),
         },
       },

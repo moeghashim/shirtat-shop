@@ -16,8 +16,8 @@ import type {
 } from "@/lib/collections/types";
 import { shopConfig } from "@/lib/config";
 import type { CommerceLocale } from "@/lib/config/types";
-import { commerceLocale, type Locale, translate } from "@/lib/i18n";
-import { getLocale } from "@/lib/i18n/server";
+import { type Locale, translate } from "@/lib/i18n";
+import { getCommerceLocale, getLocale } from "@/lib/i18n/server";
 import { collectCatalogProducts, tagProducts } from "@/lib/product/server";
 import type { ProductCard } from "@/lib/product/types";
 import { buildAlternates, buildOpenGraph, siteOgImages } from "@/lib/seo";
@@ -195,11 +195,15 @@ export async function fetchCollectionResults({
   handle: string;
   statePromise: Promise<BrowseState>;
 }): Promise<BrowseResults> {
-  const { dataSearch, filters, sort } = await statePromise;
+  const [{ dataSearch, filters, sort }, locale] = await Promise.all([
+    statePromise,
+    getCommerceLocale(),
+  ]);
   const { facets, pageInfo, products } = await fetchCollectionProducts({
     collection: handle,
     filters,
     limit: PRODUCTS_PER_PAGE,
+    locale,
     sortKey: sort,
   });
   return {
@@ -277,7 +281,7 @@ function browseMetadata(
 export async function getCollectionMetadata(handle: string): Promise<Metadata> {
   const locale = await getLocale();
   const collection =
-    (await getCollection({ handle, locale: commerceLocale(locale) })) ??
+    (await getCollection({ handle, locale: await getCommerceLocale() })) ??
     categoryCollection(handle, locale);
   if (!collection) {
     return browseMetadata(

@@ -1,17 +1,12 @@
-import {
-  createCartCookie,
-  createCartServerHandlers,
-  createShopifyRequestContext,
-} from "@shopify/hydrogen";
+import { createCartCookie, createShopifyRequestContext } from "@shopify/hydrogen";
 import { defineState } from "eve/context";
 import type { ToolContext } from "eve/tools";
 import { z } from "zod";
 
+import { cartHandlers } from "../../lib/cart/request";
 import { shopConfig } from "../../lib/config";
-import { CART_FRAGMENT } from "../../lib/shopify/fragments/cart";
+import type { CommerceLocale } from "../../lib/config/types";
 import { createRequestStorefrontClient } from "../../lib/shopify/storefront/server";
-
-const cartHandlers = createCartServerHandlers({ fragment: CART_FRAGMENT });
 
 export const CART_UNCONFIRMED =
   "Cart change could not be confirmed. Inspect the cart before requesting another change; it may already have succeeded.";
@@ -82,20 +77,53 @@ export function getSessionCartId(ctx: ToolContext) {
   return typeof cartId === "string" ? cartId : undefined;
 }
 
-export async function getCart(cartId: string | undefined) {
-  if (!cartId) return undefined;
+function cartRequestContext(locale: CommerceLocale, cartId: string) {
   const request = new Request(new URL("/api/cart", shopConfig.site.url), {
     headers: { cookie: createCartCookie(cartId).split(";")[0] },
   });
-  const requestContext = createShopifyRequestContext({ i18n: shopConfig.localization, request });
-  const storefrontClient = createRequestStorefrontClient(requestContext);
-  const { data } = await cartHandlers.get({ request, storefrontClient });
-  if (data.errors?.length) throw new Error(data.errors[0].message);
-  return data.cart ?? undefined;
+  const requestContext = createShopifyRequestContext({ i18n: locale, request });
+  return { request, storefrontClient: createRequestStorefrontClient(requestContext) };
 }
 
-export async function mutateCart(cartId: string | undefined, payload: object) {
+async function loadCart(cartId: string, locale: CommerceLocale) {
+  const context = cartRequestContext(locale, cartId);
+  const synced = await cartHandlers.post({
+    request: new Request(new URL("/api/cart", shopConfig.site.url), {
+      body: JSON.stringify({ buyerCountry: true }),
+      headers: {
+        "content-type": "application/json",
+        cookie: createCartCookie(cartId).split(";")[0],
+      },
+      method: "POST",
+    }),
+    storefrontClient: context.storefrontClient,
+  });
+  if (synced.type !== "json") throw new Error("Cart is unavailable.");
+  const data = z
+    .object({
+      cart: z.unknown().nullable(),
+      errors: z.array(z.object({ message: z.string() })).optional(),
+    })
+    .parse(synced.data);
+  if (data.errors?.length) throw new Error(data.errors[0].message);
+  return {
+    cart: data.cart as Awaited<ReturnType<typeof cartHandlers.get>>["data"]["cart"],
+    context,
+  };
+}
+
+export async function getCart(cartId: string | undefined, locale: CommerceLocale) {
+  if (!cartId) return undefined;
+  return (await loadCart(cartId, locale)).cart ?? undefined;
+}
+
+export async function mutateCart(
+  cartId: string | undefined,
+  payload: object,
+  locale: CommerceLocale,
+) {
   if (!cartId) return { error: "Open the storefront to change your cart." };
+  const { context } = await loadCart(cartId, locale);
   const request = new Request(new URL("/api/cart", shopConfig.site.url), {
     body: JSON.stringify(payload),
     headers: {
@@ -104,11 +132,7 @@ export async function mutateCart(cartId: string | undefined, payload: object) {
     },
     method: "POST",
   });
-  const requestContext = createShopifyRequestContext({
-    i18n: shopConfig.localization,
-    request,
-  });
-  const storefrontClient = createRequestStorefrontClient(requestContext);
+  const storefrontClient = context.storefrontClient;
   try {
     const result = await cartHandlers.post({ request, storefrontClient });
     if (result.type !== "json") throw new Error("Cart mutation could not be confirmed.");

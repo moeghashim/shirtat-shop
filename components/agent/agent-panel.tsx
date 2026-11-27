@@ -102,6 +102,7 @@ export function AgentPanel({ onOpenChange, open, triggerRef }: AgentPanelProps) 
       return {
         ...turn,
         clientContext: {
+          country: document.documentElement.dataset.country ?? "US",
           locale: location.pathname === "/ar" || location.pathname.startsWith("/ar/") ? "ar" : "en",
           pathname: location.pathname,
           search: location.search,

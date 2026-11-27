@@ -6,15 +6,19 @@ import {
   SearchParamsProbe,
 } from "@/components/collections/collection-page";
 import { getAllProductsMetadata, getAllProductsResults } from "@/lib/collections/server";
+import { getCommerceLocale } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   return getAllProductsMetadata();
 }
 
-export default function AllProductsPage({ searchParams }: PageProps<"/[locale]/collections/all">) {
+export default async function AllProductsPage({
+  searchParams,
+}: PageProps<"/[locale]/collections/all">) {
+  const locale = await getCommerceLocale();
   return (
     <CollectionBrowseBoundary>
-      <CollectionResults results={getAllProductsResults()} />
+      <CollectionResults results={getAllProductsResults({ locale })} />
       <SearchParamsProbe searchParams={searchParams} />
     </CollectionBrowseBoundary>
   );

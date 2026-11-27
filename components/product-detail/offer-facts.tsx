@@ -1,7 +1,7 @@
 import { ProductSchema } from "@/components/product-detail/schema";
 import { Link } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Locale } from "@/lib/i18n";
+import { formatLocale, type Locale } from "@/lib/i18n";
 import { localizeOptionValue } from "@/lib/i18n/product";
 import { formatPrice } from "@/lib/money";
 import { imageColorNames } from "@/lib/product";
@@ -35,7 +35,10 @@ export async function ProductOfferFacts({ locale, product }: OfferFactsProps) {
   const low = product.priceRange.minVariantPrice;
   const high = product.priceRange.maxVariantPrice;
   const uniform = low.amount === high.amount && low.currencyCode === high.currencyCode;
-  const price = uniform ? formatPrice(low) : `${formatPrice(low)} – ${formatPrice(high)}`;
+  const formatted = formatLocale(locale);
+  const price = uniform
+    ? formatPrice(low, formatted)
+    : `${formatPrice(low, formatted)} – ${formatPrice(high, formatted)}`;
   const material = bilingual(specs?.fabric, isArabic);
   const printMethod = bilingual(print?.method, isArabic);
   const fit = bilingual(specs?.fit, isArabic) || optionLine(product, "Fit", locale);

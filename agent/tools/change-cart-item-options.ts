@@ -10,6 +10,7 @@ import {
   mutateCart,
 } from "../lib/cart";
 import { productOptionsSchema } from "../lib/catalog";
+import { shopperCommerce } from "../lib/market";
 
 export default defineTool({
   description:
@@ -20,9 +21,10 @@ export default defineTool({
   }),
   execute: ({ lineId, options }, ctx) =>
     commitCartWrite(ctx, `line:${lineId}`, async () => {
+      const locale = shopperCommerce(ctx);
       const cartId = getSessionCartId(ctx);
       if (!cartId) return { error: "Open the storefront to change your cart." };
-      const line = (await getCart(cartId))?.lines.nodes.find((node) => node.id === lineId);
+      const line = (await getCart(cartId, locale))?.lines.nodes.find((node) => node.id === lineId);
       if (!line) return { error: "This line is not in the current cart." };
       if ("parentRelationship" in line && line.parentRelationship)
         return { error: "Change this item through the item it belongs to." };
@@ -33,6 +35,7 @@ export default defineTool({
       for (const option of options) selection.set(option.name.toLowerCase(), option);
       const result = await fetchProductVariantBySelectedOptions({
         handle: line.merchandise.product.handle,
+        locale,
         selectedOptions: [...selection.values()].map(({ name, value }) => ({ name, value })),
       });
       if (!result) return { error: "This product is no longer available." };
@@ -51,16 +54,20 @@ export default defineTool({
         return { error: "Choose that option on the product page." };
 
       const attributes = lineAttributes(line);
-      return mutateCart(cartId, {
-        lines: [
-          {
-            id: lineId,
-            merchandiseId: variant.id,
-            quantity: line.quantity,
-            ...(attributes ? { attributes } : {}),
-            ...(sellingPlanId ? { sellingPlanId } : {}),
-          },
-        ],
-      });
+      return mutateCart(
+        cartId,
+        {
+          lines: [
+            {
+              id: lineId,
+              merchandiseId: variant.id,
+              quantity: line.quantity,
+              ...(attributes ? { attributes } : {}),
+              ...(sellingPlanId ? { sellingPlanId } : {}),
+            },
+          ],
+        },
+        locale,
+      );
     }),
 });

@@ -4,14 +4,16 @@ import { z } from "zod";
 import { toAgentProduct } from "../../lib/agent/products";
 import { fetchProductRecommendations } from "../../lib/shopify/operations/products/server";
 import { productHandleSchema, toModelProducts } from "../lib/catalog";
+import { shopperCommerce } from "../lib/market";
 
 export default defineTool({
   description: "Show related and complementary products for a product handle.",
   inputSchema: z.strictObject({ handle: productHandleSchema }),
-  execute: async ({ handle }) => {
+  execute: async ({ handle }, ctx) => {
+    const locale = shopperCommerce(ctx);
     const [related, complementary] = await Promise.all([
-      fetchProductRecommendations({ handle, intent: "RELATED" }),
-      fetchProductRecommendations({ handle, intent: "COMPLEMENTARY" }),
+      fetchProductRecommendations({ handle, intent: "RELATED", locale }),
+      fetchProductRecommendations({ handle, intent: "COMPLEMENTARY", locale }),
     ]);
     return {
       products: [

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 
 import { T } from "@/components/i18n/t";
 import { ProductCard, ProductCardSkeleton } from "@/components/product-card/product-card";
+import { getCommerceLocale } from "@/lib/i18n/server";
 import { getProductRecommendations } from "@/lib/product/server";
 
 function RelatedProductsSectionSkeleton({ limit }: { limit: number }) {
@@ -20,7 +21,11 @@ function RelatedProductsSectionSkeleton({ limit }: { limit: number }) {
 }
 
 async function Render({ handle, limit }: { handle: string; limit: number }) {
-  const related = await getProductRecommendations({ handle, intent: "RELATED" });
+  const related = await getProductRecommendations({
+    handle,
+    intent: "RELATED",
+    locale: await getCommerceLocale(),
+  });
   if (related.length === 0) return null;
   return (
     <div className="grid gap-4">

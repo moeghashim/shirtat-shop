@@ -774,6 +774,7 @@ const PRODUCT_IDS_BY_QUERY = gql(
 // `products` accepts the collection sort keys `search` does not. The page size matches the designer directory query.
 export async function fetchProductIdsByQuery(params: ProductIdsByQueryParams): Promise<string[]> {
   const response = await storefront.request(PRODUCT_IDS_BY_QUERY, {
+    locale: params.locale,
     variables: {
       query: params.query,
       reverse: params.reverse ?? false,

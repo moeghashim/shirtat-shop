@@ -25,9 +25,12 @@ export function formatLocale(locale: Locale): string {
   return locale === "ar" ? "ar" : "en-US";
 }
 
-/** Shopify @inContext language; Shopify falls back to the default language when AR is unpublished. */
-export function commerceLocale(locale: Locale): CommerceLocale {
-  return { country: "US", language: locale === "ar" ? "AR" : "EN" };
+/** Shopify @inContext language. Country defaults to US for feeds that have no shopper market. */
+export function commerceLocale(
+  locale: Locale,
+  country: CommerceLocale["country"] = "US",
+): CommerceLocale {
+  return { country, language: locale === "ar" ? "AR" : "EN" };
 }
 
 /** Machine routes stay unprefixed. /admin/* only redirects to admin.shirtat.co. */
@@ -39,9 +42,9 @@ export function isUnlocalizedPath(pathname: string): boolean {
   );
 }
 
-/** Strip a leading /ar or /en prefix. */
+/** Strip a leading /ar or /en prefix, including an internal country segment such as /en.ae. */
 export function stripLocale(pathname: string): string {
-  const match = pathname.match(/^\/(ar|en)(?=\/|$)/);
+  const match = pathname.match(/^\/(?:ar|en)(?:\.[a-z]{2})?(?=\/|$)/);
   if (!match) return pathname || "/";
   return pathname.slice(match[0].length) || "/";
 }

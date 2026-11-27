@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { OrderLineItem } from "@/lib/customer/types";
+import { formatLocale } from "@/lib/i18n";
+import { getLocale } from "@/lib/i18n/server";
 import { formatPrice } from "@/lib/money";
 import type { Money } from "@/lib/money/types";
 import { fetchCustomerOrder } from "@/lib/shopify/operations/customer/server";
@@ -29,6 +31,7 @@ async function OrderDetailContent({ params }: { params: Promise<{ id: string }> 
   if (!id) notFound();
   const order = await fetchCustomerOrder(id);
   if (!order) notFound();
+  const priceLocale = formatLocale(await getLocale());
   return (
     <>
       <AccountPageHeader title={order.name} description={formatOrderDate(order.processedAt)} />
@@ -42,17 +45,17 @@ async function OrderDetailContent({ params }: { params: Promise<{ id: string }> 
 
       <ul className="grid divide-y rounded-lg border">
         {order.lineItems.map((item, index) => (
-          <OrderLineItemRow key={index} item={item} />
+          <OrderLineItemRow item={item} key={index} priceLocale={priceLocale} />
         ))}
       </ul>
 
       <dl className="grid gap-2 rounded-lg border p-4 text-sm">
-        <SummaryRow label="Subtotal" money={order.subtotal} />
-        <SummaryRow label="Shipping" money={order.totalShipping} />
-        <SummaryRow label="Tax" money={order.totalTax} />
+        <SummaryRow label="Subtotal" money={order.subtotal} priceLocale={priceLocale} />
+        <SummaryRow label="Shipping" money={order.totalShipping} priceLocale={priceLocale} />
+        <SummaryRow label="Tax" money={order.totalTax} priceLocale={priceLocale} />
         <div className="flex items-center justify-between border-t pt-2 font-medium">
           <dt>Total</dt>
-          <dd className="font-mono tabular-nums">{formatPrice(order.totalPrice)}</dd>
+          <dd className="font-mono tabular-nums">{formatPrice(order.totalPrice, priceLocale)}</dd>
         </div>
       </dl>
 
@@ -82,7 +85,7 @@ async function OrderDetailContent({ params }: { params: Promise<{ id: string }> 
   );
 }
 
-function OrderLineItemRow({ item }: { item: OrderLineItem }) {
+function OrderLineItemRow({ item, priceLocale }: { item: OrderLineItem; priceLocale: string }) {
   return (
     <li className="flex items-center gap-3 p-3">
       <div className="relative size-14 shrink-0 overflow-hidden rounded-md bg-muted">
@@ -104,18 +107,28 @@ function OrderLineItemRow({ item }: { item: OrderLineItem }) {
         <p className="text-xs text-muted-foreground">× {item.quantity}</p>
       </div>
       {item.totalPrice ? (
-        <span className="font-mono text-sm tabular-nums">{formatPrice(item.totalPrice)}</span>
+        <span className="font-mono text-sm tabular-nums">
+          {formatPrice(item.totalPrice, priceLocale)}
+        </span>
       ) : null}
     </li>
   );
 }
 
-function SummaryRow({ label, money }: { label: string; money: Money | null }) {
+function SummaryRow({
+  label,
+  money,
+  priceLocale,
+}: {
+  label: string;
+  money: Money | null;
+  priceLocale: string;
+}) {
   if (!money) return null;
   return (
     <div className="flex items-center justify-between">
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className="font-mono tabular-nums">{formatPrice(money)}</dd>
+      <dd className="font-mono tabular-nums">{formatPrice(money, priceLocale)}</dd>
     </div>
   );
 }
