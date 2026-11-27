@@ -6,8 +6,8 @@ import { guideRails } from "@/lib/guides/select";
 import { loadGuideSources } from "@/lib/guides/server";
 import type { Guide } from "@/lib/guides/types";
 import { pick } from "@/lib/guides/types";
-import { commerceLocale } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n";
+import { getCommerceLocale } from "@/lib/i18n/server";
 
 import { GuideRails } from "./product-rail";
 
@@ -66,7 +66,7 @@ function RichText({ text }: { text: string }) {
 }
 
 export async function GuideArticle({ guide, locale }: { guide: Guide; locale: Locale }) {
-  const { catalog, occasions } = await loadGuideSources(guide.match, commerceLocale(locale));
+  const { catalog, occasions } = await loadGuideSources(guide.match, await getCommerceLocale());
   const rails = guideRails(guide, catalog, occasions);
   const hasProducts = rails.some((rail) => rail.products.length > 0);
   const hasNote = rails.some((rail) => rail.note);

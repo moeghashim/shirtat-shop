@@ -5,13 +5,14 @@ import { toAgentProductDetails } from "../../lib/agent/products";
 import { isCustomDesignHandle } from "../../lib/custom/products";
 import { fetchProductWithVariants } from "../../lib/shopify/operations/products/server";
 import { productHandleSchema, toModelProductDetails } from "../lib/catalog";
+import { shopperCommerce } from "../lib/market";
 
 export default defineTool({
   description:
     "Get details for a specific product and render its interactive variant picker. Use for product questions or purchase selection, not to display initial search-result cards.",
   inputSchema: z.strictObject({ handle: productHandleSchema }),
-  execute: async ({ handle }) => {
-    const product = await fetchProductWithVariants({ handle });
+  execute: async ({ handle }, ctx) => {
+    const product = await fetchProductWithVariants({ handle, locale: shopperCommerce(ctx) });
     return product
       ? {
           product: {

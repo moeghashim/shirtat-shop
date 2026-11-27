@@ -17,6 +17,14 @@ import {
 } from "@/lib/auth/request";
 import { cartHandlers, createCustomerCartHandlers } from "@/lib/cart/request";
 import { getRefinedCollectionPath, isRefinedCollectionPath } from "@/lib/collections";
+import {
+  canonicalPublicPath,
+  commerceForProxy,
+  commerceRouteSegment,
+  COUNTRY_COOKIE,
+  COUNTRY_HEADER,
+  LANGUAGE_HEADER,
+} from "@/lib/commerce";
 import { shopConfig } from "@/lib/config";
 import { getRefinedDesignerPath, isRefinedDesignerPath } from "@/lib/designers";
 import { isUnlocalizedPath, stripLocale } from "@/lib/i18n";
@@ -52,7 +60,20 @@ function isLocalizablePagePath(pathname: string): boolean {
 
 export async function proxy(request: NextRequest): Promise<Response> {
   const pathname = request.nextUrl.pathname;
-  const requestContext = createCustomerRequestContext(request);
+  const pageRoute = isLocalizablePagePath(pathname);
+  const commerce = commerceForProxy({
+    cookie: request.cookies.get(COUNTRY_COOKIE)?.value ?? null,
+    geo: request.headers.get("x-vercel-ip-country"),
+    page: pageRoute,
+    pathname,
+    referer: request.headers.get("referer"),
+  });
+  const canonical = canonicalPublicPath(pathname);
+  if (canonical) {
+    const target = new URL(`${canonical}${request.nextUrl.search}`, request.url);
+    return NextResponse.redirect(target, 308);
+  }
+  const requestContext = createCustomerRequestContext(request, commerce);
   const isAuthPath = shopConfig.auth.isEnabled && AUTH_PATHS.has(pathname);
   const customerSession =
     isAuthPath || (shopConfig.auth.isEnabled && pathname === "/api/cart")
@@ -74,14 +95,11 @@ export async function proxy(request: NextRequest): Promise<Response> {
     : handleShopifyRoutes({ ...routeOptions, handlers: [cartHandlers, predictiveSearchHandlers] });
   if (shopifyRoute) return shopifyRoute;
 
-  // Locale routing: English is unprefixed (internally /en), Arabic lives under /ar.
-  const pageRoute = isLocalizablePagePath(pathname);
-  const prefix = pageRoute && /^\/ar(?:\/|$)/.test(pathname) ? "ar" : "en";
+  // English is unprefixed (internally /en). A non-US market is /en.ae or /ar.ae so each currency is its own cache entry.
+  const language = pageRoute && /^\/ar(?:\/|$)/.test(pathname) ? "ar" : "en";
+  const segment = commerceRouteSegment(language, commerce.country);
   const basePath = stripLocale(pathname);
-  if (
-    pageRoute &&
-    (/^\/en(?:\/|$)/.test(pathname) || (prefix === "ar" && isUnlocalizedPath(basePath)))
-  ) {
+  if (pageRoute && language === "ar" && isUnlocalizedPath(basePath)) {
     const target = new URL(`${basePath}${request.nextUrl.search}`, request.url);
     return NextResponse.redirect(target, 308);
   }
@@ -97,15 +115,17 @@ export async function proxy(request: NextRequest): Promise<Response> {
 
   const headers = requestContext.getForwardedRequestHeaders();
   headers.delete(MARKDOWN_LOCALE_HEADER);
+  headers.set(COUNTRY_HEADER, commerce.country);
+  headers.set(LANGUAGE_HEADER, commerce.language);
   if (markdown?.type === "rewrite") headers.set(MARKDOWN_LOCALE_HEADER, markdown.locale);
   const refinedPath = pageRoute
     ? (getRefinedCollectionPath(basePath, request.nextUrl.search) ??
       getRefinedDesignerPath(basePath, request.nextUrl.search))
     : null;
-  const localizedPath = pageRoute ? `/${prefix}${basePath === "/" ? "" : basePath}` : null;
+  const localizedPath = pageRoute ? `/${segment}${basePath === "/" ? "" : basePath}` : null;
   const rewritePath =
     (markdown?.type === "rewrite" ? markdown.pathname : null) ??
-    (refinedPath ? `/${prefix}${refinedPath}` : localizedPath);
+    (refinedPath ? `/${segment}${refinedPath}` : localizedPath);
   const response = rewritePath
     ? NextResponse.rewrite(new URL(`${rewritePath}${request.nextUrl.search}`, request.url), {
         request: { headers },

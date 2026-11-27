@@ -7,8 +7,7 @@ import { Link } from "@/components/ui/link";
 import { Sections } from "@/components/ui/sections";
 import { shopConfig } from "@/lib/config";
 import { socialLinks } from "@/lib/config/social";
-import { commerceLocale } from "@/lib/i18n";
-import { getLocale, getT } from "@/lib/i18n/server";
+import { getCommerceLocale, getLocale, getT } from "@/lib/i18n/server";
 import type { MenuItem } from "@/lib/menu/types";
 import { getShopPolicies } from "@/lib/policies/server";
 
@@ -18,7 +17,7 @@ export async function Footer() {
   const items: MenuItem[] = [];
   const locale = await getLocale();
   const t = await getT();
-  const policies = await getShopPolicies({ locale: commerceLocale(locale) }).catch(() => []);
+  const policies = await getShopPolicies({ locale: await getCommerceLocale() }).catch(() => []);
   return (
     <footer>
       {/* pb-22 clears the fixed agent ActionBar pill when it renders */}

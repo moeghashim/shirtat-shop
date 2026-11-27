@@ -24,6 +24,7 @@ import {
   presetImage,
   styleImage,
 } from "@/lib/custom/styles";
+import { formatLocale } from "@/lib/i18n";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { formatPrice } from "@/lib/money";
 import { ProductProvider, useProduct, useProductForm } from "@/lib/product/client";
@@ -529,7 +530,7 @@ function ProductPanel({
           ))}
           <div className="flex items-center gap-4">
             <p className="text-2xl font-semibold tabular-nums">
-              {selectedVariant ? formatPrice(selectedVariant.price) : null}
+              {selectedVariant ? formatPrice(selectedVariant.price, formatLocale(locale)) : null}
             </p>
             <Button
               {...register("addToCart", {})}

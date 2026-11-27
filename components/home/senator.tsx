@@ -6,15 +6,14 @@ import { Link } from "@/components/ui/link";
 import { getCategory } from "@/lib/collections/categories";
 import { SENATOR_HEADING, SENATOR_PHRASE } from "@/lib/home/senator";
 import { getSenatorCampaignSlots } from "@/lib/home/server";
-import { commerceLocale } from "@/lib/i18n";
 import { describeProductImage } from "@/lib/i18n/product";
-import { getLocale, getT } from "@/lib/i18n/server";
+import { getCommerceLocale, getLocale, getT } from "@/lib/i18n/server";
 
 export async function SenatorLaunch() {
   const t = await getT();
   const locale = await getLocale();
   const politics = getCategory("politics");
-  const slots = await getSenatorCampaignSlots(commerceLocale(locale));
+  const slots = await getSenatorCampaignSlots(await getCommerceLocale());
   const noneReady = slots.every((slot) => slot.product === null);
   const label = locale === "ar" ? politics?.labelAr : politics?.labelEn;
 

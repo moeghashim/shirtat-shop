@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 
+import { commerceLocaleFromHeaders } from "@/lib/commerce/server";
 import { toProductFormInput } from "@/lib/product";
 import { getProduct } from "@/lib/product/server";
 import type { QuickShopProduct, SelectedOption } from "@/lib/product/types";
@@ -21,7 +22,8 @@ export async function loadQuickShopProductAction(
   if (!parsed.success) return null;
   const input = parsed.data;
 
-  const product = await getProduct({ handle: input.handle });
+  const locale = await commerceLocaleFromHeaders();
+  const product = await getProduct({ handle: input.handle, locale });
   if (!product || product.isGiftCard) return null;
 
   let variant = product.defaultVariant;
@@ -43,6 +45,7 @@ export async function loadQuickShopProductAction(
     }
     const resolvedVariant = await fetchProductVariant({
       handle: input.handle,
+      locale,
       selectedOptions: canonicalOptions,
     });
     if (

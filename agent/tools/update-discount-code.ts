@@ -2,6 +2,7 @@ import { defineTool } from "eve/tools";
 import { z } from "zod";
 
 import { commitCartWrite, getCart, getSessionCartId, mutateCart } from "../lib/cart";
+import { shopperCommerce } from "../lib/market";
 
 export default defineTool({
   description:
@@ -12,9 +13,10 @@ export default defineTool({
   }),
   execute: ({ action, code }, ctx) =>
     commitCartWrite(ctx, `discount:${action}:${code.trim().toUpperCase()}`, async () => {
+      const locale = shopperCommerce(ctx);
       const cartId = getSessionCartId(ctx);
       if (!cartId) return { error: "Open the storefront to change your cart." };
-      const cart = await getCart(cartId);
+      const cart = await getCart(cartId, locale);
       if (!cart) return { error: "Cart is unavailable. Refresh the storefront." };
 
       const normalized = code.toUpperCase();
@@ -23,11 +25,15 @@ export default defineTool({
       if (action === "apply" && present) return { error: "That code is already on the cart." };
       if (action === "remove" && !present) return { error: "That code is not on the cart." };
 
-      return mutateCart(cartId, {
-        discountCodes:
-          action === "apply"
-            ? [...codes, normalized]
-            : codes.filter((existing) => existing.toUpperCase() !== normalized),
-      });
+      return mutateCart(
+        cartId,
+        {
+          discountCodes:
+            action === "apply"
+              ? [...codes, normalized]
+              : codes.filter((existing) => existing.toUpperCase() !== normalized),
+        },
+        locale,
+      );
     }),
 });

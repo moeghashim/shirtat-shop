@@ -2,6 +2,7 @@ import { createCartCookie } from "@shopify/hydrogen";
 
 import { createCustomerRequestContext, createCustomerSessionManager } from "@/lib/auth/request";
 import { createEmptyCart, getCartById, getCartIdFromCookie } from "@/lib/cart/server";
+import { commerceFromRequest } from "@/lib/commerce";
 import { shopConfig } from "@/lib/config";
 
 export async function POST(request: Request) {
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
     request.headers.get("sec-fetch-site") === "cross-site"
   )
     return new Response(null, { status: 403 });
-  const requestContext = createCustomerRequestContext(request);
+  const requestContext = createCustomerRequestContext(request, commerceFromRequest(request));
   const sessionManager = shopConfig.auth.isEnabled
     ? createCustomerSessionManager(request)
     : undefined;

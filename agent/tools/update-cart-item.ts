@@ -8,6 +8,7 @@ import {
   lineAttributes,
   mutateCart,
 } from "../lib/cart";
+import { shopperCommerce } from "../lib/market";
 
 export default defineTool({
   description:
@@ -18,13 +19,16 @@ export default defineTool({
   }),
   execute: ({ lineId, quantity }, ctx) =>
     commitCartWrite(ctx, `line:${lineId}`, async () => {
+      const locale = shopperCommerce(ctx);
       const cartId = getSessionCartId(ctx);
       if (!cartId) return { error: "Open the storefront to change your cart." };
-      const line = (await getCart(cartId))?.lines.nodes.find((node) => node.id === lineId);
+      const line = (await getCart(cartId, locale))?.lines.nodes.find((node) => node.id === lineId);
       if (!line) return { error: "This line is not in the current cart." };
       const attributes = lineAttributes(line);
-      return mutateCart(cartId, {
-        lines: [{ id: lineId, quantity, ...(attributes ? { attributes } : {}) }],
-      });
+      return mutateCart(
+        cartId,
+        { lines: [{ id: lineId, quantity, ...(attributes ? { attributes } : {}) }] },
+        locale,
+      );
     }),
 });

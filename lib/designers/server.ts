@@ -6,6 +6,7 @@ import { cache } from "react";
 
 import { PRODUCTS_PER_PAGE } from "@/lib/collections";
 import type { BrowseResults, BrowseState } from "@/lib/collections/types";
+import type { CommerceLocale } from "@/lib/config/types";
 import { summarizeText } from "@/lib/content";
 import { listCreators } from "@/lib/creators/store";
 import type { CreatorRecord } from "@/lib/creators/types";
@@ -22,7 +23,7 @@ import {
   SHIRTAT_DESIGNER_LOGO,
 } from "@/lib/designers";
 import type { PublicDesigner } from "@/lib/designers/types";
-import { getLocale, getT } from "@/lib/i18n/server";
+import { getCommerceLocale, getLocale, getT } from "@/lib/i18n/server";
 import type { ProductCard } from "@/lib/product/types";
 import { fetchSearchResults } from "@/lib/search/server";
 import { buildAlternates, buildOpenGraph, siteOgImages } from "@/lib/seo";
@@ -205,6 +206,7 @@ function shopifyCatalogSort(
 async function fetchEverySearchProduct(
   query: string,
   filters: BrowseState["filters"],
+  locale: CommerceLocale,
 ): Promise<ProductCard[]> {
   const products: ProductCard[] = [];
   const seen = new Set<string>();
@@ -214,6 +216,7 @@ async function fetchEverySearchProduct(
       cursor,
       filters,
       limit: PRODUCTS_PER_PAGE,
+      locale,
       query,
     });
     for (const product of result.products) {
@@ -263,11 +266,17 @@ export async function fetchDesignerResults({
     };
   }
   const order = shopifyCatalogSort(state.sort);
+  const locale = await getCommerceLocale();
   if (!order) return fetchSearchResults({ query, statePromise: Promise.resolve(state) });
   const [products, facets, ids] = await Promise.all([
-    fetchEverySearchProduct(query, state.filters),
-    fetchSearchFacets({ filters: state.filters, query }),
-    fetchProductIdsByQuery({ query, reverse: order.reverse, sortKey: order.sortKey }),
+    fetchEverySearchProduct(query, state.filters, locale),
+    fetchSearchFacets({ filters: state.filters, locale, query }),
+    fetchProductIdsByQuery({
+      locale,
+      query,
+      reverse: order.reverse,
+      sortKey: order.sortKey,
+    }),
   ]);
   return {
     dataSearch: state.dataSearch,

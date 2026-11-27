@@ -5,10 +5,10 @@ import { matchingProducts, toModelProductDetails, toModelProducts } from "@/agen
 import { agentProfileUrl } from "@/agent/lib/profile";
 import { toAgentProduct, toAgentProductDetails } from "@/lib/agent/products";
 import type { AgentProduct, AgentProductDetails } from "@/lib/agent/products/types";
+import { commerceFromRequest } from "@/lib/commerce";
 import { shopConfig } from "@/lib/config";
 import type { CommerceLocale } from "@/lib/config/types";
 import { CUSTOM_SKU_PREFIX, CUSTOM_TAG, isCustomDesignHandle } from "@/lib/custom/products";
-import { commerceLocale } from "@/lib/i18n";
 import { fetchCollections } from "@/lib/shopify/operations/collections/server";
 import {
   fetchCollectionProducts,
@@ -45,9 +45,10 @@ export function executeVoiceTool(
 ): Promise<VoiceToolResult> {
   const existing = calls.get(callId);
   if (existing) return existing;
-  const pending = runTool(name, value, request, commerceLocale(localeName)).catch(() =>
-    done({ error: "That action failed." }, emptyView()),
-  );
+  const pending = runTool(name, value, request, {
+    country: commerceFromRequest(request).country,
+    language: localeName === "ar" ? "AR" : "EN",
+  }).catch(() => done({ error: "That action failed." }, emptyView()));
   calls.set(callId, pending);
   if (calls.size > 200) {
     const first = calls.keys().next().value;
@@ -79,7 +80,7 @@ async function runTool(
     if ("error" in parsed) return done({ error: parsed.error }, emptyView());
     return changeOptions(parsed.data, cartId, locale);
   }
-  if (name === "get-cart") return emptyArgs(name, value, () => readCart(cartId));
+  if (name === "get-cart") return emptyArgs(name, value, () => readCart(cartId, locale));
   if (name === "get-product-details") {
     const parsed = parseVoiceToolArguments(name, value);
     if ("error" in parsed) return done({ error: parsed.error }, emptyView());
@@ -109,7 +110,7 @@ async function runTool(
   if (name === "update-cart-item") {
     const parsed = parseVoiceToolArguments(name, value);
     if ("error" in parsed) return done({ error: parsed.error }, emptyView());
-    return updateLine(parsed.data, cartId);
+    return updateLine(parsed.data, cartId, locale);
   }
   return done({ error: "That tool is not available." }, emptyView());
 }
@@ -136,11 +137,11 @@ async function searchCatalog(
   locale: CommerceLocale,
 ): Promise<VoiceToolResult> {
   const available = args.available ?? true;
-  const first = await catalogSearch({ ...args, available });
+  const first = await catalogSearch({ ...args, available }, locale);
   const result =
     "error" in first || first.ids.length || args.available !== undefined
       ? first
-      : await catalogSearch({ ...args, available: false });
+      : await catalogSearch({ ...args, available: false }, locale);
   if ("error" in result) return done({ error: result.error }, emptyView());
   const products = await cardsFor(result.ids, args.options, locale);
   const model = modelProducts(products);
@@ -232,8 +233,11 @@ function offerChoices(
   return Promise.resolve(done({ choices: offered }, { ...emptyView(), choices: offered }));
 }
 
-async function readCart(cartId: string | undefined): Promise<VoiceToolResult> {
-  const cart = await getCart(cartId);
+async function readCart(
+  cartId: string | undefined,
+  locale: CommerceLocale,
+): Promise<VoiceToolResult> {
+  const cart = await getCart(cartId, locale);
   if (!cart) return done({ error: "Cart is unavailable. Refresh the storefront." }, emptyView());
   return done(summarize(cart), { ...emptyView(), cart: true });
 }
@@ -264,22 +268,33 @@ async function addToCart(
   if (variant.requiresComponents || variant.requiresSellingPlan)
     return done({ error: "Choose that option on the product page.", url }, emptyView());
   return cartResult(
-    await mutateCart(cartId, { lines: [{ merchandiseId: variant.id, quantity: args.quantity }] }),
+    await mutateCart(
+      cartId,
+      { lines: [{ merchandiseId: variant.id, quantity: args.quantity }] },
+      locale,
+    ),
   );
 }
 
 async function updateLine(
   args: { lineId: string; quantity: number },
   cartId: string | undefined,
+  locale: CommerceLocale,
 ): Promise<VoiceToolResult> {
   if (!cartId) return done({ error: "Open the storefront to change your cart." }, emptyView());
-  const line = (await getCart(cartId))?.lines.nodes.find((node) => node.id === args.lineId);
+  const line = (await getCart(cartId, locale))?.lines.nodes.find((node) => node.id === args.lineId);
   if (!line) return done({ error: "This line is not in the current cart." }, emptyView());
   const attributes = lineAttributes(line);
   return cartResult(
-    await mutateCart(cartId, {
-      lines: [{ id: args.lineId, quantity: args.quantity, ...(attributes ? { attributes } : {}) }],
-    }),
+    await mutateCart(
+      cartId,
+      {
+        lines: [
+          { id: args.lineId, quantity: args.quantity, ...(attributes ? { attributes } : {}) },
+        ],
+      },
+      locale,
+    ),
   );
 }
 
@@ -289,7 +304,7 @@ async function changeOptions(
   locale: CommerceLocale,
 ): Promise<VoiceToolResult> {
   if (!cartId) return done({ error: "Open the storefront to change your cart." }, emptyView());
-  const line = (await getCart(cartId))?.lines.nodes.find((node) => node.id === args.lineId);
+  const line = (await getCart(cartId, locale))?.lines.nodes.find((node) => node.id === args.lineId);
   if (!line) return done({ error: "This line is not in the current cart." }, emptyView());
   if ("parentRelationship" in line && line.parentRelationship)
     return done({ error: "Change this item through the item it belongs to." }, emptyView());
@@ -317,17 +332,21 @@ async function changeOptions(
     return done({ error: "Choose that option on the product page." }, emptyView());
   const attributes = lineAttributes(line);
   return cartResult(
-    await mutateCart(cartId, {
-      lines: [
-        {
-          id: args.lineId,
-          merchandiseId: variant.id,
-          quantity: line.quantity,
-          ...(attributes ? { attributes } : {}),
-          ...(sellingPlanId ? { sellingPlanId } : {}),
-        },
-      ],
-    }),
+    await mutateCart(
+      cartId,
+      {
+        lines: [
+          {
+            id: args.lineId,
+            merchandiseId: variant.id,
+            quantity: line.quantity,
+            ...(attributes ? { attributes } : {}),
+            ...(sellingPlanId ? { sellingPlanId } : {}),
+          },
+        ],
+      },
+      locale,
+    ),
   );
 }
 
@@ -341,13 +360,16 @@ async function cardsFor(
   return matchingProducts(await fetchProductsByIds({ ids: unique, locale }), options);
 }
 
-async function catalogSearch(args: {
-  available: boolean;
-  limit: number;
-  maxPriceMinor?: number;
-  minPriceMinor?: number;
-  query: string;
-}): Promise<{ error: string } | { ids: string[] }> {
+async function catalogSearch(
+  args: {
+    available: boolean;
+    limit: number;
+    maxPriceMinor?: number;
+    minPriceMinor?: number;
+    query: string;
+  },
+  locale: CommerceLocale,
+): Promise<{ error: string } | { ids: string[] }> {
   const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
   if (!domain) return { error: "Catalog search is unavailable. Offer a collection instead." };
   const price =
@@ -367,8 +389,8 @@ async function catalogSearch(args: {
           _meta: { "ucp-agent": { profile: agentProfileUrl("catalog") } },
           arguments: {
             context: {
-              address_country: shopConfig.localization.country,
-              language: shopConfig.localization.locale,
+              address_country: locale.country,
+              language: locale.language === "AR" ? "ar" : shopConfig.localization.locale,
             },
             filters: { available: args.available, ...(price ? { price } : {}) },
             limit: args.limit,

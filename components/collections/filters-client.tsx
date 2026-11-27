@@ -25,6 +25,7 @@ import { parseFilterInput } from "@/lib/collections";
 import { shopConfig } from "@/lib/config";
 import { getActiveFilterBadges } from "@/lib/filters";
 import type { Filter, PriceRange } from "@/lib/filters/types";
+import { formatLocale } from "@/lib/i18n";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { formatCurrencySymbol, formatPrice } from "@/lib/money";
 
@@ -72,6 +73,7 @@ interface CollectionFilterSidebarProps {
 
 export function CollectionFilterSidebar({ filters, priceRange }: CollectionFilterSidebarProps) {
   const t = useT();
+  const locale = useLocale();
   const state = useCollection();
   const actions = useCollectionActions();
   const priceFilter = state.filters.find((filter) => filter.price)?.price;
@@ -128,7 +130,12 @@ export function CollectionFilterSidebar({ filters, priceRange }: CollectionFilte
           {priceFilter ? (
             <FilterBadge
               href={getFilterRemovalUrl(currentParams, { price: priceFilter })}
-              label={formatPriceRangeLabel(priceMin, priceMax, priceRange?.currencyCode)}
+              label={formatPriceRangeLabel(
+                priceMin,
+                priceMax,
+                priceRange?.currencyCode,
+                formatLocale(locale),
+              )}
               onRemove={() => applyPrice(null, null)}
             />
           ) : null}
@@ -324,10 +331,11 @@ interface PriceInputProps {
 }
 
 function PriceInput({ currencyCode, label, onChange, placeholder, value }: PriceInputProps) {
+  const locale = useLocale();
   return (
     <div className="flex h-8 flex-1 items-center rounded-lg bg-input px-2.5">
       <span className="text-base text-muted-foreground md:text-sm">
-        {currencyCode ? formatCurrencySymbol(currencyCode) : null}
+        {currencyCode ? formatCurrencySymbol(currencyCode, formatLocale(locale)) : null}
       </span>
       <Input
         aria-label={label}
@@ -375,11 +383,12 @@ function formatPriceRangeLabel(
   min: number | null,
   max: number | null,
   currencyCode: string | undefined,
+  locale: string,
 ): string {
   const format = (value: number) =>
     currencyCode
-      ? formatPrice({ amount: String(value), currencyCode })
-      : new Intl.NumberFormat(shopConfig.localization.locale).format(value);
+      ? formatPrice({ amount: String(value), currencyCode }, locale)
+      : new Intl.NumberFormat(locale).format(value);
   if (min !== null && max !== null) return `${format(min)} - ${format(max)}`;
   if (min !== null) return `From ${format(min)}`;
   return `Up to ${format(max ?? 0)}`;

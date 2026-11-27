@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { PRODUCTS_PER_PAGE, resolveBrowseParams } from "@/lib/collections";
 import type { BrowseSource } from "@/lib/collections/types";
+import { commerceLocaleFromHeaders } from "@/lib/commerce/server";
 import type { ProductPage } from "@/lib/product/types";
 import {
   fetchCollectionProducts,
@@ -34,7 +35,8 @@ export async function loadMoreBrowseProductsAction(input: {
   const { cursor, search, source } = parsed.data;
 
   const { filters, sort } = resolveBrowseParams(search);
-  const page = { cursor, filters, limit: PRODUCTS_PER_PAGE, sortKey: sort };
+  const locale = await commerceLocaleFromHeaders();
+  const page = { cursor, filters, limit: PRODUCTS_PER_PAGE, locale, sortKey: sort };
   if (source.type === "search") {
     // Storefront `search` cursor is anchored to the original `first`; using a different page size returns count=0.
     return fetchSearchIndexProducts({ ...page, query: source.query });

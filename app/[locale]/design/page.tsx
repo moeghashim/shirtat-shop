@@ -7,6 +7,7 @@ import { DESIGN_FONT_VARIABLES } from "@/components/custom/fonts";
 import { DesignSchema } from "@/components/custom/schema";
 import { Container } from "@/components/ui/container";
 import { Page } from "@/components/ui/page";
+import type { CommerceLocale } from "@/lib/config/types";
 import { compactForm } from "@/lib/custom/compact";
 import {
   DESIGN_EXAMPLES,
@@ -20,8 +21,8 @@ import {
 } from "@/lib/custom/copy";
 import { CUSTOM_HOODIE_HANDLE, CUSTOM_MUG_HANDLE, CUSTOM_TEE_HANDLE } from "@/lib/custom/products";
 import { presetImage, styleImage } from "@/lib/custom/styles";
-import { commerceLocale, type Locale } from "@/lib/i18n";
-import { getLocale } from "@/lib/i18n/server";
+import type { Locale } from "@/lib/i18n";
+import { getCommerceLocale, getLocale } from "@/lib/i18n/server";
 import { toProductFormInput } from "@/lib/product";
 import type { ProductDetails } from "@/lib/product/types";
 import { buildAlternates, buildOpenGraph } from "@/lib/seo";
@@ -45,7 +46,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function DesignPage() {
   const locale = await getLocale();
-  const commerce = commerceLocale(locale);
+  const commerce = await getCommerceLocale();
   const [tee, hoodie, mug] = await Promise.all([
     loadCustomProduct(CUSTOM_TEE_HANDLE, commerce),
     loadCustomProduct(CUSTOM_HOODIE_HANDLE, commerce),
@@ -190,7 +191,7 @@ function priceSpan(product: ProductDetails | undefined): PriceSpan | undefined {
   return { currency: low.currencyCode, high: high.amount, low: low.amount };
 }
 
-async function loadCustomProduct(handle: string, locale: ReturnType<typeof commerceLocale>) {
+async function loadCustomProduct(handle: string, locale: CommerceLocale) {
   "use cache: remote";
   cacheLife("hours");
   cacheTag("products", `product-${handle}`);

@@ -9,7 +9,8 @@ import { useCartDrawer } from "@/components/cart/context";
 import { T } from "@/components/i18n/t";
 import { Button } from "@/components/ui/button";
 import { checkoutUrlWithGaAttributes, readGaCheckoutIds } from "@/lib/analytics";
-import { useT } from "@/lib/i18n/client";
+import { formatLocale } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { formatPrice } from "@/lib/money";
 import type { Money } from "@/lib/money/types";
 import { getProductPurchaseOptions } from "@/lib/product";
@@ -34,6 +35,7 @@ export function BuyButtons({
   quantityPicker = true,
 }: BuyButtonsProps) {
   const t = useT();
+  const locale = useLocale();
   const { formProps, pending, register, selectedVariant: storeVariant } = useProductForm();
   const selectedVariant = storeVariant ?? fallbackVariant;
   const isSelectionUnresolved = !storeVariant;
@@ -249,7 +251,7 @@ export function BuyButtons({
         )}
       >
         <span className="shrink-0 text-base font-semibold tabular-nums">
-          {formatPrice(selectedVariant.price)}
+          {formatPrice(selectedVariant.price, formatLocale(locale))}
         </span>
         <Button
           type="button"
@@ -293,6 +295,7 @@ export function PurchaseOptions({
   selectedPlan,
 }: PurchaseOptionsProps) {
   const t = useT();
+  const locale = useLocale();
   const purchaseOptionId = useId();
   if (plans.length === 0) return null;
 
@@ -324,7 +327,7 @@ export function PurchaseOptions({
           />
           <span className="flex flex-1 flex-wrap items-center justify-between gap-2.5 text-sm">
             <span>{option.name}</span>
-            <span className="tabular-nums">{formatPrice(option.price)}</span>
+            <span className="tabular-nums">{formatPrice(option.price, formatLocale(locale))}</span>
           </span>
         </label>
       ))}

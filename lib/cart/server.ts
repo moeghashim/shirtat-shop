@@ -10,9 +10,12 @@ import { cache } from "react";
 
 import { getHydrogenCustomerSession } from "@/lib/auth/request";
 import { getReadonlyCustomerSessionManager } from "@/lib/auth/server";
+import { CART_BUYER_COUNTRY_UPDATE, cartBuyerCountry } from "@/lib/cart/buyer";
 import { cartHandlers, createCustomerCartHandlers } from "@/lib/cart/request";
 import type { Cart, CartSeedData } from "@/lib/cart/types";
+import { commerceLocaleFromHeaders } from "@/lib/commerce/server";
 import { shopConfig } from "@/lib/config";
+import type { CommerceLocale } from "@/lib/config/types";
 import { createRequestStorefrontClient } from "@/lib/shopify/storefront/server";
 
 export async function getCartIdFromCookie(): Promise<string | undefined> {
@@ -20,20 +23,17 @@ export async function getCartIdFromCookie(): Promise<string | undefined> {
   return getCartId({ cookie }) ?? undefined;
 }
 
-const getRequestContext = cache(() => {
-  const i18n = {
-    country: shopConfig.localization.country,
-    language: shopConfig.localization.language,
-  };
+const getRequestContext = cache(async () => {
+  const locale = await commerceLocaleFromHeaders();
   // An empty request ID suppresses Hydrogen's synchronous UUID fallback.
   return createShopifyRequestContext({
-    i18n,
+    i18n: locale,
     request: { headers: new Headers({ "x-request-id": "" }) },
   });
 });
 
 async function getHandlerContext() {
-  const requestContext = getRequestContext();
+  const requestContext = await getRequestContext();
   const storefrontClient = createRequestStorefrontClient(requestContext);
   if (!shopConfig.auth.isEnabled) return { handlers: cartHandlers, storefrontClient };
 
@@ -49,11 +49,30 @@ async function getHandlerContext() {
   };
 }
 
+async function syncCartBuyerCountry(
+  cartId: string,
+  country: CommerceLocale["country"],
+  storefrontClient: ReturnType<typeof createRequestStorefrontClient>,
+) {
+  const { data, errors } = await storefrontClient.graphql(CART_BUYER_COUNTRY_UPDATE, {
+    variables: { buyerIdentity: { countryCode: country }, cartId },
+  });
+  if (errors?.length) throw new Error(errors[0].message);
+  const userErrors = data?.cartBuyerIdentityUpdate?.userErrors ?? [];
+  if (userErrors.length) throw new Error(userErrors.map((error) => error.message).join("; "));
+}
+
 async function getCartData(cartId: string | undefined): Promise<CartSeedData> {
-  const { handlers, ...context } = await getHandlerContext();
+  const { handlers, storefrontClient, ...context } = await getHandlerContext();
+  const locale = await commerceLocaleFromHeaders();
   const url = new URL("/api/cart", shopConfig.site.url);
   if (cartId) url.searchParams.set("cartId", cartId);
-  const { data } = await handlers.get({ ...context, request: new Request(url) } as never);
+  const request = new Request(url);
+  let { data } = await handlers.get({ ...context, request, storefrontClient } as never);
+  if (cartId && data.cart && cartBuyerCountry(data.cart) !== locale.country) {
+    await syncCartBuyerCountry(cartId, locale.country, storefrontClient);
+    data = (await handlers.get({ ...context, request, storefrontClient } as never)).data;
+  }
   return data;
 }
 
@@ -88,7 +107,7 @@ export async function createEmptyCart(
     variables: {
       input: {
         buyerIdentity: {
-          countryCode: shopConfig.localization.country,
+          countryCode: requestContext.i18n.country,
           ...(customerAccessToken ? { customerAccessToken } : {}),
         },
       },

@@ -1,13 +1,50 @@
+import { gql } from "@shopify/hydrogen";
 import { cacheLife, cacheTag } from "next/cache";
 
+import { shopConfig } from "@/lib/config";
 import type { CommerceLocale } from "@/lib/config/types";
 import { senatorSlots } from "@/lib/home/senator";
 import type { SenatorSlot } from "@/lib/home/senator";
 import { localizeProductTitle } from "@/lib/i18n/product";
 import { tagProducts } from "@/lib/product/server";
 import { fetchSenatorCampaignProducts } from "@/lib/shopify/operations/products/server";
+import { storefront } from "@/lib/shopify/storefront/server";
 
-const API_VERSION = "2025-01";
+const HOME_PRODUCTS_QUERY = gql(/* GraphQL */ `
+  query homeProducts($country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    products(first: 100, sortKey: CREATED_AT, reverse: true) {
+      nodes {
+        featuredImage {
+          altText
+          url
+        }
+        handle
+        media(first: 10) {
+          nodes {
+            ... on MediaImage {
+              image {
+                altText
+                height
+                url
+                width
+              }
+            }
+          }
+        }
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        productType
+        tags
+        title
+      }
+    }
+  }
+`);
 
 export interface HomeProduct {
   handle: string;
@@ -21,57 +58,36 @@ export interface HomeProduct {
 }
 
 /** Active products visible to the storefront, newest first (used for homepage tiles and spotlight). */
-export async function getHomeProducts(): Promise<HomeProduct[]> {
+export async function getHomeProducts(
+  locale: CommerceLocale = shopConfig.localization,
+): Promise<HomeProduct[]> {
   "use cache: remote";
   cacheLife("hours");
   cacheTag("products", "products-index");
 
-  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-  const token = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
-  if (!domain || !token) return [];
+  if (
+    !process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN ||
+    !process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN
+  ) {
+    return [];
+  }
   try {
-    const res = await fetch(`https://${domain}/api/${API_VERSION}/graphql.json`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Shopify-Storefront-Access-Token": token },
-      body: JSON.stringify({
-        query: `{ products(first: 100, sortKey: CREATED_AT, reverse: true) { nodes { handle title productType tags featuredImage { url altText } media(first: 10) { nodes { ... on MediaImage { image { url altText width height } } } } priceRange { minVariantPrice { amount currencyCode } } } } }`,
-      }),
-    });
-    if (!res.ok) return [];
-    const json = (await res.json()) as {
-      data?: {
-        products: {
-          nodes: {
-            featuredImage: { altText: string | null; url: string } | null;
-            handle: string;
-            media: {
-              nodes: {
-                image?: {
-                  altText: string | null;
-                  height: number | null;
-                  url: string;
-                  width: number | null;
-                };
-              }[];
-            };
-            priceRange: { minVariantPrice: { amount: string; currencyCode: string } };
-            productType: string;
-            tags: string[];
-            title: string;
-          }[];
-        };
-      };
-    };
-    return (json.data?.products.nodes ?? [])
-      .filter((p) => !p.tags.includes("example"))
-      .map((p) => ({
-        gallery: homeGallery(p.featuredImage, p.media.nodes),
-        handle: p.handle,
-        image: p.featuredImage,
-        price: p.priceRange.minVariantPrice,
-        productType: p.productType,
-        tags: p.tags,
-        title: p.title,
+    const { data } = await storefront.request(HOME_PRODUCTS_QUERY, { locale });
+    return (data?.products.nodes ?? [])
+      .filter((product) => !product.tags.includes("example"))
+      .map((product) => ({
+        gallery: homeGallery(
+          product.featuredImage,
+          product.media.nodes.flatMap((node) =>
+            "image" in node && node.image ? [{ image: node.image }] : [],
+          ),
+        ),
+        handle: product.handle,
+        image: product.featuredImage,
+        price: product.priceRange.minVariantPrice,
+        productType: product.productType,
+        tags: product.tags,
+        title: product.title,
       }));
   } catch {
     return [];

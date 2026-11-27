@@ -2,11 +2,14 @@ import { defineTool } from "eve/tools";
 import { z } from "zod";
 
 import { commitCartWrite, getSessionCartId, mutateCart } from "../lib/cart";
+import { shopperCommerce } from "../lib/market";
 
 export default defineTool({
   description:
     "Set the shopper's cart note only when asked. The note replaces any existing note, so read get-cart first and keep text the shopper wants to keep.",
   inputSchema: z.strictObject({ note: z.string().max(1000) }),
   execute: ({ note }, ctx) =>
-    commitCartWrite(ctx, "note", () => mutateCart(getSessionCartId(ctx), { note })),
+    commitCartWrite(ctx, "note", () =>
+      mutateCart(getSessionCartId(ctx), { note }, shopperCommerce(ctx)),
+    ),
 });

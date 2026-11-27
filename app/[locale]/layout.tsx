@@ -25,7 +25,7 @@ import { seedCartData } from "@/lib/cart/server";
 import { isShopifyScriptsEnabled, shopConfig } from "@/lib/config";
 import { locales, localeDir, translate } from "@/lib/i18n";
 import { LocaleProvider } from "@/lib/i18n/client";
-import { getLocale } from "@/lib/i18n/server";
+import { getCommerceCountry, getLocale } from "@/lib/i18n/server";
 import { ogLocale, siteOgImages } from "@/lib/seo";
 
 export const ensureStatic = "prefetch";
@@ -55,11 +55,12 @@ export const generateStaticParams = async () => locales.map((locale) => ({ local
 
 export default async function RootLayout({ children }: LayoutProps<"/[locale]">) {
   const locale = await getLocale();
+  const country = await getCommerceCountry();
   const t = (key: string) => translate(locale, key);
   // Un-awaited: the promise streams to the client provider; never block the shell on it.
   const cartData = seedCartData();
   return (
-    <html lang={locale} dir={localeDir(locale)}>
+    <html lang={locale} dir={localeDir(locale)} data-country={country}>
       <head>
         <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="" />
         {shopConfig.botid.isEnabled && <BotIdClient protect={botIdProtectedRoutes} />}

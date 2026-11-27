@@ -7,7 +7,9 @@ import { defineState } from "eve/context";
 import type { ToolContext } from "eve/tools";
 import { z } from "zod";
 
+import { CART_BUYER_COUNTRY_UPDATE, cartBuyerCountry } from "../../lib/cart/buyer";
 import { shopConfig } from "../../lib/config";
+import type { CommerceLocale } from "../../lib/config/types";
 import { CART_FRAGMENT } from "../../lib/shopify/fragments/cart";
 import { createRequestStorefrontClient } from "../../lib/shopify/storefront/server";
 
@@ -82,20 +84,44 @@ export function getSessionCartId(ctx: ToolContext) {
   return typeof cartId === "string" ? cartId : undefined;
 }
 
-export async function getCart(cartId: string | undefined) {
-  if (!cartId) return undefined;
+function cartRequestContext(locale: CommerceLocale, cartId: string) {
   const request = new Request(new URL("/api/cart", shopConfig.site.url), {
     headers: { cookie: createCartCookie(cartId).split(";")[0] },
   });
-  const requestContext = createShopifyRequestContext({ i18n: shopConfig.localization, request });
-  const storefrontClient = createRequestStorefrontClient(requestContext);
-  const { data } = await cartHandlers.get({ request, storefrontClient });
-  if (data.errors?.length) throw new Error(data.errors[0].message);
-  return data.cart ?? undefined;
+  const requestContext = createShopifyRequestContext({ i18n: locale, request });
+  return { request, storefrontClient: createRequestStorefrontClient(requestContext) };
 }
 
-export async function mutateCart(cartId: string | undefined, payload: object) {
+async function loadCart(cartId: string, locale: CommerceLocale) {
+  const context = cartRequestContext(locale, cartId);
+  let { data } = await cartHandlers.get(context);
+  if (data.errors?.length) throw new Error(data.errors[0].message);
+  if (data.cart && cartBuyerCountry(data.cart) !== locale.country) {
+    const { data: updated, errors } = await context.storefrontClient.graphql(
+      CART_BUYER_COUNTRY_UPDATE,
+      { variables: { buyerIdentity: { countryCode: locale.country }, cartId } },
+    );
+    if (errors?.length) throw new Error(errors[0].message);
+    const userErrors = updated?.cartBuyerIdentityUpdate?.userErrors ?? [];
+    if (userErrors.length) throw new Error(userErrors.map((error) => error.message).join("; "));
+    data = (await cartHandlers.get(context)).data;
+    if (data.errors?.length) throw new Error(data.errors[0].message);
+  }
+  return { cart: data.cart ?? undefined, context };
+}
+
+export async function getCart(cartId: string | undefined, locale: CommerceLocale) {
+  if (!cartId) return undefined;
+  return (await loadCart(cartId, locale)).cart;
+}
+
+export async function mutateCart(
+  cartId: string | undefined,
+  payload: object,
+  locale: CommerceLocale,
+) {
   if (!cartId) return { error: "Open the storefront to change your cart." };
+  const { context } = await loadCart(cartId, locale);
   const request = new Request(new URL("/api/cart", shopConfig.site.url), {
     body: JSON.stringify(payload),
     headers: {
@@ -104,11 +130,7 @@ export async function mutateCart(cartId: string | undefined, payload: object) {
     },
     method: "POST",
   });
-  const requestContext = createShopifyRequestContext({
-    i18n: shopConfig.localization,
-    request,
-  });
-  const storefrontClient = createRequestStorefrontClient(requestContext);
+  const storefrontClient = context.storefrontClient;
   try {
     const result = await cartHandlers.post({ request, storefrontClient });
     if (result.type !== "json") throw new Error("Cart mutation could not be confirmed.");
