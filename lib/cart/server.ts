@@ -10,12 +10,10 @@ import { cache } from "react";
 
 import { getHydrogenCustomerSession } from "@/lib/auth/request";
 import { getReadonlyCustomerSessionManager } from "@/lib/auth/server";
-import { CART_BUYER_COUNTRY_UPDATE, cartBuyerCountry } from "@/lib/cart/buyer";
 import { cartHandlers, createCustomerCartHandlers } from "@/lib/cart/request";
 import type { Cart, CartSeedData } from "@/lib/cart/types";
 import { commerceLocaleFromHeaders } from "@/lib/commerce/server";
 import { shopConfig } from "@/lib/config";
-import type { CommerceLocale } from "@/lib/config/types";
 import { createRequestStorefrontClient } from "@/lib/shopify/storefront/server";
 
 export async function getCartIdFromCookie(): Promise<string | undefined> {
@@ -49,30 +47,12 @@ async function getHandlerContext() {
   };
 }
 
-async function syncCartBuyerCountry(
-  cartId: string,
-  country: CommerceLocale["country"],
-  storefrontClient: ReturnType<typeof createRequestStorefrontClient>,
-) {
-  const { data, errors } = await storefrontClient.graphql(CART_BUYER_COUNTRY_UPDATE, {
-    variables: { buyerIdentity: { countryCode: country }, cartId },
-  });
-  if (errors?.length) throw new Error(errors[0].message);
-  const userErrors = data?.cartBuyerIdentityUpdate?.userErrors ?? [];
-  if (userErrors.length) throw new Error(userErrors.map((error) => error.message).join("; "));
-}
-
 async function getCartData(cartId: string | undefined): Promise<CartSeedData> {
   const { handlers, storefrontClient, ...context } = await getHandlerContext();
-  const locale = await commerceLocaleFromHeaders();
   const url = new URL("/api/cart", shopConfig.site.url);
   if (cartId) url.searchParams.set("cartId", cartId);
   const request = new Request(url);
-  let { data } = await handlers.get({ ...context, request, storefrontClient } as never);
-  if (cartId && data.cart && cartBuyerCountry(data.cart) !== locale.country) {
-    await syncCartBuyerCountry(cartId, locale.country, storefrontClient);
-    data = (await handlers.get({ ...context, request, storefrontClient } as never)).data;
-  }
+  const { data } = await handlers.get({ ...context, request, storefrontClient } as never);
   return data;
 }
 

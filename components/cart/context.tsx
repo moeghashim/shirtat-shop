@@ -6,10 +6,13 @@ import {
   type ReactNode,
   useCallback,
   useContext,
+  useEffect,
+  useRef,
   useState,
 } from "react";
 
-import { CartProvider } from "@/lib/cart/client";
+import { CartProvider, useCart, useCartActions } from "@/lib/cart/client";
+import { isSupportedCountry } from "@/lib/commerce";
 
 interface CartDrawerContextValue {
   isOverlayOpen: boolean;
@@ -44,7 +47,37 @@ interface CartProviderWrapperProps {
 export function CartProviderWrapper({ cartData, children }: CartProviderWrapperProps) {
   return (
     <CartProvider initialData={cartData}>
+      <CartCountrySync />
       <CartDrawerProvider>{children}</CartDrawerProvider>
     </CartProvider>
   );
+}
+
+function CartCountrySync() {
+  const cartId = useCart((state) => state.data?.id ?? null);
+  const buyerCountry = useCart((state) => state.data?.buyerIdentity?.countryCode ?? null);
+  const { refresh } = useCartActions();
+  const sent = useRef<string | null>(null);
+
+  useEffect(() => {
+    const country = document.documentElement.dataset.country;
+    if (!cartId || !country || !isSupportedCountry(country) || buyerCountry === country) return;
+    const key = `${cartId}:${country}`;
+    if (sent.current === key) return;
+    sent.current = key;
+    void fetch("/api/cart", {
+      body: JSON.stringify({ buyerCountry: true }),
+      headers: { "content-type": "application/json" },
+      method: "POST",
+    })
+      .then((response) => {
+        if (response.ok) refresh();
+        else sent.current = null;
+      })
+      .catch(() => {
+        sent.current = null;
+      });
+  }, [buyerCountry, cartId, refresh]);
+
+  return null;
 }

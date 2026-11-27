@@ -1,19 +1,12 @@
-import {
-  createCartCookie,
-  createCartServerHandlers,
-  createShopifyRequestContext,
-} from "@shopify/hydrogen";
+import { createCartCookie, createShopifyRequestContext } from "@shopify/hydrogen";
 import { defineState } from "eve/context";
 import type { ToolContext } from "eve/tools";
 import { z } from "zod";
 
-import { CART_BUYER_COUNTRY_UPDATE, cartBuyerCountry } from "../../lib/cart/buyer";
+import { cartHandlers } from "../../lib/cart/request";
 import { shopConfig } from "../../lib/config";
 import type { CommerceLocale } from "../../lib/config/types";
-import { CART_FRAGMENT } from "../../lib/shopify/fragments/cart";
 import { createRequestStorefrontClient } from "../../lib/shopify/storefront/server";
-
-const cartHandlers = createCartServerHandlers({ fragment: CART_FRAGMENT });
 
 export const CART_UNCONFIRMED =
   "Cart change could not be confirmed. Inspect the cart before requesting another change; it may already have succeeded.";
@@ -94,25 +87,34 @@ function cartRequestContext(locale: CommerceLocale, cartId: string) {
 
 async function loadCart(cartId: string, locale: CommerceLocale) {
   const context = cartRequestContext(locale, cartId);
-  let { data } = await cartHandlers.get(context);
+  const synced = await cartHandlers.post({
+    request: new Request(new URL("/api/cart", shopConfig.site.url), {
+      body: JSON.stringify({ buyerCountry: true }),
+      headers: {
+        "content-type": "application/json",
+        cookie: createCartCookie(cartId).split(";")[0],
+      },
+      method: "POST",
+    }),
+    storefrontClient: context.storefrontClient,
+  });
+  if (synced.type !== "json") throw new Error("Cart is unavailable.");
+  const data = z
+    .object({
+      cart: z.unknown().nullable(),
+      errors: z.array(z.object({ message: z.string() })).optional(),
+    })
+    .parse(synced.data);
   if (data.errors?.length) throw new Error(data.errors[0].message);
-  if (data.cart && cartBuyerCountry(data.cart) !== locale.country) {
-    const { data: updated, errors } = await context.storefrontClient.graphql(
-      CART_BUYER_COUNTRY_UPDATE,
-      { variables: { buyerIdentity: { countryCode: locale.country }, cartId } },
-    );
-    if (errors?.length) throw new Error(errors[0].message);
-    const userErrors = updated?.cartBuyerIdentityUpdate?.userErrors ?? [];
-    if (userErrors.length) throw new Error(userErrors.map((error) => error.message).join("; "));
-    data = (await cartHandlers.get(context)).data;
-    if (data.errors?.length) throw new Error(data.errors[0].message);
-  }
-  return { cart: data.cart ?? undefined, context };
+  return {
+    cart: data.cart as Awaited<ReturnType<typeof cartHandlers.get>>["data"]["cart"],
+    context,
+  };
 }
 
 export async function getCart(cartId: string | undefined, locale: CommerceLocale) {
   if (!cartId) return undefined;
-  return (await loadCart(cartId, locale)).cart;
+  return (await loadCart(cartId, locale)).cart ?? undefined;
 }
 
 export async function mutateCart(
